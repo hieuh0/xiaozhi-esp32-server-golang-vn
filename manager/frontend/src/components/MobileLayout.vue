@@ -9,7 +9,7 @@
         <van-icon name="user-o" class="user-entry-icon" @click="handleUserClick" />
       </template>
     </MobileNavBar>
-    
+
     <div class="mobile-content" :class="{ 'with-tabbar': showTabBar }">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -17,9 +17,9 @@
         </transition>
       </router-view>
     </div>
-    
+
     <MobileTabBar v-if="showTabBar" class="mobile-tabbar" />
-    
+
     <!-- 用户菜单弹出层 -->
     <van-popup
       v-model:show="showUserMenu"
@@ -37,7 +37,7 @@
         <van-cell-group inset>
           <van-cell title="更多功能" is-link @click="handleGoMore" />
           <van-cell v-if="!authStore.isAdmin" title="API Token" is-link @click="handleGoApiTokens" />
-          <van-cell v-if="authStore.isAdmin" title="配置向导" is-link @click="handleGoConfigWizard" />
+          <van-cell v-if="authStore.isAdmin" :title="t('config_wizard')" is-link @click="handleGoConfigWizard" />
           <van-cell title="退出登录" is-link @click="handleLogout" />
         </van-cell-group>
       </div>
@@ -53,6 +53,8 @@ import MobileNavBar from './MobileNavBar.vue'
 import MobileTabBar from './MobileTabBar.vue'
 import { useAuthStore } from '../stores/auth'
 import { isMobile } from '../utils/device'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const route = useRoute()
 const router = useRouter()
@@ -62,7 +64,7 @@ const showUserMenu = ref(false)
 
 // 页面标题
 const pageTitle = computed(() => {
-  return route.meta?.title || '小智管理系统'
+  return route.meta?.title || t('xiaozhi_management_system')
 })
 
 // 是否显示返回按钮（非首页且不在标签栏页面时显示）
@@ -81,12 +83,12 @@ const showTabBar = computed(() => {
     '/simple-login'
   ]
   const currentPath = route.path
-  
+
   // 详情页面不显示标签栏
   if (currentPath.includes('/edit') || currentPath.includes('/detail') || currentPath.includes('/history')) {
     return false
   }
-  
+
   return !hideTabBarPages.includes(currentPath)
 })
 
@@ -120,12 +122,12 @@ const handleGoConfigWizard = () => {
 const handleLogout = async () => {
   try {
     await showConfirmDialog({
-      title: '提示',
-      message: '确定要退出登录吗？'
+      title: t('hint'),
+      message: t('confirm_logout')
     })
-    
+
     authStore.logout()
-    showSuccessToast('已退出登录')
+    showSuccessToast(t('logged_out'))
     router.push('/login')
     showUserMenu.value = false
   } catch {

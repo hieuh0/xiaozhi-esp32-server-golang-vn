@@ -3,14 +3,14 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>资源池统计</span>
+          <span>{{ t('resource_pool_stats') }}资源池统计</span>
           <div class="header-actions">
             <el-button type="primary" size="small" @click="refreshStats">
               <el-icon><Refresh /></el-icon>
-              刷新
+              {{ t('refresh') }}  刷新
             </el-button>
             <el-select v-model="viewType" size="small" style="width: 120px; margin-left: 10px;" disabled>
-              <el-option label="最新数据" value="latest" />
+              <el-option :label="t('latest_data')" value="latest" />
             </el-select>
           </div>
         </div>
@@ -73,6 +73,8 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import api from '@/utils/api'
 import { ElMessage } from 'element-plus'
 import { Refresh } from '@element-plus/icons-vue'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const viewType = ref('latest')
 const latestStats = ref(null)
@@ -123,7 +125,7 @@ const loadStats = async () => {
     console.log('解析后的最新数据:', latestStats.value)
   } catch (error) {
     console.error('加载统计数据失败:', error)
-    ElMessage.error('加载统计数据失败')
+    ElMessage.error(t('load_stats_failed'))
   }
 }
 
@@ -131,7 +133,7 @@ const loadStats = async () => {
 const refreshStats = () => {
   loadSummary()
   loadStats()
-  ElMessage.success('刷新成功')
+  ElMessage.success(t('refresh_success'))
 }
 
 // 格式化统计数据

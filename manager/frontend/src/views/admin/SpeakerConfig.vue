@@ -2,7 +2,7 @@
   <div class="config-page">
     <el-card v-loading="loading" class="config-card">
       <el-alert
-        title="提示"
+        :title="t('hint')"
         type="info"
         :closable="false"
         show-icon
@@ -66,6 +66,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { InfoFilled } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -80,20 +82,20 @@ const form = reactive({
 
 const rules = {
   base_url: [
-    { required: true, message: '请输入服务地址', trigger: 'blur' },
+    { required: true, message: t('enter_service_address'), trigger: 'blur' },
     { 
       pattern: /^https?:\/\/.+/, 
-      message: '请输入有效的HTTP地址，如：http://192.168.208.214:8080', 
+      message: t('enter_valid_http_address'), 
       trigger: 'blur' 
     }
   ],
   threshold: [
-    { required: true, message: '请输入识别阈值', trigger: 'blur' },
+    { required: true, message: t('enter_recognition_threshold'), trigger: 'blur' },
     { 
       type: 'number', 
       min: 0, 
       max: 1, 
-      message: '阈值必须在 0.0 到 1.0 之间', 
+      message: t('threshold_0_to_1_decimal'), 
       trigger: 'blur' 
     }
   ]
@@ -131,7 +133,7 @@ const loadConfig = async () => {
       form.enabled = configObj.enable !== undefined ? configObj.enable : true
     }
   } catch (error) {
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('load_config_failed'))
   } finally {
     loading.value = false
   }
@@ -154,7 +156,7 @@ const handleSave = async () => {
         }
         
         const saveData = {
-          name: '声纹识别配置',
+          name: t('voiceprint_recognition_config'),
           config_id: 'asr_server',
           provider: 'asr_server',
           is_default: true,
@@ -165,11 +167,11 @@ const handleSave = async () => {
         if (currentConfig.value) {
           // 更新现有配置
           await api.put(`/admin/speaker-configs/${currentConfig.value.id}`, saveData)
-          ElMessage.success('配置更新成功')
+          ElMessage.success(t('config_update_success'))
         } else {
           // 创建新配置
           await api.post('/admin/speaker-configs', saveData)
-          ElMessage.success('配置创建成功')
+          ElMessage.success(t('config_create_success'))
         }
         
         // 重新加载配置

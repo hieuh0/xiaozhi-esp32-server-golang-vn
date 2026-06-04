@@ -7,10 +7,10 @@
     :label-width="labelWidth"
     class="shared-device-form"
   >
-    <el-form-item v-if="isAdmin" label="所属用户" prop="user_id">
+    <el-form-item v-if="isAdmin" :label="t('owner_user')" prop="user_id">
       <el-select
         v-model="form.user_id"
-        placeholder="请选择所属用户"
+        :placeholder="t('select_owner_user')"
         filterable
         style="width: 100%"
         :loading="loading.users"
@@ -24,8 +24,8 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item v-if="isBindMode && !hasFixedAgent" label="目标智能体" prop="agent_id">
-      <el-select v-model="form.agent_id" placeholder="请选择要绑定的智能体" filterable style="width: 100%">
+    <el-form-item v-if="isBindMode && !hasFixedAgent" :label="t('target_agent')" prop="agent_id">
+      <el-select v-model="form.agent_id" :placeholder="t('select_agent_to_bind')" filterable style="width: 100%">
         <el-option
           v-for="agent in displayAgents"
           :key="agent.id"
@@ -35,24 +35,24 @@
       </el-select>
     </el-form-item>
 
-    <el-form-item v-if="isBindMode" label="设备验证码或 MAC" prop="identifier">
+    <el-form-item v-if="isBindMode" :label="t('device_verify_code_mac')" prop="identifier">
       <el-input
         v-model="form.identifier"
-        placeholder="请输入 6 位验证码或设备 MAC"
+        :placeholder="t('enter_6digit_or_mac')"
         clearable
         autocomplete="off"
       />
       <div class="form-hint">
-        <span>示例：</span>
+        <span>{{ t('example') }}</span>
         <code>123456</code>
         <code>28:0A:C6:1D:3B:E8</code>
       </div>
     </el-form-item>
 
-    <el-form-item label="设备昵称" prop="nick_name">
+    <el-form-item :label="t('device_nickname')" prop="nick_name">
       <el-input
         v-model="form.nick_name"
-        placeholder="例如：客厅音箱、办公室小智"
+        :placeholder="t('device_name_example')"
         maxlength="50"
         show-word-limit
         clearable
@@ -61,33 +61,33 @@
 
     <template v-if="!isBindMode">
       <div class="device-form-grid">
-        <el-form-item label="设备标识" prop="device_name">
+        <el-form-item :label="t('device_identifier')" prop="device_name">
           <el-input
             v-model="form.device_name"
-            placeholder="设备端上报的 Device-ID / MAC"
+            :placeholder="t('device_mac_reported')"
             clearable
           />
         </el-form-item>
-        <el-form-item label="激活码" prop="device_code">
-          <el-input v-model="form.device_code" placeholder="设备激活码" clearable />
+        <el-form-item :label="t('activation_code')" prop="device_code">
+          <el-input v-model="form.device_code" :placeholder="t('device_activation_code')" clearable />
         </el-form-item>
       </div>
 
       <div class="device-form-grid">
-        <el-form-item v-if="isAdmin" label="激活状态" prop="activated">
+        <el-form-item v-if="isAdmin" :label="t('activation_status')" prop="activated">
           <el-switch v-model="form.activated" />
         </el-form-item>
-        <el-form-item label="关联智能体" prop="agent_id">
+        <el-form-item :label="t('link_agent')" prop="agent_id">
           <el-select
             v-model="form.agent_id"
-            placeholder="请选择智能体"
+            :placeholder="t('select_agent')"
             style="width: 100%"
             clearable
             filterable
             :disabled="isAdmin && !form.user_id"
             :loading="loading.agents"
           >
-            <el-option label="不关联智能体" :value="0" />
+            <el-option :label="t('no_agent_linked')" :value="0" />
             <el-option
               v-for="agent in displayAgents"
               :key="agent.id"
@@ -107,6 +107,9 @@ import {
   buildDevicePayload,
   useAgentFormOptions
 } from '../../composables/useAgentFormOptions'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const props = defineProps({
   modelValue: {
@@ -213,12 +216,12 @@ const validateDeviceIdentity = (_, value, callback) => {
 }
 
 const rules = computed(() => ({
-  user_id: props.isAdmin ? [{ required: true, message: '请选择所属用户', trigger: 'change' }] : [],
+  user_id: props.isAdmin ? [{ required: true, message: t('select_owner_user'), trigger: 'change' }] : [],
   agent_id: isBindMode.value && !hasFixedAgent.value
-    ? [{ required: true, message: '请选择目标智能体', trigger: 'change' }]
+    ? [{ required: true, message: t('select_target_agent'), trigger: 'change' }]
     : [],
   identifier: [{ validator: validateIdentifier, trigger: 'blur' }],
-  nick_name: [{ max: 50, message: '设备昵称最多 50 个字符', trigger: 'blur' }],
+  nick_name: [{ max: 50, message: t('device_nickname_max_length'), trigger: 'blur' }],
   device_name: [{ validator: validateDeviceIdentity, trigger: 'blur' }],
   device_code: [{ validator: validateDeviceIdentity, trigger: 'blur' }]
 }))

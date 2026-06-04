@@ -1,29 +1,29 @@
 <template>
   <el-form ref="formRef" :model="model" :rules="rules" label-width="120px">
-    <el-form-item label="提供商" prop="provider">
-      <el-select v-model="model.provider" placeholder="请选择提供商" style="width: 100%">
+    <el-form-item :label="t('provider')" prop="provider">
+      <el-select v-model="model.provider" :placeholder="t('select_provider')" style="width: 100%">
         <el-option label="TEN VAD" value="ten_vad" />
         <el-option label="Silero VAD" value="silero_vad" />
       </el-select>
     </el-form-item>
-    <el-form-item label="配置名称" prop="name">
-      <el-input v-model="model.name" placeholder="请输入配置名称" />
+    <el-form-item :label="t('config_name')" prop="name">
+      <el-input v-model="model.name" :placeholder="t('enter_config_name')" />
     </el-form-item>
-    <el-form-item label="配置ID" prop="config_id">
-      <el-input v-model="model.config_id" placeholder="请输入唯一的配置ID" />
+    <el-form-item :label="t('config_id')" prop="config_id">
+      <el-input v-model="model.config_id" :placeholder="t('enter_unique_config_id')" />
     </el-form-item>
     <template v-if="model.provider === 'webrtc_vad'">
-      <el-divider content-position="left">WebRTC VAD 配置</el-divider>
-      <el-form-item label="最小连接池大小" prop="webrtc_vad.pool_min_size">
+      <el-divider content-position="left">{{ t('webrtc_vad_config') }}</el-divider>
+      <el-form-item :label="t('min_pool_size')" prop="webrtc_vad.pool_min_size">
         <el-input-number v-model="model.webrtc_vad.pool_min_size" :min="1" :max="1000" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="最大连接池大小" prop="webrtc_vad.pool_max_size">
+      <el-form-item :label="t('max_pool_size')" prop="webrtc_vad.pool_max_size">
         <el-input-number v-model="model.webrtc_vad.pool_max_size" :min="1" :max="10000" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="最大空闲连接数" prop="webrtc_vad.pool_max_idle">
+      <el-form-item :label="t('max_idle_connections')" prop="webrtc_vad.pool_max_idle">
         <el-input-number v-model="model.webrtc_vad.pool_max_idle" :min="1" :max="1000" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="VAD采样率" prop="webrtc_vad.vad_sample_rate">
+      <el-form-item :label="t('vad_sample_rate')" prop="webrtc_vad.vad_sample_rate">
         <el-select v-model="model.webrtc_vad.vad_sample_rate" style="width: 100%">
           <el-option label="8000 Hz" :value="8000" />
           <el-option label="16000 Hz" :value="16000" />
@@ -31,12 +31,12 @@
           <el-option label="48000 Hz" :value="48000" />
         </el-select>
       </el-form-item>
-      <el-form-item label="VAD模式" prop="webrtc_vad.vad_mode">
+      <el-form-item :label="t('vad_mode')" prop="webrtc_vad.vad_mode">
         <el-select v-model="model.webrtc_vad.vad_mode" style="width: 100%">
-          <el-option label="模式0 (质量优先)" :value="0" />
-          <el-option label="模式1 (低延迟)" :value="1" />
-          <el-option label="模式2 (平衡)" :value="2" />
-          <el-option label="模式3 (高精度)" :value="3" />
+          <el-option :label="t('mode_quality_priority')" :value="0" />
+          <el-option :label="t('mode_low_latency')" :value="1" />
+          <el-option :label="t('mode_balanced')" :value="2" />
+          <el-option :label="t('mode_high_accuracy')" :value="3" />
         </el-select>
       </el-form-item>
     </template>
@@ -51,7 +51,7 @@
       <el-form-item label="最小静音持续时间(ms)" prop="silero_vad.min_silence_duration_ms">
         <el-input-number v-model="model.silero_vad.min_silence_duration_ms" :min="10" :max="5000" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="采样率" prop="silero_vad.sample_rate">
+      <el-form-item :label="t('sample_rate')" prop="silero_vad.sample_rate">
         <el-select v-model="model.silero_vad.sample_rate" style="width: 100%">
           <el-option label="8000 Hz" :value="8000" />
           <el-option label="16000 Hz" :value="16000" />
@@ -95,6 +95,9 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useLocale } from '../../../composables/useLocale'
+
+const { t } = useLocale()
 
 const props = defineProps({
   model: { type: Object, required: true },

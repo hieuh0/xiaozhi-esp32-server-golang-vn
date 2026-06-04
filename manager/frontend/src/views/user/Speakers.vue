@@ -4,12 +4,12 @@
     <div class="filter-bar">
       <el-select
         v-model="filterAgentId"
-        placeholder="按智能体筛选"
+        :placeholder="t('filter_by_agent')"
         clearable
         style="width: 200px; margin-right: 10px;"
         @change="loadSpeakerGroups"
       >
-        <el-option label="全部智能体" value="" />
+        <el-option :label="t('all_agents')" value="" />
         <el-option
           v-for="agent in agents"
           :key="agent.id"
@@ -19,7 +19,7 @@
       </el-select>
       <el-input
         v-model="searchKeyword"
-        placeholder="搜索声纹组名称"
+        :placeholder="t('search_voiceprint_group')"
         clearable
         style="width: 250px;"
         @input="handleSearch"
@@ -709,6 +709,8 @@ import {
   VideoPause
 } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const submitting = ref(false)
@@ -747,7 +749,7 @@ const verifyRules = {
     {
       validator: (rule, value, callback) => {
         if (!verifyForm.audioFile && !verifyRecordedBlob.value) {
-          callback(new Error('请上传或录制音频文件'))
+          callback(new Error(t('upload_or_record_audio')))
         } else {
           callback()
         }
@@ -794,11 +796,11 @@ const groupForm = reactive({
 
 const groupRules = {
   agent_id: [
-    { required: true, message: '请选择关联智能体', trigger: 'change' }
+    { required: true, message: t('select_linked_agent'), trigger: 'change' }
   ],
   name: [
-    { required: true, message: '请输入声纹名称', trigger: 'blur' },
-    { min: 1, max: 100, message: '长度在 1 到 100 个字符', trigger: 'blur' }
+    { required: true, message: t('enter_voiceprint_name'), trigger: 'blur' },
+    { min: 1, max: 100, message: t('length_1_to_100'), trigger: 'blur' }
   ]
 }
 
@@ -819,7 +821,7 @@ const uploadRules = {
     { 
       validator: (rule, value, callback) => {
         if (!uploadForm.audioFile && !recordedBlob.value) {
-          callback(new Error('请上传或录制音频文件'))
+          callback(new Error(t('upload_or_record_audio')))
         } else {
           callback()
         }
@@ -874,7 +876,7 @@ const loadAgents = async () => {
     agents.value = response.data.data || []
   } catch (error) {
     console.error('加载智能体列表失败:', error)
-    ElMessage.error('加载智能体列表失败')
+    ElMessage.error(t('load_agent_list_failed'))
   }
 }
 
@@ -885,7 +887,7 @@ const loadTtsConfigs = async () => {
     ttsConfigs.value = response.data.data || []
   } catch (error) {
     console.error('加载TTS配置失败:', error)
-    ElMessage.error('加载TTS配置失败')
+    ElMessage.error(t('load_tts_config_failed'))
   }
 }
 
@@ -963,7 +965,7 @@ const handleTtsConfigChange = async (configId) => {
   } catch (error) {
     console.error('加载音色列表失败:', error)
     currentVoiceOptions.value = []
-    ElMessage.warning('加载音色列表失败，请稍后重试')
+    ElMessage.warning(t('load_voice_list_failed'))
   }
 }
 
@@ -1103,7 +1105,7 @@ const loadSpeakerGroups = async () => {
     const response = await api.get('/user/speaker-groups', { params })
     speakerGroups.value = response.data.data || []
   } catch (error) {
-    console.error('加载声纹组列表失败:', error)
+    console.error(t('load_voiceprint_group_failed'), error)
     ElMessage.error('加载声纹组列表失败: ' + (error.response?.data?.error || error.message))
   } finally {
     loading.value = false
@@ -1153,12 +1155,12 @@ const handleSubmitGroup = async () => {
 
     if (groupDialogMode.value === 'add') {
       const response = await api.post('/user/speaker-groups', groupForm)
-      ElMessage.success('创建成功')
+      ElMessage.success(t('create_success'))
       showGroupDialog.value = false
       await loadSpeakerGroups()
     } else {
       const response = await api.put(`/user/speaker-groups/${currentGroup.value.id}`, groupForm)
-      ElMessage.success('更新成功')
+      ElMessage.success(t('update_success'))
       showGroupDialog.value = false
       await loadSpeakerGroups()
     }
@@ -1201,7 +1203,7 @@ const handleVerifyGroup = async (group) => {
     console.warn('浏览器不支持录音:', error)
     canRecord.value = false
     if (verifyMode.value === 'record') {
-      ElMessage.warning('您的浏览器不支持录音功能，请使用上传文件方式')
+      ElMessage.warning(t('browser_no_recording'))
       verifyMode.value = 'upload'
     }
   }
@@ -1243,7 +1245,7 @@ const handleVerifyFileChange = async (file, fileList) => {
   
   const fileObj = file.raw || file
   if (!fileObj) {
-    ElMessage.warning('文件对象无效')
+    ElMessage.warning(t('invalid_file_object'))
     verifyUploadRef.value?.clearFiles()
     verifyForm.audioFile = null
     verifyFileList.value = []
@@ -1254,7 +1256,7 @@ const handleVerifyFileChange = async (file, fileList) => {
   const fileName = fileObj.name || file.name || ''
   const fileType = fileObj.type || file.type || ''
   if (!fileType.includes('wav') && !fileName.toLowerCase().endsWith('.wav')) {
-    ElMessage.warning('只能上传 WAV 格式的音频文件')
+    ElMessage.warning(t('wav_only_upload'))
     verifyUploadRef.value?.clearFiles()
     verifyForm.audioFile = null
     verifyFileList.value = []
@@ -1264,7 +1266,7 @@ const handleVerifyFileChange = async (file, fileList) => {
   // 验证文件大小（10MB）
   const fileSize = fileObj.size || file.size || 0
   if (fileSize > 10 * 1024 * 1024) {
-    ElMessage.warning('文件大小不能超过 10MB')
+    ElMessage.warning(t('file_size_limit'))
     verifyUploadRef.value?.clearFiles()
     verifyForm.audioFile = null
     verifyFileList.value = []
@@ -1362,7 +1364,7 @@ const startVerifyRecording = async () => {
         }
       } catch (error) {
         console.error('处理录音数据失败:', error)
-        ElMessage.error('处理录音数据失败，请重试')
+        ElMessage.error(t('process_recording_failed'))
         verifyRecordedBlob.value = null
         verifyRecordedBlobUrl.value = ''
         verifyForm.audioFile = null
@@ -1381,9 +1383,9 @@ const startVerifyRecording = async () => {
       verifyRecordTime.value += 0.1
     }, 100)
 
-    ElMessage.success('开始录制')
+    ElMessage.success(t('start_recording'))
   } catch (error) {
-    console.error('录音失败:', error)
+    console.error(t('recording_failed'), error)
     ElMessage.error('录音失败: ' + error.message)
     canRecord.value = false
   }
@@ -1401,7 +1403,7 @@ const stopVerifyRecording = () => {
     verifyRecordTimer.value = null
   }
 
-  ElMessage.success('录制完成')
+  ElMessage.success(t('recording_complete'))
 }
 
 // 提交验证
@@ -1412,7 +1414,7 @@ const handleSubmitVerify = async () => {
     await verifyFormRef.value.validate()
 
     if (!verifyForm.audioFile && !verifyRecordedBlob.value) {
-      ElMessage.warning('请上传或录制音频文件')
+      ElMessage.warning(t('upload_or_record_audio'))
       return
     }
 
@@ -1428,7 +1430,7 @@ const handleSubmitVerify = async () => {
       const fileName = `verify_recording_${Date.now()}.wav`
       file = new File([verifyRecordedBlob.value], fileName, { type: 'audio/wav' })
     } else {
-      ElMessage.warning('请上传或录制音频文件')
+      ElMessage.warning(t('upload_or_record_audio'))
       return
     }
 
@@ -1446,18 +1448,18 @@ const handleSubmitVerify = async () => {
       }
       
       if (verifyResult.value.verified) {
-        ElMessage.success('验证通过！')
+        ElMessage.success(t('verify_passed'))
       } else {
-        ElMessage.warning('验证未通过')
+        ElMessage.warning(t('verify_not_passed'))
       }
     } else {
-      ElMessage.error('验证失败')
+      ElMessage.error(t('verify_failed'))
     }
   } catch (error) {
     if (error.fields) {
       return
     }
-    console.error('验证失败:', error)
+    console.error(t('verify_failed_colon'), error)
     ElMessage.error('验证失败: ' + (error.response?.data?.error || error.message))
   } finally {
     verifying.value = false
@@ -1501,19 +1503,19 @@ const handleDeleteGroup = async (group) => {
       `确定要删除声纹组"${group.name}"吗？此操作将删除该组下的所有样本，且不可恢复。`,
       '确认删除',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
 
     loading.value = true
     await api.delete(`/user/speaker-groups/${group.id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadSpeakerGroups()
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+      console.error(t('delete_failed_colon'), error)
       ElMessage.error('删除失败: ' + (error.response?.data?.error || error.message))
     }
   } finally {
@@ -1543,7 +1545,7 @@ const loadSamples = async (groupId) => {
     samples.value = response.data.data || []
   } catch (error) {
     console.error('加载样本列表失败:', error)
-    ElMessage.error('加载样本列表失败')
+    ElMessage.error(t('load_sample_list_failed'))
   }
 }
 
@@ -1580,7 +1582,7 @@ const handleAddSample = async () => {
     console.warn('浏览器不支持录音:', error)
     canRecord.value = false
     if (uploadMode.value === 'record') {
-      ElMessage.warning('您的浏览器不支持录音功能，请使用上传文件方式')
+      ElMessage.warning(t('browser_no_recording'))
       uploadMode.value = 'upload'
     }
   }
@@ -1599,7 +1601,7 @@ const handleCloseUploadDialog = () => {
 const handleFileChange = (file) => {
   const fileObj = file.raw || file
   if (!fileObj) {
-    ElMessage.warning('文件对象无效')
+    ElMessage.warning(t('invalid_file_object'))
     uploadRef.value?.clearFiles()
     uploadForm.audioFile = null
       return
@@ -1609,7 +1611,7 @@ const handleFileChange = (file) => {
   const fileName = fileObj.name || file.name || ''
   const fileType = fileObj.type || file.type || ''
   if (!fileType.includes('wav') && !fileName.toLowerCase().endsWith('.wav')) {
-    ElMessage.warning('只能上传 WAV 格式的音频文件')
+    ElMessage.warning(t('wav_only_upload'))
     uploadRef.value?.clearFiles()
     uploadForm.audioFile = null
     return
@@ -1618,7 +1620,7 @@ const handleFileChange = (file) => {
   // 验证文件大小（10MB）
   const fileSize = fileObj.size || file.size || 0
   if (fileSize > 10 * 1024 * 1024) {
-    ElMessage.warning('文件大小不能超过 10MB')
+    ElMessage.warning(t('file_size_limit'))
     uploadRef.value?.clearFiles()
     uploadForm.audioFile = null
     return
@@ -1709,7 +1711,7 @@ const startRecording = async () => {
         }
       } catch (error) {
         console.error('处理录音数据失败:', error)
-        ElMessage.error('处理录音数据失败，请重试')
+        ElMessage.error(t('process_recording_failed'))
         recordedBlob.value = null
         recordedBlobUrl.value = ''
         uploadForm.audioFile = null
@@ -1728,9 +1730,9 @@ const startRecording = async () => {
       recordTime.value += 0.1
     }, 100)
 
-    ElMessage.success('开始录制')
+    ElMessage.success(t('start_recording'))
   } catch (error) {
-    console.error('录音失败:', error)
+    console.error(t('recording_failed'), error)
     ElMessage.error('录音失败: ' + error.message)
     canRecord.value = false
   }
@@ -1748,7 +1750,7 @@ const stopRecording = () => {
     recordTimer.value = null
   }
 
-  ElMessage.success('录制完成')
+  ElMessage.success(t('recording_complete'))
 }
 
 // 将音频转换为 WAV 格式
@@ -1853,7 +1855,7 @@ const loadHistoryMessages = async () => {
     // 只显示有音频的消息
     historyMessages.value = (response.data.data || []).filter(msg => msg.audio_path)
   } catch (error) {
-    console.error('加载历史聊天记录失败:', error)
+    console.error(t('load_chat_history_failed'), error)
     ElMessage.error('加载历史聊天记录失败: ' + (error.response?.data?.error || error.message))
     historyMessages.value = []
   } finally {
@@ -1878,15 +1880,15 @@ const handlePreviewHistoryAudio = async (message) => {
     
     audioPlayer.value.src = blobUrl
     audioPlayer.value.play().catch(err => {
-      console.error('播放失败:', err)
-      ElMessage.warning('播放失败，请检查音频文件')
+      console.error(t('play_failed_colon'), err)
+      ElMessage.warning(t('play_failed_check_audio'))
     })
     
     audioPlayer.value.onended = () => {
       URL.revokeObjectURL(blobUrl)
     }
   } catch (error) {
-    console.error('试听失败:', error)
+    console.error(t('preview_failed'), error)
     ElMessage.error('试听失败: ' + (error.response?.data?.error || error.message))
   }
 }
@@ -1896,7 +1898,7 @@ const handleSubmitSample = async () => {
   if (uploadMode.value === 'history') {
     // 从历史记录中选择
     if (!historyForm.selected_message_id) {
-      ElMessage.warning('请选择一条历史聊天记录')
+      ElMessage.warning(t('select_chat_history'))
       return
     }
 
@@ -1906,12 +1908,12 @@ const handleSubmitSample = async () => {
       formData.append('message_id', historyForm.selected_message_id)
 
       await api.post(`/user/speaker-groups/${currentGroup.value.id}/samples`, formData)
-      ElMessage.success('添加成功')
+      ElMessage.success(t('add_success'))
       handleCloseUploadDialog()
       await loadSamples(currentGroup.value.id)
       await loadSpeakerGroups() // 刷新列表以更新样本数量
     } catch (error) {
-      console.error('添加失败:', error)
+      console.error(t('add_failed'), error)
       ElMessage.error('添加失败: ' + (error.response?.data?.error || error.message))
     } finally {
       submitting.value = false
@@ -1926,7 +1928,7 @@ const handleSubmitSample = async () => {
     await uploadFormRef.value.validate()
 
     if (!uploadForm.audioFile && !recordedBlob.value) {
-      ElMessage.warning('请上传或录制音频文件')
+      ElMessage.warning(t('upload_or_record_audio'))
       return
     }
 
@@ -1941,7 +1943,7 @@ const handleSubmitSample = async () => {
       const fileName = `recording_${Date.now()}.wav`
       file = new File([recordedBlob.value], fileName, { type: 'audio/wav' })
     } else {
-      ElMessage.warning('请上传或录制音频文件')
+      ElMessage.warning(t('upload_or_record_audio'))
       return
     }
 
@@ -1949,7 +1951,7 @@ const handleSubmitSample = async () => {
     formData.append('audio', file)
 
     await api.post(`/user/speaker-groups/${currentGroup.value.id}/samples`, formData)
-    ElMessage.success('上传成功')
+    ElMessage.success(t('upload_success'))
     handleCloseUploadDialog()
     await loadSamples(currentGroup.value.id)
     await loadSpeakerGroups() // 刷新列表以更新样本数量
@@ -1957,7 +1959,7 @@ const handleSubmitSample = async () => {
     if (error.fields) {
       return
     }
-    console.error('上传失败:', error)
+    console.error(t('upload_failed'), error)
     ElMessage.error('上传失败: ' + (error.response?.data?.error || error.message))
   } finally {
     submitting.value = false
@@ -1982,8 +1984,8 @@ const handlePlaySample = async (sample) => {
     
     audioPlayer.value.src = blobUrl
     audioPlayer.value.play().catch(err => {
-      console.error('播放失败:', err)
-      ElMessage.warning('播放失败，请检查音频文件')
+      console.error(t('play_failed_colon'), err)
+      ElMessage.warning(t('play_failed_check_audio'))
     })
     
     // 播放结束后清理 blob URL
@@ -1991,7 +1993,7 @@ const handlePlaySample = async (sample) => {
       URL.revokeObjectURL(blobUrl)
     }
   } catch (error) {
-    console.error('播放失败:', error)
+    console.error(t('play_failed_colon'), error)
     ElMessage.error('播放失败: ' + (error.response?.data?.error || error.message))
   }
 }
@@ -2022,7 +2024,7 @@ const handleDownloadSample = async (sample) => {
       URL.revokeObjectURL(blobUrl)
     }, 100)
   } catch (error) {
-    console.error('下载失败:', error)
+    console.error(t('download_failed'), error)
     ElMessage.error('下载失败: ' + (error.response?.data?.error || error.message))
   }
 }
@@ -2034,19 +2036,19 @@ const handleDeleteSample = async (sample) => {
       `确定要删除样本"${sample.file_name}"吗？此操作不可恢复。`,
       '确认删除',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
 
     await api.delete(`/user/speaker-groups/${currentGroup.value.id}/samples/${sample.id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadSamples(currentGroup.value.id)
     await loadSpeakerGroups() // 刷新列表以更新样本数量
   } catch (error) {
     if (error !== 'cancel') {
-      console.error('删除失败:', error)
+      console.error(t('delete_failed_colon'), error)
       ElMessage.error('删除失败: ' + (error.response?.data?.error || error.message))
     }
   }
@@ -2056,10 +2058,10 @@ const handleDeleteSample = async (sample) => {
 const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text)
-    ElMessage.success('已复制到剪贴板')
+    ElMessage.success(t('copied_to_clipboard'))
   } catch (error) {
     console.error('复制失败:', error)
-    ElMessage.error('复制失败')
+    ElMessage.error(t('copy_failed'))
   }
 }
 

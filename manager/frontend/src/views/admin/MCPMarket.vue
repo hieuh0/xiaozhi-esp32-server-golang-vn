@@ -3,7 +3,7 @@
     <el-tabs v-model="activeTab" class="market-tabs">
       <el-tab-pane name="discover">
         <template #label>
-          <span>市场发现</span>
+          <span>{{ t('market_discovery') }}市场发现</span>
         </template>
 
         <el-row :gutter="16">
@@ -386,6 +386,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Refresh, Search, MoreFilled } from '@element-plus/icons-vue'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const activeTab = ref('discover')
 
@@ -411,8 +413,8 @@ const marketForm = reactive({
 })
 
 const marketRules = {
-  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  catalog_url: [{ required: true, message: '请输入目录URL', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_name'), trigger: 'blur' }],
+  catalog_url: [{ required: true, message: t('enter_directory_url'), trigger: 'blur' }]
 }
 
 const selectableProviderOptions = computed(() => {
@@ -467,9 +469,9 @@ const importedForm = reactive({
 })
 
 const importedRules = {
-  name: [{ required: true, message: '请输入名称', trigger: 'blur' }],
-  transport: [{ required: true, message: '请选择传输类型', trigger: 'change' }],
-  url: [{ required: true, message: '请输入URL', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_name'), trigger: 'blur' }],
+  transport: [{ required: true, message: t('select_transport_type'), trigger: 'change' }],
+  url: [{ required: true, message: t('enter_url'), trigger: 'blur' }]
 }
 
 const toolDialogTitle = computed(() => {
@@ -617,16 +619,16 @@ const saveMarket = async () => {
   try {
     if (editingMarket.value) {
       await api.put(`/admin/mcp-markets/${editingMarket.value.id}`, payload)
-      ElMessage.success('更新成功')
+      ElMessage.success(t('update_success'))
     } else {
       await api.post('/admin/mcp-markets', payload)
-      ElMessage.success('创建成功')
+      ElMessage.success(t('create_success'))
     }
     marketDialogVisible.value = false
     await loadMarkets()
     await loadServices(1)
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '保存失败')
+    ElMessage.error(error.response?.data?.error || t('save_failed'))
   } finally {
     marketSaving.value = false
   }
@@ -634,18 +636,18 @@ const saveMarket = async () => {
 
 const deleteMarket = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除MCP市场「${row.name}」？`, '提示', {
+    await ElMessageBox.confirm(`确认删除MCP市场「${row.name}」？`, t('hint'), {
       type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消'
+      confirmButtonText: t('delete'),
+      cancelButtonText: t('cancel')
     })
     await api.delete(`/admin/mcp-markets/${row.id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadMarkets()
     await loadServices(1)
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.error || '删除失败')
+      ElMessage.error(error.response?.data?.error || t('delete_failed'))
     }
   }
 }
@@ -699,7 +701,7 @@ const loadServiceDetail = async (row) => {
 const importFromDetail = async () => {
   const row = serviceDetail.value
   if (!row?.market_id || !row?.service_id) {
-    ElMessage.error('服务标识缺失，无法导入')
+    ElMessage.error(t('service_id_missing'))
     return
   }
 
@@ -855,7 +857,7 @@ const openImportedToolsDialog = async (row) => {
 
 const refreshImportedTools = async () => {
   if (!importedToolTarget.value?.id) {
-    ElMessage.warning('请先选择一个已导入服务')
+    ElMessage.warning(t('select_imported_service'))
     return
   }
   await loadImportedToolOptions(importedToolTarget.value.id)
@@ -891,15 +893,15 @@ const saveImportedItem = async () => {
   try {
     if (editingImported.value) {
       await api.put(`/admin/mcp-market/imported-services/${editingImported.value.id}`, payload)
-      ElMessage.success('更新成功')
+      ElMessage.success(t('update_success'))
     } else {
       await api.post('/admin/mcp-market/imported-services', payload)
-      ElMessage.success('创建成功')
+      ElMessage.success(t('create_success'))
     }
     importedDialogVisible.value = false
     await loadImportedItems(importedPage.value)
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '保存失败')
+    ElMessage.error(error.response?.data?.error || t('save_failed'))
   } finally {
     importedSaving.value = false
   }
@@ -929,13 +931,13 @@ const saveImportedToolSelection = async () => {
   importedSaving.value = true
   try {
     await api.put(`/admin/mcp-market/imported-services/${row.id}`, payload)
-    ElMessage.success('工具策略已更新')
+    ElMessage.success(t('tool_strategy_updated'))
     importedToolsDialogVisible.value = false
     importedToolTarget.value = null
     importedToolQuery.value = ''
     await loadImportedItems(importedPage.value)
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '保存失败')
+    ElMessage.error(error.response?.data?.error || t('save_failed'))
   } finally {
     importedSaving.value = false
   }
@@ -965,17 +967,17 @@ const toggleImportedEnabled = async (row) => {
 
 const deleteImportedItem = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除导入服务「${row.name}」？`, '提示', {
+    await ElMessageBox.confirm(`确认删除导入服务「${row.name}」？`, t('hint'), {
       type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消'
+      confirmButtonText: t('delete'),
+      cancelButtonText: t('cancel')
     })
     await api.delete(`/admin/mcp-market/imported-services/${row.id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadImportedItems(importedPage.value)
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.error || '删除失败')
+      ElMessage.error(error.response?.data?.error || t('delete_failed'))
     }
   }
 }

@@ -10,7 +10,7 @@
       <div class="toolbar-actions">
         <el-button type="primary" @click="showAddAgentDialog = true">
           <el-icon><Plus /></el-icon>
-          添加智能体
+          {{ t('add_agent') }}  添加智能体
         </el-button>
         <el-button plain @click="openAddDeviceDialog">
           <el-icon><Monitor /></el-icon>
@@ -18,7 +18,7 @@
         </el-button>
         <el-button plain @click="openInjectMessageDialog">
           <el-icon><ChatDotRound /></el-icon>
-          语音推送
+          {{ t('voice_push') }}  语音推送
         </el-button>
       </div>
     </section>
@@ -55,8 +55,8 @@
       <el-card class="welcome-card apple-surface">
         <div class="welcome-content">
           <el-icon size="64" color="var(--apple-primary)"><Monitor /></el-icon>
-          <h3>先创建第一个智能体</h3>
-          <p>创建后就能继续绑定设备、配置知识库和语音能力。</p>
+          <h3>{{ t('create_first_agent') }}先创建第一个智能体</h3>
+          <p>{{ t('post_create_agent_hint') }}创建后就能继续绑定设备、配置知识库和语音能力。</p>
           <div class="welcome-actions">
             <el-button type="primary" size="large" @click="showAddAgentDialog = true">
               <el-icon><Plus /></el-icon>
@@ -109,15 +109,15 @@
 
         <div class="agent-summary">
           <div class="summary-row" :title="`音色模型：${getVoiceModelText(agent)}`">
-            <span class="summary-label">音色模型：</span>
+            <span class="summary-label">{{ t('timbre_model') }}音色模型：</span>
             <span class="summary-text">{{ truncateText(getVoiceModelText(agent), 18) }}</span>
           </div>
           <div class="summary-row" :title="`语言模型：${getLLMModelText(agent)}`">
-            <span class="summary-label">语言模型：</span>
+            <span class="summary-label">{{ t('language_model_label') }}语言模型：</span>
             <span class="summary-text">{{ truncateText(getLLMModelText(agent), 16) }}</span>
           </div>
           <div class="summary-row" :title="`设备数量：${getDeviceCountText(agent)}`">
-            <span class="summary-label">设备数量：</span>
+            <span class="summary-label">{{ t('device_count') }}设备数量：</span>
             <span class="summary-text is-count">{{ getDeviceCountText(agent) }}</span>
           </div>
         </div>
@@ -133,11 +133,11 @@
           </el-button>
           <el-button class="agent-action-button" size="small" @click="handleManageDevices(agent.id)">
             <el-icon><Connection /></el-icon>
-            设备
+            {{ t('device') }}  设备
           </el-button>
           <el-button class="agent-action-button agent-action-button-danger" size="small" @click="handleDeleteAgent(agent)">
             <el-icon><Delete /></el-icon>
-            删除
+            {{ t('delete') }}  删除
           </el-button>
         </div>
       </article>
@@ -145,7 +145,7 @@
 
     <el-dialog
       v-model="showAddAgentDialog"
-      title="添加智能体"
+      :title="t('add_agent')"
       width="560px"
       class="agent-dialog"
       :before-close="handleCloseAddAgent"
@@ -158,7 +158,7 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleCloseAddAgent">取消</el-button>
+          <el-button @click="handleCloseAddAgent">{{ t('cancel') }}取消</el-button>
           <el-button type="primary" :loading="adding" @click="handleAddAgent">
             {{ adding ? '创建中...' : '创建智能体' }}
           </el-button>
@@ -211,6 +211,8 @@ import mcpStatusIcon from '../../assets/agent-status-icons/mcp.png'
 import openClawStatusIcon from '../../assets/agent-status-icons/openclaw.png'
 import memoryStatusIcon from '../../assets/agent-status-icons/memory.png'
 import knowledgeBaseStatusIcon from '../../assets/agent-status-icons/knowledge-base.png'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 
@@ -265,7 +267,7 @@ const loadAgents = async () => {
     const response = await api.get('/user/agents')
     agents.value = response.data.data || []
   } catch (error) {
-    ElMessage.error('加载智能体列表失败')
+    ElMessage.error(t('load_agent_list_failed'))
   }
 }
 
@@ -275,7 +277,7 @@ const loadDevices = async () => {
     allDevices.value = response.data.data || []
   } catch (error) {
     allDevices.value = []
-    ElMessage.error('加载设备列表失败')
+    ElMessage.error(t('load_device_list_failed'))
   }
 }
 
@@ -302,7 +304,7 @@ const handleAddAgent = async () => {
   try {
     const response = await api.post('/user/agents', agentFormRef.value.buildPayload())
     if (response.data.success) {
-      ElMessage.success('智能体添加成功')
+      ElMessage.success(t('agent_add_success'))
       handleCloseAddAgent()
       await loadAgents()
     }
@@ -320,7 +322,7 @@ const resetAddDeviceForm = () => {
 
 const openAddDeviceDialog = () => {
   if (!agents.value.length) {
-    ElMessage.warning('请先创建智能体，再绑定设备')
+    ElMessage.warning(t('create_agent_before_bind'))
     return
   }
   resetAddDeviceForm()
@@ -337,7 +339,7 @@ const handleAddDevice = async () => {
 
   const agentId = deviceForm.value.agent_id
   if (!agentId) {
-    ElMessage.warning('请选择目标智能体')
+    ElMessage.warning(t('select_target_agent'))
     return
   }
 
@@ -345,7 +347,7 @@ const handleAddDevice = async () => {
   try {
     const response = await api.post(`/user/agents/${agentId}/devices`, deviceFormRef.value.buildPayload())
     if (response.data?.success) {
-      ElMessage.success('设备绑定成功')
+      ElMessage.success(t('device_bind_success'))
       showAddDeviceDialog.value = false
       await handleDeviceBound()
     }
@@ -358,7 +360,7 @@ const handleAddDevice = async () => {
 
 const openInjectMessageDialog = () => {
   if (!allDevices.value.length) {
-    ElMessage.warning('请先绑定设备，再进行语音推送')
+    ElMessage.warning(t('bind_device_before_push'))
     return
   }
   showInjectMessageDialog.value = true
@@ -392,7 +394,7 @@ const handleManageDevices = (id) => {
 
 const handleDeleteAgent = async (agent) => {
   if (!canDeleteAgent(agent)) {
-    ElMessage.warning('该智能体仍绑定设备，请先移除所有设备后再删除')
+    ElMessage.warning(t('agent_has_bound_devices'))
     return
   }
 
@@ -401,14 +403,14 @@ const handleDeleteAgent = async (agent) => {
       `确定要删除智能体 "${agent.name}" 吗？`,
       '确认删除',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
 
     await api.delete(`/user/agents/${agent.id}`)
-    ElMessage.success('智能体删除成功')
+    ElMessage.success(t('agent_delete_success'))
     await loadAgents()
   } catch (error) {
     if (error !== 'cancel') {
@@ -458,9 +460,9 @@ const getMemoryModeKey = (agent) => {
 
 const getMemoryModeText = (agent) => {
   const key = getMemoryModeKey(agent)
-  if (key === 'none') return '无记忆'
-  if (key === 'long') return '长记忆'
-  return '短记忆'
+  if (key === 'none') return t('no_memory')
+  if (key === 'long') return t('long_memory')
+  return t('short_memory')
 }
 
 const getKnowledgeBaseIds = (agent) => {

@@ -1,15 +1,15 @@
 <template>
   <div class="config-page">
     <div class="page-actions">
-      <el-button type="primary" @click="openDialog()">添加配置</el-button>
+      <el-button type="primary" @click="openDialog()">{{ t('add_config') }}添加配置</el-button>
     </div>
 
     <el-table :data="items" v-loading="loading" style="width: 100%">
       <el-table-column prop="id" label="ID" width="70" />
-      <el-table-column prop="provider" label="提供商" width="120" />
-      <el-table-column prop="name" label="名称" width="160" />
-      <el-table-column prop="config_id" label="配置ID" width="170" />
-      <el-table-column label="配置摘要">
+      <el-table-column prop="provider" :label="t('provider')" width="120" />
+      <el-table-column prop="name" :label="t('name')" width="160" />
+      <el-table-column prop="config_id" :label="t('config_id')" width="170" />
+      <el-table-column :label="t('config_summary')">
         <template #default="scope">{{ getConfigSummary(scope.row) }}</template>
       </el-table-column>
       <el-table-column label="启用" width="80">
@@ -204,6 +204,8 @@
 import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const items = ref([])
 const loading = ref(false)
@@ -332,7 +334,7 @@ const fetchWeknoraModels = async (force = false, silent = true) => {
   const apiKey = String(form.api_key || '').trim()
   if (!baseURL || !apiKey) {
     if (!silent) {
-      ElMessage.warning('请先填写 WeKnora Base URL 和 API Key')
+      ElMessage.warning(t('fill_weknora_url_apikey'))
     }
     return
   }
@@ -510,7 +512,7 @@ const openDialog = (row = null) => {
 
 const submit = async () => {
   if (form.provider === 'weknora' && !String(form.embedding_model_id || '').trim()) {
-    ElMessage.error('Embedding模型ID不能为空')
+    ElMessage.error(t('embedding_model_id_required'))
     return
   }
   const weknoraSeparators = parseSeparators(form.separators_raw)
@@ -563,11 +565,11 @@ const submit = async () => {
     } else {
       await api.post('/admin/knowledge-search-configs', payload)
     }
-    ElMessage.success('保存成功')
+    ElMessage.success(t('save_success'))
     dialogVisible.value = false
     await loadData()
   } catch (e) {
-    ElMessage.error('保存失败')
+    ElMessage.error(t('save_failed'))
   }
 }
 
@@ -619,11 +621,11 @@ const onRowSwitchChange = async (row, field, value) => {
     }
     row.enabled = enabled
     row.is_default = isDefault
-    ElMessage.success('更新成功')
+    ElMessage.success(t('update_success'))
     await loadData()
   } catch (e) {
     await loadData()
-    ElMessage.error('更新失败')
+    ElMessage.error(t('update_failed'))
   } finally {
     setRowSwitchLoading(id, field, false)
   }
@@ -631,9 +633,9 @@ const onRowSwitchChange = async (row, field, value) => {
 
 const remove = async (id) => {
   try {
-    await ElMessageBox.confirm('确认删除该配置吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('confirm_delete_this_config'), t('hint'), { type: 'warning' })
     await api.delete(`/admin/knowledge-search-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadData()
   } catch {}
 }

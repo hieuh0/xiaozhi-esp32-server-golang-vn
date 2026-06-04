@@ -3,27 +3,27 @@
     <div class="toolbar">
       <el-button type="primary" @click="openAddDialog">
         <el-icon><Plus /></el-icon>
-        添加智能体
+        {{ t('add_agent') }}
       </el-button>
       <el-button @click="loadAgents">
         <el-icon><Refresh /></el-icon>
-        刷新
+        {{ t('refresh') }}
       </el-button>
     </div>
 
     <el-table :data="agents" v-loading="loading" stripe>
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="名称" min-width="140" />
-      <el-table-column label="昵称" min-width="130">
+      <el-table-column prop="name" :label="t('name')" min-width="140" />
+      <el-table-column :label="t('nickname')" min-width="130">
         <template #default="{ row }">{{ row.nickname || row.name }}</template>
       </el-table-column>
-      <el-table-column label="所属用户" width="150">
+      <el-table-column :label="t('owner_user')" width="150">
         <template #default="{ row }">{{ row.username || `用户 ${row.user_id}` }}</template>
       </el-table-column>
-      <el-table-column label="角色介绍" min-width="220" show-overflow-tooltip>
+      <el-table-column :label="t('role_description')" min-width="220" show-overflow-tooltip>
         <template #default="{ row }">{{ row.custom_prompt || '未设置' }}</template>
       </el-table-column>
-      <el-table-column label="语言模型" width="150">
+      <el-table-column :label="t('language_model')" width="150">
         <template #default="{ row }">{{ row.llm_config?.name || '未设置' }}</template>
       </el-table-column>
       <el-table-column label="TTS / 音色" width="190" show-overflow-tooltip>
@@ -32,10 +32,10 @@
       <el-table-column label="知识库" width="90">
         <template #default="{ row }">{{ row.knowledge_base_ids?.length || 0 }}</template>
       </el-table-column>
-      <el-table-column label="设备" width="90">
+      <el-table-column :label="t('device')" width="90">
         <template #default="{ row }">{{ row.device_count || 0 }}</template>
       </el-table-column>
-      <el-table-column label="语音识别" width="110">
+      <el-table-column :label="t('asr')" width="110">
         <template #default="{ row }">
           <el-tag :type="getASRSpeedType(row.asr_speed)">{{ getASRSpeedText(row.asr_speed) }}</el-tag>
         </template>
@@ -55,14 +55,14 @@
           <el-button size="small" @click="editAgent(row)">编辑</el-button>
           <el-button size="small" type="primary" @click="openDiagnostics(row, 'mcp')">MCP</el-button>
           <el-button size="small" type="success" @click="openDiagnostics(row, 'openclaw')">OpenClaw</el-button>
-          <el-button size="small" type="danger" @click="deleteAgent(row)">删除</el-button>
+          <el-button size="small" type="danger" @click="deleteAgent(row)">{{ t('delete') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <el-dialog
       v-model="showAddDialog"
-      :title="editingAgent ? '编辑智能体' : '添加智能体'"
+      :title="editingAgent ? '编辑智能体' : t('add_agent')"
       width="760px"
       :close-on-click-modal="false"
     >
@@ -80,7 +80,7 @@
         preload-status
       />
       <template #footer>
-        <el-button @click="showAddDialog = false">取消</el-button>
+        <el-button @click="showAddDialog = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="saveAgent" :loading="saving">
           {{ editingAgent ? '更新' : '添加' }}
         </el-button>
@@ -107,6 +107,9 @@ import api from '../../utils/api'
 import AgentForm from '../../components/common/AgentForm.vue'
 import AgentRuntimeDiagnostics from '../../components/common/AgentRuntimeDiagnostics.vue'
 import { agentToForm, createDefaultAgentForm } from '../../composables/useAgentFormOptions'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const agents = ref([])
 const loading = ref(false)
@@ -129,7 +132,7 @@ const loadAgents = async () => {
     const response = await api.get('/admin/agents')
     agents.value = response.data.data || []
   } catch (error) {
-    ElMessage.error('加载智能体列表失败')
+    ElMessage.error(t('load_agent_list_failed'))
   } finally {
     loading.value = false
   }
@@ -157,10 +160,10 @@ const saveAgent = async () => {
     const payload = agentFormRef.value.buildPayload()
     if (editingAgent.value) {
       await api.put(`/admin/agents/${editingAgent.value.id}`, payload)
-      ElMessage.success('智能体更新成功')
+      ElMessage.success(t('agent_update_success'))
     } else {
       await api.post('/admin/agents', payload)
-      ElMessage.success('智能体添加成功')
+      ElMessage.success(t('agent_add_success'))
     }
     showAddDialog.value = false
     await loadAgents()
@@ -174,12 +177,12 @@ const saveAgent = async () => {
 const deleteAgent = async (agent) => {
   try {
     await ElMessageBox.confirm(`确定要删除智能体 "${agent.name}" 吗？`, '确认删除', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     await api.delete(`/admin/agents/${agent.id}`)
-    ElMessage.success('智能体删除成功')
+    ElMessage.success(t('agent_delete_success'))
     await loadAgents()
   } catch (error) {
     if (error !== 'cancel') {
@@ -193,11 +196,11 @@ const getVoiceText = (agent) => {
   return agent.voice ? `${tts} · ${agent.voice}` : tts
 }
 
-const getASRSpeedText = (speed) => ({ normal: '正常', patient: '耐心', fast: '快速' }[speed] || '正常')
+const getASRSpeedText = (speed) => ({ normal: t('normal'), patient: t('patience'), fast: t('fast') }[speed] || t('normal'))
 const getASRSpeedType = (speed) => ({ patient: 'warning', fast: 'success' }[speed] || '')
-const getMemoryModeText = (mode) => ({ none: '无记忆', short: '短记忆', long: '长记忆' }[mode] || '短记忆')
+const getMemoryModeText = (mode) => ({ none: t('no_memory'), short: t('short_memory'), long: t('long_memory') }[mode] || t('short_memory'))
 const getMemoryModeType = (mode) => ({ none: 'info', long: 'success' }[mode] || '')
-const getSpeakerChatModeText = (mode) => ({ off: '关闭', identified_only: '仅命中声纹' }[mode] || '关闭')
+const getSpeakerChatModeText = (mode) => ({ off: t('close'), identified_only: '仅命中声纹' }[mode] || t('close'))
 const getSpeakerChatModeType = (mode) => ({ off: 'info', identified_only: 'warning' }[mode] || 'info')
 
 const openDiagnostics = (agent, panel = 'mcp') => {

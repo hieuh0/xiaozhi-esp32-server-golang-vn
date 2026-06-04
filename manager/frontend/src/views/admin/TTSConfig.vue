@@ -12,15 +12,15 @@
       </el-button>
       <el-button type="primary" @click="showDialog = true">
         <el-icon><Plus /></el-icon>
-        添加配置
+        {{ t('add_config') }}  添加配置
       </el-button>
     </div>
 
     <el-table :data="configs" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="配置名称" />
-      <el-table-column prop="config_id" label="配置ID" width="150" />
-      <el-table-column prop="provider" label="提供商">
+      <el-table-column prop="name" :label="t('config_name')" />
+      <el-table-column prop="config_id" :label="t('config_id')" width="150" />
+      <el-table-column prop="provider" :label="t('provider')">
         <template #default="scope">
           {{ scope.row.provider }}
         </template>
@@ -120,6 +120,8 @@ import { testSingleConfig, testWithData, parseJsonData } from '../../utils/confi
 import TTSConfigForm from './forms/TTSConfigForm.vue'
 import { TTS_PROVIDERS_WITH_VOICES } from './forms/ttsProviderOptions'
 import { resolveTTSProvider } from './forms/configProviderUtils'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const configs = ref([])
 const testingId = ref(null)
@@ -276,50 +278,50 @@ const form = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
   // CosyVoice 验证规则
-  'cosyvoice.api_url': [{ required: true, message: '请输入API URL', trigger: 'blur' }],
-  'cosyvoice.spk_id': [{ required: true, message: '请输入说话人ID', trigger: 'blur' }],
+  'cosyvoice.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }],
+  'cosyvoice.spk_id': [{ required: true, message: t('enter_speaker_id'), trigger: 'blur' }],
   // 豆包 TTS 验证规则
-  'doubao.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'doubao.access_token': [{ required: true, message: '请输入访问令牌', trigger: 'blur' }],
-  'doubao.model': [{ required: true, message: '请选择模型', trigger: 'change' }],
-  'doubao.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'doubao.api_url': [{ required: true, message: '请输入API URL', trigger: 'blur' }],
+  'doubao.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'doubao.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
+  'doubao.model': [{ required: true, message: t('select_model'), trigger: 'change' }],
+  'doubao.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'doubao.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }],
   // 豆包 WebSocket 验证规则
-  'doubao_ws.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'doubao_ws.access_token': [{ required: true, message: '请输入访问令牌', trigger: 'blur' }],
-  'doubao_ws.model': [{ required: true, message: '请选择模型', trigger: 'change' }],
-  'doubao_ws.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'doubao_ws.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
+  'doubao_ws.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'doubao_ws.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
+  'doubao_ws.model': [{ required: true, message: t('select_model'), trigger: 'change' }],
+  'doubao_ws.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'doubao_ws.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
   // Edge TTS 验证规则
-  'edge.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'edge.rate': [{ required: true, message: '请输入语速', trigger: 'blur' }],
-  'edge.volume': [{ required: true, message: '请输入音量', trigger: 'blur' }],
+  'edge.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'edge.rate': [{ required: true, message: t('enter_speech_rate'), trigger: 'blur' }],
+  'edge.volume': [{ required: true, message: t('enter_volume'), trigger: 'blur' }],
   // Edge 离线验证规则
-  'edge_offline.server_url': [{ required: true, message: '请输入服务器URL', trigger: 'blur' }],
+  'edge_offline.server_url': [{ required: true, message: t('enter_server_url'), trigger: 'blur' }],
   // OpenAI TTS 验证规则
-  'openai.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
+  'openai.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
   // 讯飞 TTS 验证规则
-  'xunfei.app_id': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'xunfei.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'xunfei.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-  'xunfei.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'xunfei.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'xunfei_super_tts.app_id': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'xunfei_super_tts.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'xunfei_super_tts.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-  'xunfei_super_tts.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'xunfei_super_tts.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
+  'xunfei.app_id': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'xunfei.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'xunfei.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+  'xunfei.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'xunfei.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'xunfei_super_tts.app_id': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'xunfei_super_tts.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'xunfei_super_tts.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+  'xunfei_super_tts.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'xunfei_super_tts.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
   // 智谱 TTS 验证规则
-  'zhipu.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
+  'zhipu.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
   // Minimax TTS 验证规则
-  'minimax.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
+  'minimax.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
   // 千问 TTS 验证规则
-  'qwen_tts.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'indextts_vllm.api_url': [{ required: true, message: '请输入API URL', trigger: 'blur' }]
+  'qwen_tts.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'indextts_vllm.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }]
 }
 
 const loadConfigs = async () => {
@@ -328,7 +330,7 @@ const loadConfigs = async () => {
     const response = await api.get('/admin/tts-configs')
     configs.value = (response.data.data || []).map(normalizeTTSConfigRow)
   } catch (error) {
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('load_config_failed'))
   } finally {
     loading.value = false
   }
@@ -521,10 +523,10 @@ const handleSave = async () => {
         
         if (editingConfig.value) {
           await api.put(`/admin/tts-configs/${editingConfig.value.id}`, configData)
-          ElMessage.success('配置更新成功')
+          ElMessage.success(t('config_update_success'))
         } else {
           await api.post('/admin/tts-configs', configData)
-          ElMessage.success('配置创建成功')
+          ElMessage.success(t('config_create_success'))
         }
         
         showDialog.value = false
@@ -545,14 +547,14 @@ const toggleEnable = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
 const toggleDefault = async (config) => {
   try {
     if (!config.enabled) {
-      ElMessage.warning('请先启用该配置才能设为默认')
+      ElMessage.warning(t('enable_config_before_default'))
       config.is_default = false
       return
     }
@@ -574,7 +576,7 @@ const toggleDefault = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.is_default = !config.is_default
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
@@ -615,7 +617,7 @@ const testConfig = async (row, type) => {
 const testAllConfigs = async () => {
   const list = getEnabledConfigs()
   if (!list.length) {
-    ElMessage.warning('没有已启用的配置')
+    ElMessage.warning(t('no_enabled_config'))
     return
   }
   testingAll.value = true
@@ -628,7 +630,7 @@ const testAllConfigs = async () => {
         testResults.value = { ...testResults.value, [row.config_id]: result }
         if (result.ok) okCount++
       } catch (_) {
-        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: '请求失败' } }
+        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: t('request_failed') } }
       }
     }
     ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
@@ -648,7 +650,7 @@ const testCurrentConfig = async () => {
   }
   const configId = form.config_id?.trim()
   if (!configId) {
-    ElMessage.warning('请填写配置ID')
+    ElMessage.warning(t('fill_config_id'))
     return
   }
   const payload = {
@@ -675,18 +677,18 @@ const testCurrentConfig = async () => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个配置吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_config'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     
     await api.delete(`/admin/tts-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
     }
   }
 }

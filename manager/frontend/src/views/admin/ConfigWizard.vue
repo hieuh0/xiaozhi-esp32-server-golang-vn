@@ -1,46 +1,46 @@
 <template>
   <div class="config-wizard">
     <el-steps :active="currentStep" finish-status="success" align-center class="wizard-steps">
-      <el-step title="OTA" description="服务地址" />
-      <el-step title="VAD" description="语音活动检测" />
-      <el-step title="ASR" description="语音识别" />
-      <el-step title="LLM" description="大语言模型" />
-      <el-step title="TTS" description="语音合成" />
+      <el-step title="OTA" :description="t('service_address')" />
+      <el-step title="VAD" :description="t('vad')" />
+      <el-step title="ASR" :description="t('asr')" />
+      <el-step title="LLM" :description="t('llm')" />
+      <el-step title="TTS" :description="t('tts')" />
     </el-steps>
 
     <el-card class="step-card" shadow="hover">
       <!-- Step 1: OTA -->
       <template v-if="currentStep === 0">
-        <div class="step-title">OTA 配置</div>
-        <p class="step-hint">填写本服务对外访问的域名或 IP，将自动生成 OTA 地址和 WebSocket 地址（最后一步会展示）。</p>
+        <div class="step-title">{{ t('ota_config') }}</div>
+        <p class="step-hint">{{ t('domain_ip_hint') }}</p>
         <el-form :model="otaForm" label-width="140px" class="wizard-form">
-          <el-form-item label="域名或 IP" prop="host">
-            <el-input v-model="otaForm.host" placeholder="如 192.168.1.100 或 manager.example.com" clearable />
+          <el-form-item :label="t('domain_or_ip')" prop="host">
+            <el-input v-model="otaForm.host" :placeholder="t('ip_example')" clearable />
           </el-form-item>
-          <el-form-item label="端口" prop="port">
+          <el-form-item :label="t('port')" prop="port">
             <el-input-number v-model="otaForm.port" :min="1" :max="65535" style="width: 100%" />
           </el-form-item>
-          <el-form-item label="协议" prop="protocol">
+          <el-form-item :label="t('protocol')" prop="protocol">
             <el-radio-group v-model="otaForm.protocol">
               <el-radio value="http">HTTP</el-radio>
               <el-radio value="https">HTTPS</el-radio>
             </el-radio-group>
           </el-form-item>
-          <el-form-item label="签名密钥" prop="signature_key">
-            <el-input v-model="otaForm.signature_key" placeholder="与 MQTT Server 认证共用" clearable />
+          <el-form-item :label="t('signature_key')" prop="signature_key">
+            <el-input v-model="otaForm.signature_key" :placeholder="t('shared_with_mqtt_auth')" clearable />
           </el-form-item>
-          <el-form-item label="启用 MQTT/UDP" prop="enableMqttUdp">
+          <el-form-item :label="t('enable_mqtt_udp')" prop="enableMqttUdp">
             <el-switch v-model="otaForm.enableMqttUdp" active-text="启用" inactive-text="不启用" />
-            <span class="form-hint">启用后将自动配置 MQTT Server、MQTT 客户端与 UDP，终端可通过 MQTT 连接。</span>
+            <span class="form-hint">{{ t('enable_mqtt_hint') }}</span>
           </el-form-item>
           <template v-if="otaForm.enableMqttUdp">
-            <el-form-item label="MQTT Server 端口" prop="mqttServerPort" required>
-              <el-input-number v-model="otaForm.mqttServerPort" :min="1" :max="65535" style="width: 100%" placeholder="1883 常用，8883 将启用 TLS" />
-              <span class="form-hint">IP 复用上方域名；8883 时自动启用 TLS，默认开启认证。</span>
+            <el-form-item :label="t('mqtt_server_port')" prop="mqttServerPort" required>
+              <el-input-number v-model="otaForm.mqttServerPort" :min="1" :max="65535" style="width: 100%" :placeholder="t('mqtt_port_hint')" />
+              <span class="form-hint">{{ t('mqtt_ip_tls_hint') }}</span>
             </el-form-item>
-            <el-form-item label="UDP 端口" prop="udpPort" required>
-              <el-input-number v-model="otaForm.udpPort" :min="1" :max="65535" style="width: 100%" placeholder="如 8990" />
-              <span class="form-hint">外网 IP 复用上方域名，外网端口与监听端口均为本端口；监听主机 0.0.0.0。</span>
+            <el-form-item :label="t('udp_port')" prop="udpPort" required>
+              <el-input-number v-model="otaForm.udpPort" :min="1" :max="65535" style="width: 100%" :placeholder="t('port_example')" />
+              <span class="form-hint">{{ t('external_ip_hint') }}</span>
             </el-form-item>
           </template>
         </el-form>
@@ -48,25 +48,25 @@
 
       <!-- Step 2: VAD -->
       <template v-if="currentStep === 1">
-        <div class="step-title">VAD 配置</div>
+        <div class="step-title">{{ t('vad_config') }}</div>
         <VADConfigForm ref="vadFormRef" :model="vadForm" :rules="vadFormRules" class="wizard-form" />
       </template>
 
       <!-- Step 3: ASR -->
       <template v-if="currentStep === 2">
-        <div class="step-title">ASR 配置</div>
+        <div class="step-title">{{ t('asr_config') }}</div>
         <ASRConfigForm ref="asrFormRef" :model="asrForm" :rules="asrFormRules" class="wizard-form" />
       </template>
 
       <!-- Step 4: LLM -->
       <template v-if="currentStep === 3">
-        <div class="step-title">LLM 配置</div>
+        <div class="step-title">{{ t('llm_config') }}</div>
         <LLMConfigForm ref="llmFormRef" :model="llmForm" :rules="llmFormRules" class="wizard-form" />
       </template>
 
       <!-- Step 5: TTS -->
       <template v-if="currentStep === 4">
-        <div class="step-title">TTS 配置</div>
+        <div class="step-title">{{ t('tts_config') }}</div>
         <TTSConfigForm
           ref="ttsFormRef"
           :model="ttsForm"
@@ -166,7 +166,10 @@ import LLMConfigForm from './forms/LLMConfigForm.vue'
 import TTSConfigForm from './forms/TTSConfigForm.vue'
 import { resolveASRProvider, resolveTTSProvider, resolveVADProvider } from './forms/configProviderUtils'
 import { getProviderFixedType, resolveLLMProvider } from './forms/llmCatalog'
+import { useLocale } from '../../composables/useLocale'
 
+
+const { t } = useLocale()
 const currentStep = ref(0)
 const saving = ref(false)
 const testingStep = ref(false)
@@ -216,19 +219,19 @@ const vadForm = reactive({
 })
 const vadFormRef = ref()
 const vadFormRules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
-  'silero_vad.model_path': [{ required: true, message: '请输入模型路径', trigger: 'blur' }],
-  'silero_vad.threshold': [{ required: true, message: '请输入阈值', trigger: 'blur' }],
-  'silero_vad.min_silence_duration_ms': [{ required: true, message: '请输入最小静音持续时间', trigger: 'blur' }],
-  'silero_vad.sample_rate': [{ required: true, message: '请选择采样率', trigger: 'change' }],
-  'silero_vad.channels': [{ required: true, message: '请选择声道数', trigger: 'change' }],
-  'silero_vad.acquire_timeout_ms': [{ required: true, message: '请输入获取超时时间', trigger: 'blur' }],
-  'ten_vad.hop_size': [{ required: true, message: '请输入帧移大小', trigger: 'blur' }],
-  'ten_vad.threshold': [{ required: true, message: '请输入VAD检测阈值', trigger: 'blur' }],
-  'ten_vad.pool_size': [{ required: true, message: '请输入连接池大小', trigger: 'blur' }],
-  'ten_vad.acquire_timeout_ms': [{ required: true, message: '请输入获取超时时间', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
+  'silero_vad.model_path': [{ required: true, message: t('enter_model_path'), trigger: 'blur' }],
+  'silero_vad.threshold': [{ required: true, message: t('enter_threshold'), trigger: 'blur' }],
+  'silero_vad.min_silence_duration_ms': [{ required: true, message: t('enter_min_silence_duration'), trigger: 'blur' }],
+  'silero_vad.sample_rate': [{ required: true, message: t('select_sample_rate'), trigger: 'change' }],
+  'silero_vad.channels': [{ required: true, message: t('select_channel_count'), trigger: 'change' }],
+  'silero_vad.acquire_timeout_ms': [{ required: true, message: t('enter_fetch_timeout'), trigger: 'blur' }],
+  'ten_vad.hop_size': [{ required: true, message: t('enter_frame_shift'), trigger: 'blur' }],
+  'ten_vad.threshold': [{ required: true, message: t('enter_vad_threshold'), trigger: 'blur' }],
+  'ten_vad.pool_size': [{ required: true, message: t('enter_pool_size'), trigger: 'blur' }],
+  'ten_vad.acquire_timeout_ms': [{ required: true, message: t('enter_fetch_timeout'), trigger: 'blur' }]
 }
 
 const asrForm = reactive({
@@ -311,42 +314,42 @@ const validateAliyun16000 = (rule, value, callback) => {
   callback()
 }
 const asrFormRules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
-  'funasr.host': [{ required: true, message: '请输入主机地址', trigger: 'blur' }],
-  'funasr.port': [{ required: true, message: '请输入端口', trigger: 'blur' }],
-  'aliyun_funasr.ws_url': [{ required: true, message: '请输入WS URL', trigger: 'blur' }],
-  'aliyun_funasr.model': [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
+  'funasr.host': [{ required: true, message: t('enter_host_address'), trigger: 'blur' }],
+  'funasr.port': [{ required: true, message: t('enter_port'), trigger: 'blur' }],
+  'aliyun_funasr.ws_url': [{ required: true, message: t('enter_ws_url'), trigger: 'blur' }],
+  'aliyun_funasr.model': [{ required: true, message: t('enter_model_name'), trigger: 'blur' }],
   'aliyun_funasr.format': [
-    { required: true, message: '请选择音频格式', trigger: 'change' },
+    { required: true, message: t('select_audio_format'), trigger: 'change' },
     { validator: validateAliyunPcm, trigger: 'change' }
   ],
   'aliyun_funasr.sample_rate': [
-    { required: true, message: '请选择采样率', trigger: 'change' },
+    { required: true, message: t('select_sample_rate'), trigger: 'change' },
     { validator: validateAliyun16000, trigger: 'change' }
   ],
-  'aliyun_funasr.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }],
-  'doubao.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'doubao.access_token': [{ required: true, message: '请输入访问令牌', trigger: 'blur' }],
-  'doubao.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'doubao.resource_id': [{ required: true, message: '请选择资源规格', trigger: 'change' }],
-  'aliyun_qwen3.ws_url': [{ required: true, message: '请输入WS URL', trigger: 'blur' }],
-  'aliyun_qwen3.model': [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-  'aliyun_qwen3.format': [{ required: true, message: '请选择音频格式', trigger: 'change' }],
-  'aliyun_qwen3.sample_rate': [{ required: true, message: '请选择采样率', trigger: 'change' }],
-  'aliyun_qwen3.language': [{ required: true, message: '请输入语言', trigger: 'blur' }],
-  'aliyun_qwen3.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }],
-  'xunfei.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'xunfei.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'xunfei.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-  'xunfei.host': [{ required: true, message: '请输入Host', trigger: 'blur' }],
-  'xunfei.path': [{ required: true, message: '请输入Path', trigger: 'blur' }],
-  'xunfei.domain': [{ required: true, message: '请输入业务领域', trigger: 'blur' }],
-  'xunfei.language': [{ required: true, message: '请输入语言', trigger: 'blur' }],
-  'xunfei.accent': [{ required: true, message: '请输入方言', trigger: 'blur' }],
-  'xunfei.sample_rate': [{ required: true, message: '请选择采样率', trigger: 'change' }],
-  'xunfei.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+  'aliyun_funasr.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }],
+  'doubao.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'doubao.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
+  'doubao.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'doubao.resource_id': [{ required: true, message: t('select_resource_spec'), trigger: 'change' }],
+  'aliyun_qwen3.ws_url': [{ required: true, message: t('enter_ws_url'), trigger: 'blur' }],
+  'aliyun_qwen3.model': [{ required: true, message: t('enter_model_name'), trigger: 'blur' }],
+  'aliyun_qwen3.format': [{ required: true, message: t('select_audio_format'), trigger: 'change' }],
+  'aliyun_qwen3.sample_rate': [{ required: true, message: t('select_sample_rate'), trigger: 'change' }],
+  'aliyun_qwen3.language': [{ required: true, message: t('enter_language'), trigger: 'blur' }],
+  'aliyun_qwen3.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }],
+  'xunfei.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'xunfei.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'xunfei.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+  'xunfei.host': [{ required: true, message: t('enter_host'), trigger: 'blur' }],
+  'xunfei.path': [{ required: true, message: t('enter_path'), trigger: 'blur' }],
+  'xunfei.domain': [{ required: true, message: t('enter_business_domain'), trigger: 'blur' }],
+  'xunfei.language': [{ required: true, message: t('enter_language'), trigger: 'blur' }],
+  'xunfei.accent': [{ required: true, message: t('enter_dialect'), trigger: 'blur' }],
+  'xunfei.sample_rate': [{ required: true, message: t('select_sample_rate'), trigger: 'change' }],
+  'xunfei.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
 }
 
 const llmForm = reactive({
@@ -375,18 +378,18 @@ function getResolvedLLMProvider(provider, type) {
 }
 
 const llmFormRules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
   model_name: [{
     required: true,
-    message: '请输入模型名称',
+    message: t('enter_model_name'),
     trigger: 'change'
   }, {
     validator: (_, value, callback) => {
       const providerType = getResolvedLLMType(llmForm.provider, llmForm.type)
       if ((providerType === 'openai' || providerType === 'ollama') && !value) {
-        callback(new Error('请输入模型名称'))
+        callback(new Error(t('enter_model_name')))
         return
       }
       callback()
@@ -396,7 +399,7 @@ const llmFormRules = {
   api_key: [{
     validator: (_, value, callback) => {
       if (getResolvedLLMType(llmForm.provider, llmForm.type) !== 'ollama' && !value) {
-        callback(new Error('请输入API密钥'))
+        callback(new Error(t('enter_api_password')))
         return
       }
       callback()
@@ -406,7 +409,7 @@ const llmFormRules = {
   base_url: [{
     validator: (_, value, callback) => {
       if (getResolvedLLMType(llmForm.provider, llmForm.type) !== 'coze' && !value) {
-        callback(new Error('请输入基础URL'))
+        callback(new Error(t('enter_base_url')))
         return
       }
       callback()
@@ -544,25 +547,25 @@ const ttsFormRef = ref()
 const voiceOptions = ref([])
 const voiceLoading = ref(false)
 const ttsFormRules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
-  'doubao_ws.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'doubao_ws.access_token': [{ required: true, message: '请输入访问令牌', trigger: 'blur' }],
-  'doubao_ws.model': [{ required: true, message: '请选择模型', trigger: 'change' }],
-  'doubao_ws.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'xunfei.app_id': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'xunfei.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'xunfei.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-  'xunfei.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'xunfei.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'xunfei_super_tts.app_id': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-  'xunfei_super_tts.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'xunfei_super_tts.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-  'xunfei_super_tts.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-  'xunfei_super_tts.voice': [{ required: true, message: '请输入音色', trigger: 'blur' }],
-  'minimax.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-  'qwen_tts.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
+  'doubao_ws.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'doubao_ws.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
+  'doubao_ws.model': [{ required: true, message: t('select_model'), trigger: 'change' }],
+  'doubao_ws.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'xunfei.app_id': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'xunfei.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'xunfei.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+  'xunfei.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'xunfei.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'xunfei_super_tts.app_id': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+  'xunfei_super_tts.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'xunfei_super_tts.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+  'xunfei_super_tts.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+  'xunfei_super_tts.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
+  'minimax.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+  'qwen_tts.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }]
 }
 
 const finalOtaUrl = computed(() => {
@@ -710,23 +713,23 @@ async function saveUdpConfig() {
 async function saveOta() {
   const wsUrl = buildWsUrl()
   if (!wsUrl) {
-    ElMessage.warning('请填写域名或 IP')
+    ElMessage.warning(t('fill_domain_or_ip'))
     return false
   }
   if (otaForm.enableMqttUdp) {
     const host = otaForm.host?.trim()
     if (!host) {
-      ElMessage.warning('请填写域名或 IP')
+      ElMessage.warning(t('fill_domain_or_ip'))
       return false
     }
     const mqttPort = Number(otaForm.mqttServerPort)
     const udpPort = Number(otaForm.udpPort)
     if (!mqttPort || mqttPort < 1 || mqttPort > 65535) {
-      ElMessage.warning('请输入有效的 MQTT Server 端口（1-65535）')
+      ElMessage.warning(t('enter_valid_mqtt_port'))
       return false
     }
     if (!udpPort || udpPort < 1 || udpPort > 65535) {
-      ElMessage.warning('请输入有效的 UDP 端口（1-65535）')
+      ElMessage.warning(t('enter_valid_udp_port'))
       return false
     }
     try {
@@ -764,7 +767,7 @@ async function saveOta() {
       const res = await api.post('/admin/ota-configs', payload)
       otaConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success(otaForm.enableMqttUdp ? 'OTA 及 MQTT/UDP 配置已保存' : 'OTA 配置已保存')
+    ElMessage.success(otaForm.enableMqttUdp ? 'OTA 及 MQTT/UDP 配置已保存' : t('ota_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('OTA 保存失败: ' + (e.response?.data?.message || e.message))
@@ -794,7 +797,7 @@ async function saveVad() {
       const res = await api.post('/admin/vad-configs', payload)
       vadConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success('VAD 配置已保存')
+    ElMessage.success(t('vad_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('VAD 保存失败: ' + (e.response?.data?.message || e.message))
@@ -824,7 +827,7 @@ async function saveAsr() {
       const res = await api.post('/admin/asr-configs', payload)
       asrConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success('ASR 配置已保存')
+    ElMessage.success(t('asr_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('ASR 保存失败: ' + (e.response?.data?.message || e.message))
@@ -854,7 +857,7 @@ async function saveLlm() {
       const res = await api.post('/admin/llm-configs', payload)
       llmConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success('LLM 配置已保存')
+    ElMessage.success(t('llm_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('LLM 保存失败: ' + (e.response?.data?.message || e.message))
@@ -884,7 +887,7 @@ async function saveTts() {
       const res = await api.post('/admin/tts-configs', payload)
       ttsConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success('TTS 配置已保存')
+    ElMessage.success(t('tts_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('TTS 保存失败: ' + (e.response?.data?.message || e.message))
@@ -1164,9 +1167,9 @@ async function testCurrentStepConfig() {
 async function copyToClipboard(text) {
   try {
     await navigator.clipboard.writeText(text)
-    ElMessage.success('已复制到剪贴板')
+    ElMessage.success(t('copied_to_clipboard'))
   } catch {
-    ElMessage.error('复制失败')
+    ElMessage.error(t('copy_failed'))
   }
 }
 
@@ -1242,9 +1245,9 @@ async function runOtaTest() {
   } catch (e) {
     const errorMsg = (e.response?.data && typeof e.response.data === 'object')
       ? JSON.stringify(e.response.data, null, 2)
-      : (e.response?.data?.message || e.message || '请求失败')
+      : (e.response?.data?.message || e.message || t('request_failed'))
     otaTestResult.value = errorMsg
-    ElMessage.error('OTA 测试请求失败')
+    ElMessage.error(t('ota_test_request_failed'))
   } finally {
     otaTestLoading.value = false
   }

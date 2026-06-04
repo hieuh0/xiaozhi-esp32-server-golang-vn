@@ -2,24 +2,24 @@
   <div class="simple-login-page">
     <div class="simple-login-card">
       <div class="simple-login-header">
-        <h1>简单登录测试</h1>
+        <h1>{{ t('simple_login_test') }}简单登录测试</h1>
         <p>用于快速验证认证链路和路由跳转。</p>
       </div>
 
       <div class="simple-login-form">
-        <label class="simple-login-label" for="simple-login-username">用户名</label>
+        <label class="simple-login-label" for="simple-login-username">{{ t('username') }}用户名</label>
         <input id="simple-login-username" v-model="username" type="text" class="simple-login-input" />
 
-        <label class="simple-login-label" for="simple-login-password">密码</label>
+        <label class="simple-login-label" for="simple-login-password">{{ t('password') }}密码</label>
         <input id="simple-login-password" v-model="password" type="password" class="simple-login-input" />
 
         <button @click="login" class="simple-login-button">
-          登录
+          {{ t('login') }}  登录
         </button>
       </div>
 
       <div class="debug-info">
-        <h3>调试信息</h3>
+        <h3>{{ t('debug_info') }}调试信息</h3>
         <p>认证状态: {{ authStore.isAuthenticated }}</p>
         <p>用户信息: {{ JSON.stringify(authStore.user) }}</p>
       </div>
@@ -31,6 +31,8 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 const authStore = useAuthStore()

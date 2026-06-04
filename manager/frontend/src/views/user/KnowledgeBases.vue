@@ -1,13 +1,13 @@
 <template>
   <div class="config-page">
     <div class="page-actions">
-      <el-button type="primary" @click="openDialog()">新增知识库</el-button>
+      <el-button type="primary" @click="openDialog()">{{ t('add_knowledge_base') }}新增知识库</el-button>
     </div>
 
     <el-table :data="items" v-loading="loading" stripe table-layout="fixed" style="width: 100%">
       <el-table-column prop="id" label="ID" width="56" />
-      <el-table-column prop="name" label="名称" width="124" show-overflow-tooltip />
-      <el-table-column label="描述" min-width="180" show-overflow-tooltip>
+      <el-table-column prop="name" :label="t('name')" width="124" show-overflow-tooltip />
+      <el-table-column :label="t('description')" min-width="180" show-overflow-tooltip>
         <template #default="scope">
           <span class="kb-desc-text" :class="{ 'is-empty': !(scope.row.description || '').trim() }">
             {{ (scope.row.description || '').trim() || '-' }}
@@ -235,6 +235,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { WarningFilled } from '@element-plus/icons-vue'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const items = ref([])
@@ -383,13 +385,13 @@ const openDialog = (row = null) => {
 
 const submit = async () => {
   if (!form.name.trim()) {
-    ElMessage.error('名称不能为空')
+    ElMessage.error(t('name_required'))
     return
   }
   const rawThreshold = String(form.retrieval_threshold_text || '').trim()
   const threshold = Number(rawThreshold)
   if (!rawThreshold || Number.isNaN(threshold) || threshold < 0 || threshold > 1) {
-    ElMessage.error('检索阈值必须在 0~1 之间')
+    ElMessage.error(t('retrieval_threshold_range'))
     return
   }
   const globalThreshold = Number(form.global_threshold)
@@ -412,22 +414,22 @@ const submit = async () => {
     } else {
       res = await api.post('/user/knowledge-bases', payload)
     }
-    ElMessage.success('保存成功')
+    ElMessage.success(t('save_success'))
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     }
     dialogVisible.value = false
     await loadData()
   } catch (e) {
-    ElMessage.error('保存失败')
+    ElMessage.error(t('save_failed'))
   }
 }
 
 const removeItem = async (id) => {
   try {
-    await ElMessageBox.confirm('确认删除该知识库及其全部文档吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('confirm_delete_knowledge_base'), t('hint'), { type: 'warning' })
     const res = await api.delete(`/user/knowledge-bases/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     }
@@ -522,12 +524,12 @@ const openSearchTestDialog = (row) => {
 
 const runSearchTest = async () => {
   if (!searchTestKb.value?.id) {
-    ElMessage.error('请先选择知识库')
+    ElMessage.error(t('select_knowledge_base'))
     return
   }
   const query = (searchTestForm.query || '').trim()
   if (!query) {
-    ElMessage.error('请输入测试关键词')
+    ElMessage.error(t('enter_test_keyword'))
     return
   }
   searchTestLoading.value = true
@@ -538,7 +540,7 @@ const runSearchTest = async () => {
     if (rawThreshold !== '') {
       const parsed = Number(rawThreshold)
       if (Number.isNaN(parsed) || parsed < 0 || parsed > 1) {
-        ElMessage.error('阈值必须在 0~1 之间')
+        ElMessage.error(t('threshold_0_to_1'))
         return
       }
       threshold = parsed
@@ -584,7 +586,7 @@ const loadDocuments = async () => {
 
 const openDocumentDialog = (row = null) => {
   if (row && isUploadedFileDocument(row)) {
-    ElMessage.warning('文件型文档不支持在线编辑，请删除后重新上传')
+    ElMessage.warning(t('file_doc_no_online_edit'))
     return
   }
   documentEditing.value = !!row
@@ -597,11 +599,11 @@ const openDocumentDialog = (row = null) => {
 const submitDocument = async () => {
   if (!currentKb.value?.id) return
   if (!documentForm.name.trim()) {
-    ElMessage.error('文档名不能为空')
+    ElMessage.error(t('doc_name_required'))
     return
   }
   if (!documentForm.content.trim()) {
-    ElMessage.error('文档内容不能为空')
+    ElMessage.error(t('doc_content_required'))
     return
   }
   try {
@@ -611,7 +613,7 @@ const submitDocument = async () => {
     } else {
       res = await api.post(`/user/knowledge-bases/${currentKb.value.id}/documents`, documentForm)
     }
-    ElMessage.success('文档保存成功')
+    ElMessage.success(t('doc_save_success'))
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     }
@@ -627,9 +629,9 @@ const submitDocument = async () => {
 const removeDocument = async (docId) => {
   if (!currentKb.value?.id) return
   try {
-    await ElMessageBox.confirm('确认删除该文档吗？', '提示', { type: 'warning' })
+    await ElMessageBox.confirm(t('confirm_delete_document'), t('hint'), { type: 'warning' })
     const res = await api.delete(`/user/knowledge-bases/${currentKb.value.id}/documents/${docId}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     }
@@ -653,7 +655,7 @@ const syncDocument = async (docId) => {
 
 const uploadDocumentFile = async (options) => {
   if (!currentKb.value?.id) {
-    ElMessage.error('请先选择知识库')
+    ElMessage.error(t('select_knowledge_base'))
     options?.onError?.(new Error('missing knowledge base'))
     return
   }
@@ -664,7 +666,7 @@ const uploadDocumentFile = async (options) => {
   }
   const file = options?.file
   if (!file) {
-    ElMessage.error('请选择上传文件')
+    ElMessage.error(t('select_upload_file'))
     options?.onError?.(new Error('missing file'))
     return
   }

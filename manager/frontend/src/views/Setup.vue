@@ -3,30 +3,30 @@
     <div class="setup-shell">
       <section class="setup-intro">
         <p class="setup-eyebrow">FIRST RUN EXPERIENCE</p>
-        <h1>用更轻的方式完成系统初始化。</h1>
+        <h1>{{ t('lighter_system_init') }}用更轻的方式完成系统初始化。</h1>
         <p>先创建管理员账户，再进入统一的控制台和配置向导。这一页也同步切换到新的明亮 Apple 风风格。</p>
       </section>
 
       <div class="setup-card">
         <div class="setup-header">
           <p class="setup-card-eyebrow">SYSTEM SETUP</p>
-          <h1>系统初始化</h1>
-          <p>欢迎使用小智管理系统，请完成初始设置</p>
+          <h1>{{ t('system_init') }}系统初始化</h1>
+          <p>{{ t('welcome_initial_setup') }}欢迎使用小智管理系统，请完成初始设置</p>
         </div>
 
         <div v-if="!initialized" class="setup-status">
           <div class="loading-spinner" v-if="checking">
             <div class="spinner"></div>
-            <p>正在检查系统状态...</p>
+            <p>{{ t('checking_system_status') }}正在检查系统状态...</p>
           </div>
 
           <div v-else-if="needsSetup" class="setup-form">
-            <h2>创建管理员账户</h2>
-            <p>请设置管理员账户信息，用于系统管理</p>
+            <h2>{{ t('create_admin_account') }}创建管理员账户</h2>
+            <p>{{ t('set_admin_account_info') }}请设置管理员账户信息，用于系统管理</p>
 
             <form @submit.prevent="initializeSystem">
               <div class="form-group">
-                <label for="username">管理员用户名</label>
+                <label for="username">{{ t('admin_username') }}管理员用户名</label>
                 <input
                   id="username"
                   v-model="form.admin_username"
@@ -34,23 +34,23 @@
                   required
                   minlength="3"
                   maxlength="50"
-                  placeholder="请输入管理员用户名"
+                  :placeholder="t('enter_admin_username')"
                 />
               </div>
 
               <div class="form-group">
-                <label for="email">管理员邮箱</label>
+                <label for="email">{{ t('admin_email') }}管理员邮箱</label>
                 <input
                   id="email"
                   v-model="form.admin_email"
                   type="email"
                   required
-                  placeholder="请输入管理员邮箱"
+                  :placeholder="t('enter_admin_email')"
                 />
               </div>
 
               <div class="form-group">
-                <label for="password">管理员密码</label>
+                <label for="password">{{ t('admin_password') }}管理员密码</label>
                 <input
                   id="password"
                   v-model="form.admin_password"
@@ -58,18 +58,18 @@
                   required
                   minlength="6"
                   maxlength="100"
-                  placeholder="请输入管理员密码（至少6位）"
+                  :placeholder="t('enter_admin_password_min6')"
                 />
               </div>
 
               <div class="form-group">
-                <label for="confirmPassword">确认密码</label>
+                <label for="confirmPassword">{{ t('confirm_password') }}确认密码</label>
                 <input
                   id="confirmPassword"
                   v-model="confirmPassword"
                   type="password"
                   required
-                  placeholder="请再次输入密码"
+                  :placeholder="t('enter_password_again')"
                 />
               </div>
 
@@ -78,8 +78,8 @@
               </div>
 
               <button type="submit" :disabled="initializing" class="setup-btn">
-                <span v-if="initializing">正在初始化...</span>
-                <span v-else>开始初始化</span>
+                <span v-if="initializing">{{ t('initializing') }}正在初始化...</span>
+                <span v-else>{{ t('start_init') }}开始初始化</span>
               </button>
             </form>
           </div>
@@ -88,9 +88,9 @@
             <div class="success-icon">
               <span class="success-badge">OK</span>
             </div>
-            <h2>系统已初始化</h2>
-            <p>系统已完成初始化，请使用管理员账户登录</p>
-            <router-link to="/login" class="login-btn">前往登录</router-link>
+            <h2>{{ t('system_initialized') }}系统已初始化</h2>
+            <p>{{ t('system_init_login_prompt') }}系统已完成初始化，请使用管理员账户登录</p>
+            <router-link to="/login" class="login-btn">{{ t('go_to_login') }}前往登录</router-link>
           </div>
         </div>
 
@@ -98,13 +98,13 @@
           <div class="success-icon">
             <span class="success-badge">OK</span>
           </div>
-          <h2>初始化成功！</h2>
-          <p>系统已成功初始化，管理员账户已创建</p>
+          <h2>{{ t('init_success') }}初始化成功！</h2>
+          <p>{{ t('system_init_admin_created') }}系统已成功初始化，管理员账户已创建</p>
           <div class="admin-info">
-            <p><strong>用户名：</strong>{{ adminInfo.username }}</p>
-            <p><strong>邮箱：</strong>{{ adminInfo.email }}</p>
+            <p><strong>{{ t('username_label') }}用户名：</strong>{{ adminInfo.username }}</p>
+            <p><strong>{{ t('email_label') }}邮箱：</strong>{{ adminInfo.email }}</p>
           </div>
-          <router-link to="/login" class="login-btn">前往登录</router-link>
+          <router-link to="/login" class="login-btn">{{ t('go_to_login') }}前往登录</router-link>
         </div>
       </div>
     </div>

@@ -28,7 +28,7 @@
           <span class="metric-icon agents">
             <el-icon><Cpu /></el-icon>
           </span>
-          <span class="metric-trend">活跃中</span>
+          <span class="metric-trend">{{ t('active') }}活跃中</span>
         </div>
         <strong>{{ stats.totalAgents }}</strong>
         <p>{{ authStore.isAdmin ? '智能体数量' : '我的智能体' }}</p>
@@ -39,10 +39,10 @@
           <span class="metric-icon status">
             <el-icon><Connection /></el-icon>
           </span>
-          <span class="metric-trend">实时监测</span>
+          <span class="metric-trend">{{ t('realtime_monitoring') }}实时监测</span>
         </div>
         <strong>{{ stats.onlineDevices }}</strong>
-        <p>在线设备</p>
+        <p>{{ t('online_devices') }}在线设备</p>
       </article>
     </section>
 
@@ -53,7 +53,7 @@
             <div class="card-header">
               <div>
                 <p class="card-eyebrow">SERVICE ADDRESS</p>
-                <h3>服务地址</h3>
+                <h3>{{ t('service_address') }}服务地址</h3>
               </div>
               <el-button type="warning" size="small" :loading="otaTestLoading" @click="runOtaTest">
                 OTA 测试
@@ -243,6 +243,8 @@ import {
   Guide,
   CopyDocument
 } from '@element-plus/icons-vue'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const authStore = useAuthStore()
 
@@ -316,9 +318,9 @@ async function loadServiceAddress() {
 function copyAddress(text) {
   if (!text) return
   navigator.clipboard.writeText(text).then(() => {
-    ElMessage.success('已复制到剪贴板')
+    ElMessage.success(t('copied_to_clipboard'))
   }).catch(() => {
-    ElMessage.error('复制失败')
+    ElMessage.error(t('copy_failed'))
   })
 }
 
@@ -376,9 +378,9 @@ async function runOtaTest() {
   } catch (error) {
     const errorMsg = (error.response?.data && typeof error.response.data === 'object')
       ? JSON.stringify(error.response.data, null, 2)
-      : (error.response?.data?.message || error.message || '请求失败')
+      : (error.response?.data?.message || error.message || t('request_failed'))
     otaTestResult.value = errorMsg
-    ElMessage.error('OTA 测试请求失败')
+    ElMessage.error(t('ota_test_request_failed'))
   } finally {
     otaTestLoading.value = false
   }
@@ -444,13 +446,13 @@ const exportConfig = async () => {
       link.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(link)
-      ElMessage.success('配置导出成功')
+      ElMessage.success(t('config_export_success'))
     } else {
-      ElMessage.error('配置导出失败')
+      ElMessage.error(t('config_export_failed'))
     }
   } catch (error) {
     console.error('导出配置失败:', error)
-    ElMessage.error('配置导出失败')
+    ElMessage.error(t('config_export_failed'))
   }
 }
 
@@ -466,7 +468,7 @@ const handleFileChange = async (event) => {
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
 
   if (!validExtensions.includes(fileExtension)) {
-    ElMessage.error('请选择 YAML 或 JSON 格式的文件')
+    ElMessage.error(t('select_yaml_or_json'))
     return
   }
 
@@ -483,14 +485,14 @@ const handleFileChange = async (event) => {
     })
 
     if (response.ok) {
-      ElMessage.success('配置导入成功')
+      ElMessage.success(t('config_import_success'))
     } else {
       const error = await response.json()
-      ElMessage.error(error.error || '配置导入失败')
+      ElMessage.error(error.error || t('config_import_failed'))
     }
   } catch (error) {
     console.error('导入配置失败:', error)
-    ElMessage.error('配置导入失败')
+    ElMessage.error(t('config_import_failed'))
   }
 
   event.target.value = ''

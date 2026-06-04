@@ -4,7 +4,7 @@
     <el-card class="base-config-card" style="margin-bottom: 20px;">
       <template #header>
         <div class="card-header">
-          <span>基础配置</span>
+          <span>{{ t('basic_config') }}基础配置</span>
         </div>
       </template>
       
@@ -163,6 +163,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import api from '../../utils/api'
 import { resolveVisionProvider } from './forms/configProviderUtils'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const configs = ref([])
 const loading = ref(false)
@@ -182,8 +184,8 @@ const baseForm = reactive({
 // 基础配置验证规则
 const baseRules = {
   vision_url: [
-    { required: true, message: '请输入Vision URL', trigger: 'blur' },
-    { type: 'url', message: '请输入有效的URL', trigger: 'blur' }
+    { required: true, message: t('enter_vision_url'), trigger: 'blur' },
+    { type: 'url', message: t('enter_valid_url'), trigger: 'blur' }
   ]
 }
 
@@ -217,17 +219,17 @@ const generateConfig = () => {
 }
 
 const rules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
-  type: [{ required: true, message: '请输入类型', trigger: 'blur' }],
-  model_name: [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-  api_key: [{ required: true, message: '请输入API密钥', trigger: 'blur' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
+  type: [{ required: true, message: t('enter_type'), trigger: 'blur' }],
+  model_name: [{ required: true, message: t('enter_model_name'), trigger: 'blur' }],
+  api_key: [{ required: true, message: t('enter_api_password'), trigger: 'blur' }],
   base_url: [
-    { required: true, message: '请输入基础URL', trigger: 'blur' },
-    { type: 'url', message: '请输入有效的URL', trigger: 'blur' }
+    { required: true, message: t('enter_base_url'), trigger: 'blur' },
+    { type: 'url', message: t('enter_valid_url'), trigger: 'blur' }
   ],
-  max_tokens: [{ required: true, message: '请输入最大令牌数', trigger: 'blur' }],
-  timeout: [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+  max_tokens: [{ required: true, message: t('enter_max_tokens'), trigger: 'blur' }],
+  timeout: [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
 }
 
 const parseJsonData = (jsonData) => {
@@ -270,9 +272,9 @@ const saveBaseConfig = async () => {
           enable_auth: baseForm.enable_auth,
           vision_url: baseForm.vision_url
         })
-        ElMessage.success('基础配置保存成功')
+        ElMessage.success(t('basic_config_save_success'))
       } catch (error) {
-        ElMessage.error('保存失败，请检查网络连接和输入内容')
+        ElMessage.error(t('save_failed_check_network'))
       } finally {
         baseSaving.value = false
       }
@@ -288,7 +290,7 @@ const loadConfigs = async () => {
     const allConfigs = response.data.data || []
     configs.value = allConfigs.filter(config => config.config_id !== 'vision_base').map(normalizeVisionConfigRow)
   } catch (error) {
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('load_config_failed'))
   } finally {
     loading.value = false
   }
@@ -314,7 +316,7 @@ const editConfig = (config) => {
     form.timeout = configData.timeout || 30
   } catch (error) {
     console.error('解析配置失败:', error)
-    ElMessage.warning('配置格式错误，已重置为默认值')
+    ElMessage.warning(t('config_format_error_reset'))
   }
   
   showDialog.value = true
@@ -339,16 +341,16 @@ const handleSave = async () => {
         
         if (editingConfig.value) {
           await api.put(`/admin/vision-configs/${editingConfig.value.id}`, configData)
-          ElMessage.success('更新成功')
+          ElMessage.success(t('update_success'))
         } else {
           await api.post('/admin/vision-configs', configData)
-          ElMessage.success('添加成功')
+          ElMessage.success(t('add_success'))
         }
         
         showDialog.value = false
         loadConfigs()
       } catch (error) {
-        ElMessage.error('保存失败，请检查网络连接和输入内容')
+        ElMessage.error(t('save_failed_check_network'))
       } finally {
         saving.value = false
       }
@@ -362,14 +364,14 @@ const toggleEnable = async (config) => {
     ElMessage.success(`${config.enabled ? '启用' : '禁用'}成功`)
   } catch (error) {
     config.enabled = !config.enabled
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
 const toggleDefault = async (config) => {
   try {
     if (!config.enabled) {
-      ElMessage.warning('请先启用该配置才能设为默认')
+      ElMessage.warning(t('enable_config_before_default'))
       config.is_default = false
       return
     }
@@ -387,7 +389,7 @@ const toggleDefault = async (config) => {
     loadConfigs()
   } catch (error) {
     config.is_default = !config.is_default
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
@@ -397,18 +399,18 @@ const getEnabledConfigs = () => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个配置吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_config'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     
     await api.delete(`/admin/vision-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
     }
   }
 }

@@ -19,6 +19,8 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const props = defineProps({
   title: {

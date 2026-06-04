@@ -21,7 +21,7 @@
               @click="navigate"
             >
               <el-icon><Guide /></el-icon>
-              <span>配置向导</span>
+              <span>{{ t('config_wizard') }}</span>
             </el-button>
           </router-link>
           <router-link to="/admin/ota-config" custom v-slot="{ navigate, isActive }">
@@ -32,10 +32,25 @@
               @click="navigate"
             >
               <el-icon><Upload /></el-icon>
-              <span>OTA 配置</span>
+              <span>{{ t('ota_config') }}</span>
             </el-button>
           </router-link>
         </template>
+
+        <!-- Language switcher -->
+        <el-dropdown @command="setLang" trigger="click">
+          <el-button text class="lang-btn">
+            <span>{{ langLabel }}</span>
+            <el-icon><ArrowDown /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item command="vi" :class="{ 'is-active': lang === 'vi' }">🇻🇳 Tiếng Việt</el-dropdown-item>
+              <el-dropdown-item command="en" :class="{ 'is-active': lang === 'en' }">🇬🇧 English</el-dropdown-item>
+              <el-dropdown-item command="zh" :class="{ 'is-active': lang === 'zh' }">🇨🇳 中文</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
 
         <el-dropdown @command="emit('command', $event)">
           <button class="profile-button" type="button">
@@ -49,7 +64,7 @@
           <template #dropdown>
             <el-dropdown-menu>
               <el-dropdown-item v-if="!props.isAdmin" command="api-tokens">API Token</el-dropdown-item>
-              <el-dropdown-item command="logout">退出登录</el-dropdown-item>
+              <el-dropdown-item command="logout">{{ t('logout') }}</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -59,7 +74,13 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { ArrowDown, Guide, Upload } from '@element-plus/icons-vue'
+import { useLocale } from '../composables/useLocale'
+
+const { t, lang, setLang } = useLocale()
+
+const langLabel = computed(() => ({ vi: '🇻🇳 VI', en: '🇬🇧 EN', zh: '🇨🇳 ZH' })[lang.value] ?? 'VI')
 
 const props = defineProps({
   title: {
@@ -216,6 +237,13 @@ const emit = defineEmits(['command'])
 .profile-copy small {
   color: var(--apple-text-secondary);
   font-size: 11px;
+}
+
+.lang-btn {
+  padding: 6px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  gap: 4px;
 }
 
 @media (max-width: 960px) {

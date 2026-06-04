@@ -32,7 +32,7 @@
                   </el-dropdown-item>
                   <el-dropdown-item command="delete" divided>
                     <el-icon><Delete /></el-icon>
-                    删除
+                    {{ t('delete') }}  删除
                   </el-dropdown-item>
                 </el-dropdown-menu>
                 </template>
@@ -208,6 +208,8 @@ import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, MoreFilled, Edit, CopyDocument, Delete, SwitchButton } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const userRoles = ref([])
 const loading = ref(false)
@@ -234,8 +236,8 @@ const form = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-  prompt: [{ required: true, message: '请输入系统提示词', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_role_name'), trigger: 'blur' }],
+  prompt: [{ required: true, message: t('enter_system_prompt'), trigger: 'blur' }]
 }
 
 // 加载角色列表
@@ -245,7 +247,7 @@ const loadRoles = async () => {
     const response = await api.get('/user/roles')
     userRoles.value = response.data.data?.user_roles || []
   } catch (error) {
-    ElMessage.error('加载角色失败')
+    ElMessage.error(t('load_roles_failed'))
   } finally {
     loading.value = false
   }
@@ -288,7 +290,7 @@ const isRoleActive = (role) => role?.status !== 'inactive'
 const toggleRoleStatus = async (role) => {
   if (!role?.id) return
 
-  const action = isRoleActive(role) ? '关闭' : '开启'
+  const action = isRoleActive(role) ? t('close') : '开启'
   try {
     await api.patch(`/user/roles/${role.id}/toggle`)
     ElMessage.success(`角色${action}成功`)
@@ -417,10 +419,10 @@ const handleSave = async () => {
 
         if (editingRole.value) {
           await api.put(`/user/roles/${editingRole.value.id}`, data)
-          ElMessage.success('更新成功')
+          ElMessage.success(t('update_success'))
         } else {
           await api.post('/user/roles', data)
-          ElMessage.success('创建成功')
+          ElMessage.success(t('create_success'))
         }
 
         showCreateDialog.value = false
@@ -436,18 +438,18 @@ const handleSave = async () => {
 
 const deleteRole = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个角色吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_role'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
 
     await api.delete(`/user/roles/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadRoles()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
     }
   }
 }

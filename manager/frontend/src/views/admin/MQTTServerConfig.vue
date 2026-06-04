@@ -14,7 +14,7 @@
               <div>
                 <p class="card-kicker">MQTT Server</p>
                 <h3>监听与接入</h3>
-                <p class="card-description">配置内置 MQTT Server 的监听地址和启用状态，供设备与主程序接入。</p>
+                <p class="card-description">{{ t('mqtt_server_config_desc') }}配置内置 MQTT Server 的监听地址和启用状态，供设备与主程序接入。</p>
               </div>
               <el-tag :type="serverReady ? 'success' : 'warning'" effect="plain" round>
                 {{ serverReady ? '服务参数完整' : '待补充' }}
@@ -142,6 +142,8 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -207,14 +209,14 @@ const validateTlsKey = (_, value, callback) => {
 }
 
 const rules = {
-  listen_host: [{ required: true, message: '请输入监听主机地址', trigger: 'blur' }],
+  listen_host: [{ required: true, message: t('enter_listen_host'), trigger: 'blur' }],
   listen_port: [
-    { required: true, message: '请输入监听端口号', trigger: 'blur' },
-    { type: 'number', min: 1, max: 65535, message: '端口号必须在 1-65535 之间', trigger: 'blur' }
+    { required: true, message: t('enter_listen_port'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 65535, message: t('port_range_error'), trigger: 'blur' }
   ],
   username: [{ validator: validateUsername, trigger: 'blur' }],
   password: [{ validator: validatePassword, trigger: 'blur' }],
-  signature_key: [{ required: true, message: '请输入签名密钥', trigger: 'blur' }],
+  signature_key: [{ required: true, message: t('enter_signature_key'), trigger: 'blur' }],
   'tls.port': [{ validator: validateTlsPort, trigger: 'blur' }],
   'tls.pem': [{ validator: validateTlsPem, trigger: 'blur' }],
   'tls.key': [{ validator: validateTlsKey, trigger: 'blur' }]
@@ -242,7 +244,7 @@ const loadConfig = async () => {
       try {
         configData = JSON.parse(config.json_data || '{}')
       } catch (error) {
-        ElMessage.warning('MQTT Server 配置格式异常，已回退到默认值')
+        ElMessage.warning(t('mqtt_server_config_format_error'))
         configData = {}
       }
 
@@ -304,11 +306,11 @@ const handleSave = async () => {
 
     if (configId.value) {
       await api.put(`/admin/mqtt-server-configs/${configId.value}`, payload)
-      ElMessage.success('MQTT Server 配置已更新')
+      ElMessage.success(t('mqtt_server_config_updated'))
     } else {
       const response = await api.post('/admin/mqtt-server-configs', payload)
       configId.value = response.data?.data?.id || configId.value
-      ElMessage.success('MQTT Server 配置已保存')
+      ElMessage.success(t('mqtt_server_config_saved'))
     }
 
     await loadConfig()

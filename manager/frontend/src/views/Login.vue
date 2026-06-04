@@ -5,22 +5,22 @@
         <div class="login-brand">
           <img class="login-brand-logo" :src="appLogo" alt="小智管理系统" />
           <div>
-            <strong>小智管理系统</strong>
-            <span>AI 服务与设备管理平台</span>
+            <strong>{{ t('xiaozhi_management_system') }}小智管理系统</strong>
+            <span>{{ t('ai_platform_title') }}AI 服务与设备管理平台</span>
           </div>
         </div>
         <p class="login-eyebrow">XIAOZHI CONTROL CENTER</p>
-        <h1>小智 AI Go 到起飞。</h1>
+        <h1>{{ t('xiaozhi_tagline') }}小智 AI Go 到起飞。</h1>
         <p>
           统一管理智能体、声纹、知识库与服务接入，让设备、模型和语音能力在同一个工作台里协同运行。
         </p>
         <div class="login-meta">
-          <span class="apple-chip is-primary">智能体编排</span>
-          <span class="apple-chip">设备接入</span>
-          <span class="apple-chip">声纹与知识库</span>
+          <span class="apple-chip is-primary">{{ t('agent_orchestration') }}智能体编排</span>
+          <span class="apple-chip">{{ t('device_access') }}设备接入</span>
+          <span class="apple-chip">{{ t('voiceprint_knowledge') }}声纹与知识库</span>
           <span class="apple-chip">MCP / OpenClaw</span>
-          <span class="apple-chip">MCP 远程调用</span>
-          <span class="apple-chip">主动语音下发</span>
+          <span class="apple-chip">{{ t('mcp_remote_call') }}MCP 远程调用</span>
+          <span class="apple-chip">{{ t('proactive_voice_push') }}主动语音下发</span>
         </div>
       </section>
 
@@ -29,7 +29,7 @@
           <div class="card-header">
             <div>
               <p class="card-eyebrow">WELCOME BACK</p>
-              <h2>登录或创建账户</h2>
+              <h2>{{ t('login_or_create') }}登录或创建账户</h2>
             </div>
           </div>
         </template>
@@ -169,6 +169,8 @@ import api from '../utils/api'
 import { getPostLoginRedirectPath } from '../utils/authRedirect'
 import { checkNeedsSetup } from '../utils/setupStatus'
 import appLogo from '@/assets/brand/app-logo.webp'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -200,8 +202,8 @@ const registerForm = reactive({
 })
 
 const loginRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
-  password: [{ required: true, message: '请输入密码', trigger: 'blur' }],
+  username: [{ required: true, message: t('enter_username'), trigger: 'blur' }],
+  password: [{ required: true, message: t('enter_password'), trigger: 'blur' }],
   captchaAnswer: [
     {
       validator: (rule, value, callback) => {
@@ -209,7 +211,7 @@ const loginRules = {
           callback()
           return
         }
-        callback(new Error('请输入计算结果'))
+        callback(new Error(t('enter_calc_result')))
       },
       trigger: 'blur'
     }
@@ -217,17 +219,17 @@ const loginRules = {
 }
 
 const registerRules = {
-  username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+  username: [{ required: true, message: t('enter_username'), trigger: 'blur' }],
   email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: t('enter_email'), trigger: 'blur' },
+    { type: 'email', message: t('enter_valid_email'), trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: t('enter_password'), trigger: 'blur' },
+    { min: 6, message: t('password_min_length'), trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: t('confirm_password_prompt'), trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (value !== registerForm.password) {
@@ -240,7 +242,7 @@ const registerRules = {
     }
   ],
   captchaAnswer: [
-    { required: true, message: '请输入计算结果', trigger: 'blur' }
+    { required: true, message: t('enter_calc_result'), trigger: 'blur' }
   ]
 }
 
@@ -303,7 +305,7 @@ const handleLogin = async () => {
   }
 
   if (loginCaptchaEnabled.value && !loginForm.captchaId) {
-    ElMessage.error('人机验证加载失败，请换一题重试')
+    ElMessage.error(t('captcha_load_failed'))
     await refreshLoginCaptcha()
     return
   }
@@ -321,7 +323,7 @@ const handleLogin = async () => {
   loading.value = false
 
   if (result.success) {
-    ElMessage.success('登录成功')
+    ElMessage.success(t('login_success'))
     router.push(getPostLoginRedirectPath(authStore.user))
   } else {
     ElMessage.error(result.message)
@@ -341,7 +343,7 @@ const handleRegister = async () => {
   }
 
   if (!registerForm.captchaId) {
-    ElMessage.error('人机验证加载失败，请换一题重试')
+    ElMessage.error(t('captcha_load_failed'))
     await refreshRegisterCaptcha()
     return
   }
@@ -357,7 +359,7 @@ const handleRegister = async () => {
   loading.value = false
 
   if (result.success) {
-    ElMessage.success('注册成功，请登录')
+    ElMessage.success(t('register_success_login'))
     activeTab.value = 'login'
     Object.assign(registerForm, {
       username: '',

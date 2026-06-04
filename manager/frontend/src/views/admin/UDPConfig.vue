@@ -13,8 +13,8 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">UDP Server</p>
-                <h3>服务监听</h3>
-                <p class="card-description">配置主程序内置 UDP Server 的监听地址，供设备侧发现并建立连接。</p>
+                <h3>{{ t('service_listen') }}服务监听</h3>
+                <p class="card-description">{{ t('udp_server_config_desc') }}配置主程序内置 UDP Server 的监听地址，供设备侧发现并建立连接。</p>
               </div>
               <el-tag :type="listenReady ? 'success' : 'warning'" effect="plain" round>
                 {{ listenReady ? '监听参数完整' : '待补充' }}
@@ -83,6 +83,8 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -101,16 +103,16 @@ const createDefaultFormState = () => ({
 const form = reactive(createDefaultFormState())
 
 const rules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  external_host: [{ required: true, message: '请输入外部主机地址', trigger: 'blur' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  external_host: [{ required: true, message: t('enter_external_host'), trigger: 'blur' }],
   external_port: [
-    { required: true, message: '请输入外部端口号', trigger: 'blur' },
-    { type: 'number', min: 1, max: 65535, message: '端口号必须在 1-65535 之间', trigger: 'blur' }
+    { required: true, message: t('enter_external_port'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 65535, message: t('port_range_error'), trigger: 'blur' }
   ],
-  listen_host: [{ required: true, message: '请输入监听主机地址', trigger: 'blur' }],
+  listen_host: [{ required: true, message: t('enter_listen_host'), trigger: 'blur' }],
   listen_port: [
-    { required: true, message: '请输入监听端口号', trigger: 'blur' },
-    { type: 'number', min: 1, max: 65535, message: '端口号必须在 1-65535 之间', trigger: 'blur' }
+    { required: true, message: t('enter_listen_port'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 65535, message: t('port_range_error'), trigger: 'blur' }
   ]
 }
 
@@ -140,7 +142,7 @@ const loadConfig = async () => {
       try {
         configData = JSON.parse(config.json_data || '{}')
       } catch (error) {
-        ElMessage.warning('UDP 配置格式异常，已回退到默认值')
+        ElMessage.warning(t('udp_config_format_error'))
         configData = {}
       }
 
@@ -155,7 +157,7 @@ const loadConfig = async () => {
       resetForm()
     }
   } catch (error) {
-    ElMessage.error('加载 UDP 配置失败')
+    ElMessage.error(t('load_udp_config_failed'))
   } finally {
     loading.value = false
   }
@@ -186,11 +188,11 @@ const handleSave = async () => {
 
     if (configId.value) {
       await api.put(`/admin/udp-configs/${configId.value}`, payload)
-      ElMessage.success('UDP 配置已更新')
+      ElMessage.success(t('udp_config_updated'))
     } else {
       const response = await api.post('/admin/udp-configs', payload)
       configId.value = response.data?.data?.id || configId.value
-      ElMessage.success('UDP 配置已保存')
+      ElMessage.success(t('udp_config_saved'))
     }
 
     await loadConfig()

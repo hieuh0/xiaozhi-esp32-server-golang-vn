@@ -1,7 +1,7 @@
 <template>
   <el-dialog
     v-model="visible"
-    title="语音推送"
+    :title="t('voice_push')"
     width="620px"
     class="inject-message-dialog"
     :close-on-click-modal="false"
@@ -13,10 +13,10 @@
       :rules="rules"
       label-position="top"
     >
-      <el-form-item label="选择设备" prop="device_id">
+      <el-form-item :label="t('select_device_prompt')" prop="device_id">
         <el-select
           v-model="form.device_id"
-          placeholder="请选择要推送语音的设备"
+          :placeholder="t('select_push_voice_device')"
           style="width: 100%"
           filterable
           :disabled="deviceSelectDisabled"
@@ -43,21 +43,21 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item label="推送内容" prop="message">
+      <el-form-item :label="t('push_content')" prop="message">
         <el-input
           v-model="form.message"
           type="textarea"
           :rows="4"
-          placeholder="请输入要推送播报的内容"
+          :placeholder="t('enter_broadcast_content')"
           maxlength="500"
           show-word-limit
         />
       </el-form-item>
 
-      <el-form-item label="直接播报" prop="skip_llm">
+      <el-form-item :label="t('direct_broadcast')" prop="skip_llm">
         <div class="switch-field">
           <div class="switch-copy">
-            <div class="switch-title">{{ directPlayback ? '开启' : '关闭' }}</div>
+            <div class="switch-title">{{ directPlayback ? '开启' : t('close') }}</div>
             <div class="switch-desc">
               {{ directPlayback ? '消息将直接转语音播报，不经过 LLM 推理。' : '消息将先经过 LLM 处理，再进行播报。' }}
             </div>
@@ -66,15 +66,15 @@
             v-model="directPlayback"
             inline-prompt
             active-text="开启"
-            inactive-text="关闭"
+            :inactive-text="t('close')"
           />
         </div>
       </el-form-item>
 
-      <el-form-item label="是否转空闲" prop="auto_listen">
+      <el-form-item :label="t('switch_to_idle')" prop="auto_listen">
         <div class="switch-field">
           <div class="switch-copy">
-            <div class="switch-title">{{ returnToIdleAfterPlayback ? '开启' : '关闭' }}</div>
+            <div class="switch-title">{{ returnToIdleAfterPlayback ? '开启' : t('close') }}</div>
             <div class="switch-desc">
               {{ returnToIdleAfterPlayback ? '播报完成后回到空闲，适合广播通知和单向播报。' : '播报完成后继续监听，可直接进入下一轮对话。' }}
             </div>
@@ -83,7 +83,7 @@
             v-model="returnToIdleAfterPlayback"
             inline-prompt
             active-text="开启"
-            inactive-text="关闭"
+            :inactive-text="t('close')"
           />
         </div>
       </el-form-item>
@@ -91,9 +91,9 @@
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="handleClose">取消</el-button>
+        <el-button @click="handleClose">{{ t('cancel') }}</el-button>
         <el-button type="primary" :loading="submitting" @click="handleSubmit">
-          {{ submitting ? '推送中...' : '语音推送' }}
+          {{ submitting ? '推送中...' : t('voice_push') }}
         </el-button>
       </div>
     </template>
@@ -104,6 +104,9 @@
 import { computed, reactive, ref, watch } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const props = defineProps({
   modelValue: {
@@ -158,11 +161,11 @@ const form = reactive({
 
 const rules = {
   device_id: [
-    { required: true, message: '请选择设备', trigger: 'change' }
+    { required: true, message: t('select_device'), trigger: 'change' }
   ],
   message: [
-    { required: true, message: '请输入推送内容', trigger: 'blur' },
-    { min: 1, max: 500, message: '推送内容需在 1-500 个字符之间', trigger: 'blur' }
+    { required: true, message: t('enter_push_content'), trigger: 'blur' },
+    { min: 1, max: 500, message: t('push_content_length'), trigger: 'blur' }
   ]
 }
 
@@ -224,7 +227,7 @@ const handleSubmit = async () => {
       auto_listen: form.auto_listen
     })
     if (response.data?.success) {
-      ElMessage.success('语音推送成功')
+      ElMessage.success(t('voice_push_success'))
       emit('success', response.data?.data || null)
       closeDialog()
     }

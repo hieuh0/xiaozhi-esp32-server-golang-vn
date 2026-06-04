@@ -12,15 +12,15 @@
       </el-button>
       <el-button type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
-        添加配置
+        {{ t('add_config') }}  添加配置
       </el-button>
     </div>
 
     <el-table :data="configs" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="配置名称" />
-      <el-table-column prop="config_id" label="配置ID" width="150" />
-      <el-table-column prop="provider" label="类型">
+      <el-table-column prop="name" :label="t('config_name')" />
+      <el-table-column prop="config_id" :label="t('config_id')" width="150" />
+      <el-table-column prop="provider" :label="t('type')">
         <template #default="scope">
           {{ getProviderLabel(scope.row.provider) }}
         </template>
@@ -126,6 +126,8 @@ import api from '../../utils/api'
 import { testSingleConfig, testWithData, parseJsonData } from '../../utils/configTest'
 import LLMConfigForm from './forms/LLMConfigForm.vue'
 import { getProviderFixedType, getProviderThinkingConfig, isProviderBaseURLEditable, resolveLLMProvider } from './forms/llmCatalog'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const configs = ref([])
 const testingId = ref(null)
@@ -161,19 +163,19 @@ const form = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-  provider: [{ required: true, message: '请选择提供商', trigger: 'change' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+  provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
   model_name: [{
     required: true,
-    message: '请输入模型名称',
+    message: t('enter_model_name'),
     trigger: 'change'
   }, {
     validator: (_, value, callback) => {
       const provider = resolveLLMProvider(form.provider, form.type)
       const providerType = getProviderFixedType(provider)
       if ((providerType === 'openai' || providerType === 'ollama') && !value) {
-        callback(new Error('请输入模型名称'))
+        callback(new Error(t('enter_model_name')))
         return
       }
       callback()
@@ -184,7 +186,7 @@ const rules = {
     validator: (_, value, callback) => {
       const provider = resolveLLMProvider(form.provider, form.type)
       if (getProviderFixedType(provider) !== 'ollama' && !value) {
-        callback(new Error('请输入API密钥'))
+        callback(new Error(t('enter_api_password')))
         return
       }
       callback()
@@ -195,7 +197,7 @@ const rules = {
     validator: (_, value, callback) => {
       const provider = resolveLLMProvider(form.provider, form.type)
       if (isProviderBaseURLEditable(provider) && !value) {
-        callback(new Error('请输入基础URL'))
+        callback(new Error(t('enter_base_url')))
         return
       }
       callback()
@@ -225,8 +227,8 @@ const rules = {
     },
     trigger: 'blur'
   }],
-  temperature: [{ type: 'number', min: 0, max: 2, message: '温度必须在0-2之间', trigger: 'blur' }],
-  top_p: [{ type: 'number', min: 0, max: 1, message: 'Top P必须在0-1之间', trigger: 'blur' }]
+  temperature: [{ type: 'number', min: 0, max: 2, message: t('temperature_range_error'), trigger: 'blur' }],
+  top_p: [{ type: 'number', min: 0, max: 1, message: t('top_p_range_error'), trigger: 'blur' }]
 }
 
 const loadConfigs = async () => {
@@ -241,7 +243,7 @@ const loadConfigs = async () => {
       }
     })
   } catch (error) {
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('load_config_failed'))
   } finally {
     loading.value = false
   }
@@ -314,10 +316,10 @@ const handleSave = async () => {
         
         if (editingConfig.value) {
           await api.put(`/admin/llm-configs/${editingConfig.value.id}`, configData)
-          ElMessage.success('配置更新成功')
+          ElMessage.success(t('config_update_success'))
         } else {
           await api.post('/admin/llm-configs', configData)
-          ElMessage.success('配置创建成功')
+          ElMessage.success(t('config_create_success'))
         }
         
         showDialog.value = false
@@ -338,14 +340,14 @@ const toggleEnable = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
 const toggleDefault = async (config) => {
   try {
     if (!config.enabled) {
-      ElMessage.warning('请先启用该配置才能设为默认')
+      ElMessage.warning(t('enable_config_before_default'))
       config.is_default = false
       return
     }
@@ -367,7 +369,7 @@ const toggleDefault = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.is_default = !config.is_default
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
@@ -415,11 +417,11 @@ function getProviderLabel(provider) {
   const labels = {
     azure: 'Azure OpenAI',
     anthropic: 'Anthropic',
-    zhipu: '智谱AI',
-    aliyun: '阿里云',
-    doubao: '豆包',
-    siliconflow: '硅基流动',
-    deepseek: 'DeepSeek（深度求索）',
+    zhipu: t('zhipu_ai'),
+    aliyun: t('aliyun'),
+    doubao: t('doubao'),
+    siliconflow: t('silicon_flow'),
+    deepseek: t('deepseek_label'),
     openai: 'OpenAI',
     ollama: 'Ollama',
     dify: 'Dify',
@@ -448,7 +450,7 @@ const testConfig = async (row, type) => {
 const testAllConfigs = async () => {
   const list = getEnabledConfigs()
   if (!list.length) {
-    ElMessage.warning('没有已启用的配置')
+    ElMessage.warning(t('no_enabled_config'))
     return
   }
   testingAll.value = true
@@ -461,7 +463,7 @@ const testAllConfigs = async () => {
         testResults.value = { ...testResults.value, [row.config_id]: result }
         if (result.ok) okCount++
       } catch (_) {
-        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: '请求失败' } }
+        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: t('request_failed') } }
       }
     }
     ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
@@ -481,7 +483,7 @@ const testCurrentConfig = async () => {
   }
   const configId = form.config_id?.trim()
   if (!configId) {
-    ElMessage.warning('请填写配置ID')
+    ElMessage.warning(t('fill_config_id'))
     return
   }
   const payload = {
@@ -509,18 +511,18 @@ const testCurrentConfig = async () => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个配置吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_config'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     
     await api.delete(`/admin/llm-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
     }
   }
 }

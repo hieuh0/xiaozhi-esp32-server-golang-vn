@@ -3,15 +3,15 @@
     <div class="page-actions">
       <el-button type="primary" @click="handleAddConfig">
         <el-icon><Plus /></el-icon>
-        添加配置
+        {{ t('add_config') }}  添加配置
       </el-button>
     </div>
 
     <el-table :data="safeConfigs" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="配置名称" />
-      <el-table-column prop="config_id" label="配置ID" width="150" />
-      <el-table-column prop="provider" label="提供商" width="120">
+      <el-table-column prop="name" :label="t('config_name')" />
+      <el-table-column prop="config_id" :label="t('config_id')" width="150" />
+      <el-table-column prop="provider" :label="t('provider')" width="120">
         <template #default="scope">
           <el-tag :type="getProviderTagType(scope.row.provider)">
             {{ scope.row.provider }}
@@ -162,6 +162,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus, Box } from '@element-plus/icons-vue'
 import api from '../../utils/api'
 import { resolveMemoryProvider } from './forms/configProviderUtils'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const configs = ref([])
 const loading = ref(false)
@@ -247,19 +249,19 @@ const parseConfig = (jsonData) => {
 
 const rules = {
   name: [
-    { required: true, message: '请输入配置名称', trigger: 'blur' }
+    { required: true, message: t('enter_config_name'), trigger: 'blur' }
   ],
   config_id: [
-    { required: true, message: '请输入配置ID', trigger: 'blur' }
+    { required: true, message: t('enter_config_id'), trigger: 'blur' }
   ],
   provider: [
-    { required: true, message: '请选择提供商', trigger: 'change' }
+    { required: true, message: t('select_provider'), trigger: 'change' }
   ],
   api_key: [
-    { required: true, message: '请输入API密钥', trigger: 'blur' }
+    { required: true, message: t('enter_api_password'), trigger: 'blur' }
   ],
   base_url: [
-    { required: true, message: '请输入基础URL', trigger: 'blur' }
+    { required: true, message: t('enter_base_url'), trigger: 'blur' }
   ]
 }
 
@@ -290,7 +292,7 @@ const loadConfigs = async () => {
     }
     console.log('Loaded configs:', configs.value)
   } catch (error) {
-    console.error('加载配置失败:', error)
+    console.error(t('load_config_failed_colon'), error)
     ElMessage.error('加载配置失败: ' + (error.message || '未知错误'))
     // Ensure configs is always an array to prevent render errors
     configs.value = []
@@ -338,10 +340,10 @@ const handleSave = async () => {
     
     if (editingConfig.value) {
       await api.put(`/admin/memory-configs/${editingConfig.value.id}`, configData)
-      ElMessage.success('配置更新成功')
+      ElMessage.success(t('config_update_success'))
     } else {
       await api.post('/admin/memory-configs', configData)
-      ElMessage.success('配置创建成功')
+      ElMessage.success(t('config_create_success'))
     }
     
     showDialog.value = false
@@ -371,12 +373,12 @@ const editConfig = (config) => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个配置吗？', '确认删除', {
+    await ElMessageBox.confirm(t('confirm_delete_config'), '确认删除', {
       type: 'warning'
     })
     
     await api.delete(`/admin/memory-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
@@ -402,7 +404,7 @@ const toggleDefault = async (config) => {
   try {
     if (config.is_default) {
       await api.post(`/admin/memory-configs/${config.id}/set-default`)
-      ElMessage.success('已设为默认配置')
+      ElMessage.success(t('set_as_default_config'))
       await loadConfigs()
     } else {
       await api.put(`/admin/memory-configs/${config.id}`, {
@@ -413,7 +415,7 @@ const toggleDefault = async (config) => {
         is_default: false,
         json_data: config.json_data || ''
       })
-      ElMessage.success('已取消默认配置（不启用长记忆）')
+      ElMessage.success(t('long_memory_disabled'))
       await loadConfigs()
     }
   } catch (error) {

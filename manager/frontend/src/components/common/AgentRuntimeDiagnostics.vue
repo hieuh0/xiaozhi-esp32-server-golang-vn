@@ -4,7 +4,7 @@
       <el-collapse-item name="mcp">
         <template #title>
           <div class="collapse-title">
-            <strong>MCP 接入点与工具调试</strong>
+            <strong>{{ t('mcp_endpoint_debug') }}</strong>
             <span>{{ mcpSummaryText }}</span>
           </div>
         </template>
@@ -140,6 +140,9 @@ import { Refresh } from '@element-plus/icons-vue'
 import api from '../../utils/api'
 import { postJSONWithSSE } from '../../utils/sse'
 import { buildOpenClawCommands } from '../../utils/openclaw'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const props = defineProps({
   agentId: {
@@ -409,7 +412,7 @@ const formatMcpCallResult = (payload) => {
 
 const callAgentMcpTool = async () => {
   if (!mcpCallForm.value.tool_name) {
-    ElMessage.warning('请选择工具')
+    ElMessage.warning(t('select_tool'))
     return
   }
 
@@ -417,7 +420,7 @@ const callAgentMcpTool = async () => {
   try {
     argumentsObj = mcpCallForm.value.argumentsText ? JSON.parse(mcpCallForm.value.argumentsText) : {}
   } catch (_) {
-    ElMessage.error('参数JSON格式错误')
+    ElMessage.error(t('params_json_format_error'))
     return
   }
 
@@ -428,10 +431,10 @@ const callAgentMcpTool = async () => {
       arguments: argumentsObj
     })
     mcpCallResult.value = formatMcpCallResult(response.data?.data || {})
-    ElMessage.success('MCP工具调用成功')
+    ElMessage.success(t('mcp_tool_call_success'))
   } catch (error) {
     mcpCallResult.value = JSON.stringify(error.response?.data || { error: error.message }, null, 2)
-    ElMessage.error('MCP工具调用失败')
+    ElMessage.error(t('mcp_tool_call_failed'))
   } finally {
     callingTool.value = false
   }
@@ -439,14 +442,14 @@ const callAgentMcpTool = async () => {
 
 const copyMcpEndpoint = async () => {
   if (!mcpEndpointData.value.endpoint) {
-    ElMessage.warning('暂无可复制的 MCP 接入点')
+    ElMessage.warning(t('no_mcp_endpoint_to_copy'))
     return
   }
   try {
     await navigator.clipboard.writeText(mcpEndpointData.value.endpoint)
-    ElMessage.success('MCP接入点URL已复制')
+    ElMessage.success(t('mcp_endpoint_url_copied'))
   } catch (_) {
-    ElMessage.error('复制失败')
+    ElMessage.error(t('copy_failed'))
   }
 }
 
@@ -480,14 +483,14 @@ const fetchOpenClawEndpoint = async ({ showError = true } = {}) => {
 const copyOpenClawCommands = async () => {
   const commands = openClawCommandData.value.copyText
   if (!commands) {
-    ElMessage.warning('暂无可复制的 OpenClaw 角色配置命令')
+    ElMessage.warning(t('no_openclaw_config_to_copy'))
     return
   }
   try {
     await navigator.clipboard.writeText(commands)
-    ElMessage.success('OpenClaw 角色配置命令已复制')
+    ElMessage.success(t('openclaw_role_config_copied'))
   } catch (_) {
-    ElMessage.error('复制失败，请手动复制')
+    ElMessage.error(t('copy_failed_manual'))
   }
 }
 
@@ -500,7 +503,7 @@ const formatOpenClawChatResult = (reply, latency) => {
 const testOpenClawChat = async () => {
   const message = String(openClawChatTestForm.value.message || '').trim()
   if (!message) {
-    ElMessage.warning('请输入测试消息')
+    ElMessage.warning(t('enter_test_message'))
     return
   }
 
@@ -564,7 +567,7 @@ const testOpenClawChat = async () => {
       const reply = String(data.reply || '')
       const latency = Number(data.latency_ms)
       openClawChatTestResult.value = formatOpenClawChatResult(reply, latency)
-      ElMessage.success('OpenClaw对话测试成功')
+      ElMessage.success(t('openclaw_chat_test_success'))
       return
     }
 
@@ -578,7 +581,7 @@ const testOpenClawChat = async () => {
     } else {
       throw new Error('未收到OpenClaw返回内容')
     }
-    ElMessage.success('OpenClaw对话测试成功')
+    ElMessage.success(t('openclaw_chat_test_success'))
   } catch (error) {
     const msg = error.response?.data?.error || error.message || 'OpenClaw对话测试失败'
     openClawChatTestResult.value = `错误: ${msg}`

@@ -1,7 +1,7 @@
 <template>
   <div class="api-tokens-page">
     <div class="page-actions">
-      <router-link class="doc-link" to="/openapi-docs">查看公开 OpenAPI 接口说明</router-link>
+      <router-link class="doc-link" to="/openapi-docs">{{ t('view_public_openapi') }}查看公开 OpenAPI 接口说明</router-link>
       <el-button type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
         创建 Token
@@ -81,6 +81,8 @@ import { onMounted, reactive, ref } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const creating = ref(false)
@@ -96,7 +98,7 @@ const form = reactive({
 })
 
 const rules = {
-  name: [{ required: true, message: '请输入 Token 名称', trigger: 'blur' }]
+  name: [{ required: true, message: t('enter_token_name'), trigger: 'blur' }]
 }
 
 const formatTime = (val) => {
@@ -130,7 +132,7 @@ const handleCreate = async () => {
     latestToken.value = res.data?.data?.token || ''
     showCreate.value = false
     showPlainToken.value = true
-    ElMessage.success('Token 创建成功')
+    ElMessage.success(t('token_created'))
     await loadTokens()
   } finally {
     creating.value = false
@@ -138,20 +140,20 @@ const handleCreate = async () => {
 }
 
 const handleRevoke = async (row) => {
-  await ElMessageBox.confirm(`确定吊销 Token「${row.name}」吗？`, '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
+  await ElMessageBox.confirm(`确定吊销 Token「${row.name}」吗？`, t('hint'), {
+    confirmButtonText: t('confirm'),
+    cancelButtonText: t('cancel'),
     type: 'warning'
   })
   await api.delete(`/user/api-tokens/${row.id}`)
-  ElMessage.success('Token 已吊销')
+  ElMessage.success(t('token_revoked'))
   await loadTokens()
 }
 
 const copyToken = async () => {
   if (!latestToken.value) return
   await navigator.clipboard.writeText(latestToken.value)
-  ElMessage.success('Token 已复制')
+  ElMessage.success(t('token_copied'))
 }
 
 onMounted(loadTokens)

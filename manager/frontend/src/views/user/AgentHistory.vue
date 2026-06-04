@@ -9,7 +9,7 @@
           size="large"
         />
         <div class="header-context">
-          <span class="context-label">当前智能体</span>
+          <span class="context-label">{{ t('current_agent') }}当前智能体</span>
           <strong class="context-value">{{ agentName || '未命名智能体' }}</strong>
           <p class="context-meta" v-if="total > 0">共 {{ total }} 条消息</p>
         </div>
@@ -25,16 +25,16 @@
     <!-- 筛选面板 -->
     <el-card class="filter-card" shadow="never">
       <el-form :model="filters" inline>
-        <el-form-item label="角色">
-          <el-select v-model="filters.role" placeholder="全部" clearable style="width: 120px">
-            <el-option label="全部" value="" />
-            <el-option label="用户" value="user" />
-            <el-option label="机器人" value="assistant" />
+        <el-form-item :label="t('role')">
+          <el-select v-model="filters.role" :placeholder="t('all')" clearable style="width: 120px">
+            <el-option :label="t('all')" value="" />
+            <el-option :label="t('user')" value="user" />
+            <el-option :label="t('robot')" value="assistant" />
           </el-select>
         </el-form-item>
-        <el-form-item label="设备">
-          <el-select v-model="filters.device_id" placeholder="全部" clearable style="width: 150px">
-            <el-option label="全部" value="" />
+        <el-form-item :label="t('device')">
+          <el-select v-model="filters.device_id" :placeholder="t('all')" clearable style="width: 150px">
+            <el-option :label="t('all')" value="" />
             <el-option 
               v-for="device in devices" 
               :key="device.id" 
@@ -43,22 +43,22 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="开始日期">
+        <el-form-item :label="t('start_date')">
           <el-date-picker
             v-model="filters.start_date"
             type="date"
-            placeholder="选择日期"
+            :placeholder="t('select_date')"
             format="YYYY-MM-DD"
             value-format="YYYY-MM-DD"
             style="width: 150px"
             clearable
           />
         </el-form-item>
-        <el-form-item label="结束日期">
+        <el-form-item :label="t('end_date')">
           <el-date-picker
             v-model="filters.end_date"
             type="date"
-            placeholder="选择日期"
+            :placeholder="t('select_date')"
             format="YYYY-MM-DD"
             value-format="YYYY-MM-DD"
             style="width: 150px"
@@ -66,8 +66,8 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="handleReset">重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ t('query') }}查询</el-button>
+          <el-button @click="handleReset">{{ t('reset') }}重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -75,7 +75,7 @@
     <!-- 消息列表 - 微信风格 -->
     <el-card class="messages-card" shadow="never" v-loading="loading">
       <div v-if="messages.length === 0" class="empty-state">
-        <el-empty description="暂无聊天记录" />
+        <el-empty :description="t('no_chat_history')" />
       </div>
       <div v-else class="chat-container">
         <div class="chat-messages" ref="chatMessagesRef">
@@ -119,7 +119,7 @@
                         <el-icon class="message-more"><MoreFilled /></el-icon>
                         <template #dropdown>
                           <el-dropdown-menu>
-                            <el-dropdown-item :command="{action: 'delete', id: message.id}">删除</el-dropdown-item>
+                            <el-dropdown-item :command="{action: 'delete', id: message.id}">{{ t('delete') }}删除</el-dropdown-item>
                           </el-dropdown-menu>
                         </template>
                       </el-dropdown>
@@ -191,6 +191,8 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { ArrowLeft, Download, User, Service, VideoPlay, VideoPause, MoreFilled } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const route = useRoute()
 const router = useRouter()
@@ -235,7 +237,7 @@ const audioBlobUrls = ref({}) // 存储音频 Blob URL
 // 加载智能体信息
 const loadAgent = async () => {
   if (!agentId.value) {
-    ElMessage.error('智能体ID无效')
+    ElMessage.error(t('agent_id_invalid'))
     router.back()
     return
   }
@@ -244,7 +246,7 @@ const loadAgent = async () => {
     agentName.value = response.data.data?.name || '智能体'
   } catch (error) {
     console.error('加载智能体信息失败:', error)
-    ElMessage.error('加载智能体信息失败')
+    ElMessage.error(t('load_agent_info_failed'))
   }
 }
 
@@ -288,7 +290,7 @@ const loadMessages = async () => {
     scrollToBottom()
   } catch (error) {
     ElMessage.error('加载消息列表失败: ' + (error.response?.data?.error || error.message))
-    console.error('加载消息列表失败:', error)
+    console.error(t('load_message_list_failed'), error)
     messages.value = []
     total.value = 0
   } finally {
@@ -327,19 +329,19 @@ const handleSizeChange = (size) => {
 // 删除消息
 const handleDelete = async (messageId) => {
   try {
-    await ElMessageBox.confirm('确定要删除这条消息吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_message'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     
     deletingId.value = messageId
     await api.delete(`/user/history/messages/${messageId}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadMessages()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
       console.error('删除消息失败:', error)
     }
   } finally {
@@ -374,9 +376,9 @@ const handleExport = async () => {
     link.remove()
     window.URL.revokeObjectURL(url)
     
-    ElMessage.success('导出成功')
+    ElMessage.success(t('export_success'))
   } catch (error) {
-    ElMessage.error('导出失败')
+    ElMessage.error(t('export_failed'))
     console.error('导出失败:', error)
   } finally {
     exporting.value = false
@@ -573,7 +575,7 @@ const toggleAudio = async (messageId) => {
 
 onMounted(async () => {
   if (!agentId.value) {
-    ElMessage.error('智能体ID无效')
+    ElMessage.error(t('agent_id_invalid'))
     router.push('/user/agents')
     return
   }

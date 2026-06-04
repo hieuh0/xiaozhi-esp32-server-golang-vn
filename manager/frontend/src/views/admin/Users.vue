@@ -3,7 +3,7 @@
     <div class="page-actions">
       <el-input
         v-model="searchKeyword"
-        placeholder="搜索用户..."
+        :placeholder="t('search_user')"
         style="width: 200px"
         prefix-icon="Search"
         clearable
@@ -17,9 +17,9 @@
     <!-- 用户列表表格 -->
     <el-table :data="filteredUserList" v-loading="tableLoading" style="width: 100%">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="username" label="用户名" width="150" />
-      <el-table-column prop="email" label="邮箱" width="200" />
-      <el-table-column prop="role" label="角色" width="120">
+      <el-table-column prop="username" :label="t('username')" width="150" />
+      <el-table-column prop="email" :label="t('email')" width="200" />
+      <el-table-column prop="role" :label="t('role')" width="120">
         <template #default="{ row }">
           <el-tag :type="row.role === 'admin' ? 'danger' : 'primary'">
             {{ row.role === 'admin' ? '管理员' : '普通用户' }}
@@ -181,6 +181,8 @@ import { ref, reactive, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import api from '../../utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 // 数据状态
 const userList = ref([])
@@ -231,29 +233,29 @@ const passwordForm = reactive({
 // 用户表单验证规则
 const userFormRules = {
   username: [
-    { required: true, message: '请输入用户名', trigger: 'blur' }
+    { required: true, message: t('enter_username'), trigger: 'blur' }
   ],
   email: [
-    { required: true, message: '请输入邮箱', trigger: 'blur' },
-    { type: 'email', message: '请输入正确的邮箱格式', trigger: 'blur' }
+    { required: true, message: t('enter_email'), trigger: 'blur' },
+    { type: 'email', message: t('enter_valid_email'), trigger: 'blur' }
   ],
   password: [
-    { required: true, message: '请输入密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: t('enter_password'), trigger: 'blur' },
+    { min: 6, message: t('password_min_length'), trigger: 'blur' }
   ],
   role: [
-    { required: true, message: '请选择角色', trigger: 'change' }
+    { required: true, message: t('select_role'), trigger: 'change' }
   ]
 }
 
 // 密码表单验证规则
 const passwordFormRules = {
   newPassword: [
-    { required: true, message: '请输入新密码', trigger: 'blur' },
-    { min: 6, message: '密码长度不能少于6位', trigger: 'blur' }
+    { required: true, message: t('enter_new_password'), trigger: 'blur' },
+    { min: 6, message: t('password_min_length'), trigger: 'blur' }
   ],
   confirmPassword: [
-    { required: true, message: '请确认密码', trigger: 'blur' },
+    { required: true, message: t('confirm_password_prompt'), trigger: 'blur' },
     {
       validator: (rule, value, callback) => {
         if (value !== passwordForm.newPassword) {
@@ -274,7 +276,7 @@ const loadUserList = async () => {
     const response = await api.get('/admin/users')
     userList.value = response.data.data || []
   } catch (error) {
-    ElMessage.error('加载用户列表失败')
+    ElMessage.error(t('load_user_list_failed'))
   } finally {
     tableLoading.value = false
   }
@@ -322,7 +324,7 @@ const handleUserSubmit = async () => {
         email: userForm.email,
         role: userForm.role
       })
-      ElMessage.success('用户更新成功')
+      ElMessage.success(t('user_update_success'))
     } else {
       // 添加用户
       await api.post('/admin/users', {
@@ -331,7 +333,7 @@ const handleUserSubmit = async () => {
         password: userForm.password,
         role: userForm.role
       })
-      ElMessage.success('用户添加成功')
+      ElMessage.success(t('user_add_success'))
     }
     
     userDialogVisible.value = false
@@ -350,18 +352,18 @@ const handleDeleteUser = async (user) => {
       `确定要删除用户 "${user.username}" 吗？`,
       '删除确认',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
     
     await api.delete(`/admin/users/${user.id}`)
-    ElMessage.success('用户删除成功')
+    ElMessage.success(t('user_delete_success'))
     loadUserList()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除用户失败')
+      ElMessage.error(t('delete_user_failed'))
     }
   }
 }
@@ -395,7 +397,7 @@ const loadQuotaSettings = async (userID) => {
       return acc
     }, {})
   } catch (error) {
-    ElMessage.error('加载复刻额度失败')
+    ElMessage.error(t('load_clone_quota_failed'))
     quotaRows.value = []
     quotaOriginalMaxMap.value = {}
   } finally {
@@ -411,28 +413,28 @@ const saveQuotaSettings = async () => {
   }))
   for (const item of normalizedItems) {
     if (!item.tts_config_id) {
-      ElMessage.error('存在无效的 tts_config_id')
+      ElMessage.error(t('invalid_tts_config_id'))
       return
     }
     if (!Number.isInteger(item.max_count) || item.max_count < -1) {
-      ElMessage.error('max_count 只能是大于等于 -1 的整数')
+      ElMessage.error(t('max_count_integer_error'))
       return
     }
   }
 
   const items = normalizedItems.filter((item) => quotaOriginalMaxMap.value[item.tts_config_id] !== item.max_count)
   if (items.length === 0) {
-    ElMessage.info('额度未变更')
+    ElMessage.info(t('quota_unchanged'))
     return
   }
 
   quotaSaving.value = true
   try {
     await api.put(`/admin/users/${quotaUser.value.id}/voice-clone-quotas`, { items })
-    ElMessage.success('复刻额度保存成功')
+    ElMessage.success(t('clone_quota_save_success'))
     await loadQuotaSettings(quotaUser.value.id)
   } catch (error) {
-    ElMessage.error('保存复刻额度失败')
+    ElMessage.error(t('save_clone_quota_failed'))
   } finally {
     quotaSaving.value = false
   }
@@ -464,8 +466,8 @@ const handleResetPassword = async () => {
       `确定要重置用户 "${currentUser.value.username}" 的密码吗？`,
       '重置密码确认',
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
@@ -476,11 +478,11 @@ const handleResetPassword = async () => {
       new_password: passwordForm.newPassword
     })
     
-    ElMessage.success('密码重置成功')
+    ElMessage.success(t('password_reset_success'))
     resetPasswordDialogVisible.value = false
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('重置密码失败')
+      ElMessage.error(t('reset_password_failed'))
     }
   } finally {
     resetPasswordLoading.value = false

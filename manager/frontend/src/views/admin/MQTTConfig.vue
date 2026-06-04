@@ -13,7 +13,7 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Connection</p>
-                <h3>连接参数</h3>
+                <h3>{{ t('connection_params') }}连接参数</h3>
                 <p class="card-description">先补齐地址、协议和客户端身份，保证主程序能稳定连接到目标 Broker。</p>
               </div>
               <el-tag :type="isCoreFieldsComplete ? 'success' : 'warning'" effect="plain" round>
@@ -123,6 +123,8 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -150,14 +152,14 @@ const connectionTypeOptions = [
 ]
 
 const rules = {
-  name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-  broker: [{ required: true, message: '请输入 MQTT Broker 地址', trigger: 'blur' }],
-  type: [{ required: true, message: '请选择连接类型', trigger: 'change' }],
+  name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+  broker: [{ required: true, message: t('enter_mqtt_broker'), trigger: 'blur' }],
+  type: [{ required: true, message: t('select_connection_type'), trigger: 'change' }],
   port: [
-    { required: true, message: '请输入端口号', trigger: 'blur' },
-    { type: 'number', min: 1, max: 65535, message: '端口号必须在 1-65535 之间', trigger: 'blur' }
+    { required: true, message: t('enter_port_number'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 65535, message: t('port_range_error'), trigger: 'blur' }
   ],
-  client_id: [{ required: true, message: '请输入客户端 ID', trigger: 'blur' }]
+  client_id: [{ required: true, message: t('enter_client_id'), trigger: 'blur' }]
 }
 
 const hasCredentials = computed(() => {
@@ -198,7 +200,7 @@ const applyLoadedConfig = (config) => {
   try {
     configData = JSON.parse(config?.json_data || '{}')
   } catch (error) {
-    ElMessage.warning('MQTT 配置格式异常，已回退到默认值')
+    ElMessage.warning(t('mqtt_config_format_error'))
     configData = {}
   }
 
@@ -224,7 +226,7 @@ const loadConfig = async () => {
       resetForm()
     }
   } catch (error) {
-    ElMessage.error('加载 MQTT 配置失败')
+    ElMessage.error(t('load_mqtt_config_failed'))
   } finally {
     loading.value = false
   }
@@ -286,11 +288,11 @@ const handleSave = async () => {
 
     if (isUpdate) {
       await api.put(`/admin/mqtt-configs/${configId.value}`, configData)
-      ElMessage.success('MQTT 配置已更新')
+      ElMessage.success(t('mqtt_config_updated'))
     } else {
       const response = await api.post('/admin/mqtt-configs', configData)
       configId.value = response.data?.data?.id || configId.value
-      ElMessage.success('MQTT 配置已保存')
+      ElMessage.success(t('mqtt_config_saved'))
     }
 
     await loadConfig()

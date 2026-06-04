@@ -8,13 +8,13 @@
         </el-button>
         <el-select
           v-model="filterAgentId"
-          placeholder="按智能体筛选"
+          :placeholder="t('filter_by_agent')"
           clearable
           filterable
           class="agent-filter-select"
           @change="handleAgentFilterChange"
         >
-          <el-option label="全部设备" value="" />
+          <el-option :label="t('all_devices')" value="" />
           <el-option
             v-for="agent in agents"
             :key="agent.id"
@@ -34,7 +34,7 @@
       <el-card class="empty-card">
         <div class="empty-content">
           <el-icon size="64" color="var(--apple-text-tertiary)"><Monitor /></el-icon>
-          <h3>暂无设备</h3>
+          <h3>{{ t('no_devices') }}暂无设备</h3>
           <p>{{ emptyDescription }}</p>
           <div class="empty-actions">
             <el-button type="primary" size="large" @click="openAddDeviceDialog">
@@ -63,7 +63,7 @@
 	                  size="small"
                   maxlength="50"
                   show-word-limit
-                  placeholder="请输入设备昵称"
+                  :placeholder="t('enter_device_nickname')"
 	                  @keydown.enter.prevent="saveDeviceName(device)"
 	                  @keydown.esc.prevent="cancelDeviceNameEdit"
 	                />
@@ -91,7 +91,7 @@
 	                      class="name-action-button"
 	                      :icon="Close"
 	                      circle
-	                      title="取消修改"
+	                      :title="t('cancel_edit')"
 	                      @click="cancelDeviceNameEdit"
 	                    />
 	                  </template>
@@ -337,6 +337,8 @@ import api from '../../utils/api'
 import DeviceForm from '../../components/common/DeviceForm.vue'
 import MessageInjectDialog from '../../components/user/MessageInjectDialog.vue'
 import { createDefaultDeviceForm } from '../../composables/useAgentFormOptions'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 const route = useRoute()
@@ -401,7 +403,7 @@ const loadAgents = async () => {
     agents.value = response.data.data || []
   } catch (error) {
     agents.value = []
-    ElMessage.error('加载智能体列表失败')
+    ElMessage.error(t('load_agent_list_failed'))
   }
 }
 
@@ -410,7 +412,7 @@ const loadDevices = async () => {
     const response = await api.get('/user/devices')
     devices.value = response.data.data || []
   } catch (error) {
-    ElMessage.error('加载设备列表失败')
+    ElMessage.error(t('load_device_list_failed'))
   }
 }
 
@@ -425,7 +427,7 @@ const resetAddDeviceForm = () => {
 
 const openAddDeviceDialog = () => {
   if (!agents.value.length) {
-    ElMessage.warning('请先创建智能体，再绑定设备')
+    ElMessage.warning(t('create_agent_before_bind'))
     return
   }
   resetAddDeviceForm()
@@ -441,7 +443,7 @@ const handleAddDevice = async () => {
   }
   const agentId = bindingAgentId.value || deviceForm.value.agent_id
   if (!agentId) {
-    ElMessage.warning('请选择目标智能体')
+    ElMessage.warning(t('select_target_agent'))
     return
   }
 
@@ -449,7 +451,7 @@ const handleAddDevice = async () => {
   try {
     const response = await api.post(`/user/agents/${agentId}/devices`, deviceFormRef.value.buildPayload())
     if (response.data?.success) {
-      ElMessage.success('设备绑定成功')
+      ElMessage.success(t('device_bind_success'))
       showAddDeviceDialog.value = false
       await handleDeviceBound()
     }
@@ -510,7 +512,7 @@ const cancelDeviceNameEdit = () => {
 const saveDeviceName = async (device) => {
   const name = editingDeviceName.value.trim()
   if (!name) {
-    ElMessage.warning('设备昵称不能为空')
+    ElMessage.warning(t('device_nickname_required'))
     return
   }
   if (name === String(device.nick_name || '').trim()) {
@@ -526,7 +528,7 @@ const saveDeviceName = async (device) => {
     if (target) {
       target.nick_name = updatedDevice.nick_name || name
     }
-    ElMessage.success('设备昵称已更新')
+    ElMessage.success(t('device_nickname_updated'))
     cancelDeviceNameEdit()
   } catch (error) {
     ElMessage.error(error.response?.data?.error || '更新设备昵称失败')
@@ -558,7 +560,7 @@ const refreshDeviceMcpTools = async () => {
       mcpCallForm.value.tool_name = mcpTools.value[0].name
     }
   } catch (error) {
-    ElMessage.error('获取设备MCP工具失败')
+    ElMessage.error(t('fetch_device_mcp_failed'))
     mcpTools.value = []
   } finally {
     toolsLoading.value = false
@@ -671,7 +673,7 @@ const formatMcpCallResult = (payload) => {
 
 const callDeviceMcpTool = async () => {
   if (!currentDeviceId.value || !mcpCallForm.value.tool_name) {
-    ElMessage.warning('请选择工具')
+    ElMessage.warning(t('select_tool'))
     return
   }
 
@@ -679,7 +681,7 @@ const callDeviceMcpTool = async () => {
   try {
     argumentsObj = mcpCallForm.value.argumentsText ? JSON.parse(mcpCallForm.value.argumentsText) : {}
   } catch (e) {
-    ElMessage.error('参数JSON格式错误')
+    ElMessage.error(t('params_json_format_error'))
     return
   }
 
@@ -690,10 +692,10 @@ const callDeviceMcpTool = async () => {
       arguments: argumentsObj
     })
     mcpCallResult.value = formatMcpCallResult(response.data.data || {})
-    ElMessage.success('MCP工具调用成功')
+    ElMessage.success(t('mcp_tool_call_success'))
   } catch (error) {
     mcpCallResult.value = JSON.stringify(error.response?.data || { error: error.message }, null, 2)
-    ElMessage.error('MCP工具调用失败')
+    ElMessage.error(t('mcp_tool_call_failed'))
   } finally {
     callingTool.value = false
   }
@@ -787,8 +789,8 @@ const handleDeleteDevice = async (device) => {
 	      `确定要从系统中删除「${getDeviceDisplayName(device)}」吗？删除后设备需要重新激活，才能再次进入系统。`,
 	      '确认删除设备',
       {
-        confirmButtonText: '删除',
-        cancelButtonText: '取消',
+        confirmButtonText: t('delete'),
+        cancelButtonText: t('cancel'),
         type: 'warning',
       }
     )

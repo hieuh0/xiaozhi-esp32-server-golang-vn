@@ -3,70 +3,70 @@
     <div class="toolbar">
       <el-button type="primary" @click="openAddDialog">
         <el-icon><Plus /></el-icon>
-        添加设备
+        {{ t('add_agent') }}
       </el-button>
       <el-button @click="loadDevices">
         <el-icon><Refresh /></el-icon>
-        刷新
+        {{ t('refresh') }}
       </el-button>
     </div>
 
     <el-table :data="devices" v-loading="loading" stripe>
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column label="设备昵称" min-width="170">
+      <el-table-column :label="t('device_nickname')" min-width="170">
         <template #default="{ row }">
           <span class="device-nick-name">{{ getDeviceDisplayName(row) }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="device_code" label="激活码" width="150" />
-      <el-table-column label="设备ID" width="190">
+      <el-table-column prop="device_code" :label="t('activation_code')" width="150" />
+      <el-table-column :label="t('device_id')" width="190">
         <template #default="{ row }">
           <span class="device-id-text">{{ row.device_name || '-' }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="user_id" label="用户ID" width="100" />
-      <el-table-column label="关联智能体" width="150">
+      <el-table-column prop="user_id" :label="t('user_prefix') + 'ID'" width="100" />
+      <el-table-column :label="t('link_agent')" width="150">
         <template #default="{ row }">
           <span v-if="row.agent_id > 0">
             {{ row.agent_name || `智能体 ${row.agent_id}` }}
           </span>
-          <el-tag v-else type="info" size="small">未分配</el-tag>
+          <el-tag v-else type="info" size="small">{{ t('no_agent_linked') }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="激活状态" width="100">
+      <el-table-column :label="t('activation_status')" width="100">
         <template #default="{ row }">
           <el-tag :type="row.activated ? 'success' : 'warning'">
-            {{ row.activated ? '已激活' : '未激活' }}
+            {{ row.activated ? t('active') : t('no_agent_linked') }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="在线状态" width="100">
+      <el-table-column :label="t('online_devices')" width="100">
         <template #default="{ row }">
           <el-tag :type="isDeviceOnline(row.last_active_at) ? 'success' : 'danger'">
-            {{ isDeviceOnline(row.last_active_at) ? '在线' : '离线' }}
+            {{ isDeviceOnline(row.last_active_at) ? t('online') : t('close') }}
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="last_active_at" label="最后活跃时间" width="180">
+      <el-table-column prop="last_active_at" :label="t('latest_data')" width="180">
         <template #default="{ row }">
           {{ row.last_active_at ? new Date(row.last_active_at).toLocaleString() : '从未活跃' }}
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="创建时间" width="180">
+      <el-table-column prop="created_at" :label="t('start_date')" width="180">
         <template #default="{ row }">
           {{ new Date(row.created_at).toLocaleString() }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column :label="t('operation_failed').replace('失败', '')" width="300">
         <template #default="{ row }">
           <el-button size="small" @click="editDevice(row)">
-            编辑
+            {{ t('cancel_edit').replace('取消', '') }}
           </el-button>
           <el-button size="small" type="primary" @click="showDeviceMcp(row)">
             MCP
           </el-button>
           <el-button size="small" type="danger" @click="deleteDevice(row)">
-            删除
+            {{ t('delete') }}
           </el-button>
         </template>
       </el-table-column>
@@ -77,10 +77,10 @@
     <el-dialog v-model="showMcpDialog" title="设备MCP工具" width="760px">
       <div v-loading="mcpLoading">
         <div class="mcp-tools-header">
-          <el-button size="small" type="primary" @click="refreshDeviceMcpTools" :loading="toolsLoading">刷新工具列表</el-button>
+          <el-button size="small" type="primary" @click="refreshDeviceMcpTools" :loading="toolsLoading">{{ t('refresh') }}</el-button>
         </div>
 
-        <div v-if="mcpTools.length === 0" class="tools-empty">暂无工具数据</div>
+        <div v-if="mcpTools.length === 0" class="tools-empty">{{ t('no_mcp_endpoint_to_copy') }}</div>
         <div v-else class="tools-tags">
           <el-tag v-for="tool in mcpTools" :key="tool.name" class="tool-tag">{{ tool.name }}</el-tag>
         </div>
@@ -88,26 +88,26 @@
         <el-divider />
 
         <el-form :model="mcpCallForm" label-width="90px">
-          <el-form-item label="工具">
-            <el-select v-model="mcpCallForm.tool_name" placeholder="请选择工具" style="width:100%" @change="handleMcpToolChange">
+          <el-form-item :label="t('tool_name')">
+            <el-select v-model="mcpCallForm.tool_name" :placeholder="t('select_tool')" style="width:100%" @change="handleMcpToolChange">
               <el-option v-for="tool in mcpTools" :key="tool.name" :label="tool.name" :value="tool.name" />
             </el-select>
           </el-form-item>
-          <el-form-item label="参数JSON">
+          <el-form-item :label="t('params_json_format_error').replace('格式错误', '')">
             <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" placeholder='例如: {"query":"hello"}' />
           </el-form-item>
         </el-form>
 
-        <el-button type="primary" @click="callDeviceMcpTool" :loading="callingTool">调用工具</el-button>
+        <el-button type="primary" @click="callDeviceMcpTool" :loading="callingTool">{{ t('call_device_tool') }}</el-button>
 
         <el-divider />
-        <div class="endpoint-content">{{ mcpCallResult || '暂无调用结果' }}</div>
+        <div class="endpoint-content">{{ mcpCallResult || t('no_mcp_endpoint_to_copy') }}</div>
       </div>
     </el-dialog>
 
     <el-dialog
       v-model="showAddDialog"
-      :title="editingDevice ? '编辑设备' : '添加设备'"
+      :title="editingDevice ? t('device_update_success').replace('更新成功', '编辑') : t('add_agent')"
       width="500px"
     >
       <DeviceForm
@@ -117,9 +117,9 @@
         :mode="editingDevice ? 'edit' : 'create'"
       />
       <template #footer>
-        <el-button @click="showAddDialog = false">取消</el-button>
+        <el-button @click="showAddDialog = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="saveDevice" :loading="saving">
-          {{ editingDevice ? '更新' : '添加' }}
+          {{ editingDevice ? t('update_success').replace('成功', '') : t('add_agent').replace('智能体', '') }}
         </el-button>
       </template>
     </el-dialog>
@@ -133,6 +133,9 @@ import { Plus, Refresh } from '@element-plus/icons-vue'
 import api from '../../utils/api'
 import DeviceForm from '../../components/common/DeviceForm.vue'
 import { createDefaultDeviceForm, deviceToForm } from '../../composables/useAgentFormOptions'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const devices = ref([])
 const loading = ref(false)
@@ -157,7 +160,7 @@ const loadDevices = async () => {
     const response = await api.get('/admin/devices')
     devices.value = response.data.data || []
   } catch (error) {
-    ElMessage.error('加载设备列表失败')
+    ElMessage.error(t('load_device_list_failed'))
     console.error('Error loading devices:', error)
   } finally {
     loading.value = false
@@ -184,7 +187,7 @@ const editDevice = (device) => {
 
 const saveDevice = async () => {
   if (!deviceFormRef.value) return
-  
+
   const valid = await deviceFormRef.value.validate().catch(() => false)
   if (!valid) return
 
@@ -193,18 +196,18 @@ const saveDevice = async () => {
     const payload = deviceFormRef.value.buildPayload()
     if (editingDevice.value) {
       await api.put(`/admin/devices/${editingDevice.value.id}`, payload)
-      ElMessage.success('设备更新成功')
+      ElMessage.success(t('device_update_success'))
     } else {
       const response = await api.post('/admin/devices', payload)
       // 根据后端返回的消息显示不同的提示
-      const message = response.data.message || '设备添加成功'
+      const message = response.data.message || t('device_bind_success')
       ElMessage.success(message)
     }
     showAddDialog.value = false
     resetForm()
     loadDevices()
   } catch (error) {
-    const errorMessage = error.response?.data?.error || (editingDevice.value ? '设备更新失败' : '设备添加失败')
+    const errorMessage = error.response?.data?.error || (editingDevice.value ? t('update_failed') : t('delete_failed'))
     ElMessage.error(errorMessage)
     console.error('Error saving device:', error)
   } finally {
@@ -216,20 +219,20 @@ const deleteDevice = async (device) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除设备 "${getDeviceDisplayName(device)}" 吗？`,
-      '确认删除',
+      t('confirm'),
       {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        confirmButtonText: t('confirm'),
+        cancelButtonText: t('cancel'),
         type: 'warning'
       }
     )
-    
+
     await api.delete(`/admin/devices/${device.id}`)
-    ElMessage.success('设备删除成功')
+    ElMessage.success(t('device_delete_success'))
     loadDevices()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('设备删除失败')
+      ElMessage.error(t('device_delete_failed'))
       console.error('Error deleting device:', error)
     }
   }
@@ -260,7 +263,7 @@ const refreshDeviceMcpTools = async () => {
       mcpCallForm.value.tool_name = mcpTools.value[0].name
     }
   } catch (error) {
-    ElMessage.error('获取设备MCP工具失败')
+    ElMessage.error(t('fetch_device_mcp_failed'))
     mcpTools.value = []
   } finally {
     toolsLoading.value = false
@@ -373,7 +376,7 @@ const formatMcpCallResult = (payload) => {
 
 const callDeviceMcpTool = async () => {
   if (!currentDeviceId.value || !mcpCallForm.value.tool_name) {
-    ElMessage.warning('请选择工具')
+    ElMessage.warning(t('select_tool'))
     return
   }
 
@@ -381,7 +384,7 @@ const callDeviceMcpTool = async () => {
   try {
     argumentsObj = mcpCallForm.value.argumentsText ? JSON.parse(mcpCallForm.value.argumentsText) : {}
   } catch (e) {
-    ElMessage.error('参数JSON格式错误')
+    ElMessage.error(t('params_json_format_error'))
     return
   }
 
@@ -392,10 +395,10 @@ const callDeviceMcpTool = async () => {
       arguments: argumentsObj
     })
     mcpCallResult.value = formatMcpCallResult(response.data.data || {})
-    ElMessage.success('MCP工具调用成功')
+    ElMessage.success(t('mcp_tool_call_success'))
   } catch (error) {
     mcpCallResult.value = JSON.stringify(error.response?.data || { error: error.message }, null, 2)
-    ElMessage.error('MCP工具调用失败')
+    ElMessage.error(t('mcp_tool_call_failed'))
   } finally {
     callingTool.value = false
   }

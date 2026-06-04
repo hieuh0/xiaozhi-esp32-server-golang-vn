@@ -2,34 +2,34 @@
   <div class="mobile-login-container">
     <div class="mobile-login-header">
       <img class="mobile-login-logo" :src="appLogo" alt="小智管理系统" />
-      <h1>小智管理系统</h1>
-      <p>智能语音助手管理平台</p>
+      <h1>{{ t('xiaozhi_management_system') }}小智管理系统</h1>
+      <p>{{ t('ai_voice_assistant_platform') }}智能语音助手管理平台</p>
     </div>
     
     <van-tabs v-model:active="activeTab" class="mobile-login-tabs">
-      <van-tab title="登录" name="login">
+      <van-tab :title="t('login')" name="login">
         <van-form @submit="handleLogin" class="mobile-login-form">
           <van-cell-group inset>
             <van-field
               v-model="loginForm.username"
               name="username"
-              label="用户名"
-              placeholder="请输入用户名"
+              :label="t('username')"
+              :placeholder="t('enter_username')"
               :rules="[{ required: true, message: '请输入用户名' }]"
             />
             <van-field
               v-model="loginForm.password"
               type="password"
               name="password"
-              label="密码"
-              placeholder="请输入密码"
+              :label="t('password')"
+              :placeholder="t('enter_password')"
               :rules="[{ required: true, message: '请输入密码' }]"
             />
             <div v-if="loginCaptchaEnabled" class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
-                <span>人机验证</span>
+                <span>{{ t('captcha') }}人机验证</span>
                 <strong>{{ loginCaptchaPrompt || '正在生成题目...' }}</strong>
-                <p>简单算术题，防止脚本批量登录。</p>
+                <p>{{ t('arithmetic_captcha_hint') }}简单算术题，防止脚本批量登录。</p>
               </div>
               <van-button
                 size="small"
@@ -46,8 +46,8 @@
               v-if="loginCaptchaEnabled"
               v-model="loginForm.captchaAnswer"
               name="captchaAnswer"
-              label="计算结果"
-              placeholder="请输入计算结果"
+              :label="t('calc_result')"
+              :placeholder="t('enter_calc_result')"
               input-align="left"
               :rules="[{ required: true, message: '请输入计算结果' }]"
             />
@@ -64,27 +64,27 @@
               loading-text="登录中..."
               class="mobile-login-button"
             >
-              登录
+              {{ t('login') }}  登录
             </van-button>
           </div>
         </van-form>
       </van-tab>
       
-      <van-tab title="注册" name="register">
+      <van-tab :title="t('register')" name="register">
         <van-form @submit="handleRegister" class="mobile-login-form">
           <van-cell-group inset>
             <van-field
               v-model="registerForm.username"
               name="username"
-              label="用户名"
-              placeholder="请输入用户名"
+              :label="t('username')"
+              :placeholder="t('enter_username')"
               :rules="[{ required: true, message: '请输入用户名' }]"
             />
             <van-field
               v-model="registerForm.email"
               name="email"
-              label="邮箱"
-              placeholder="请输入邮箱"
+              :label="t('email')"
+              :placeholder="t('enter_email')"
               :rules="[
                 { required: true, message: '请输入邮箱' },
                 { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '请输入正确的邮箱格式' }
@@ -94,8 +94,8 @@
               v-model="registerForm.password"
               type="password"
               name="password"
-              label="密码"
-              placeholder="请输入密码（至少6位）"
+              :label="t('password')"
+              :placeholder="t('enter_password_min6')"
               :rules="[
                 { required: true, message: '请输入密码' },
                 { pattern: /^.{6,}$/, message: '密码长度不能少于6位' }
@@ -105,8 +105,8 @@
               v-model="registerForm.confirmPassword"
               type="password"
               name="confirmPassword"
-              label="确认密码"
-              placeholder="请确认密码"
+              :label="t('confirm_password')"
+              :placeholder="t('confirm_password_prompt')"
               :rules="[
                 { required: true, message: '请确认密码' },
                 { validator: validateConfirmPassword }
@@ -114,9 +114,9 @@
             />
             <div class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
-                <span>人机验证</span>
+                <span>{{ t('captcha') }}人机验证</span>
                 <strong>{{ registerCaptchaPrompt || '正在生成题目...' }}</strong>
-                <p>完成简单算式后再提交注册。</p>
+                <p>{{ t('captcha_math_hint') }}完成简单算式后再提交注册。</p>
               </div>
               <van-button
                 size="small"
@@ -132,8 +132,8 @@
             <van-field
               v-model="registerForm.captchaAnswer"
               name="captchaAnswer"
-              label="计算结果"
-              placeholder="请输入计算结果"
+              :label="t('calc_result')"
+              :placeholder="t('enter_calc_result')"
               input-align="left"
               :rules="[{ required: true, message: '请输入计算结果' }]"
             />
@@ -150,7 +150,7 @@
               loading-text="注册中..."
               class="mobile-login-button"
             >
-              注册
+              {{ t('register') }}  注册
             </van-button>
           </div>
         </van-form>
@@ -168,6 +168,8 @@ import api from '../../utils/api'
 import { getPostLoginRedirectPath } from '../../utils/authRedirect'
 import { checkNeedsSetup } from '../../utils/setupStatus'
 import appLogo from '@/assets/brand/app-logo.webp'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -253,7 +255,7 @@ const refreshRegisterCaptcha = async () => {
 
 const handleLogin = async () => {
   if (loginCaptchaEnabled.value && !loginForm.captchaId) {
-    showFailToast('人机验证加载失败，请换一题重试')
+    showFailToast(t('captcha_load_failed'))
     await refreshLoginCaptcha()
     return
   }
@@ -271,7 +273,7 @@ const handleLogin = async () => {
   loading.value = false
   
   if (result.success) {
-    showSuccessToast('登录成功')
+    showSuccessToast(t('login_success'))
     router.push(getPostLoginRedirectPath(authStore.user))
   } else {
     showFailToast(result.message || '登录失败')
@@ -283,7 +285,7 @@ const handleLogin = async () => {
 
 const handleRegister = async () => {
   if (!registerForm.captchaId) {
-    showFailToast('人机验证加载失败，请换一题重试')
+    showFailToast(t('captcha_load_failed'))
     await refreshRegisterCaptcha()
     return
   }
@@ -299,7 +301,7 @@ const handleRegister = async () => {
   loading.value = false
   
   if (result.success) {
-    showSuccessToast('注册成功，请登录')
+    showSuccessToast(t('register_success_login'))
     activeTab.value = 'login'
     // 清空注册表单
     Object.assign(registerForm, {

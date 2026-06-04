@@ -7,8 +7,8 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Global MCP</p>
-                <h3>全局 MCP 服务</h3>
-                <p class="card-description">维护服务端统一可用的 MCP 服务器、重连策略和允许工具范围。</p>
+                <h3>{{ t('global_mcp_service') }}全局 MCP 服务</h3>
+                <p class="card-description">{{ t('mcp_server_management_desc') }}维护服务端统一可用的 MCP 服务器、重连策略和允许工具范围。</p>
               </div>
               <el-tag :type="form.mcp.global.enabled ? 'success' : 'info'" effect="plain" round>
                 {{ form.mcp.global.enabled ? `${enabledServerCount} 个启用服务` : '全局 MCP 已停用' }}
@@ -207,6 +207,8 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Plus, Delete } from '@element-plus/icons-vue'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -233,12 +235,12 @@ const form = reactive(createDefaultState())
 
 const rules = {
   'mcp.global.reconnect_interval': [
-    { required: true, message: '请输入重连间隔', trigger: 'blur' },
-    { type: 'number', min: 1, max: 3600, message: '重连间隔必须在 1-3600 之间', trigger: 'blur' }
+    { required: true, message: t('enter_reconnect_interval'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 3600, message: t('reconnect_interval_range'), trigger: 'blur' }
   ],
   'mcp.global.max_reconnect_attempts': [
-    { required: true, message: '请输入最大重连次数', trigger: 'blur' },
-    { type: 'number', min: 1, max: 100, message: '最大重连次数必须在 1-100 之间', trigger: 'blur' }
+    { required: true, message: t('enter_max_reconnects'), trigger: 'blur' },
+    { type: 'number', min: 1, max: 100, message: t('max_reconnect_range_error'), trigger: 'blur' }
   ]
 }
 
@@ -333,7 +335,7 @@ const generateConfig = () => {
 
 const discoverGlobalServerTools = async (server) => {
   if (!server?.url) {
-    ElMessage.warning('请先填写服务器 URL')
+    ElMessage.warning(t('fill_server_url'))
     return
   }
 
@@ -390,13 +392,13 @@ const loadConfig = async () => {
           Object.assign(form.local_mcp, configData.local_mcp)
         }
       } catch (error) {
-        ElMessage.warning('MCP 配置格式异常，已回退到默认值')
+        ElMessage.warning(t('mcp_config_format_error'))
       }
     } else {
       configId.value = null
     }
   } catch (error) {
-    ElMessage.error('加载 MCP 配置失败')
+    ElMessage.error(t('load_mcp_config_failed'))
   } finally {
     loading.value = false
   }
@@ -422,11 +424,11 @@ const handleSave = async () => {
 
     if (configId.value) {
       await api.put(`/admin/mcp-configs/${configId.value}`, payload)
-      ElMessage.success('MCP 配置已更新')
+      ElMessage.success(t('mcp_config_updated'))
     } else {
       const response = await api.post('/admin/mcp-configs', payload)
       configId.value = response.data?.data?.id || configId.value
-      ElMessage.success('MCP 配置已保存')
+      ElMessage.success(t('mcp_config_saved'))
     }
 
     await loadConfig()

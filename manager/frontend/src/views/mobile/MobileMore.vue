@@ -1,6 +1,6 @@
 <template>
   <div class="mobile-more-page">
-    <van-cell-group inset title="常用功能">
+    <van-cell-group inset :title="t('common_functions')">
       <van-cell
         v-for="item in commonItems"
         :key="item.path"
@@ -12,7 +12,7 @@
     </van-cell-group>
 
     <template v-if="authStore.isAdmin">
-      <van-cell-group inset title="服务配置">
+      <van-cell-group inset :title="t('service_config')">
         <van-cell
           v-for="item in serviceItems"
           :key="item.path"
@@ -22,7 +22,7 @@
         />
       </van-cell-group>
 
-      <van-cell-group inset title="AI 配置">
+      <van-cell-group inset :title="t('ai_config')">
         <van-cell
           v-for="item in aiItems"
           :key="item.path"
@@ -32,7 +32,7 @@
         />
       </van-cell-group>
 
-      <van-cell-group inset title="系统管理">
+      <van-cell-group inset :title="t('system_management')">
         <van-cell
           v-for="item in systemItems"
           :key="item.path"
@@ -49,6 +49,8 @@
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -56,44 +58,44 @@ const authStore = useAuthStore()
 const commonItems = computed(() => {
   if (authStore.isAdmin) {
     return [
-      { title: '配置向导', desc: '首次部署推荐从这里开始', path: '/admin/config-wizard' },
-      { title: '资源池统计', desc: '查看系统资源池使用情况', path: '/admin/pool-stats' }
+      { title: t('config_wizard'), desc: '首次部署推荐从这里开始', path: '/admin/config-wizard' },
+      { title: t('resource_pool_stats'), desc: '查看系统资源池使用情况', path: '/admin/pool-stats' }
     ]
   }
 
   return [
-    { title: '我的角色', desc: '管理个人角色模板', path: '/user/roles' },
-    { title: '声音复刻', desc: '管理声音复刻任务', path: '/voice-clones' },
-    { title: '我的知识库', desc: '管理知识库文档', path: '/user/knowledge-bases' }
+    { title: t('my_roles'), desc: '管理个人角色模板', path: '/user/roles' },
+    { title: t('voice_clone'), desc: '管理声音复刻任务', path: '/voice-clones' },
+    { title: t('my_knowledge_base'), desc: '管理知识库文档', path: '/user/knowledge-bases' }
   ]
 })
 
 const serviceItems = [
-  { title: 'OTA 配置', path: '/admin/ota-config' },
-  { title: 'MQTT 配置', path: '/admin/mqtt-config' },
-  { title: 'MQTT Server 配置', path: '/admin/mqtt-server-config' },
-  { title: 'UDP 配置', path: '/admin/udp-config' },
-  { title: 'MCP 配置', path: '/admin/mcp-config' },
-  { title: 'MCP 市场', path: '/admin/mcp-market' },
-  { title: '声纹识别配置', path: '/admin/speaker-config' },
-  { title: '聊天设置', path: '/admin/chat-settings' }
+  { title: t('ota_config'), path: '/admin/ota-config' },
+  { title: t('mqtt_config'), path: '/admin/mqtt-config' },
+  { title: t('mqtt_server_config'), path: '/admin/mqtt-server-config' },
+  { title: t('udp_config'), path: '/admin/udp-config' },
+  { title: t('mcp_config'), path: '/admin/mcp-config' },
+  { title: t('mcp_market'), path: '/admin/mcp-market' },
+  { title: t('voiceprint_recognition_config'), path: '/admin/speaker-config' },
+  { title: t('chat_settings'), path: '/admin/chat-settings' }
 ]
 
 const aiItems = [
-  { title: 'VAD 配置', path: '/admin/vad-config' },
-  { title: 'ASR 配置', path: '/admin/asr-config' },
-  { title: 'LLM 配置', path: '/admin/llm-config' },
-  { title: 'TTS 配置', path: '/admin/tts-config' },
-  { title: 'Vision 配置', path: '/admin/vision-config' },
-  { title: 'Memory 配置', path: '/admin/memory-config' },
-  { title: '知识库检索配置', path: '/admin/knowledge-search-config' }
+  { title: t('vad_config'), path: '/admin/vad-config' },
+  { title: t('asr_config'), path: '/admin/asr-config' },
+  { title: t('llm_config'), path: '/admin/llm-config' },
+  { title: t('tts_config'), path: '/admin/tts-config' },
+  { title: t('vision_config'), path: '/admin/vision-config' },
+  { title: t('memory_config'), path: '/admin/memory-config' },
+  { title: t('knowledge_retrieval_config'), path: '/admin/knowledge-search-config' }
 ]
 
 const systemItems = [
-  { title: '全局角色', path: '/admin/global-roles' },
-  { title: '用户管理', path: '/admin/users' },
-  { title: '设备管理', path: '/admin/devices' },
-  { title: '智能体管理', path: '/admin/agents' }
+  { title: t('global_role'), path: '/admin/global-roles' },
+  { title: t('user_management'), path: '/admin/users' },
+  { title: t('device_management'), path: '/admin/devices' },
+  { title: t('agent_management'), path: '/admin/agents' }
 ]
 
 const go = (path) => {

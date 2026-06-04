@@ -12,15 +12,15 @@
       </el-button>
       <el-button type="primary" @click="showDialog = true">
         <el-icon><Plus /></el-icon>
-        添加配置
+        {{ t('add_config') }}
       </el-button>
     </div>
 
     <el-table :data="configs" style="width: 100%" v-loading="loading">
       <el-table-column prop="id" label="ID" width="80" />
-      <el-table-column prop="name" label="配置名称" />
-      <el-table-column prop="config_id" label="配置ID" width="150" />
-      <el-table-column prop="provider" label="提供商">
+      <el-table-column prop="name" :label="t('config_name')" />
+      <el-table-column prop="config_id" :label="t('config_id')" width="150" />
+      <el-table-column prop="provider" :label="t('provider')">
         <template #default="scope">
           {{ scope.row.provider }}
         </template>
@@ -76,7 +76,7 @@
             type="danger"
             @click="deleteConfig(scope.row.id)"
           >
-            删除
+            {{ t('delete') }}
           </el-button>
         </template>
       </el-table-column>
@@ -92,7 +92,7 @@
       <ASRConfigForm ref="formRef" :model="form" :rules="rules" />
       
       <template #footer>
-        <el-button @click="handleDialogClose">取消</el-button>
+        <el-button @click="handleDialogClose">{{ t('cancel') }}</el-button>
         <el-button type="warning" plain @click="testCurrentConfig" :loading="testingCurrent">
           测试
         </el-button>
@@ -112,6 +112,9 @@ import api from '../../utils/api'
 import { testSingleConfig, testWithData, parseJsonData } from '../../utils/configTest'
 import ASRConfigForm from './forms/ASRConfigForm.vue'
 import { resolveASRProvider } from './forms/configProviderUtils'
+import { useLocale } from '../../composables/useLocale'
+
+const { t } = useLocale()
 
 const configs = ref([])
 const testingId = ref(null)
@@ -209,71 +212,71 @@ const form = reactive({
 // 按当前 provider 动态规则，避免未显示的 doubao/funasr 字段触发必填导致保存不发请求
 const rules = computed(() => {
   const base = {
-    name: [{ required: true, message: '请输入配置名称', trigger: 'blur' }],
-    config_id: [{ required: true, message: '请输入配置ID', trigger: 'blur' }],
-    provider: [{ required: true, message: '请选择提供商', trigger: 'change' }]
+    name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
+    config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
+    provider: [{ required: true, message: t('select_provider'), trigger: 'change' }]
   }
   if (form.provider === 'funasr') {
     return {
       ...base,
-      'funasr.host': [{ required: true, message: '请输入主机地址', trigger: 'blur' }],
-      'funasr.port': [{ required: true, message: '请输入端口', trigger: 'blur' }],
-      'funasr.mode': [{ required: true, message: '请选择模式', trigger: 'change' }],
-      'funasr.sample_rate': [{ required: true, message: '请选择采样率', trigger: 'change' }],
-      'funasr.chunk_size': [{ required: true, message: '请输入块大小', trigger: 'blur' }],
-      'funasr.chunk_interval': [{ required: true, message: '请输入块间隔', trigger: 'blur' }],
-      'funasr.max_connections': [{ required: true, message: '请输入最大连接数', trigger: 'blur' }],
-      'funasr.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+      'funasr.host': [{ required: true, message: t('enter_host_address'), trigger: 'blur' }],
+      'funasr.port': [{ required: true, message: t('enter_port'), trigger: 'blur' }],
+      'funasr.mode': [{ required: true, message: t('select_mode'), trigger: 'change' }],
+      'funasr.sample_rate': [{ required: true, message: t('select_sample_rate'), trigger: 'change' }],
+      'funasr.chunk_size': [{ required: true, message: t('enter_chunk_size'), trigger: 'blur' }],
+      'funasr.chunk_interval': [{ required: true, message: t('enter_chunk_interval'), trigger: 'blur' }],
+      'funasr.max_connections': [{ required: true, message: t('enter_max_connections'), trigger: 'blur' }],
+      'funasr.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
     }
   }
   if (form.provider === 'aliyun_funasr') {
     return {
       ...base,
-      'aliyun_funasr.ws_url': [{ required: true, message: '请输入WS URL', trigger: 'blur' }],
-      'aliyun_funasr.model': [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
+      'aliyun_funasr.ws_url': [{ required: true, message: t('enter_ws_url'), trigger: 'blur' }],
+      'aliyun_funasr.model': [{ required: true, message: t('enter_model_name'), trigger: 'blur' }],
       'aliyun_funasr.format': [
-        { required: true, message: '请选择音频格式', trigger: 'change' },
+        { required: true, message: t('select_audio_format'), trigger: 'change' },
         { validator: validateAliyunPcm, trigger: 'change' }
       ],
       'aliyun_funasr.sample_rate': [
-        { required: true, message: '请选择采样率', trigger: 'change' },
+        { required: true, message: t('select_sample_rate'), trigger: 'change' },
         { validator: validateAliyun16000, trigger: 'change' }
       ],
-      'aliyun_funasr.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+      'aliyun_funasr.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
     }
   }
   if (form.provider === 'doubao') {
     return {
       ...base,
-      'doubao.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-      'doubao.access_token': [{ required: true, message: '请输入访问令牌', trigger: 'blur' }],
-      'doubao.ws_url': [{ required: true, message: '请输入WebSocket URL', trigger: 'blur' }],
-      'doubao.resource_id': [{ required: true, message: '请选择资源规格', trigger: 'change' }],
-      'doubao.end_window_size': [{ required: true, message: '请输入结束窗口大小', trigger: 'blur' }],
-      'doubao.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+      'doubao.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+      'doubao.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
+      'doubao.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
+      'doubao.resource_id': [{ required: true, message: t('select_resource_spec'), trigger: 'change' }],
+      'doubao.end_window_size': [{ required: true, message: t('enter_end_window_size'), trigger: 'blur' }],
+      'doubao.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
     }
   }
   if (form.provider === 'aliyun_qwen3') {
     return {
       ...base,
-      'aliyun_qwen3.ws_url': [{ required: true, message: '请输入WS URL', trigger: 'blur' }],
-      'aliyun_qwen3.model': [{ required: true, message: '请输入模型名称', trigger: 'blur' }],
-      'aliyun_qwen3.format': [{ required: true, message: '请选择音频格式', trigger: 'change' }],
-      'aliyun_qwen3.sample_rate': [{ required: true, message: '请选择采样率', trigger: 'change' }],
-      'aliyun_qwen3.language': [{ required: true, message: '请输入语言', trigger: 'blur' }],
-      'aliyun_qwen3.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+      'aliyun_qwen3.ws_url': [{ required: true, message: t('enter_ws_url'), trigger: 'blur' }],
+      'aliyun_qwen3.model': [{ required: true, message: t('enter_model_name'), trigger: 'blur' }],
+      'aliyun_qwen3.format': [{ required: true, message: t('select_audio_format'), trigger: 'change' }],
+      'aliyun_qwen3.sample_rate': [{ required: true, message: t('select_sample_rate'), trigger: 'change' }],
+      'aliyun_qwen3.language': [{ required: true, message: t('enter_language'), trigger: 'blur' }],
+      'aliyun_qwen3.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
     }
   }
   if (form.provider === 'xunfei') {
     return {
       ...base,
-      'xunfei.appid': [{ required: true, message: '请输入应用ID', trigger: 'blur' }],
-      'xunfei.api_key': [{ required: true, message: '请输入API Key', trigger: 'blur' }],
-      'xunfei.api_secret': [{ required: true, message: '请输入API Secret', trigger: 'blur' }],
-      'xunfei.host': [{ required: true, message: '请输入Host', trigger: 'blur' }],
-      'xunfei.path': [{ required: true, message: '请输入Path', trigger: 'blur' }],
-      'xunfei.sample_rate': [{ required: true, message: '请输入采样率', trigger: 'change' }],
-      'xunfei.timeout': [{ required: true, message: '请输入超时时间', trigger: 'blur' }]
+      'xunfei.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
+      'xunfei.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
+      'xunfei.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
+      'xunfei.host': [{ required: true, message: t('enter_host'), trigger: 'blur' }],
+      'xunfei.path': [{ required: true, message: t('enter_path'), trigger: 'blur' }],
+      'xunfei.sample_rate': [{ required: true, message: t('enter_sample_rate'), trigger: 'change' }],
+      'xunfei.timeout': [{ required: true, message: t('enter_timeout'), trigger: 'blur' }]
     }
   }
   return base
@@ -285,7 +288,7 @@ const loadConfigs = async () => {
     const response = await api.get('/admin/asr-configs')
     configs.value = (response.data.data || []).map(normalizeASRConfigRow)
   } catch (error) {
-    ElMessage.error('加载配置失败')
+    ElMessage.error(t('load_config_failed'))
   } finally {
     loading.value = false
   }
@@ -365,7 +368,7 @@ const editConfig = (config) => {
 
 const handleSave = async () => {
   if (!formRef.value) {
-    ElMessage.warning('表单未就绪，请稍后重试')
+    ElMessage.warning(t('form_not_ready'))
     return
   }
   await formRef.value.validate(async (valid) => {
@@ -386,10 +389,10 @@ const handleSave = async () => {
         
         if (editingConfig.value) {
           await api.put(`/admin/asr-configs/${editingConfig.value.id}`, configData)
-          ElMessage.success('配置更新成功')
+          ElMessage.success(t('config_update_success'))
         } else {
           await api.post('/admin/asr-configs', configData)
-          ElMessage.success('配置创建成功')
+          ElMessage.success(t('config_create_success'))
         }
         
         showDialog.value = false
@@ -411,14 +414,14 @@ const toggleEnable = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
 const toggleDefault = async (config) => {
   try {
     if (!config.enabled) {
-      ElMessage.warning('请先启用该配置才能设为默认')
+      ElMessage.warning(t('enable_config_before_default'))
       config.is_default = false
       return
     }
@@ -440,7 +443,7 @@ const toggleDefault = async (config) => {
   } catch (error) {
     // 恢复开关状态
     config.is_default = !config.is_default
-    ElMessage.error('操作失败')
+    ElMessage.error(t('operation_failed'))
   }
 }
 
@@ -481,7 +484,7 @@ const testConfig = async (row, type) => {
 const testAllConfigs = async () => {
   const list = getEnabledConfigs()
   if (!list.length) {
-    ElMessage.warning('没有已启用的配置')
+    ElMessage.warning(t('no_enabled_config'))
     return
   }
   testingAll.value = true
@@ -494,7 +497,7 @@ const testAllConfigs = async () => {
         testResults.value = { ...testResults.value, [row.config_id]: result }
         if (result.ok) okCount++
       } catch (_) {
-        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: '请求失败' } }
+        testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: t('request_failed') } }
       }
     }
     ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
@@ -514,7 +517,7 @@ const testCurrentConfig = async () => {
   }
   const configId = form.config_id?.trim()
   if (!configId) {
-    ElMessage.warning('请填写配置ID')
+    ElMessage.warning(t('fill_config_id'))
     return
   }
   const payload = {
@@ -541,18 +544,18 @@ const testCurrentConfig = async () => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm('确定要删除这个配置吗？', '提示', {
-      confirmButtonText: '确定',
-      cancelButtonText: '取消',
+    await ElMessageBox.confirm(t('confirm_delete_config'), t('hint'), {
+      confirmButtonText: t('confirm'),
+      cancelButtonText: t('cancel'),
       type: 'warning'
     })
     
     await api.delete(`/admin/asr-configs/${id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败')
+      ElMessage.error(t('delete_failed'))
     }
   }
 }

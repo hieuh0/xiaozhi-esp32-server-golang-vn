@@ -1,13 +1,13 @@
 <template>
   <div class="voice-clones-page">
     <div class="page-actions">
-      <el-button type="primary" @click="openCreateDialog">创建复刻音色</el-button>
+      <el-button type="primary" @click="openCreateDialog">{{ t('create_clone_voice') }}创建复刻音色</el-button>
     </div>
 
     <el-table :data="voiceClones" v-loading="loading" stripe style="width: 100%" table-layout="fixed">
-      <el-table-column prop="name" label="名称" min-width="120" show-overflow-tooltip />
-      <el-table-column prop="provider" label="提供商" width="100" show-overflow-tooltip />
-      <el-table-column label="TTS配置" min-width="180" show-overflow-tooltip>
+      <el-table-column prop="name" :label="t('name')" min-width="120" show-overflow-tooltip />
+      <el-table-column prop="provider" :label="t('provider')" width="100" show-overflow-tooltip />
+      <el-table-column :label="t('tts_config_label')" min-width="180" show-overflow-tooltip>
         <template #default="{ row }">{{ `${row.tts_config_name || '-'} (${row.tts_config_id || '-'})` }}</template>
       </el-table-column>
       <el-table-column prop="provider_voice_id" label="复刻音色ID" min-width="160" show-overflow-tooltip />
@@ -236,6 +236,8 @@ import { computed, nextTick, ref, onBeforeUnmount, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../../utils/api'
 import { useAuthStore } from '../../stores/auth'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const authStore = useAuthStore()
 const loading = ref(false)
@@ -452,7 +454,7 @@ const setPreviewPlayerSource = async (blob, sourceLabel, cloneLabel) => {
   try {
     await audioEl.play()
   } catch (error) {
-    ElMessage.info('音频已加载，点击播放即可试听')
+    ElMessage.info(t('audio_loaded_click_play'))
   }
 }
 const togglePreviewPlayback = async () => {
@@ -721,7 +723,7 @@ const startRecording = async () => {
         recordPreviewUrl.value = URL.createObjectURL(wavBlob)
       }
     } catch (error) {
-      ElMessage.error('录音转换失败，请重试')
+      ElMessage.error(t('recording_convert_failed'))
       form.value.recordBlob = null
       form.value.audioDurationSec = 0
       if (recordPreviewUrl.value) {
@@ -742,15 +744,15 @@ const stopRecording = () => {
 
 const submitClone = async () => {
   if (!form.value.tts_config_id) {
-    ElMessage.warning('请选择可复刻的 TTS 配置')
+    ElMessage.warning(t('select_clonable_tts'))
     return
   }
   const createNotice = resolveChargeNotice(currentCloneProvider.value, 'create')
   if (createNotice.message) {
     try {
       await ElMessageBox.confirm(createNotice.message, '创建复刻提醒', {
-        confirmButtonText: '我已知晓，继续',
-        cancelButtonText: '取消',
+        confirmButtonText: t('i_understand_continue'),
+        cancelButtonText: t('cancel'),
         type: createNotice.type
       })
     } catch (error) {
@@ -758,7 +760,7 @@ const submitClone = async () => {
     }
   }
   if (capability.value.requires_transcript && !form.value.transcript.trim()) {
-    ElMessage.warning('该提供商要求填写音频对应文字')
+    ElMessage.warning(t('provider_requires_audio_text'))
     return
   }
 
@@ -771,7 +773,7 @@ const submitClone = async () => {
 
   if (form.value.source_type === 'upload') {
     if (!form.value.audioFile) {
-      ElMessage.warning('请上传音频文件')
+      ElMessage.warning(t('upload_audio_file'))
       return
     }
     let duration = form.value.audioDurationSec
@@ -790,7 +792,7 @@ const submitClone = async () => {
     fd.append('audio_file', form.value.audioFile)
   } else {
     if (!form.value.recordBlob) {
-      ElMessage.warning('请先录音')
+      ElMessage.warning(t('record_first'))
       return
     }
     let duration = form.value.audioDurationSec
@@ -863,11 +865,11 @@ const submitEditClone = async () => {
   if (!cloneID) return
   const nextName = String(editForm.value.name || '').trim()
   if (!nextName) {
-    ElMessage.warning('名称不能为空')
+    ElMessage.warning(t('name_required'))
     return
   }
   if ([...nextName].length > 100) {
-    ElMessage.warning('名称长度不能超过100个字符')
+    ElMessage.warning(t('name_max_length'))
     return
   }
   if (nextName === String(editForm.value.originalName || '').trim()) {
@@ -878,7 +880,7 @@ const submitEditClone = async () => {
   editSubmitting.value = true
   try {
     await api.put(`/user/voice-clones/${cloneID}`, { name: nextName })
-    ElMessage.success('名称更新成功')
+    ElMessage.success(t('name_update_success'))
     editDialogVisible.value = false
     await loadVoiceClones(true)
   } finally {
@@ -891,7 +893,7 @@ const retryClone = async (clone) => {
   retrySubmittingID.value = clone.id
   try {
     await api.post(`/user/voice-clones/${clone.id}/retry`)
-    ElMessage.success('已提交重新复刻任务，正在后台处理')
+    ElMessage.success(t('reclone_task_submitted'))
     await loadVoiceClones(true)
   } finally {
     retrySubmittingID.value = null
@@ -918,8 +920,8 @@ const deleteClone = async (clone) => {
       '删除复刻音色',
       {
         type: 'warning',
-        confirmButtonText: '删除',
-        cancelButtonText: '取消'
+        confirmButtonText: t('delete'),
+        cancelButtonText: t('cancel')
       }
     )
   } catch {
@@ -928,7 +930,7 @@ const deleteClone = async (clone) => {
   deleteSubmittingID.value = clone.id
   try {
     await api.delete(`/user/voice-clones/${clone.id}`)
-    ElMessage.success('删除成功')
+    ElMessage.success(t('delete_success'))
     await loadVoiceClones(true)
   } finally {
     deleteSubmittingID.value = null
@@ -940,7 +942,7 @@ const openAppendAudioDialog = (clone) => {
   appendAudioTargetClone.value = clone
   const input = appendAudioInputRef.value
   if (!input) {
-    ElMessage.error('文件选择器未就绪')
+    ElMessage.error(t('file_picker_not_ready'))
     return
   }
   input.value = ''
@@ -960,7 +962,7 @@ const handleAppendAudioFileChange = async (event) => {
     fd.append('source_type', 'upload')
     fd.append('audio_file', file)
     await api.post(`/user/voice-clones/${clone.id}/append-audio`, fd, { timeout: 120000 })
-    ElMessage.success('追加参考音频成功')
+    ElMessage.success(t('append_ref_audio_success'))
     await loadVoiceClones(true)
   } catch (error) {
     ElMessage.error(error?.response?.data?.error || '追加参考音频失败')
@@ -984,7 +986,7 @@ const previewUploadedAudio = async (clone) => {
     const res = await api.get(`/user/voice-clones/${clone.id}/audios`)
     const audios = res.data.data || []
     if (!audios.length) {
-      ElMessage.warning('未找到已上传音频')
+      ElMessage.warning(t('no_uploaded_audio'))
       return
     }
     const audioRes = await api.get(`/user/voice-clones/audios/${audios[0].id}/file`, { responseType: 'blob' })
@@ -1002,8 +1004,8 @@ const previewClonedVoice = async (clone) => {
   if (previewNotice.message) {
     try {
       await ElMessageBox.confirm(previewNotice.message, '试听复刻提醒', {
-        confirmButtonText: '继续试听',
-        cancelButtonText: '取消',
+        confirmButtonText: t('continue_preview'),
+        cancelButtonText: t('cancel'),
         type: previewNotice.type
       })
     } catch (error) {

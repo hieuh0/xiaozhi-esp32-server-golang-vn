@@ -23,7 +23,7 @@
         <span>{{ role.name }}</span>
         <small>{{ role.role_type === 'global' ? '全局' : '我的' }}</small>
       </button>
-      <span v-if="!rolesLoading && allRoles.length === 0" class="role-empty">暂无可用角色</span>
+      <span v-if="!rolesLoading && allRoles.length === 0" class="role-empty">{{ t('no_roles_available') }}暂无可用角色</span>
     </div>
 
     <div class="form-card" v-loading="loadingAgent">
@@ -45,6 +45,8 @@ import api from '@/utils/api'
 import AgentForm from '../../components/common/AgentForm.vue'
 import AgentRuntimeDiagnostics from '../../components/common/AgentRuntimeDiagnostics.vue'
 import { agentToForm, createDefaultAgentForm } from '../../composables/useAgentFormOptions'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const route = useRoute()
 const router = useRouter()
@@ -115,7 +117,7 @@ const applyRoleConfig = async (role) => {
 
 const handleSave = async () => {
   if (applyingRoleConfig.value) {
-    ElMessage.info('当前正在填充角色配置，请稍后保存')
+    ElMessage.info(t('filling_role_config'))
     return
   }
   if (!agentFormRef.value) return
@@ -125,10 +127,10 @@ const handleSave = async () => {
   saving.value = true
   try {
     await api.put(`/user/agents/${route.params.id}`, agentFormRef.value.buildPayload())
-    ElMessage.success('保存成功')
+    ElMessage.success(t('save_success'))
     router.push('/agents')
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '保存失败')
+    ElMessage.error(error.response?.data?.error || t('save_failed'))
   } finally {
     saving.value = false
   }

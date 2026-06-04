@@ -12,8 +12,8 @@
           <div class="card-head">
             <div>
               <p class="card-kicker">OTA Base</p>
-              <h3>签名与基础约束</h3>
-              <p class="card-description">OTA 下发的 MQTT 用户密码会基于签名密钥生成，请确保与 MQTT Server 配置保持一致。</p>
+              <h3>{{ t('signature_constraints') }}签名与基础约束</h3>
+              <p class="card-description">{{ t('ota_mqtt_password_hint') }}OTA 下发的 MQTT 用户密码会基于签名密钥生成，请确保与 MQTT Server 配置保持一致。</p>
             </div>
           </div>
         </template>
@@ -140,6 +140,8 @@
 import { onMounted, reactive, ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import api from '@/utils/api'
+import { useLocale } from '../../composables/useLocale'
+const { t } = useLocale()
 
 const loading = ref(false)
 const saving = ref(false)
@@ -174,10 +176,10 @@ const form = reactive(createDefaultState())
 
 const rules = {
   signature_key: [
-    { required: true, message: '请输入签名密钥', trigger: 'blur' }
+    { required: true, message: t('enter_signature_key'), trigger: 'blur' }
   ],
   'test.websocket.url': [
-    { required: true, message: '请输入 Test 环境 WebSocket URL', trigger: 'blur' }
+    { required: true, message: t('enter_test_ws_url'), trigger: 'blur' }
   ],
   'test.mqtt.endpoint': [
     {
@@ -192,7 +194,7 @@ const rules = {
     }
   ],
   'external.websocket.url': [
-    { required: true, message: '请输入 External 环境 WebSocket URL', trigger: 'blur' }
+    { required: true, message: t('enter_external_ws_url'), trigger: 'blur' }
   ],
   'external.mqtt.endpoint': [
     {
@@ -274,7 +276,7 @@ const loadConfig = async () => {
           }
         })
       } catch (error) {
-        ElMessage.warning('OTA 配置格式异常，已回退到默认值')
+        ElMessage.warning(t('ota_config_format_error'))
         applyState(createDefaultState())
       }
     } else {
@@ -282,7 +284,7 @@ const loadConfig = async () => {
       applyState(createDefaultState())
     }
   } catch (error) {
-    ElMessage.error('加载 OTA 配置失败')
+    ElMessage.error(t('load_ota_config_failed'))
   } finally {
     loading.value = false
   }
@@ -309,11 +311,11 @@ const saveConfig = async () => {
 
     if (configId.value) {
       await api.put(`/admin/ota-configs/${configId.value}`, configData)
-      ElMessage.success('OTA 配置已更新')
+      ElMessage.success(t('ota_config_updated'))
     } else {
       const response = await api.post('/admin/ota-configs', configData)
       configId.value = response.data?.data?.id || configId.value
-      ElMessage.success('OTA 配置已保存')
+      ElMessage.success(t('ota_config_saved'))
     }
 
     await loadConfig()

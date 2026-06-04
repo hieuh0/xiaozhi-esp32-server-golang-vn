@@ -1,14 +1,16 @@
 <template>
   <div class="test-route">
-    <h1>测试路由页面</h1>
-    <p>如果您能看到这个页面，说明路由系统正常工作。</p>
+    <h1>{{ t('test_route_page') }}测试路由页面</h1>
+    <p>{{ t('routing_works_hint') }}如果您能看到这个页面，说明路由系统正常工作。</p>
     <div class="route-state">{{ message }}</div>
-    <el-button @click="testFunction">测试按钮</el-button>
+    <el-button @click="testFunction">{{ t('test_button') }}测试按钮</el-button>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import { useLocale } from '../composables/useLocale'
+const { t } = useLocale()
 
 const message = ref('Hello World')
 
