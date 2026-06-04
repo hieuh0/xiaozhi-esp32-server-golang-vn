@@ -49,7 +49,7 @@
       </el-table-column>
       <el-table-column prop="last_active_at" :label="t('latest_data')" width="180">
         <template #default="{ row }">
-          {{ row.last_active_at ? new Date(row.last_active_at).toLocaleString() : '从未活跃' }}
+          {{ row.last_active_at ? new Date(row.last_active_at).toLocaleString() : t('never_active') }}
         </template>
       </el-table-column>
       <el-table-column prop="created_at" :label="t('start_date')" width="180">
@@ -57,10 +57,10 @@
           {{ new Date(row.created_at).toLocaleString() }}
         </template>
       </el-table-column>
-      <el-table-column :label="t('operation_failed').replace('失败', '')" width="300">
+      <el-table-column :label="t('operation_failed').replace(t('failed'), '')" width="300">
         <template #default="{ row }">
           <el-button size="small" @click="editDevice(row)">
-            {{ t('cancel_edit').replace('取消', '') }}
+            {{ t('cancel_edit').replace(t('cancel'), '') }}
           </el-button>
           <el-button size="small" type="primary" @click="showDeviceMcp(row)">
             MCP
@@ -93,7 +93,7 @@
               <el-option v-for="tool in mcpTools" :key="tool.name" :label="tool.name" :value="tool.name" />
             </el-select>
           </el-form-item>
-          <el-form-item :label="t('params_json_format_error').replace('格式错误', '')">
+          <el-form-item :label="t('params_json_format_error').replace(t('format_error'), '')">
             <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" placeholder='例如: {"query":"hello"}' />
           </el-form-item>
         </el-form>
@@ -107,7 +107,7 @@
 
     <el-dialog
       v-model="showAddDialog"
-      :title="editingDevice ? t('device_update_success').replace('更新成功', '编辑') : t('add_agent')"
+      :title="editingDevice ? t('device_update_success').replace(t('update_success'), t('edit')) : t('add_agent')"
       width="500px"
     >
       <DeviceForm
@@ -119,7 +119,7 @@
       <template #footer>
         <el-button @click="showAddDialog = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="saveDevice" :loading="saving">
-          {{ editingDevice ? t('update_success').replace('成功', '') : t('add_agent').replace('智能体', '') }}
+          {{ editingDevice ? t('update_success').replace(t('success'), '') : t('add_agent').replace(t('agent'), '') }}
         </el-button>
       </template>
     </el-dialog>

@@ -32,12 +32,12 @@
               <div class="device-option-header">
                 <span class="device-name">{{ getDeviceNickName(device) }}</span>
                 <el-tag :type="isDeviceOnline(device.last_active_at) ? 'success' : 'danger'" size="small">
-                  {{ isDeviceOnline(device.last_active_at) ? '在线' : '离线' }}
+                  {{ isDeviceOnline(device.last_active_at) ? t('online') : t('offline') }}
                 </el-tag>
               </div>
               <div class="device-code">设备ID: {{ getDeviceIdText(device) }}</div>
               <div v-if="device.device_code" class="device-code">激活码: {{ device.device_code }}</div>
-              <div class="device-agent">智能体: {{ device.agent_name || '未绑定' }}</div>
+              <div class="device-agent">智能体: {{ device.agent_name || t('not_bound') }}</div>
             </div>
           </el-option>
         </el-select>
@@ -57,15 +57,15 @@
       <el-form-item :label="t('direct_broadcast')" prop="skip_llm">
         <div class="switch-field">
           <div class="switch-copy">
-            <div class="switch-title">{{ directPlayback ? '开启' : t('close') }}</div>
+            <div class="switch-title">{{ directPlayback ? t('enable') : t('close') }}</div>
             <div class="switch-desc">
-              {{ directPlayback ? '消息将直接转语音播报，不经过 LLM 推理。' : '消息将先经过 LLM 处理，再进行播报。' }}
+              {{ directPlayback ? t('msg_direct_tts') : t('msg_via_llm') }}
             </div>
           </div>
           <el-switch
             v-model="directPlayback"
             inline-prompt
-            active-text="开启"
+            active-:text="t('enable')"
             :inactive-text="t('close')"
           />
         </div>
@@ -74,15 +74,15 @@
       <el-form-item :label="t('switch_to_idle')" prop="auto_listen">
         <div class="switch-field">
           <div class="switch-copy">
-            <div class="switch-title">{{ returnToIdleAfterPlayback ? '开启' : t('close') }}</div>
+            <div class="switch-title">{{ returnToIdleAfterPlayback ? t('enable') : t('close') }}</div>
             <div class="switch-desc">
-              {{ returnToIdleAfterPlayback ? '播报完成后回到空闲，适合广播通知和单向播报。' : '播报完成后继续监听，可直接进入下一轮对话。' }}
+              {{ returnToIdleAfterPlayback ? t('broadcast_return_idle') : t('broadcast_continue_listen') }}
             </div>
           </div>
           <el-switch
             v-model="returnToIdleAfterPlayback"
             inline-prompt
-            active-text="开启"
+            active-:text="t('enable')"
             :inactive-text="t('close')"
           />
         </div>
@@ -93,7 +93,7 @@
       <div class="dialog-footer">
         <el-button @click="handleClose">{{ t('cancel') }}</el-button>
         <el-button type="primary" :loading="submitting" @click="handleSubmit">
-          {{ submitting ? '推送中...' : t('voice_push') }}
+          {{ submitting ? t('pushing') : t('voice_push') }}
         </el-button>
       </div>
     </template>
@@ -232,7 +232,7 @@ const handleSubmit = async () => {
       closeDialog()
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '语音推送失败')
+    ElMessage.error(error.response?.data?.error || t('voice_push_failed'))
   } finally {
     submitting.value = false
   }

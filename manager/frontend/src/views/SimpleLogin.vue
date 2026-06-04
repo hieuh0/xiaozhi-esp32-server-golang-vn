@@ -48,7 +48,7 @@ const login = async () => {
     })
     
     if (result.success) {
-      alert('登录成功!')
+      alert(t('login_success_excl'))
       if (authStore.user?.role === 'admin') {
         router.push('/dashboard')
       } else {

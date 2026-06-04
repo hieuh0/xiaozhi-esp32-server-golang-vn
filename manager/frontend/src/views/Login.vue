@@ -55,7 +55,7 @@
               <div v-if="loginCaptchaEnabled" class="captcha-strip">
                 <div class="captcha-copy">
                   <span class="captcha-label">人机验证</span>
-                  <strong>{{ loginCaptchaPrompt || '正在生成题目...' }}</strong>
+                  <strong>{{ loginCaptchaPrompt || t('generating_questions') }}</strong>
                   <p>简单算术题，防止脚本批量登录。</p>
                 </div>
                 <el-button
@@ -120,7 +120,7 @@
               <div class="captcha-strip">
                 <div class="captcha-copy">
                   <span class="captcha-label">人机验证</span>
-                  <strong>{{ registerCaptchaPrompt || '正在生成题目...' }}</strong>
+                  <strong>{{ registerCaptchaPrompt || t('generating_questions') }}</strong>
                   <p>完成简单算式后再提交注册。</p>
                 </div>
                 <el-button
@@ -232,7 +232,7 @@ const registerRules = {
     {
       validator: (rule, value, callback) => {
         if (value !== registerForm.password) {
-          callback(new Error('两次输入密码不一致'))
+          callback(new Error(t('password_mismatch')))
         } else {
           callback()
         }
@@ -256,7 +256,7 @@ const fetchCaptcha = async (form, promptRef, loadingRef, formRef) => {
   } catch (error) {
     form.captchaId = ''
     form.captchaAnswer = ''
-    promptRef.value = '题目加载失败，请换一题重试'
+    promptRef.value = t('question_load_failed')
   } finally {
     loadingRef.value = false
   }
@@ -385,7 +385,7 @@ const checkSystemStatus = async () => {
       router.push('/setup')
     }
   } catch (error) {
-    console.error('检查系统状态失败:', error)
+    console.error(t('check_system_failed'), error)
   }
 }
 

@@ -15,7 +15,7 @@
               name="username"
               :label="t('username')"
               :placeholder="t('enter_username')"
-              :rules="[{ required: true, message: '请输入用户名' }]"
+              :rules="[{ required: true, message: t('enter_username') }]"
             />
             <van-field
               v-model="loginForm.password"
@@ -23,12 +23,12 @@
               name="password"
               :label="t('password')"
               :placeholder="t('enter_password')"
-              :rules="[{ required: true, message: '请输入密码' }]"
+              :rules="[{ required: true, message: t('enter_password') }]"
             />
             <div v-if="loginCaptchaEnabled" class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
                 <span>{{ t('captcha') }}人机验证</span>
-                <strong>{{ loginCaptchaPrompt || '正在生成题目...' }}</strong>
+                <strong>{{ loginCaptchaPrompt || t('generating_questions') }}</strong>
                 <p>{{ t('arithmetic_captcha_hint') }}简单算术题，防止脚本批量登录。</p>
               </div>
               <van-button
@@ -48,7 +48,7 @@
               :label="t('calc_result')"
               :placeholder="t('enter_calc_result')"
               input-align="left"
-              :rules="[{ required: true, message: '请输入计算结果' }]"
+              :rules="[{ required: true, message: t('enter_calc_result') }]"
             />
           </van-cell-group>
           
@@ -77,7 +77,7 @@
               name="username"
               :label="t('username')"
               :placeholder="t('enter_username')"
-              :rules="[{ required: true, message: '请输入用户名' }]"
+              :rules="[{ required: true, message: t('enter_username') }]"
             />
             <van-field
               v-model="registerForm.email"
@@ -85,8 +85,8 @@
               :label="t('email')"
               :placeholder="t('enter_email')"
               :rules="[
-                { required: true, message: '请输入邮箱' },
-                { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: '请输入正确的邮箱格式' }
+                { required: true, message: t('enter_email') },
+                { pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t('enter_valid_email') }
               ]"
             />
             <van-field
@@ -96,8 +96,8 @@
               :label="t('password')"
               :placeholder="t('enter_password_min6')"
               :rules="[
-                { required: true, message: '请输入密码' },
-                { pattern: /^.{6,}$/, message: '密码长度不能少于6位' }
+                { required: true, message: t('enter_password') },
+                { pattern: /^.{6,}$/, message: t('password_min_length') }
               ]"
             />
             <van-field
@@ -107,14 +107,14 @@
               :label="t('confirm_password')"
               :placeholder="t('confirm_password_prompt')"
               :rules="[
-                { required: true, message: '请确认密码' },
+                { required: true, message: t('confirm_password_prompt') },
                 { validator: validateConfirmPassword }
               ]"
             />
             <div class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
                 <span>{{ t('captcha') }}人机验证</span>
-                <strong>{{ registerCaptchaPrompt || '正在生成题目...' }}</strong>
+                <strong>{{ registerCaptchaPrompt || t('generating_questions') }}</strong>
                 <p>{{ t('captcha_math_hint') }}完成简单算式后再提交注册。</p>
               </div>
               <van-button
@@ -133,7 +133,7 @@
               :label="t('calc_result')"
               :placeholder="t('enter_calc_result')"
               input-align="left"
-              :rules="[{ required: true, message: '请输入计算结果' }]"
+              :rules="[{ required: true, message: t('enter_calc_result') }]"
             />
           </van-cell-group>
           
@@ -199,7 +199,7 @@ const registerForm = reactive({
 // 自定义验证器：确认密码
 const validateConfirmPassword = (val) => {
   if (val !== registerForm.password) {
-    return '两次输入密码不一致'
+    return t('password_mismatch')
   }
   return true
 }
@@ -214,7 +214,7 @@ const fetchCaptcha = async (form, promptRef, loadingRef) => {
   } catch (error) {
     form.captchaId = ''
     form.captchaAnswer = ''
-    promptRef.value = '题目加载失败，请换一题重试'
+    promptRef.value = t('question_load_failed')
   } finally {
     loadingRef.value = false
   }
@@ -274,7 +274,7 @@ const handleLogin = async () => {
     showSuccessToast(t('login_success'))
     router.push(getPostLoginRedirectPath(authStore.user))
   } else {
-    showFailToast(result.message || '登录失败')
+    showFailToast(result.message || t('login_failed'))
     if (loginCaptchaEnabled.value) {
       await refreshLoginCaptcha()
     }
@@ -315,7 +315,7 @@ const handleRegister = async () => {
       refreshRegisterCaptcha()
     ])
   } else {
-    showFailToast(result.message || '注册失败')
+    showFailToast(result.message || t('register_failed'))
     await refreshRegisterCaptcha()
   }
 }
@@ -327,7 +327,7 @@ const checkSystemStatus = async () => {
       router.push('/setup')
     }
   } catch (error) {
-    console.error('检查系统状态失败:', error)
+    console.error(t('check_system_failed'), error)
   }
 }
 

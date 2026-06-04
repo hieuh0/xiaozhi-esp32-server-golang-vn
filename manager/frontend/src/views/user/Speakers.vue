@@ -30,7 +30,7 @@
       </el-input>
       <el-button class="create-group-button" type="primary" @click="handleAddGroup">
         <el-icon><Plus /></el-icon>
-        创建声纹组
+        {{ t('create_voiceprint_group') }}
       </el-button>
     </div>
 
@@ -107,14 +107,14 @@
       </el-table>
 
       <div v-if="filteredGroups.length === 0 && !loading" class="empty-state">
-        <el-empty description="暂无声纹组数据" />
+        <el-empty :description="t('no_voiceprint_groups')" />
       </div>
     </div>
 
     <!-- 创建/编辑声纹组对话框 -->
     <el-dialog
       v-model="showGroupDialog"
-      :title="groupDialogMode === 'add' ? '创建声纹组' : '编辑声纹组'"
+      :title="groupDialogMode === 'add' ? t('create_voiceprint_group') : t('edit_voiceprint_group')"
       width="600px"
     >
       <el-form
@@ -197,7 +197,7 @@
                 {{ ttsConfig.name }}
                 <el-tag v-if="ttsConfig.is_default" type="success" size="small" style="margin-left: 8px;">默认</el-tag>
               </div>
-              <span class="config-desc">{{ ttsConfig.provider || '暂无描述' }}</span>
+              <span class="config-desc">{{ ttsConfig.provider || t('no_description_alt') }}</span>
             </el-option>
           </el-select>
           <div class="form-help" v-if="groupForm.tts_config_id">
@@ -228,7 +228,7 @@
       <template #footer>
         <el-button @click="showGroupDialog = false">取消</el-button>
         <el-button type="primary" @click="handleSubmitGroup" :loading="submitting">
-          {{ groupDialogMode === 'add' ? '创建' : '保存' }}
+          {{ groupDialogMode === 'add' ? t('create') : t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -313,7 +313,7 @@
                   @click="handlePlaySample(row)"
                 >
                   <el-icon><VideoPlay /></el-icon>
-                  播放
+                  {{ t('play') }}
                 </el-button>
                 <el-button
                   type="primary"
@@ -338,7 +338,7 @@
           </el-table>
 
           <div v-if="samples.length === 0" class="empty-samples">
-            <el-empty description="暂无样本，请上传音频文件" />
+            <el-empty :description="t('no_samples_upload')" />
           </div>
         </div>
       </div>
@@ -376,7 +376,7 @@
             
             <div v-loading="loadingHistory" class="history-list">
               <div v-if="historyMessages.length === 0 && !loadingHistory" class="empty-history">
-                <el-empty description="暂无历史聊天记录，请先选择智能体" />
+                <el-empty :description="t('no_chat_history_select')" />
               </div>
               <el-table
                 v-else
@@ -432,7 +432,7 @@
         </el-tab-pane>
         
         <!-- 上传文件 -->
-        <el-tab-pane label="上传文件" name="upload">
+        <el-tab-pane :label="t('upload_file')" name="upload">
           <el-form
             ref="uploadFormRef"
             :model="uploadForm"
@@ -551,7 +551,7 @@
     >
       <el-tabs v-model="verifyMode" class="verify-tabs">
         <!-- 上传文件 -->
-        <el-tab-pane label="上传文件" name="upload">
+        <el-tab-pane :label="t('upload_file')" name="upload">
           <el-form
             ref="verifyFormRef"
             :model="verifyForm"
@@ -659,7 +659,7 @@
           </div>
           <div class="result-info">
             <div class="result-status">
-              {{ verifyResult.verified ? '验证通过' : '验证未通过' }}
+              {{ verifyResult.verified ? t('verification_passed') : t('verify_not_passed') }}
             </div>
             <div class="result-details">
               <div>置信度: <strong>{{ (verifyResult.confidence * 100).toFixed(1) }}%</strong></div>
@@ -875,7 +875,7 @@ const loadAgents = async () => {
     const response = await api.get('/user/agents')
     agents.value = response.data.data || []
   } catch (error) {
-    console.error('加载智能体列表失败:', error)
+    console.error(t('load_agent_list_failed_v2'), error)
     ElMessage.error(t('load_agent_list_failed'))
   }
 }
@@ -886,7 +886,7 @@ const loadTtsConfigs = async () => {
     const response = await api.get('/user/tts-configs')
     ttsConfigs.value = response.data.data || []
   } catch (error) {
-    console.error('加载TTS配置失败:', error)
+    console.error(t('load_tts_config_failed'), error)
     ElMessage.error(t('load_tts_config_failed'))
   }
 }
@@ -917,7 +917,7 @@ const loadCloneVoicePresets = async () => {
         tts_config_name: clone.tts_config_name || ''
       }))
   } catch (error) {
-    console.error('加载复刻音色失败:', error)
+    console.error(t('load_clone_voice_failed'), error)
     cloneVoicePresets.value = []
   } finally {
     cloneVoicesLoading.value = false
@@ -963,7 +963,7 @@ const handleTtsConfigChange = async (configId) => {
     const response = await api.get('/user/voice-options', { params })
     currentVoiceOptions.value = response.data.data || []
   } catch (error) {
-    console.error('加载音色列表失败:', error)
+    console.error(t('load_voice_list_failed_c'), error)
     currentVoiceOptions.value = []
     ElMessage.warning(t('load_voice_list_failed'))
   }
@@ -1091,7 +1091,7 @@ const getCurrentTtsConfigInfo = () => {
   if (!groupForm.tts_config_id) return ''
   const config = ttsConfigs.value.find(c => c.config_id === groupForm.tts_config_id)
   if (!config) return ''
-  return `TTS提供商: ${config.provider || '未知'}`
+  return `TTS提供商: ${config.provider || t('unknown')}`
 }
 
 // 加载声纹组列表
@@ -1169,7 +1169,7 @@ const handleSubmitGroup = async () => {
       // 表单验证错误
       return
     }
-    console.error('提交失败:', error)
+    console.error(t('submit_failed'), error)
     ElMessage.error('操作失败: ' + (error.response?.data?.error || error.message))
   } finally {
     submitting.value = false
@@ -1200,7 +1200,7 @@ const handleVerifyGroup = async (group) => {
     stream.getTracks().forEach(track => track.stop())
     canRecord.value = true
   } catch (error) {
-    console.warn('浏览器不支持录音:', error)
+    console.warn(t('browser_recording_error'), error)
     canRecord.value = false
     if (verifyMode.value === 'record') {
       ElMessage.warning(t('browser_no_recording'))
@@ -1363,7 +1363,7 @@ const startVerifyRecording = async () => {
           verifyFormRef.value.clearValidate('audio')
         }
       } catch (error) {
-        console.error('处理录音数据失败:', error)
+        console.error(t('process_recording_failed_v2'), error)
         ElMessage.error(t('process_recording_failed'))
         verifyRecordedBlob.value = null
         verifyRecordedBlobUrl.value = ''
@@ -1501,7 +1501,7 @@ const handleDeleteGroup = async (group) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除声纹组"${group.name}"吗？此操作将删除该组下的所有样本，且不可恢复。`,
-      '确认删除',
+      t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
         cancelButtonText: t('cancel'),
@@ -1544,7 +1544,7 @@ const loadSamples = async (groupId) => {
     const response = await api.get(`/user/speaker-groups/${groupId}/samples`)
     samples.value = response.data.data || []
   } catch (error) {
-    console.error('加载样本列表失败:', error)
+    console.error(t('load_sample_list_failed_v2'), error)
     ElMessage.error(t('load_sample_list_failed'))
   }
 }
@@ -1579,7 +1579,7 @@ const handleAddSample = async () => {
     stream.getTracks().forEach(track => track.stop())
     canRecord.value = true
   } catch (error) {
-    console.warn('浏览器不支持录音:', error)
+    console.warn(t('browser_recording_error'), error)
     canRecord.value = false
     if (uploadMode.value === 'record') {
       ElMessage.warning(t('browser_no_recording'))
@@ -1710,7 +1710,7 @@ const startRecording = async () => {
           uploadFormRef.value.clearValidate('audio')
         }
       } catch (error) {
-        console.error('处理录音数据失败:', error)
+        console.error(t('process_recording_failed_v2'), error)
         ElMessage.error(t('process_recording_failed'))
         recordedBlob.value = null
         recordedBlobUrl.value = ''
@@ -1768,7 +1768,7 @@ const convertToWav = async (blob) => {
         const wavBlob = new Blob([wav], { type: 'audio/wav' })
         resolve(wavBlob)
       } catch (error) {
-        console.error('转换 WAV 失败:', error)
+        console.error(t('convert_wav_failed_v2'), error)
         // 如果转换失败，直接使用原始 blob（可能需要后端支持 webm 格式）
         reject(error)
       }
@@ -2034,7 +2034,7 @@ const handleDeleteSample = async (sample) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除样本"${sample.file_name}"吗？此操作不可恢复。`,
-      '确认删除',
+      t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
         cancelButtonText: t('cancel'),
@@ -2060,7 +2060,7 @@ const copyToClipboard = async (text) => {
     await navigator.clipboard.writeText(text)
     ElMessage.success(t('copied_to_clipboard'))
   } catch (error) {
-    console.error('复制失败:', error)
+    console.error(t('copy_failed_v2'), error)
     ElMessage.error(t('copy_failed'))
   }
 }

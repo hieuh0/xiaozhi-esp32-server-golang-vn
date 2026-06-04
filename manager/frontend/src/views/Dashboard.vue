@@ -6,10 +6,10 @@
           <span class="metric-icon users">
             <el-icon><User /></el-icon>
           </span>
-          <span class="metric-trend">{{ authStore.isAdmin ? '全局用户' : '关联账户' }}</span>
+          <span class="metric-trend">{{ authStore.isAdmin ? t('global_user') : t('linked_account') }}</span>
         </div>
         <strong>{{ authStore.isAdmin ? stats.totalUsers : 1 }}</strong>
-        <p>{{ authStore.isAdmin ? '总用户数' : '当前登录账户' }}</p>
+        <p>{{ authStore.isAdmin ? t('total_users') : t('current_logged_account') }}</p>
       </article>
 
       <article class="metric-card">
@@ -20,7 +20,7 @@
           <span class="metric-trend">在线 {{ stats.onlineDevices }}</span>
         </div>
         <strong>{{ stats.totalDevices }}</strong>
-        <p>{{ authStore.isAdmin ? '设备总数' : '我的设备' }}</p>
+        <p>{{ authStore.isAdmin ? t('total_devices') : t('my_devices') }}</p>
       </article>
 
       <article class="metric-card">
@@ -31,7 +31,7 @@
           <span class="metric-trend">{{ t('active') }}活跃中</span>
         </div>
         <strong>{{ stats.totalAgents }}</strong>
-        <p>{{ authStore.isAdmin ? '智能体数量' : '我的智能体' }}</p>
+        <p>{{ authStore.isAdmin ? t('agent_count') : t('my_agents') }}</p>
       </article>
 
       <article class="metric-card">
@@ -168,7 +168,7 @@
             <div class="info-row">
               <span>用户角色</span>
               <el-tag :type="authStore.isAdmin ? 'danger' : 'primary'" effect="light">
-                {{ authStore.isAdmin ? '管理员' : '普通用户' }}
+                {{ authStore.isAdmin ? t('admin') : t('normal_user') }}
               </el-tag>
             </div>
           </div>
@@ -308,7 +308,7 @@ async function loadServiceAddress() {
       }
     }
   } catch (err) {
-    console.error('加载服务地址失败:', err)
+    console.error(t('load_service_addr_failed'), err)
   } finally {
     addressLoading.value = false
   }
@@ -366,10 +366,10 @@ async function runOtaTest() {
           displayText += `\n--- OTA 响应 ---\n${formatOtaResponseDisplay(value.ota_response)}`
         }
 
-        otaTestResult.value = displayText.trim() || '未获取到详细信息'
-        ElMessage[value.ok ? 'success' : 'warning'](value.message || (value.ok ? 'OTA 测试通过' : 'OTA 测试未通过'))
+        otaTestResult.value = displayText.trim() || t('detail_not_available')
+        ElMessage[value.ok ? 'success' : 'warning'](value.message || (value.ok ? t('ota_test_passed') : t('ota_test_failed')))
       } else {
-        otaTestResult.value = '未获取到 OTA 测试结果'
+        otaTestResult.value = t('ota_test_no_result')
       }
     } else {
       otaTestResult.value = typeof data === 'string' ? data : JSON.stringify(data || {}, null, 2)
@@ -415,7 +415,7 @@ const loadStats = async () => {
       ? new Date(response.data.programStartedAt).toLocaleString('zh-CN')
       : '—'
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error(t('load_stats_failed_v2'), error)
     stats.value = {
       totalUsers: 0,
       totalDevices: 0,
@@ -450,7 +450,7 @@ const exportConfig = async () => {
       ElMessage.error(t('config_export_failed'))
     }
   } catch (error) {
-    console.error('导出配置失败:', error)
+    console.error(t('export_config_failed'), error)
     ElMessage.error(t('config_export_failed'))
   }
 }
@@ -490,7 +490,7 @@ const handleFileChange = async (event) => {
       ElMessage.error(error.error || t('config_import_failed'))
     }
   } catch (error) {
-    console.error('导入配置失败:', error)
+    console.error(t('import_config_failed'), error)
     ElMessage.error(t('config_import_failed'))
   }
 

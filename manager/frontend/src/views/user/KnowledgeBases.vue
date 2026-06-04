@@ -47,8 +47,8 @@
           <el-switch
             :model-value="String(scope.row.status || '').trim() === 'active'"
             inline-prompt
-            active-text="开"
-            inactive-text="关"
+            active-:text="t('on')"
+            inactive-:text="t('off')"
             :loading="isStatusSwitchLoading(scope.row.id)"
             @change="(checked) => toggleKnowledgeBaseStatus(scope.row, checked)"
           />
@@ -74,7 +74,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dialogVisible" :title="editing ? '编辑知识库' : '新增知识库'" width="680px">
+    <el-dialog v-model="dialogVisible" :title="editing ? t('edit_knowledge_base') : t('add_knowledge_base')" width="680px">
       <el-form :model="form" label-width="90px">
         <el-form-item :label="t('name')">
           <el-input v-model="form.name" maxlength="100" show-word-limit />
@@ -155,7 +155,7 @@
       </el-table>
     </el-dialog>
 
-    <el-dialog v-model="documentDialogVisible" :title="documentEditing ? '编辑文档' : '新增文档'" width="700px">
+    <el-dialog v-model="documentDialogVisible" :title="documentEditing ? t('edit_document') : t('add_document')" width="700px">
       <el-form :model="documentForm" label-width="90px">
         <el-form-item label="文档名">
           <el-input v-model="documentForm.name" maxlength="200" show-word-limit />
@@ -308,13 +308,13 @@ const uploadAcceptByProvider = computed(() => {
 const isUploadProviderSupported = computed(() => currentKBProvider.value === 'dify' || currentKBProvider.value === 'ragflow' || currentKBProvider.value === 'weknora')
 const uploadTipText = computed(() => {
   if (currentKBProvider.value === 'dify') {
-    return '按 Dify 支持格式限制上传（txt/md/pdf/html/xlsx/docx/csv/eml/msg/pptx/xml/epub），上传后自动创建文档并异步同步。'
+    return t('dify_upload_hint')
   }
   if (currentKBProvider.value === 'ragflow') {
-    return '按 RAGFlow 支持格式限制上传（如 txt/md/pdf/docx/xlsx/pptx/jpg/png/eml 等），上传后自动创建文档并异步同步。'
+    return t('ragflow_upload_hint')
   }
   if (currentKBProvider.value === 'weknora') {
-    return '按 WeKnora 支持格式限制上传（如 txt/md/pdf/docx/xlsx/pptx/jpg/png/eml 等），上传后自动创建文档并异步同步。'
+    return t('weknora_upload_hint')
   }
   return `当前提供商 ${currentKBProvider.value} 暂不支持上传建文档。`
 })
@@ -463,12 +463,12 @@ const toggleKnowledgeBaseStatus = async (row, checked) => {
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     } else {
-      ElMessage.success(`已${nextStatus === 'active' ? t('enabled') : '停用'}`)
+      ElMessage.success(`已${nextStatus === 'active' ? t('enabled') : t('deactivate')}`)
     }
     await loadData()
   } catch (e) {
     row.status = prevStatus
-    const msg = e?.response?.data?.error || '状态更新失败'
+    const msg = e?.response?.data?.error || t('status_update_failed')
     ElMessage.error(msg)
   } finally {
     statusSwitchLoadingMap.value = {
@@ -496,10 +496,10 @@ const handleKnowledgeBaseAction = async (command, row) => {
 const syncItem = async (id) => {
   try {
     const res = await api.post(`/user/knowledge-bases/${id}/sync`)
-    ElMessage.success(res?.data?.message || '同步任务已提交')
+    ElMessage.success(res?.data?.message || t('sync_submitted'))
     await loadData()
   } catch (e) {
-    const msg = e?.response?.data?.error || '同步失败'
+    const msg = e?.response?.data?.error || t('sync_failed')
     ElMessage.error(msg)
     await loadData()
   }
@@ -560,7 +560,7 @@ const runSearchTest = async () => {
     hasRunSearchTest.value = true
     ElMessage.success(`召回完成，共返回 ${searchTestResult.count} 条`)
   } catch (e) {
-    const msg = e?.response?.data?.error || '测试失败'
+    const msg = e?.response?.data?.error || t('test_failed')
     ElMessage.error(msg)
   } finally {
     searchTestLoading.value = false
@@ -621,7 +621,7 @@ const submitDocument = async () => {
     await loadDocuments()
     await loadData()
   } catch (e) {
-    const msg = e?.response?.data?.error || '文档保存失败'
+    const msg = e?.response?.data?.error || t('doc_save_failed')
     ElMessage.error(msg)
   }
 }
@@ -644,11 +644,11 @@ const syncDocument = async (docId) => {
   if (!currentKb.value?.id) return
   try {
     const res = await api.post(`/user/knowledge-bases/${currentKb.value.id}/documents/${docId}/sync`)
-    ElMessage.success(res?.data?.message || '同步任务已提交')
+    ElMessage.success(res?.data?.message || t('sync_submitted'))
     await loadDocuments()
     await loadData()
   } catch (e) {
-    const msg = e?.response?.data?.error || '同步失败'
+    const msg = e?.response?.data?.error || t('sync_failed')
     ElMessage.error(msg)
   }
 }
@@ -680,7 +680,7 @@ const uploadDocumentFile = async (options) => {
 
   try {
     const res = await api.post(`/user/knowledge-bases/${currentKb.value.id}/documents/upload`, formData)
-    ElMessage.success(res?.data?.message || '文件上传成功')
+    ElMessage.success(res?.data?.message || t('file_upload_success'))
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     }
@@ -688,7 +688,7 @@ const uploadDocumentFile = async (options) => {
     await loadData()
     options?.onSuccess?.(res?.data)
   } catch (e) {
-    const msg = e?.response?.data?.error || '文件上传失败'
+    const msg = e?.response?.data?.error || t('file_upload_failed')
     ElMessage.error(msg)
     options?.onError?.(e)
   }
@@ -704,10 +704,10 @@ const getDocumentPreview = (doc) => {
   if (isUploadedFileDocument(doc)) {
     try {
       const payload = JSON.parse(content.slice(FILE_UPLOAD_CONTENT_PREFIX.length))
-      const fileName = payload?.file_name || doc?.name || '上传文件'
+      const fileName = payload?.file_name || doc?.name || t('upload_file')
       return `[文件] ${fileName}`
     } catch {
-      return `[文件] ${doc?.name || '上传文件'}`
+      return `[文件] ${doc?.name || t('upload_file')}`
     }
   }
   const text = String(content)
@@ -715,14 +715,14 @@ const getDocumentPreview = (doc) => {
 }
 
 const getSyncStatusText = (status) => {
-  if (status === 'uploading') return '上传中'
-  if (status === 'uploaded') return '已上传'
-  if (status === 'parsing') return '解析中'
-  if (status === 'upload_failed') return '上传失败'
-  if (status === 'parse_failed') return '解析失败'
-  if (status === 'synced') return '已同步'
-  if (status === 'failed') return '失败'
-  return '待同步'
+  if (status === 'uploading') return t('uploading')
+  if (status === 'uploaded') return t('uploaded')
+  if (status === 'parsing') return t('parsing')
+  if (status === 'upload_failed') return t('upload_failed')
+  if (status === 'parse_failed') return t('parse_failed')
+  if (status === 'synced') return t('synced')
+  if (status === 'failed') return t('failed')
+  return t('pending_sync')
 }
 
 const getSyncStatusTagType = (status) => {
@@ -735,7 +735,7 @@ const getSyncStatusTagType = (status) => {
 }
 
 const getKnowledgeStatusText = (status) => {
-  return String(status || '').trim() === 'active' ? t('enabled') : '停用'
+  return String(status || '').trim() === 'active' ? t('enabled') : t('deactivate')
 }
 
 const formatProviderText = (provider) => {
@@ -773,9 +773,9 @@ const formatDateTimeCell = (value) => {
 }
 
 const formatKnowledgeThreshold = (value) => {
-  if (value === null || value === undefined || value === '') return '全局'
+  if (value === null || value === undefined || value === '') return t('global')
   const n = Number(value)
-  if (Number.isNaN(n)) return '全局'
+  if (Number.isNaN(n)) return t('global')
   return n.toFixed(2)
 }
 

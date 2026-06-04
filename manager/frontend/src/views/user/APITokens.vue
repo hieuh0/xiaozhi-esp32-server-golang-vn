@@ -19,7 +19,7 @@
         <el-table-column prop="token_prefix" label="前缀" min-width="140" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">
-            <el-tag :type="row.is_active ? 'success' : 'info'">{{ row.is_active ? '可用' : '已吊销' }}</el-tag>
+            <el-tag :type="row.is_active ? 'success' : 'info'">{{ row.is_active ? t('available') : t('revoked') }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="最后使用" min-width="170">

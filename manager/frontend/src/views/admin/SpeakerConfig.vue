@@ -47,7 +47,7 @@
           </div>
         </el-form-item>
         
-        <el-form-item label="启用状态">
+        <el-form-item :label="t('enabled_status')">
           <el-switch v-model="form.enabled" />
         </el-form-item>
       </el-form>

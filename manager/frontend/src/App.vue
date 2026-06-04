@@ -26,7 +26,7 @@ export default {
           }
         }
       } catch (error) {
-        console.error('检查系统状态失败:', error)
+        console.error(t('check_system_failed'), error)
         // 如果检查失败，可能是网络问题，不强制跳转
       }
     }

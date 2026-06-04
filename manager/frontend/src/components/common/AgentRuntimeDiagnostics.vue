@@ -31,7 +31,7 @@
 
           <div class="result-block">
             <div class="field-label">MCP 接入点 URL</div>
-            <pre class="code-box">{{ mcpEndpointData.endpoint || '暂无接入点，请先保存智能体并刷新。' }}</pre>
+            <pre class="code-box">{{ mcpEndpointData.endpoint || t('no_endpoints_save') }}</pre>
           </div>
 
           <div class="tool-header">
@@ -70,7 +70,7 @@
             </el-form-item>
           </el-form>
           <el-button type="primary" @click="callAgentMcpTool" :loading="callingTool">调用工具</el-button>
-          <pre class="code-box result-box">{{ mcpCallResult || '暂无调用结果' }}</pre>
+          <pre class="code-box result-box">{{ mcpCallResult || t('no_call_results') }}</pre>
         </div>
       </el-collapse-item>
 
@@ -88,7 +88,7 @@
               <div class="field-label">连接状态</div>
               <div class="status-inline">
                 <el-tag :type="openClawStatusTagType">{{ openClawStatusText }}</el-tag>
-                <span>{{ openClawEndpointData.status_message || '角色配置命令会在下方实时展示。' }}</span>
+                <span>{{ openClawEndpointData.status_message || t('role_command_realtime') }}</span>
               </div>
             </div>
             <div class="action-row">
@@ -125,7 +125,7 @@
               </el-form-item>
             </el-form>
             <el-button type="primary" @click="testOpenClawChat" :loading="openClawChatTesting">发送测试</el-button>
-            <pre class="code-box result-box">{{ openClawChatTestResult || '暂无测试结果' }}</pre>
+            <pre class="code-box result-box">{{ openClawChatTestResult || t('no_test_results') }}</pre>
           </div>
         </div>
       </el-collapse-item>
@@ -199,9 +199,9 @@ const openClawDocURL = 'https://github.com/hackers365/xiaozhi-esp32-server-golan
 
 const mcpStatusText = computed(() => {
   const status = String(mcpEndpointData.value.status || '').toLowerCase()
-  if (mcpEndpointData.value.connected || status === 'online') return '已连接'
-  if (status === 'offline') return '未连接'
-  return '状态未知'
+  if (mcpEndpointData.value.connected || status === 'online') return t('connected')
+  if (status === 'offline') return t('not_connected')
+  return t('status_unknown')
 })
 
 const mcpStatusTagType = computed(() => {
@@ -214,20 +214,20 @@ const mcpStatusTagType = computed(() => {
 const mcpStatusDetailText = computed(() => {
   const count = Number(mcpEndpointData.value.client_count || 0)
   if (count > 0) return `当前 ${count} 个客户端在线`
-  return mcpEndpointData.value.status_message || '暂无在线客户端'
+  return mcpEndpointData.value.status_message || t('no_online_clients')
 })
 
 const mcpSummaryText = computed(() => {
-  if (!mcpEndpointLoaded.value) return '展开后加载接入点与工具'
+  if (!mcpEndpointLoaded.value) return t('expand_load_endpoints')
   if (!mcpLoaded.value) return `${mcpStatusText.value}，展开后加载工具`
   return `${mcpStatusText.value}，${mcpTools.value.length} 个工具`
 })
 
 const openClawStatusText = computed(() => {
   const status = String(openClawEndpointData.value.status || '').toLowerCase()
-  if (openClawEndpointData.value.connected || status === 'online') return '已连接'
-  if (status === 'offline') return '未连接'
-  return '状态未知'
+  if (openClawEndpointData.value.connected || status === 'online') return t('connected')
+  if (status === 'offline') return t('not_connected')
+  return t('status_unknown')
 })
 
 const openClawStatusTagType = computed(() => {
@@ -240,11 +240,11 @@ const openClawStatusTagType = computed(() => {
 const openClawCommandData = computed(() => buildOpenClawCommands(openClawEndpointData.value.endpoint))
 const openClawCommandDisplayText = computed(() => {
   if (openClawCommandData.value.ready) return openClawCommandData.value.copyText
-  if (!props.agentId) return '暂无安装命令，请先保存智能体。'
-  return '暂无安装命令，请刷新后重试。'
+  if (!props.agentId) return t('no_install_command_save')
+  return t('no_install_command_refresh')
 })
 const openClawSummaryText = computed(() => {
-  if (!openClawLoaded.value) return '展开后加载状态与命令'
+  if (!openClawLoaded.value) return t('expand_load_status')
   return openClawStatusText.value
 })
 
@@ -296,7 +296,7 @@ const loadMcpEndpoint = async ({ showError = false } = {}) => {
       client_count: 0
     }
     mcpEndpointLoaded.value = true
-    if (showError) ElMessage.error(error.response?.data?.error || '获取MCP接入点失败')
+    if (showError) ElMessage.error(error.response?.data?.error || t('get_mcp_endpoint_failed'))
     return false
   }
 }
@@ -314,7 +314,7 @@ const refreshMcpTools = async () => {
     }
   } catch (error) {
     mcpTools.value = []
-    ElMessage.error(error.response?.data?.error || '获取工具列表失败')
+    ElMessage.error(error.response?.data?.error || t('get_tool_list_failed'))
   } finally {
     toolsLoading.value = false
   }
@@ -474,7 +474,7 @@ const fetchOpenClawEndpoint = async ({ showError = true } = {}) => {
       status: 'unknown',
       status_message: error.response?.data?.error || ''
     }
-    if (showError) ElMessage.error(error.response?.data?.error || '获取OpenClaw接入点失败')
+    if (showError) ElMessage.error(error.response?.data?.error || t('get_openclaw_endpoint_failed'))
   } finally {
     openClawEndpointLoading.value = false
   }
@@ -508,7 +508,7 @@ const testOpenClawChat = async () => {
   }
 
   openClawChatTesting.value = true
-  openClawChatTestResult.value = '连接中...'
+  openClawChatTestResult.value = t('connecting')
   try {
     const requestTimeoutMs = 610000
     const timeoutMs = 600000
@@ -526,7 +526,7 @@ const testOpenClawChat = async () => {
       onEvent: (event, payload) => {
         const envelope = normalizePayload(payload)
         if (event === 'start') {
-          openClawChatTestResult.value = '已连接，等待回复...'
+          openClawChatTestResult.value = t('connected_waiting')
           return
         }
         if (event === 'chunk') {
@@ -547,7 +547,7 @@ const testOpenClawChat = async () => {
         }
         if (event === 'error') {
           const data = normalizePayload(envelope.data)
-          const messageText = String(envelope.error || data.error || 'OpenClaw对话测试失败')
+          const messageText = String(envelope.error || data.error || t('openclaw_test_failed'))
           const partialReply = String(data.reply || chunks.join(''))
           streamError = messageText
           openClawChatTestResult.value = partialReply
@@ -557,7 +557,7 @@ const testOpenClawChat = async () => {
         }
         if (event === 'done') {
           if (!finalData) finalData = normalizePayload(envelope.data)
-          if (envelope.ok === false && !streamError) streamError = 'OpenClaw对话测试失败'
+          if (envelope.ok === false && !streamError) streamError = t('openclaw_test_failed')
         }
       }
     })
@@ -579,11 +579,11 @@ const testOpenClawChat = async () => {
     } else if (chunks.length > 0) {
       openClawChatTestResult.value = formatOpenClawChatResult(chunks.join(''), Number.NaN)
     } else {
-      throw new Error('未收到OpenClaw返回内容')
+      throw new Error(t('openclaw_no_response'))
     }
     ElMessage.success(t('openclaw_chat_test_success'))
   } catch (error) {
-    const msg = error.response?.data?.error || error.message || 'OpenClaw对话测试失败'
+    const msg = error.response?.data?.error || error.message || t('openclaw_test_failed')
     openClawChatTestResult.value = `错误: ${msg}`
     ElMessage.error(msg)
   } finally {

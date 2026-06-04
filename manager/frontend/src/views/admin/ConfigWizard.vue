@@ -141,7 +141,7 @@
         </el-button>
         <template v-if="currentStep < 5">
           <el-button type="primary" :loading="saving" @click="saveAndNext">
-            {{ currentStep === 4 ? '保存并完成' : '保存并下一步' }}
+            {{ currentStep === 4 ? t('save_and_finish') : t('save_and_next') }}
           </el-button>
         </template>
         <template v-else>
@@ -301,14 +301,14 @@ const asrForm = reactive({
 const asrFormRef = ref()
 const validateAliyunPcm = (rule, value, callback) => {
   if (value !== 'pcm') {
-    callback(new Error('格式必须为pcm'))
+    callback(new Error(t('format_must_pcm')))
     return
   }
   callback()
 }
 const validateAliyun16000 = (rule, value, callback) => {
   if (Number(value) !== 16000) {
-    callback(new Error('采样率必须为16000'))
+    callback(new Error(t('sample_rate_must_16000')))
     return
   }
   callback()
@@ -420,7 +420,7 @@ const llmFormRules = {
     validator: (_, value, callback) => {
       const providerType = getResolvedLLMType(llmForm.provider, llmForm.type)
       if ((providerType === 'openai' || providerType === 'ollama') && (!value || Number(value) < 1 || Number(value) > 100000)) {
-        callback(new Error('max_tokens必须在1-100000之间'))
+        callback(new Error(t('max_tokens_range')))
         return
       }
       callback()
@@ -569,13 +569,13 @@ const ttsFormRules = {
 }
 
 const finalOtaUrl = computed(() => {
-  if (!otaForm.host?.trim()) return '请先在 OTA 步骤填写域名或 IP'
+  if (!otaForm.host?.trim()) return t('ota_domain_required')
   const proto = otaForm.protocol === 'https' ? 'https' : 'http'
   return `${proto}://${otaForm.host.trim()}:${otaForm.port}`
 })
 
 const finalWsUrl = computed(() => {
-  if (!otaForm.host?.trim()) return '请先在 OTA 步骤填写域名或 IP'
+  if (!otaForm.host?.trim()) return t('ota_domain_required')
   const proto = otaForm.protocol === 'https' ? 'wss' : 'ws'
   return `${proto}://${otaForm.host.trim()}:${otaForm.port}/xiaozhi/v1/`
 })
@@ -767,7 +767,7 @@ async function saveOta() {
       const res = await api.post('/admin/ota-configs', payload)
       otaConfigId.value = res.data?.data?.id ?? null
     }
-    ElMessage.success(otaForm.enableMqttUdp ? 'OTA 及 MQTT/UDP 配置已保存' : t('ota_config_saved'))
+    ElMessage.success(otaForm.enableMqttUdp ? t('ota_mqtt_udp_saved') : t('ota_config_saved'))
     return true
   } catch (e) {
     ElMessage.error('OTA 保存失败: ' + (e.response?.data?.message || e.message))
@@ -1041,12 +1041,12 @@ function formatTestMessage(result) {
   const base = result.message || ''
   const suffix = []
   if (result.first_packet_ms != null) suffix.push(`${result.first_packet_ms}ms`)
-  if (result.reasoning_content_returned) suffix.push('检测到上游返回思考内容')
+  if (result.reasoning_content_returned) suffix.push(t('upstream_thinking_detected'))
   return suffix.length ? `${base} ${suffix.join(' · ')}` : base
 }
 
 function formatDraftTestLabel(name, configId) {
-  return name?.trim() || configId?.trim() || '当前配置'
+  return name?.trim() || configId?.trim() || t('current_config')
 }
 
 async function testCurrentStepConfig() {
@@ -1070,10 +1070,10 @@ async function testCurrentStepConfig() {
     try {
       const result = await testWithData('vad', { [configId]: payload })
       const label = formatDraftTestLabel(vadForm.name, configId)
-      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || '测试通过'}`)
-      else ElMessage.warning(`${label}：${result.message || '测试未通过'}`)
+      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || t('test_passed')}`)
+      else ElMessage.warning(`${label}：${result.message || t('test_not_passed')}`)
     } catch (err) {
-      ElMessage.warning(err.response?.data?.error || '测试请求失败')
+      ElMessage.warning(err.response?.data?.error || t('test_request_failed_v2'))
     } finally {
       testingStep.value = false
     }
@@ -1098,10 +1098,10 @@ async function testCurrentStepConfig() {
     try {
       const result = await testWithData('asr', { [configId]: payload })
       const label = formatDraftTestLabel(asrForm.name, configId)
-      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || '测试通过'}`)
-      else ElMessage.warning(`${label}：${result.message || '测试未通过'}`)
+      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || t('test_passed')}`)
+      else ElMessage.warning(`${label}：${result.message || t('test_not_passed')}`)
     } catch (err) {
-      ElMessage.warning(err.response?.data?.error || '测试请求失败')
+      ElMessage.warning(err.response?.data?.error || t('test_request_failed_v2'))
     } finally {
       testingStep.value = false
     }
@@ -1126,10 +1126,10 @@ async function testCurrentStepConfig() {
     try {
       const result = await testWithData('llm', { provider: configId, [configId]: payload })
       const label = formatDraftTestLabel(llmForm.name, configId)
-      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || '测试通过'}`)
-      else ElMessage.warning(`${label}：${result.message || '测试未通过'}`)
+      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || t('test_passed')}`)
+      else ElMessage.warning(`${label}：${result.message || t('test_not_passed')}`)
     } catch (err) {
-      ElMessage.warning(err.response?.data?.error || '测试请求失败')
+      ElMessage.warning(err.response?.data?.error || t('test_request_failed_v2'))
     } finally {
       testingStep.value = false
     }
@@ -1154,10 +1154,10 @@ async function testCurrentStepConfig() {
     try {
       const result = await testWithData('tts', { [configId]: payload })
       const label = formatDraftTestLabel(ttsForm.name, configId)
-      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || '测试通过'}`)
-      else ElMessage.warning(`${label}：${result.message || '测试未通过'}`)
+      if (result.ok) ElMessage.success(`${label}：${formatTestMessage(result) || t('test_passed')}`)
+      else ElMessage.warning(`${label}：${result.message || t('test_not_passed')}`)
     } catch (err) {
-      ElMessage.warning(err.response?.data?.error || '测试请求失败')
+      ElMessage.warning(err.response?.data?.error || t('test_request_failed_v2'))
     } finally {
       testingStep.value = false
     }
@@ -1227,17 +1227,17 @@ async function runOtaTest() {
           displayText += `\n--- OTA 响应 ---\n${formatOtaResponseDisplay(v.ota_response)}`
         }
 
-        otaTestResult.value = displayText.trim() || '未获取到详细信息'
+        otaTestResult.value = displayText.trim() || t('detail_not_available')
 
         // 根据整体结果显示消息
         const overallOk = v.ok
         if (overallOk) {
-          ElMessage.success(v.message || 'OTA 测试通过')
+          ElMessage.success(v.message || t('ota_test_passed'))
         } else {
-          ElMessage.warning(v.message || 'OTA 测试未通过')
+          ElMessage.warning(v.message || t('ota_test_failed'))
         }
       } else {
-        otaTestResult.value = '未获取到 OTA 测试结果'
+        otaTestResult.value = t('ota_test_no_result')
       }
     } else {
       otaTestResult.value = typeof data === 'string' ? data : JSON.stringify(data || {}, null, 2)
@@ -1297,7 +1297,7 @@ async function loadTtsVoiceOptions(provider) {
     const response = await api.get('/user/voice-options', { params: { provider } })
     voiceOptions.value = response.data.data || []
   } catch (error) {
-    console.error('加载音色列表失败:', error)
+    console.error(t('load_voice_list_failed_c'), error)
     voiceOptions.value = []
   } finally {
     voiceLoading.value = false

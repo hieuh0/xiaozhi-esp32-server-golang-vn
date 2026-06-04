@@ -14,7 +14,7 @@
         <el-form-item :label="t('login_digit_verify')" prop="auth.login_captcha_enabled">
           <el-switch
             v-model="form.auth.login_captcha_enabled"
-            active-text="开启"
+            active-:text="t('enable')"
             :inactive-text="t('close')"
           />
           <div class="form-help">

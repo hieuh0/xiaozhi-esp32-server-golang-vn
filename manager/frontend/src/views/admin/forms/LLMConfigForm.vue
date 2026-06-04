@@ -252,7 +252,7 @@ const thinkingConfig = computed(() => {
     effortOptions: config.effortOptions,
     showClearThinking,
     clearThinkingOptions: config.clearThinkingOptions,
-    hint: config.hint || '开启更强的深度思考后，模型通常会花更多时间推理，首包和整体响应都会明显变慢。'
+    hint: config.hint || t('deep_thinking_warning')
   }
 })
 
@@ -426,10 +426,10 @@ function validate(callback) {
 
   return formRef.value?.validate().then(() => {
     if (isCoze.value && !props.model?.bot_id) {
-      return Promise.reject(new Error('请输入Coze Bot ID'))
+      return Promise.reject(new Error(t('enter_coze_bot_id_v2')))
     }
     if (thinkingConfig.value.showBudget && thinkingConfig.value.budgetRequired && (props.model?.thinking_budget_tokens === null || props.model?.thinking_budget_tokens === undefined || props.model?.thinking_budget_tokens === '')) {
-      return Promise.reject(new Error('请填写思考预算'))
+      return Promise.reject(new Error(t('thinking_budget_required')))
     }
     if (thinkingConfig.value.showBudget && props.model?.thinking_budget_tokens !== null && props.model?.thinking_budget_tokens !== undefined && props.model?.thinking_budget_tokens !== '' && Number(props.model?.thinking_budget_tokens) < thinkingConfig.value.budgetMin) {
       return Promise.reject(new Error(`思考预算不能小于 ${thinkingConfig.value.budgetMin}`))

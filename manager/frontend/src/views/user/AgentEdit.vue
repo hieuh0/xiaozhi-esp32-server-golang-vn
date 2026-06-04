@@ -5,7 +5,7 @@
         <el-button text @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
           {{ t('back') }}</el-button>
-        <h2>{{ form.name || '编辑智能体' }}</h2>
+        <h2>{{ form.name || t('edit_agent') }}</h2>
       </div>
       <el-button type="primary" @click="handleSave" :loading="saving">{{ t('save_config') }}</el-button>
     </div>
@@ -20,7 +20,7 @@
         @click="applyRoleConfig(role)"
       >
         <span>{{ role.name }}</span>
-        <small>{{ role.role_type === 'global' ? '全局' : '我的' }}</small>
+        <small>{{ role.role_type === 'global' ? t('global') : t('mine') }}</small>
       </button>
       <span v-if="!rolesLoading && allRoles.length === 0" class="role-empty">{{ t('no_roles_available') }}暂无可用角色</span>
     </div>
@@ -69,7 +69,7 @@ const loadAgent = async () => {
     const response = await api.get(`/user/agents/${route.params.id}`)
     form.value = agentToForm(response.data.data || {})
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '加载智能体配置失败')
+    ElMessage.error(error.response?.data?.error || t('load_agent_config_failed'))
   } finally {
     loadingAgent.value = false
   }

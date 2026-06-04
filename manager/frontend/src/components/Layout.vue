@@ -7,12 +7,12 @@
           <div class="brand-copy">
             <p class="brand-eyebrow">Control Center</p>
             <h3>{{ t('xiaozhi_management_system') }}</h3>
-            <p>{{ authStore.isAdmin ? 'AI 服务与设备管理台' : '设备与智能体工作台' }}</p>
+            <p>{{ authStore.isAdmin ? t('admin_panel_title') : t('device_agent_workbench') }}</p>
           </div>
         </div>
 
         <div class="sidebar-meta">
-          <span class="apple-chip is-primary">{{ authStore.isAdmin ? '管理员模式' : '用户模式' }}</span>
+          <span class="apple-chip is-primary">{{ authStore.isAdmin ? t('admin_mode') : t('user_mode') }}</span>
           <span class="apple-chip is-success">{{ t('online') }}</span>
         </div>
 
@@ -130,7 +130,7 @@
         :title="currentPageTitle"
         :eyebrow="authStore.isAdmin ? 'Admin Console' : 'User Workspace'"
         :username="authStore.user?.username || ''"
-        :role-label="authStore.isAdmin ? '管理员' : '普通用户'"
+        :role-label="authStore.isAdmin ? t('admin') : t('normal_user')"
         :initial="usernameInitial"
         :is-admin="authStore.isAdmin"
         :show-admin-shortcuts="authStore.isAdmin"
@@ -178,7 +178,7 @@ const authStore = useAuthStore()
 
 const isMobileDevice = computed(() => isMobile())
 
-const currentPageTitle = computed(() => route.meta?.title || (authStore.isAdmin ? t('dashboard') : '我的智能体'))
+const currentPageTitle = computed(() => route.meta?.title || (authStore.isAdmin ? t('dashboard') : t('my_agents')))
 const isFormHeavyRoute = computed(() => ['AgentEdit', 'UserAgentEdit'].includes(String(route.name || '')))
 
 const usernameInitial = computed(() => {

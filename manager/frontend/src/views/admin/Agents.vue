@@ -21,10 +21,10 @@
         <template #default="{ row }">{{ row.username || `用户 ${row.user_id}` }}</template>
       </el-table-column>
       <el-table-column :label="t('role_description')" min-width="220" show-overflow-tooltip>
-        <template #default="{ row }">{{ row.custom_prompt || '未设置' }}</template>
+        <template #default="{ row }">{{ row.custom_prompt || t('not_set') }}</template>
       </el-table-column>
       <el-table-column :label="t('language_model')" width="150">
-        <template #default="{ row }">{{ row.llm_config?.name || '未设置' }}</template>
+        <template #default="{ row }">{{ row.llm_config?.name || t('not_set') }}</template>
       </el-table-column>
       <el-table-column label="TTS / 音色" width="190" show-overflow-tooltip>
         <template #default="{ row }">{{ getVoiceText(row) }}</template>
@@ -62,7 +62,7 @@
 
     <el-dialog
       v-model="showAddDialog"
-      :title="editingAgent ? '编辑智能体' : t('add_agent')"
+      :title="editingAgent ? t('edit_agent') : t('add_agent')"
       width="760px"
       :close-on-click-modal="false"
     >
@@ -82,7 +82,7 @@
       <template #footer>
         <el-button @click="showAddDialog = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="saveAgent" :loading="saving">
-          {{ editingAgent ? '更新' : '添加' }}
+          {{ editingAgent ? t('update') : t('add') }}
         </el-button>
       </template>
     </el-dialog>
@@ -168,7 +168,7 @@ const saveAgent = async () => {
     showAddDialog.value = false
     await loadAgents()
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || (editingAgent.value ? '智能体更新失败' : '智能体添加失败'))
+    ElMessage.error(error.response?.data?.error || (editingAgent.value ? t('agent_update_failed') : t('agent_add_failed')))
   } finally {
     saving.value = false
   }
@@ -176,7 +176,7 @@ const saveAgent = async () => {
 
 const deleteAgent = async (agent) => {
   try {
-    await ElMessageBox.confirm(`确定要删除智能体 "${agent.name}" 吗？`, '确认删除', {
+    await ElMessageBox.confirm(`确定要删除智能体 "${agent.name}" 吗？`, t('confirm_delete'), {
       confirmButtonText: t('confirm'),
       cancelButtonText: t('cancel'),
       type: 'warning'
@@ -186,13 +186,13 @@ const deleteAgent = async (agent) => {
     await loadAgents()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.error || '智能体删除失败')
+      ElMessage.error(error.response?.data?.error || t('agent_delete_failed'))
     }
   }
 }
 
 const getVoiceText = (agent) => {
-  const tts = agent.tts_config?.name || agent.tts_config?.provider || '未设置TTS'
+  const tts = agent.tts_config?.name || agent.tts_config?.provider || t('tts_not_set')
   return agent.voice ? `${tts} · ${agent.voice}` : tts
 }
 
@@ -200,7 +200,7 @@ const getASRSpeedText = (speed) => ({ normal: t('normal'), patient: t('patience'
 const getASRSpeedType = (speed) => ({ patient: 'warning', fast: 'success' }[speed] || '')
 const getMemoryModeText = (mode) => ({ none: t('no_memory'), short: t('short_memory'), long: t('long_memory') }[mode] || t('short_memory'))
 const getMemoryModeType = (mode) => ({ none: 'info', long: 'success' }[mode] || '')
-const getSpeakerChatModeText = (mode) => ({ off: t('close'), identified_only: '仅命中声纹' }[mode] || t('close'))
+const getSpeakerChatModeText = (mode) => ({ off: t('close'), identified_only: t('voiceprint_only') }[mode] || t('close'))
 const getSpeakerChatModeType = (mode) => ({ off: 'info', identified_only: 'warning' }[mode] || 'info')
 
 const openDiagnostics = (agent, panel = 'mcp') => {

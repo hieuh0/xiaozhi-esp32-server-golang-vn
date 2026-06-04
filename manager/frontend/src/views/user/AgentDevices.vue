@@ -106,7 +106,7 @@
             </div>
             <div class="device-status">
               <span :class="['status-dot', isDeviceOnline(device.last_active_at) ? 'online' : 'offline']"></span>
-              <span class="status-text">{{ isDeviceOnline(device.last_active_at) ? '在线' : '离线' }}</span>
+              <span class="status-text">{{ isDeviceOnline(device.last_active_at) ? t('online') : t('offline') }}</span>
             </div>
           </div>
           
@@ -123,7 +123,7 @@
               <span class="meta-label">激活状态</span>
               <span class="meta-value">
                 <el-tag :type="device.activated ? 'success' : 'warning'" size="small">
-                  {{ device.activated ? '已激活' : '未激活' }}
+                  {{ device.activated ? t('activated') : t('not_activated') }}
                 </el-tag>
               </span>
             </div>
@@ -165,7 +165,7 @@
 
     <el-dialog
       v-model="showAddDeviceDialog"
-      title="绑定设备"
+      :title="t('bind_device')"
       width="520px"
       :close-on-click-modal="false"
       @closed="resetAddDeviceForm"
@@ -181,7 +181,7 @@
         <div class="dialog-footer">
           <el-button @click="showAddDeviceDialog = false">取消</el-button>
           <el-button type="primary" :loading="addingDevice" @click="handleAddDevice">
-            {{ addingDevice ? '绑定中...' : '绑定设备' }}
+            {{ addingDevice ? t('binding') : t('bind_device') }}
           </el-button>
         </div>
       </template>
@@ -227,7 +227,7 @@
         <el-button type="primary" @click="callDeviceMcpTool" :loading="callingTool">调用工具</el-button>
 
         <el-divider />
-        <div class="mcp-result-box">{{ mcpCallResult || '暂无调用结果' }}</div>
+        <div class="mcp-result-box">{{ mcpCallResult || t('no_call_results') }}</div>
       </div>
     </el-dialog>
 
@@ -281,7 +281,7 @@
                       <span>{{ role.name }}</span>
                       <el-tag v-if="role.role_type === 'global'" size="small" type="success">全局</el-tag>
                     </div>
-                    <el-tag size="small" type="info">LLM: {{ role.llm_config_id || '默认' }}</el-tag>
+                    <el-tag size="small" type="info">LLM: {{ role.llm_config_id || t('default') }}</el-tag>
                   </div>
                 </el-option>
               </el-select>
@@ -299,8 +299,8 @@
                   <p><strong>Prompt:</strong></p>
                   <p class="prompt-preview">{{ selectedRole.prompt.substring(0, 200) }}{{ selectedRole.prompt.length > 200 ? '...' : '' }}</p>
                   <div class="role-configs-preview">
-                    <el-tag size="small">LLM: {{ selectedRole.llm_config_id || '默认' }}</el-tag>
-                    <el-tag size="small">TTS: {{ selectedRole.tts_config_id || '默认' }}</el-tag>
+                    <el-tag size="small">LLM: {{ selectedRole.llm_config_id || t('default') }}</el-tag>
+                    <el-tag size="small">TTS: {{ selectedRole.tts_config_id || t('default') }}</el-tag>
                     <el-tag v-if="selectedRole.voice" size="small">音色: {{ selectedRole.voice }}</el-tag>
                   </div>
                 </div>
@@ -318,7 +318,7 @@
           :loading="roleConfigLoading"
           :disabled="!selectedRoleId && !currentDevice.role_id"
         >
-          {{ selectedRoleId ? '应用角色' : '取消角色' }}
+          {{ selectedRoleId ? t('apply_role') : t('cancel_role') }}
         </el-button>
       </template>
     </el-dialog>
@@ -390,8 +390,8 @@ const filteredDevices = computed(() => {
   return devices.value.filter(device => String(device.agent_id || '') === String(filterAgentId.value))
 })
 const emptyDescription = computed(() => {
-  if (selectedAgentName.value) return '该智能体还没有关联任何设备。'
-  return '当前账号还没有绑定任何设备。'
+  if (selectedAgentName.value) return t('agent_no_device')
+  return t('no_device_bound')
 })
 
 const loadAgents = async () => {
@@ -453,7 +453,7 @@ const handleAddDevice = async () => {
       await handleDeviceBound()
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '设备绑定失败')
+    ElMessage.error(error.response?.data?.error || t('device_bind_failed'))
   } finally {
     addingDevice.value = false
   }
@@ -461,7 +461,7 @@ const handleAddDevice = async () => {
 
 const handleVoicePush = (device) => {
   if (!device?.device_name) {
-    ElMessage.warning('设备缺少设备标识，无法进行语音通知')
+    ElMessage.warning(t('device_no_id_notify'))
     return
   }
   voicePushDeviceId.value = device.device_name
@@ -478,7 +478,7 @@ const handleAgentFilterChange = (value) => {
 }
 
 const getDeviceAgentName = (device) => {
-  if (!device?.agent_id) return '未绑定'
+  if (!device?.agent_id) return t('not_bound')
   return device.agent_name || agentNameMap.value.get(String(device.agent_id)) || `智能体 #${device.agent_id}`
 }
 
@@ -528,7 +528,7 @@ const saveDeviceName = async (device) => {
     ElMessage.success(t('device_nickname_updated'))
     cancelDeviceNameEdit()
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '更新设备昵称失败')
+    ElMessage.error(error.response?.data?.error || t('update_device_nickname_failed'))
   } finally {
     renamingDeviceId.value = null
   }
@@ -706,7 +706,7 @@ const loadRoles = async () => {
     const userRoles = response.data.data?.user_roles || []
     availableRoles.value = [...globalRoles, ...userRoles].filter(isRoleActive)
   } catch (error) {
-    console.error('加载角色列表失败:', error)
+    console.error(t('load_role_list_failed'), error)
   }
 }
 
@@ -758,7 +758,7 @@ const handleApplyRole = async () => {
     }
 
     await api.post(`/devices/${currentDevice.value.id}/apply-role`, data)
-    ElMessage.success(selectedRoleId.value ? '角色已应用到设备' : '已取消设备角色')
+    ElMessage.success(selectedRoleId.value ? t('role_applied_to_device') : t('device_role_cancelled'))
     showRoleConfigDialog.value = false
     await loadDevices()
   } catch (error) {
@@ -784,7 +784,7 @@ const handleDeleteDevice = async (device) => {
 	  try {
 	    await ElMessageBox.confirm(
 	      `确定要从系统中删除「${getDeviceDisplayName(device)}」吗？删除后设备需要重新激活，才能再次进入系统。`,
-	      '确认删除设备',
+	      t('confirm_delete_device'),
       {
         confirmButtonText: t('delete'),
         cancelButtonText: t('cancel'),
@@ -794,12 +794,12 @@ const handleDeleteDevice = async (device) => {
 
     const response = await api.delete(`/user/devices/${device.id}`)
     if (response.data.success) {
-      ElMessage.success(response.data.message || '设备已从系统删除')
+      ElMessage.success(response.data.message || t('device_deleted'))
       await loadDevices()
     }
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.error || '删除设备失败')
+      ElMessage.error(error.response?.data?.error || t('delete_device_failed'))
     }
   }
 }
@@ -809,7 +809,7 @@ const goBack = () => {
 }
 
 const formatDate = (dateString) => {
-  if (!dateString) return '从未'
+  if (!dateString) return t('never')
   return new Date(dateString).toLocaleString('zh-CN')
 }
 

@@ -18,7 +18,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="enabled" label="启用状态" width="80" align="center">
+      <el-table-column prop="enabled" :label="t('enabled_status')" width="80" align="center">
         <template #default="scope">
           <el-switch 
             v-model="scope.row.enabled" 
@@ -71,7 +71,7 @@
     <!-- 添加/编辑配置弹窗 -->
     <el-dialog
       v-model="showDialog"
-      :title="editingConfig ? '编辑Memory配置' : '添加Memory配置'"
+      :title="editingConfig ? t('edit_memory_config') : t('add_memory_config')"
       width="600px"
       @close="handleDialogClose"
     >
@@ -123,11 +123,11 @@
         <!-- Mem0配置字段 -->
         <template v-if="form.provider === 'mem0' || form.provider === 'memos'">
           <el-form-item :label="t('api_key')" prop="api_key">
-            <el-input v-model="form.api_key" type="password" :placeholder="form.provider === 'memos' ? '请输入MemOS兼容API密钥' : '请输入Mem0 API密钥'" show-password />
+            <el-input v-model="form.api_key" type="password" :placeholder="form.provider === 'memos' ? t('enter_memos_api_key') : t('enter_mem0_api_key')" show-password />
           </el-form-item>
           
           <el-form-item :label="t('base_url')" prop="base_url">
-            <el-input v-model="form.base_url" :placeholder="form.provider === 'memos' ? '请输入MemOS服务基础URL' : '请输入Mem0基础URL'" />
+            <el-input v-model="form.base_url" :placeholder="form.provider === 'memos' ? t('enter_memos_base_url') : t('enter_mem0_base_url')" />
           </el-form-item>
 
           
@@ -149,7 +149,7 @@
       <template #footer>
         <el-button @click="handleDialogClose">取消</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存
+          {{ t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -243,7 +243,7 @@ const parseConfig = (jsonData) => {
     form.search_top_k = config.search_top_k !== undefined ? config.search_top_k : 3
     form.timeout_ms = config.timeout_ms !== undefined ? config.timeout_ms : 10000
   } catch (error) {
-    console.error('解析配置失败:', error)
+    console.error(t('parse_config_failed'), error)
   }
 }
 
@@ -293,7 +293,7 @@ const loadConfigs = async () => {
     console.log('Loaded configs:', configs.value)
   } catch (error) {
     console.error(t('load_config_failed_colon'), error)
-    ElMessage.error('加载配置失败: ' + (error.message || '未知错误'))
+    ElMessage.error('加载配置失败: ' + (error.message || t('unknown_error')))
     // Ensure configs is always an array to prevent render errors
     configs.value = []
   } finally {
@@ -373,7 +373,7 @@ const editConfig = (config) => {
 
 const deleteConfig = async (id) => {
   try {
-    await ElMessageBox.confirm(t('confirm_delete_config'), '确认删除', {
+    await ElMessageBox.confirm(t('confirm_delete_config'), t('confirm_delete'), {
       type: 'warning'
     })
     
@@ -393,7 +393,7 @@ const toggleEnable = async (config) => {
       ...config,
       enabled: config.enabled
     })
-    ElMessage.success(config.enabled ? '已启用' : '已禁用')
+    ElMessage.success(config.enabled ? t('enabled') : t('disabled_done'))
   } catch (error) {
     config.enabled = !config.enabled
     ElMessage.error('操作失败: ' + error.message)

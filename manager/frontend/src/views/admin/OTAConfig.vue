@@ -185,7 +185,7 @@ const rules = {
     {
       validator: (_, value, callback) => {
         if (form.test.mqtt.enable && !String(value || '').trim()) {
-          callback(new Error('启用 MQTT 时端点不能为空'))
+          callback(new Error(t('mqtt_endpoint_required')))
           return
         }
         callback()
@@ -200,7 +200,7 @@ const rules = {
     {
       validator: (_, value, callback) => {
         if (form.external.mqtt.enable && !String(value || '').trim()) {
-          callback(new Error('启用 MQTT 时端点不能为空'))
+          callback(new Error(t('mqtt_endpoint_required')))
           return
         }
         callback()
@@ -320,7 +320,7 @@ const saveConfig = async () => {
 
     await loadConfig()
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '保存 OTA 配置失败')
+    ElMessage.error(error.response?.data?.message || t('save_ota_failed'))
   } finally {
     saving.value = false
   }
@@ -338,7 +338,7 @@ const testOtaEnv = async (env) => {
     const res = await api.post('/admin/configs/test', body, { timeout: 30000 })
     const data = res.data?.data ?? res.data
     const otaResult = data?.ota?.ota_ota_config
-    const label = env === 'test' ? 'Test 环境' : 'External 环境'
+    const label = env === 'test' ? t('test_env') : t('external_env')
 
     if (!otaResult) {
       ElMessage.error(`${label}：未返回测试结果`)
@@ -347,7 +347,7 @@ const testOtaEnv = async (env) => {
 
     const wsResult = otaResult.websocket || {}
     const wsOk = wsResult.ok || false
-    const wsMsg = wsResult.message || 'WebSocket 测试失败'
+    const wsMsg = wsResult.message || t('websocket_test_failed')
     const wsMs = wsResult.first_packet_ms
 
     const mqttResult = otaResult.mqtt_udp
@@ -357,11 +357,11 @@ const testOtaEnv = async (env) => {
 
     if (mqttEnabled && mqttResult) {
       mqttOk = mqttResult.ok || false
-      mqttMsg = mqttResult.message || 'MQTT UDP 测试失败'
+      mqttMsg = mqttResult.message || t('mqtt_udp_test_failed')
       mqttMs = mqttResult.first_packet_ms || 0
     } else if (mqttEnabled) {
       mqttOk = false
-      mqttMsg = 'MQTT UDP 未返回结果'
+      mqttMsg = t('mqtt_udp_no_result')
     }
 
     let message = wsOk ? `WebSocket: ${wsMsg}` : `WebSocket: ${wsMsg}`
@@ -379,7 +379,7 @@ const testOtaEnv = async (env) => {
       ElMessage.warning(`${label}：${message}`)
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '测试请求失败')
+    ElMessage.error(error.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     loadingRef.value = false
   }

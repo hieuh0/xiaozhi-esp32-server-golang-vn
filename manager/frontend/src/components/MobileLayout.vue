@@ -94,7 +94,7 @@ const showTabBar = computed(() => {
 
 // 角色文本
 const roleText = computed(() => {
-  return authStore.isAdmin ? '管理员' : '普通用户'
+  return authStore.isAdmin ? t('admin') : t('normal_user')
 })
 
 // 用户图标点击

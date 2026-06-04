@@ -58,15 +58,15 @@ const authStore = useAuthStore()
 const commonItems = computed(() => {
   if (authStore.isAdmin) {
     return [
-      { title: t('config_wizard'), desc: '首次部署推荐从这里开始', path: '/admin/config-wizard' },
-      { title: t('resource_pool_stats'), desc: '查看系统资源池使用情况', path: '/admin/pool-stats' }
+      { title: t('config_wizard'), desc: t('first_deploy_hint'), path: '/admin/config-wizard' },
+      { title: t('resource_pool_stats'), desc: t('view_resource_pool'), path: '/admin/pool-stats' }
     ]
   }
 
   return [
-    { title: t('my_roles'), desc: '管理个人角色模板', path: '/user/roles' },
-    { title: t('voice_clone'), desc: '管理声音复刻任务', path: '/voice-clones' },
-    { title: t('my_knowledge_base'), desc: '管理知识库文档', path: '/user/knowledge-bases' }
+    { title: t('my_roles'), desc: t('manage_personal_roles'), path: '/user/roles' },
+    { title: t('voice_clone'), desc: t('manage_voice_clone'), path: '/voice-clones' },
+    { title: t('my_knowledge_base'), desc: t('manage_kb_docs'), path: '/user/knowledge-bases' }
   ]
 })
 

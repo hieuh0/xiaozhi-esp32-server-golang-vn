@@ -10,7 +10,7 @@
         />
         <div class="header-context">
           <span class="context-label">{{ t('current_agent') }}当前智能体</span>
-          <strong class="context-value">{{ agentName || '未命名智能体' }}</strong>
+          <strong class="context-value">{{ agentName || t('unnamed_agent') }}</strong>
           <p class="context-meta" v-if="total > 0">共 {{ total }} 条消息</p>
         </div>
       </div>
@@ -244,7 +244,7 @@ const loadAgent = async () => {
     const response = await api.get(`/user/agents/${agentId.value}`)
     agentName.value = response.data.data?.name || t('agent')
   } catch (error) {
-    console.error('加载智能体信息失败:', error)
+    console.error(t('load_agent_info_failed_v2'), error)
     ElMessage.error(t('load_agent_info_failed'))
   }
 }
@@ -255,7 +255,7 @@ const loadDevices = async () => {
     const response = await api.get(`/user/agents/${agentId.value}/devices`)
     devices.value = response.data.data || []
   } catch (error) {
-    console.error('加载设备列表失败:', error)
+    console.error(t('load_device_list_failed_v2'), error)
   }
 }
 
@@ -341,7 +341,7 @@ const handleDelete = async (messageId) => {
   } catch (error) {
     if (error !== 'cancel') {
       ElMessage.error(t('delete_failed'))
-      console.error('删除消息失败:', error)
+      console.error(t('delete_message_failed'), error)
     }
   } finally {
     deletingId.value = null
@@ -378,7 +378,7 @@ const handleExport = async () => {
     ElMessage.success(t('export_success'))
   } catch (error) {
     ElMessage.error(t('export_failed'))
-    console.error('导出失败:', error)
+    console.error(t('export_failed_v2'), error)
   } finally {
     exporting.value = false
   }
@@ -485,7 +485,7 @@ const getAudioUrl = async (messageId) => {
     return blobUrl
   } catch (error) {
     // 静默处理，只记录日志，不显示错误提示
-    console.warn('加载音频失败:', messageId, error)
+    console.warn(t('load_audio_failed'), messageId, error)
     return null
   }
 }
@@ -496,7 +496,7 @@ const preloadAudioMessages = async () => {
   const audioMessages = messages.value.filter(msg => msg.audio_path)
   // 并发预加载，但限制并发数
   const promises = audioMessages.slice(0, 10).map(msg => getAudioUrl(msg.id).catch(err => {
-    console.warn('预加载音频失败:', msg.id, err)
+    console.warn(t('preload_audio_failed'), msg.id, err)
     return null
   }))
   await Promise.all(promises)
@@ -510,7 +510,7 @@ const handleAudioEnded = (messageId) => {
 // 音频加载错误处理
 const handleAudioError = async (messageId) => {
   // 静默处理，只记录日志，不显示错误提示
-  console.warn('音频加载失败:', messageId)
+  console.warn(t('audio_load_failed'), messageId)
   // 尝试重新加载
   try {
     const url = await getAudioUrl(messageId)
@@ -522,7 +522,7 @@ const handleAudioError = async (messageId) => {
     }
   } catch (error) {
     // 静默处理，只记录日志
-    console.warn('音频重新加载失败:', messageId, error)
+    console.warn(t('audio_reload_failed'), messageId, error)
   }
 }
 
@@ -536,7 +536,7 @@ const toggleAudio = async (messageId) => {
     const url = await getAudioUrl(messageId)
     if (!url) {
       // 静默处理，只记录日志，不显示错误提示
-      console.warn('音频加载失败，无法播放:', messageId)
+      console.warn(t('audio_load_play_failed'), messageId)
       return
     }
     // 等待音频元素加载
@@ -566,7 +566,7 @@ const toggleAudio = async (messageId) => {
       playingAudioId.value = messageId
     } catch (error) {
       // 静默处理，只记录日志，不显示错误提示
-      console.warn('播放音频失败:', messageId, error)
+      console.warn(t('play_audio_failed'), messageId, error)
     }
   }
 }
@@ -585,7 +585,7 @@ onMounted(async () => {
       loadMessages()
     ])
   } catch (error) {
-    console.error('初始化失败:', error)
+    console.error(t('init_failed'), error)
   }
 })
 

@@ -328,7 +328,7 @@ const ASR_PROVIDER_DEFAULTS = {
   }
 }
 
-const defaultNames = new Set(['默认ASR', ...Object.values(ASR_PROVIDER_DEFAULTS).map(item => item.name)])
+const defaultNames = new Set([t('default_asr'), ...Object.values(ASR_PROVIDER_DEFAULTS).map(item => item.name)])
 const defaultConfigIds = new Set(Object.values(ASR_PROVIDER_DEFAULTS).flatMap(item => [item.config_id, item.config_id.replace(/_default$/, '')]))
 
 function cloneDefaultData(provider) {

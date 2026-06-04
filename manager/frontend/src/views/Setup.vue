@@ -147,8 +147,8 @@ export default {
           router.push('/login')
         }
       } catch (error) {
-        console.error('检查系统状态失败:', error)
-        errorMessage.value = '检查系统状态失败，请刷新页面重试'
+        console.error(t('check_system_failed'), error)
+        errorMessage.value = t('check_system_refresh')
       } finally {
         checking.value = false
       }
@@ -157,7 +157,7 @@ export default {
     const initializeSystem = async () => {
       // 验证密码确认
       if (form.value.admin_password !== confirmPassword.value) {
-        errorMessage.value = '两次输入的密码不一致'
+        errorMessage.value = t('passwords_inconsistent')
         return
       }
 
@@ -170,11 +170,11 @@ export default {
         adminInfo.value = response.data.admin
         initialized.value = true
       } catch (error) {
-        console.error('系统初始化失败:', error)
+        console.error(t('system_init_failed'), error)
         if (error.response?.data?.error) {
           errorMessage.value = error.response.data.error
         } else {
-          errorMessage.value = '系统初始化失败，请重试'
+          errorMessage.value = t('system_init_retry')
         }
       } finally {
         initializing.value = false

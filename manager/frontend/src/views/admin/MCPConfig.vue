@@ -11,7 +11,7 @@
                 <p class="card-description">{{ t('mcp_server_management_desc') }}维护服务端统一可用的 MCP 服务器、重连策略和允许工具范围。</p>
               </div>
               <el-tag :type="form.mcp.global.enabled ? 'success' : 'info'" effect="plain" round>
-                {{ form.mcp.global.enabled ? `${enabledServerCount} 个启用服务` : '全局 MCP 已停用' }}
+                {{ form.mcp.global.enabled ? `${enabledServerCount} 个启用服务` : t('global_mcp_disabled') }}
               </el-tag>
             </div>
           </template>
@@ -70,10 +70,10 @@
                 <div class="server-title-row">
                   <strong>服务器 {{ index + 1 }}</strong>
                   <el-tag size="small" :type="server.enabled ? 'success' : 'info'" effect="plain" round>
-                    {{ server.enabled ? '已启用' : '已停用' }}
+                    {{ server.enabled ? t('enabled') : t('deactivated') }}
                   </el-tag>
                   <el-tag size="small" :type="server.allowed_tools?.length ? 'warning' : 'info'" effect="plain" round>
-                    {{ server.allowed_tools?.length ? `${server.allowed_tools.length} 个工具` : '全部工具' }}
+                    {{ server.allowed_tools?.length ? `${server.allowed_tools.length} 个工具` : t('all_tools') }}
                   </el-tag>
                 </div>
 
@@ -89,22 +89,22 @@
               </div>
 
               <div class="field-grid server-grid">
-                <el-form-item :label="'服务器名称'" :prop="`mcp.global.servers.${index}.name`">
+                <el-form-item :label="t('server_name')" :prop="`mcp.global.servers.${index}.name`">
                   <el-input v-model="server.name" placeholder="例如：Amap MCP" />
                 </el-form-item>
 
-                <el-form-item :label="'服务器类型'" :prop="`mcp.global.servers.${index}.type`">
+                <el-form-item :label="t('server_type')" :prop="`mcp.global.servers.${index}.type`">
                   <el-select v-model="server.type" placeholder="选择服务器类型" style="width: 100%">
                     <el-option label="SSE" value="sse" />
                     <el-option label="StreamableHTTP" value="streamablehttp" />
                   </el-select>
                 </el-form-item>
 
-                <el-form-item :label="'服务器 URL'" :prop="`mcp.global.servers.${index}.url`" class="field-span-full">
+                <el-form-item :label="t('server_url')" :prop="`mcp.global.servers.${index}.url`" class="field-span-full">
                   <el-input v-model="server.url" placeholder="例如：https://example.com/mcp" />
                 </el-form-item>
 
-                <el-form-item :label="'启用状态'" :prop="`mcp.global.servers.${index}.enabled`">
+                <el-form-item :label="t('enabled_status')" :prop="`mcp.global.servers.${index}.enabled`">
                   <div class="switch-field">
                     <div>
                       <div class="switch-title">允许主程序连接该服务</div>
@@ -115,7 +115,7 @@
                 </el-form-item>
               </div>
 
-              <el-form-item :label="'允许工具'" class="tool-form-item">
+              <el-form-item :label="t('allow_tools')" class="tool-form-item">
                 <div class="tool-picker">
                   <div class="field-help">
                     留空表示允许该服务器的全部工具。探测工具时会使用当前填写的类型与 URL。
@@ -134,7 +134,7 @@
                     <el-option v-for="tool in server._tool_options" :key="tool.name" :label="tool.name" :value="tool.name">
                       <div class="tool-option-row">
                         <span class="tool-option-name">{{ tool.name }}</span>
-                        <span class="tool-option-desc">{{ tool.description || '无描述' }}</span>
+                        <span class="tool-option-desc">{{ tool.description || t('no_description') }}</span>
                       </div>
                     </el-option>
                   </el-select>
@@ -269,7 +269,7 @@ const mergeServerToolOptions = (server, tools = []) => {
     if (!name || merged.has(name)) return
     merged.set(name, {
       name,
-      description: '当前已选择'
+      description: t('currently_selected')
     })
   })
 
@@ -350,7 +350,7 @@ const discoverGlobalServerTools = async (server) => {
     ElMessage.success(`探测到 ${server._tool_options.length} 个工具`)
   } catch (error) {
     mergeServerToolOptions(server)
-    ElMessage.error(error.response?.data?.error || '探测工具失败')
+    ElMessage.error(error.response?.data?.error || t('probe_tools_failed'))
   } finally {
     server._tools_loading = false
   }
@@ -433,7 +433,7 @@ const handleSave = async () => {
 
     await loadConfig()
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '保存 MCP 配置失败')
+    ElMessage.error(error.response?.data?.message || t('save_mcp_failed'))
   } finally {
     saving.value = false
   }

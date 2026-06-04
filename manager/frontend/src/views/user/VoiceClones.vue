@@ -43,7 +43,7 @@
               :loading="previewUploadSubmittingID === row.id"
               @click="previewUploadedAudio(row)"
             >
-              原音频
+              {{ t('original_audio') }}
             </el-button>
             <el-button
               v-if="canPreviewClonedVoice(row)"
@@ -52,7 +52,7 @@
               :loading="previewClonedSubmittingID === row.id"
               @click="previewClonedVoice(row)"
             >
-              试听复刻
+              {{ t('preview_clone') }}
             </el-button>
             <el-button size="small" type="primary" plain @click="openEditDialog(row)">编辑</el-button>
             <el-button
@@ -135,12 +135,12 @@
           <div class="help">{{ audioRequirementText }}</div>
         </el-form-item>
 
-        <el-form-item :label="capability.requires_transcript ? '音频对应文字 *' : '音频对应文字'">
+        <el-form-item :label="capability.requires_transcript ? t('audio_corresponding_text_req') : t('audio_corresponding_text')">
           <el-input
             v-model="form.transcript"
             type="textarea"
             :rows="4"
-            :placeholder="capability.requires_transcript ? '该提供商要求填写音频对应文字' : '可选填写，不填也可提交'"
+            :placeholder="capability.requires_transcript ? t('provider_requires_audio_text') : t('optional_submit')"
           />
           <div class="help">要求：{{ capability.min_text_len || 0 }} - {{ capability.max_text_len || 4000 }} 字符</div>
         </el-form-item>
@@ -158,12 +158,12 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="audioDialogVisible" title="复刻原始音频" width="720px">
+    <el-dialog v-model="audioDialogVisible" :title="t('clone_original_audio')" width="720px">
       <el-table :data="currentAudios" stripe>
         <el-table-column prop="source_type" label="来源" width="90" />
         <el-table-column prop="file_name" label="文件名" min-width="220" />
         <el-table-column prop="transcript" label="对应文字" min-width="240" show-overflow-tooltip />
-        <el-table-column label="播放" width="120">
+        <el-table-column :label="t('play')" width="120">
           <template #default="{ row }">
             <el-button link type="primary" @click="playAudio(row)">播放</el-button>
           </template>
@@ -221,7 +221,7 @@
         />
         <div class="preview-player-actions">
           <el-button type="primary" :disabled="!previewPlayerURL" @click="togglePreviewPlayback">
-            {{ previewPlayerPlaying ? '暂停' : '播放' }}
+            {{ previewPlayerPlaying ? t('pause') : t('play') }}
           </el-button>
           <el-button :disabled="!previewPlayerURL" @click="stopPreviewPlayback">停止</el-button>
           <span class="preview-player-time">{{ formatPlayerTime(previewPlayerCurrentTime) }} / {{ formatPlayerTime(previewPlayerDuration) }}</span>
@@ -305,24 +305,24 @@ const resolveChargeNotice = (provider, scene = 'create') => {
   if (normalized === 'aliyun_qwen') {
     return {
       message: scene === 'create'
-        ? '计费提醒：千问声音复刻按音色收费，1分钱/个音色。'
-        : '计费提醒：千问声音复刻按音色收费，1分钱/个音色，继续试听请确认。',
+        ? t('billing_qwen_per_voice')
+        : t('billing_qwen_confirm'),
       type: 'warning'
     }
   }
   if (normalized === 'minimax') {
     return {
       message: scene === 'create'
-        ? '计费提醒：Minimax 复刻免费，首次试听该复刻音色收费 9.9 元。'
-        : '计费提醒：Minimax 复刻免费，但该复刻音色首次试听收费 9.9 元，继续试听请确认。',
+        ? t('billing_minimax_first_fee')
+        : t('billing_minimax_first_preview'),
       type: 'warning'
     }
   }
   if (normalized === 'cosyvoice') {
     return {
       message: scene === 'create'
-        ? '计费提醒：CosyVoice 声音复刻与试听免费。'
-        : '计费提醒：CosyVoice 声音复刻与试听免费，继续试听请确认。',
+        ? t('billing_cosyvoice_free')
+        : t('billing_cosyvoice_confirm'),
       type: 'info'
     }
   }
@@ -343,9 +343,9 @@ const audioRequirementText = computed(() => {
     return `要求：WAV 格式，时长不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒`
   }
   if (isAliyunQwenProvider.value) {
-    return '要求：WAV/MP3/M4A，建议 10-20 秒（最长 60 秒）'
+    return t('audio_duration_requirement')
   }
-  return '要求：WAV 格式（CosyVoice 需填写音频对应文字）'
+  return t('wav_requirement')
 })
 
 const isRecording = ref(false)
@@ -373,11 +373,11 @@ const normalizeCloneStatus = (row) => {
 }
 const formatCloneStatus = (row) => {
   const status = normalizeCloneStatus(row)
-  if (status === 'queued') return '排队中'
-  if (status === 'processing') return '处理中'
-  if (status === 'active') return '成功'
-  if (status === 'failed') return '失败'
-  return '未知'
+  if (status === 'queued') return t('queuing')
+  if (status === 'processing') return t('processing')
+  if (status === 'active') return t('success')
+  if (status === 'failed') return t('failed')
+  return t('unknown')
 }
 const getCloneStatusTagType = (row) => {
   const status = normalizeCloneStatus(row)
@@ -589,14 +589,14 @@ const getAudioDurationSeconds = (blobOrFile) => new Promise((resolve, reject) =>
     const duration = Number(audio.duration || 0)
     URL.revokeObjectURL(url)
     if (!Number.isFinite(duration) || duration <= 0) {
-      reject(new Error('无法读取音频时长'))
+      reject(new Error(t('read_audio_duration_failed')))
       return
     }
     resolve(duration)
   }
   audio.onerror = () => {
     URL.revokeObjectURL(url)
-    reject(new Error('无法解析音频文件'))
+    reject(new Error(t('parse_audio_failed')))
   }
   audio.src = url
 })
@@ -609,7 +609,7 @@ const handleFileChange = async (event) => {
     return
   }
   if (!isSupportedUploadAudio(file)) {
-    ElMessage.warning(isAliyunQwenProvider.value ? '仅支持 WAV/MP3/M4A 音频' : '仅支持 WAV 格式音频')
+    ElMessage.warning(isAliyunQwenProvider.value ? t('wav_mp3_m4a_only') : t('wav_only'))
     form.value.audioFile = null
     form.value.audioDurationSec = 0
     event.target.value = ''
@@ -632,7 +632,7 @@ const handleFileChange = async (event) => {
     form.value.audioFile = file
     form.value.audioDurationSec = duration
   } catch (error) {
-    ElMessage.warning(error.message || '读取音频时长失败')
+    ElMessage.warning(error.message || t('read_audio_duration_fail'))
     form.value.audioFile = null
     form.value.audioDurationSec = 0
     event.target.value = ''
@@ -750,7 +750,7 @@ const submitClone = async () => {
   const createNotice = resolveChargeNotice(currentCloneProvider.value, 'create')
   if (createNotice.message) {
     try {
-      await ElMessageBox.confirm(createNotice.message, '创建复刻提醒', {
+      await ElMessageBox.confirm(createNotice.message, t('create_clone_reminder'), {
         confirmButtonText: t('i_understand_continue'),
         cancelButtonText: t('cancel'),
         type: createNotice.type
@@ -781,7 +781,7 @@ const submitClone = async () => {
       try {
         duration = await getAudioDurationSeconds(form.value.audioFile)
       } catch (error) {
-        ElMessage.warning(error.message || '读取音频时长失败')
+        ElMessage.warning(error.message || t('read_audio_duration_fail'))
         return
       }
     }
@@ -800,7 +800,7 @@ const submitClone = async () => {
       try {
         duration = await getAudioDurationSeconds(form.value.recordBlob)
       } catch (error) {
-        ElMessage.warning(error.message || '读取录音时长失败')
+        ElMessage.warning(error.message || t('read_duration_failed'))
         return
       }
     }
@@ -815,7 +815,7 @@ const submitClone = async () => {
   try {
     const res = await api.post('/user/voice-clones', fd, { timeout: 120000 })
     const queued = res.status === 202 || pendingStatuses.includes(normalizeCloneStatus(res.data?.data || {}))
-    ElMessage.success(queued ? '已提交复刻任务，正在后台处理' : '复刻音色创建成功')
+    ElMessage.success(queued ? t('clone_task_submitted') : t('clone_voice_created'))
     createDialogVisible.value = false
     await loadVoiceClones()
   } finally {
@@ -906,7 +906,7 @@ const toggleSharedToAll = async (clone, nextValue) => {
   try {
     await api.put(`/user/voice-clones/${clone.id}`, { shared_to_all: !!nextValue })
     clone.shared_to_all = !!nextValue
-    ElMessage.success(nextValue ? '已启用给所有人使用' : '已关闭共享')
+    ElMessage.success(nextValue ? t('enabled_for_all') : t('sharing_closed'))
   } finally {
     shareSubmittingID.value = null
   }
@@ -917,7 +917,7 @@ const deleteClone = async (clone) => {
   try {
     await ElMessageBox.confirm(
       `确认删除复刻音色“${clone.name || clone.provider_voice_id || clone.id}”吗？删除后将不再出现在列表和可选音色中。`,
-      '删除复刻音色',
+      t('delete_cloned_voice'),
       {
         type: 'warning',
         confirmButtonText: t('delete'),
@@ -965,7 +965,7 @@ const handleAppendAudioFileChange = async (event) => {
     ElMessage.success(t('append_ref_audio_success'))
     await loadVoiceClones(true)
   } catch (error) {
-    ElMessage.error(error?.response?.data?.error || '追加参考音频失败')
+    ElMessage.error(error?.response?.data?.error || t('append_ref_audio_failed'))
   } finally {
     appendAudioSubmittingID.value = null
     appendAudioTargetClone.value = null
@@ -976,7 +976,7 @@ const handleAppendAudioFileChange = async (event) => {
 const playAudio = async (audio) => {
   const response = await api.get(`/user/voice-clones/audios/${audio.id}/file`, { responseType: 'blob' })
   const label = String(audio?.file_name || '')
-  await setPreviewPlayerSource(response.data, '原音频', label || '复刻原始音频')
+  await setPreviewPlayerSource(response.data, t('original_audio'), label || t('clone_original_audio'))
 }
 
 const previewUploadedAudio = async (clone) => {
@@ -990,9 +990,9 @@ const previewUploadedAudio = async (clone) => {
       return
     }
     const audioRes = await api.get(`/user/voice-clones/audios/${audios[0].id}/file`, { responseType: 'blob' })
-    await setPreviewPlayerSource(audioRes.data, '原音频', String(clone?.name || '复刻任务'))
+    await setPreviewPlayerSource(audioRes.data, t('original_audio'), String(clone?.name || t('clone_task')))
   } catch (error) {
-    ElMessage.error(error?.response?.data?.error || '预览上传音频失败')
+    ElMessage.error(error?.response?.data?.error || t('preview_upload_audio_failed'))
   } finally {
     previewUploadSubmittingID.value = null
   }
@@ -1003,7 +1003,7 @@ const previewClonedVoice = async (clone) => {
   const previewNotice = resolveChargeNotice(clone?.provider, 'preview')
   if (previewNotice.message) {
     try {
-      await ElMessageBox.confirm(previewNotice.message, '试听复刻提醒', {
+      await ElMessageBox.confirm(previewNotice.message, t('preview_clone_reminder'), {
         confirmButtonText: t('continue_preview'),
         cancelButtonText: t('cancel'),
         type: previewNotice.type
@@ -1015,9 +1015,9 @@ const previewClonedVoice = async (clone) => {
   previewClonedSubmittingID.value = clone.id
   try {
     const response = await api.get(`/user/voice-clones/${clone.id}/preview`, { responseType: 'blob' })
-    await setPreviewPlayerSource(response.data, '试听复刻', String(clone?.name || '复刻任务'))
+    await setPreviewPlayerSource(response.data, t('preview_clone'), String(clone?.name || t('clone_task')))
   } catch (error) {
-    ElMessage.error(error?.response?.data?.error || '试听复刻音频失败')
+    ElMessage.error(error?.response?.data?.error || t('preview_clone_audio_failed'))
   } finally {
     previewClonedSubmittingID.value = null
   }

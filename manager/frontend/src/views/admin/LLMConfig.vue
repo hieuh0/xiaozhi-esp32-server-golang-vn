@@ -38,7 +38,7 @@
           <span v-else class="test-result test-none">-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="enabled" label="启用状态" width="80" align="center">
+      <el-table-column prop="enabled" :label="t('enabled_status')" width="80" align="center">
         <template #default="scope">
           <el-switch 
             v-model="scope.row.enabled" 
@@ -98,7 +98,7 @@
     <!-- 添加/编辑配置弹窗 -->
     <el-dialog
       v-model="showDialog"
-      :title="editingConfig ? '编辑LLM配置' : '添加LLM配置'"
+      :title="editingConfig ? t('edit_llm_config') : t('add_llm_config')"
       width="600px"
       @close="handleDialogClose"
     >
@@ -110,7 +110,7 @@
           测试
         </el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存
+          {{ t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -208,7 +208,7 @@ const rules = {
       const provider = resolveLLMProvider(form.provider, form.type)
       const providerType = getProviderFixedType(provider)
       if ((providerType === 'openai' || providerType === 'ollama') && (!value || Number(value) < 1 || Number(value) > 100000)) {
-        callback(new Error('max_tokens必须在1-100000之间'))
+        callback(new Error(t('max_tokens_range')))
         return
       }
       callback()
@@ -219,7 +219,7 @@ const rules = {
     validator: (_, value, callback) => {
       const provider = resolveLLMProvider(form.provider, form.type)
       if (getProviderFixedType(provider) === 'coze' && !value) {
-        callback(new Error('请输入Coze Bot ID'))
+        callback(new Error(t('enter_coze_bot_id_v2')))
         return
       }
       callback()
@@ -277,7 +277,7 @@ const editConfig = (config) => {
     form.user_prefix = configObj.user_prefix || ''
     form.connector_id = configObj.connector_id || '1024'
   } catch (error) {
-    console.error('解析配置JSON失败:', error)
+    console.error(t('parse_config_json_failed'), error)
   }
   
   showDialog.value = true
@@ -335,7 +335,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? t('enabled') : '禁用'}成功`)
+    ElMessage.success(`${config.enabled ? t('enabled') : t('disable')}成功`)
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
@@ -361,7 +361,7 @@ const toggleDefault = async (config) => {
     }
     
     await api.put(`/admin/llm-configs/${config.id}`, configData)
-    ElMessage.success(config.is_default ? '设为默认成功' : '取消默认成功')
+    ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     
     // 刷新列表以更新其他配置的默认状态
     loadConfigs()
@@ -377,26 +377,26 @@ const getEnabledConfigs = () => {
 }
 
 function formatTestResultLabel(r) {
-  if (!r?.ok) return '错误'
-  return r.first_packet_ms != null ? `${r.first_packet_ms}ms` : '通过'
+  if (!r?.ok) return t('error')
+  return r.first_packet_ms != null ? `${r.first_packet_ms}ms` : t('passed')
 }
 function formatTestResultTip(r) {
   if (!r?.ok) return ''
   const parts = []
   if (r.first_packet_ms != null) parts.push(`首包 ${r.first_packet_ms}ms`)
-  if (r.reasoning_content_returned) parts.push('检测到上游返回思考内容')
-  return parts.length ? parts.join('，') : '通过'
+  if (r.reasoning_content_returned) parts.push(t('upstream_thinking_detected'))
+  return parts.length ? parts.join('，') : t('passed')
 }
 function formatTestMessage(result) {
   const base = result.message || ''
   const suffix = []
   if (result.first_packet_ms != null) suffix.push(`${result.first_packet_ms}ms`)
-  if (result.reasoning_content_returned) suffix.push('检测到上游返回思考内容')
+  if (result.reasoning_content_returned) suffix.push(t('upstream_thinking_detected'))
   return suffix.length ? `${base} ${suffix.join(' · ')}` : base
 }
 
 function formatDraftTestLabel(name, configId) {
-  return name?.trim() || configId?.trim() || '当前配置'
+  return name?.trim() || configId?.trim() || t('current_config')
 }
 
 function getThinkingLabel(row) {
@@ -440,7 +440,7 @@ const testConfig = async (row, type) => {
       ElMessage.warning(`${row.name || row.config_id}：${result.message}`)
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingId.value = null
   }
@@ -467,7 +467,7 @@ const testAllConfigs = async () => {
     }
     ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingAll.value = false
   }
@@ -497,12 +497,12 @@ const testCurrentConfig = async () => {
     const result = await testWithData('llm', { provider: configId, [configId]: payload })
     const label = formatDraftTestLabel(form.name, configId)
     if (result.ok) {
-      ElMessage.success(`${label}：${formatTestMessage(result) || '测试通过'}`)
+      ElMessage.success(`${label}：${formatTestMessage(result) || t('test_passed')}`)
     } else {
-      ElMessage.warning(`${label}：${result.message || '测试未通过'}`)
+      ElMessage.warning(`${label}：${result.message || t('test_not_passed')}`)
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingCurrent.value = false
   }

@@ -21,7 +21,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="默认" width="80">
+      <el-table-column :label="t('default')" width="80">
         <template #default="scope">
           <el-switch
             v-model="scope.row.is_default"
@@ -39,7 +39,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog v-model="dialogVisible" :title="editing ? '编辑配置' : '新增配置'" width="700px">
+    <el-dialog v-model="dialogVisible" :title="editing ? t('edit_config') : t('add_config_new')" width="700px">
       <el-form :model="form" label-width="100px">
         <el-form-item :label="t('provider')">
           <el-select v-model="form.provider" style="width: 100%" @change="onProviderChange">
@@ -190,7 +190,7 @@
           <el-form-item label="解析超时ms"><el-input-number v-model="form.parse_timeout_ms" :min="1000" :step="1000" style="width:100%" /></el-form-item>
         </template>
         <el-form-item :label="t('enabled')"><el-switch v-model="form.enabled" /></el-form-item>
-        <el-form-item label="默认"><el-switch v-model="form.is_default" /></el-form-item>
+        <el-form-item :label="t('default')"><el-switch v-model="form.is_default" /></el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -375,7 +375,7 @@ const fetchWeknoraModels = async (force = false, silent = true) => {
     }
   } catch (e) {
     if (seq !== weknoraFetchSeq) return
-    const msg = e?.response?.data?.error || '拉取 WeKnora 模型列表失败'
+    const msg = e?.response?.data?.error || t('fetch_weknora_failed')
     weknoraModelLoadError.value = msg
     if (!silent) {
       ElMessage.error(msg)

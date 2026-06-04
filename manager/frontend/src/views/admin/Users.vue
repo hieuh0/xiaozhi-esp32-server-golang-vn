@@ -21,7 +21,7 @@
       <el-table-column prop="role" :label="t('role')" width="120">
         <template #default="{ row }">
           <el-tag :type="row.role === 'admin' ? 'danger' : 'primary'">
-            {{ row.role === 'admin' ? '管理员' : '普通用户' }}
+            {{ row.role === 'admin' ? t('admin') : t('normal_user') }}
           </el-tag>
         </template>
       </el-table-column>
@@ -52,7 +52,7 @@
     <!-- 添加/编辑用户对话框 -->
     <el-dialog 
       v-model="userDialogVisible" 
-      :title="isEditMode ? '编辑用户' : '添加用户'"
+      :title="isEditMode ? t('edit_user') : t('add_user')"
       width="500px"
       @close="resetUserForm"
     >
@@ -85,8 +85,8 @@
         
         <el-form-item :label="t('role')" prop="role">
           <el-select v-model="userForm.role" :placeholder="t('select_role')" style="width: 100%">
-            <el-option label="普通用户" value="user" />
-            <el-option label="管理员" value="admin" />
+            <el-option :label="t('normal_user')" value="user" />
+            <el-option :label="t('admin')" value="admin" />
           </el-select>
         </el-form-item>
       </el-form>
@@ -94,7 +94,7 @@
       <template #footer>
         <el-button @click="userDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleUserSubmit" :loading="userSubmitLoading">
-          {{ isEditMode ? '保存' : '添加' }}
+          {{ isEditMode ? t('save') : t('add') }}
         </el-button>
       </template>
     </el-dialog>
@@ -159,7 +159,7 @@
           <template #default="{ row }">{{ row.used_count }}</template>
         </el-table-column>
         <el-table-column label="剩余" width="100">
-          <template #default="{ row }">{{ row.remaining_count < 0 ? '不限' : row.remaining_count }}</template>
+          <template #default="{ row }">{{ row.remaining_count < 0 ? t('unlimited') : row.remaining_count }}</template>
         </el-table-column>
         <el-table-column label="最大次数" width="180">
           <template #default="{ row }">
@@ -258,7 +258,7 @@ const passwordFormRules = {
     {
       validator: (rule, value, callback) => {
         if (value !== passwordForm.newPassword) {
-          callback(new Error('两次输入密码不一致'))
+          callback(new Error(t('password_mismatch')))
         } else {
           callback()
         }
@@ -338,7 +338,7 @@ const handleUserSubmit = async () => {
     userDialogVisible.value = false
     loadUserList()
   } catch (error) {
-    ElMessage.error(isEditMode.value ? '更新用户失败' : '添加用户失败')
+    ElMessage.error(isEditMode.value ? t('update_user_failed') : t('add_user_failed'))
   } finally {
     userSubmitLoading.value = false
   }
@@ -349,7 +349,7 @@ const handleDeleteUser = async (user) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除用户 "${user.username}" 吗？`,
-      '删除确认',
+      t('delete_confirm'),
       {
         confirmButtonText: t('confirm'),
         cancelButtonText: t('cancel'),
@@ -463,7 +463,7 @@ const handleResetPassword = async () => {
     
     await ElMessageBox.confirm(
       `确定要重置用户 "${currentUser.value.username}" 的密码吗？`,
-      '重置密码确认',
+      t('reset_password_confirm'),
       {
         confirmButtonText: t('confirm'),
         cancelButtonText: t('cancel'),

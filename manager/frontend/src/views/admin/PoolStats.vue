@@ -55,7 +55,7 @@
           <el-table-column prop="isClosed" label="状态" width="100">
             <template #default="{ row }">
               <el-tag :type="row.isClosed ? 'danger' : 'success'">
-                {{ row.isClosed ? '已关闭' : '运行中' }}
+                {{ row.isClosed ? t('closed') : t('running') }}
               </el-tag>
             </template>
           </el-table-column>
@@ -63,7 +63,7 @@
       </div>
 
       <!-- 空状态 -->
-      <el-empty v-if="!latestStats" description="暂无统计数据" />
+      <el-empty v-if="!latestStats" :description="t('no_statistics')" />
     </el-card>
   </div>
 </template>
@@ -80,7 +80,7 @@ const viewType = ref('latest')
 const latestStats = ref(null)
 const summary = ref({
   total_records: 0,
-  storage_duration: '仅保存最新数据',
+  storage_duration: t('save_latest_only'),
   oldest_timestamp: null,
   newest_timestamp: null
 })
@@ -109,7 +109,7 @@ const loadSummary = async () => {
     // 后端返回格式: { data: { data: {...} } }
     summary.value = response.data?.data || {}
   } catch (error) {
-    console.error('加载统计摘要失败:', error)
+    console.error(t('load_stats_summary_failed'), error)
   }
 }
 
@@ -117,14 +117,14 @@ const loadSummary = async () => {
 const loadStats = async () => {
   try {
     const response = await api.get('/admin/pool/stats?type=latest')
-    console.log('最新统计数据响应:', response)
+    console.log(t('latest_stats_response'), response)
     // 后端返回格式: { data: { timestamp: "...", stats: {...} } }
     // axios 会自动解析，所以 response.data 就是后端返回的 { data: {...} }
     // 需要再取一层 data
     latestStats.value = response.data?.data || response.data || null
-    console.log('解析后的最新数据:', latestStats.value)
+    console.log(t('parsed_latest_data'), latestStats.value)
   } catch (error) {
-    console.error('加载统计数据失败:', error)
+    console.error(t('load_stats_failed_v2'), error)
     ElMessage.error(t('load_stats_failed'))
   }
 }

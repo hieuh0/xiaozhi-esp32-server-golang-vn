@@ -53,7 +53,7 @@
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" :label="t('config_name')" />
         <el-table-column prop="provider" :label="t('provider')" />
-        <el-table-column prop="enabled" label="启用状态" width="80" align="center">
+        <el-table-column prop="enabled" :label="t('enabled_status')" width="80" align="center">
           <template #default="scope">
             <el-switch 
               v-model="scope.row.enabled" 
@@ -93,7 +93,7 @@
     <!-- 添加/编辑配置弹窗 -->
     <el-dialog
       v-model="showDialog"
-      :title="editingConfig ? '编辑Vision配置' : '添加Vision配置'"
+      :title="editingConfig ? t('edit_vision_config') : t('add_vision_config')"
       width="700px"
       @close="handleDialogClose"
     >
@@ -150,7 +150,7 @@
       <template #footer>
         <el-button @click="handleDialogClose">取消</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存
+          {{ t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -256,7 +256,7 @@ const loadBaseConfig = async () => {
     baseForm.enable_auth = data.enable_auth || false
     baseForm.vision_url = data.vision_url || ''
   } catch (error) {
-    console.error('加载基础配置失败:', error)
+    console.error(t('load_base_config_failed'), error)
   }
 }
 
@@ -315,7 +315,7 @@ const editConfig = (config) => {
     form.top_p = configData.top_p !== undefined ? configData.top_p : 0.9
     form.timeout = configData.timeout || 30
   } catch (error) {
-    console.error('解析配置失败:', error)
+    console.error(t('parse_config_failed'), error)
     ElMessage.warning(t('config_format_error_reset'))
   }
   
@@ -361,7 +361,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? t('enabled') : '禁用'}成功`)
+    ElMessage.success(`${config.enabled ? t('enabled') : t('disable')}成功`)
   } catch (error) {
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))
@@ -385,7 +385,7 @@ const toggleDefault = async (config) => {
     }
     
     await api.put(`/admin/vision-configs/${config.id}`, configData)
-    ElMessage.success(config.is_default ? '设为默认成功' : '取消默认成功')
+    ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     loadConfigs()
   } catch (error) {
     config.is_default = !config.is_default

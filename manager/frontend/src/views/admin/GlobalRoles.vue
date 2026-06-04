@@ -24,11 +24,11 @@
                       {{ t('copy') }}</el-dropdown-item>
                     <el-dropdown-item command="toggle-status">
                       <el-icon><SwitchButton /></el-icon>
-                      {{ isRoleActive(role) ? '关闭' : '开启' }}
+                      {{ isRoleActive(role) ? t('close') : t('enable') }}
                     </el-dropdown-item>
                     <el-dropdown-item command="set-default" :disabled="role.is_default">
                       <el-icon><Star /></el-icon>
-                      {{ role.is_default ? '已默认' : '设为默认' }}
+                      {{ role.is_default ? t('set_as_default_done') : t('set_as_default') }}
                     </el-dropdown-item>
                     <el-dropdown-item command="delete" divided>
                       <el-icon><Delete /></el-icon>
@@ -41,34 +41,34 @@
           </template>
 
           <div class="role-content">
-            <p class="description">{{ role.description || '暂无描述' }}</p>
+            <p class="description">{{ role.description || t('no_description_alt') }}</p>
 
             <div class="role-config">
               <el-tag size="small" :type="isRoleActive(role) ? 'success' : 'info'">
-                {{ isRoleActive(role) ? '开启' : '关闭' }}
+                {{ isRoleActive(role) ? t('enable') : t('close') }}
               </el-tag>
               <el-tag v-if="role.is_default" size="small" type="warning">默认角色</el-tag>
-              <el-tag size="small" type="primary">LLM: {{ role.llm_config_id || '默认' }}</el-tag>
-              <el-tag size="small" type="success">TTS: {{ role.tts_config_id || '默认' }}</el-tag>
+              <el-tag size="small" type="primary">LLM: {{ role.llm_config_id || t('default') }}</el-tag>
+              <el-tag size="small" type="success">TTS: {{ role.tts_config_id || t('default') }}</el-tag>
               <el-tag v-if="role.voice" size="small" type="warning">音色: {{ role.voice }}</el-tag>
             </div>
 
             <div class="role-prompt">
               <p class="prompt-label">Prompt</p>
-              <p class="prompt-text">{{ role.prompt || '未设置提示词' }}</p>
+              <p class="prompt-text">{{ role.prompt || t('prompt_not_set') }}</p>
             </div>
           </div>
         </el-card>
       </div>
     </div>
 
-    <el-empty v-if="!loading && roles.length === 0" description="暂无全局角色，点击右上角创建">
+    <el-empty v-if="!loading && roles.length === 0" :description="t('no_global_role')">
       <el-button type="primary" @click="showCreateDialog = true">创建第一个全局角色</el-button>
     </el-empty>
 
     <el-dialog
       v-model="showCreateDialog"
-      :title="editingRole ? '编辑全局角色' : '创建全局角色'"
+      :title="editingRole ? t('edit_global_role') : t('create_global_role')"
       width="800px"
       @close="handleDialogClose"
     >
@@ -208,7 +208,7 @@
       <template #footer>
         <el-button @click="handleDialogClose">取消</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存
+          {{ t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -277,7 +277,7 @@ const loadConfigs = async () => {
     llmConfigs.value = llmRes.data.data || []
     ttsConfigs.value = ttsRes.data.data || []
   } catch (error) {
-    console.error('加载配置列表失败', error)
+    console.error(t('load_config_list_failed'), error)
   }
 }
 
@@ -335,7 +335,7 @@ const loadVoices = async (provider) => {
     filteredVoices.value = availableVoices.value
   } catch (error) {
     clearVoiceOptions()
-    console.error('加载音色列表失败', error)
+    console.error(t('load_voice_list_failed_nc'), error)
   } finally {
     voiceLoading.value = false
   }
@@ -446,7 +446,7 @@ const handleSave = async () => {
 const toggleRoleStatus = async (role) => {
   if (!role?.id) return
 
-  const action = isRoleActive(role) ? t('close') : '开启'
+  const action = isRoleActive(role) ? t('close') : t('enable')
   try {
     await api.patch(`/admin/roles/global/${role.id}/toggle`)
     ElMessage.success(`角色${action}成功`)

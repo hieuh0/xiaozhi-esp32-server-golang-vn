@@ -17,13 +17,13 @@
                 <p class="card-description">{{ t('mqtt_server_config_desc') }}配置内置 MQTT Server 的监听地址和启用状态，供设备与主程序接入。</p>
               </div>
               <el-tag :type="serverReady ? 'success' : 'warning'" effect="plain" round>
-                {{ serverReady ? '服务参数完整' : '待补充' }}
+                {{ serverReady ? t('service_params_complete') : t('pending_fill') }}
               </el-tag>
             </div>
           </template>
 
           <div class="field-grid">
-            <el-form-item label="启用状态" prop="enable">
+            <el-form-item :label="t('enabled_status')" prop="enable">
               <div class="switch-field">
                 <div>
                   <div class="switch-title">启用内置 MQTT Server</div>
@@ -53,7 +53,7 @@
                   <p class="card-description">如果启用鉴权，请填写主程序连接 MQTT Server 使用的管理员账号，并保持签名密钥与 OTA 一致。</p>
                 </div>
                 <el-tag :type="form.enable_auth ? 'warning' : 'info'" effect="plain" round>
-                  {{ form.enable_auth ? '已启用鉴权' : '匿名接入' }}
+                  {{ form.enable_auth ? t('auth_enabled') : t('anonymous_access') }}
                 </el-tag>
               </div>
             </template>
@@ -93,7 +93,7 @@
                   <p class="card-description">需要设备通过 MQTTS 连接时，再启用 TLS 并补齐证书文件路径。</p>
                 </div>
                 <el-tag :type="form.tls.enable ? 'success' : 'info'" effect="plain" round>
-                  {{ form.tls.enable ? '已启用 TLS' : '未启用 TLS' }}
+                  {{ form.tls.enable ? t('tls_enabled') : t('tls_not_enabled') }}
                 </el-tag>
               </div>
             </template>
@@ -170,7 +170,7 @@ const form = reactive(createDefaultFormState())
 
 const validateUsername = (_, value, callback) => {
   if (form.enable_auth && !String(value || '').trim()) {
-    callback(new Error('启用认证时管理员用户名不能为空'))
+    callback(new Error(t('auth_admin_username_required')))
     return
   }
   callback()
@@ -178,7 +178,7 @@ const validateUsername = (_, value, callback) => {
 
 const validatePassword = (_, value, callback) => {
   if (form.enable_auth && !String(value || '').trim()) {
-    callback(new Error('启用认证时管理员密码不能为空'))
+    callback(new Error(t('auth_admin_password_required')))
     return
   }
   callback()
@@ -186,7 +186,7 @@ const validatePassword = (_, value, callback) => {
 
 const validateTlsPort = (_, value, callback) => {
   if (form.tls.enable && (!value || value < 1 || value > 65535)) {
-    callback(new Error('启用 TLS 时端口号必须在 1-65535 之间'))
+    callback(new Error(t('tls_port_range')))
     return
   }
   callback()
@@ -194,7 +194,7 @@ const validateTlsPort = (_, value, callback) => {
 
 const validateTlsPem = (_, value, callback) => {
   if (form.tls.enable && !String(value || '').trim()) {
-    callback(new Error('启用 TLS 时证书文件路径不能为空'))
+    callback(new Error(t('tls_cert_required')))
     return
   }
   callback()
@@ -202,7 +202,7 @@ const validateTlsPem = (_, value, callback) => {
 
 const validateTlsKey = (_, value, callback) => {
   if (form.tls.enable && !String(value || '').trim()) {
-    callback(new Error('启用 TLS 时密钥文件路径不能为空'))
+    callback(new Error(t('tls_key_required')))
     return
   }
   callback()
@@ -264,7 +264,7 @@ const loadConfig = async () => {
       resetForm()
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '加载 MQTT Server 配置失败')
+    ElMessage.error(error.response?.data?.message || t('load_mqtt_server_failed'))
   } finally {
     loading.value = false
   }
@@ -315,7 +315,7 @@ const handleSave = async () => {
 
     await loadConfig()
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '保存 MQTT Server 配置失败')
+    ElMessage.error(error.response?.data?.message || t('save_mqtt_server_failed'))
   } finally {
     saving.value = false
   }

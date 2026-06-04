@@ -24,7 +24,7 @@
           {{ scope.row.provider }}
         </template>
       </el-table-column>
-      <el-table-column prop="enabled" label="启用状态" width="80" align="center">
+      <el-table-column prop="enabled" :label="t('enabled_status')" width="80" align="center">
         <template #default="scope">
           <el-switch 
             v-model="scope.row.enabled" 
@@ -84,7 +84,7 @@
     <!-- 添加/编辑配置弹窗 -->
     <el-dialog
       v-model="showDialog"
-      :title="editingConfig ? '编辑TTS配置' : '添加TTS配置'"
+      :title="editingConfig ? t('edit_tts_config') : t('add_tts_config')"
       width="600px"
       @close="handleDialogClose"
     >
@@ -103,7 +103,7 @@
           测试
         </el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存
+          {{ t('save') }}
         </el-button>
       </template>
     </el-dialog>
@@ -495,7 +495,7 @@ const editConfig = (config) => {
         break
     }
   } catch (error) {
-    console.error('解析配置JSON失败:', error)
+    console.error(t('parse_config_json_failed'), error)
   }
   
   showDialog.value = true
@@ -542,7 +542,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? t('enabled') : '禁用'}成功`)
+    ElMessage.success(`${config.enabled ? t('enabled') : t('disable')}成功`)
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
@@ -568,7 +568,7 @@ const toggleDefault = async (config) => {
     }
     
     await api.put(`/admin/tts-configs/${config.id}`, configData)
-    ElMessage.success(config.is_default ? '设为默认成功' : '取消默认成功')
+    ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     
     // 刷新列表以更新其他配置的默认状态
     loadConfigs()
@@ -584,12 +584,12 @@ const getEnabledConfigs = () => {
 }
 
 function formatTestResultLabel(r) {
-  if (!r?.ok) return '错误'
-  return r.first_packet_ms != null ? `正确 ${r.first_packet_ms}ms` : '正确'
+  if (!r?.ok) return t('error')
+  return r.first_packet_ms != null ? `正确 ${r.first_packet_ms}ms` : t('correct')
 }
 function formatTestResultTip(r) {
   if (!r?.ok) return ''
-  return r.first_packet_ms != null ? `通过，耗时 ${r.first_packet_ms}ms` : '通过'
+  return r.first_packet_ms != null ? `通过，耗时 ${r.first_packet_ms}ms` : t('passed')
 }
 function formatTestMessage(result) {
   const base = result.message || ''
@@ -607,7 +607,7 @@ const testConfig = async (row, type) => {
       ElMessage.warning(`${row.name || row.config_id}：${result.message}`)
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingId.value = null
   }
@@ -634,7 +634,7 @@ const testAllConfigs = async () => {
     }
     ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingAll.value = false
   }
@@ -663,12 +663,12 @@ const testCurrentConfig = async () => {
   try {
     const result = await testWithData('tts', { [configId]: payload })
     if (result.ok) {
-      ElMessage.success(formatTestMessage(result) || '测试通过')
+      ElMessage.success(formatTestMessage(result) || t('test_passed'))
     } else {
-      ElMessage.warning(result.message || '测试未通过')
+      ElMessage.warning(result.message || t('test_not_passed'))
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.error || '测试请求失败')
+    ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {
     testingCurrent.value = false
   }
@@ -882,7 +882,7 @@ const loadVoiceOptions = async (provider, options = {}) => {
     })
     voiceOptions.value = response.data.data || []
   } catch (error) {
-    console.error('加载音色列表失败:', error)
+    console.error(t('load_voice_list_failed_c'), error)
     voiceOptions.value = []
   } finally {
     voiceLoading.value = false

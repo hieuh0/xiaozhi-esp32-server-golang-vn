@@ -15,7 +15,7 @@ const { t } = useLocale()
 const message = ref('Hello World')
 
 const testFunction = () => {
-  message.value = '按钮被点击了'
+  message.value = t('button_clicked')
 }
 </script>
 

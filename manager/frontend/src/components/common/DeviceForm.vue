@@ -190,7 +190,7 @@ const validateIdentifier = (_, value, callback) => {
     return
   }
   if (!String(value || '').trim()) {
-    callback(new Error('请输入设备验证码或设备 MAC'))
+    callback(new Error(t('enter_device_code_mac')))
     return
   }
   callback()
@@ -205,11 +205,11 @@ const validateDeviceIdentity = (_, value, callback) => {
   const deviceCode = String(form.value.device_code || '').trim()
   if (props.isAdmin) {
     if (!deviceName && !deviceCode) {
-      callback(new Error('设备标识和激活码至少填写一个'))
+      callback(new Error(t('device_id_or_code')))
       return
     }
   } else if (!deviceName) {
-    callback(new Error('请输入设备标识'))
+    callback(new Error(t('enter_device_id')))
     return
   }
   callback()

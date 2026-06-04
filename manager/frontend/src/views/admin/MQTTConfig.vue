@@ -17,7 +17,7 @@
                 <p class="card-description">{{ t('broker_setup_hint') }}</p>
               </div>
               <el-tag :type="isCoreFieldsComplete ? 'success' : 'warning'" effect="plain" round>
-                {{ isCoreFieldsComplete ? '参数完整' : '待补充' }}
+                {{ isCoreFieldsComplete ? t('params_complete') : t('pending_fill') }}
               </el-tag>
             </div>
           </template>
@@ -73,7 +73,7 @@
                 <p class="card-description">如果 Broker 开启账号密码认证，请填写具有订阅权限的凭证。</p>
               </div>
               <el-tag :type="hasCredentials ? 'success' : 'info'" effect="plain" round>
-                {{ hasCredentials ? '已填写凭证' : '可留空' }}
+                {{ hasCredentials ? t('credentials_filled') : t('can_be_empty') }}
               </el-tag>
             </div>
           </template>
@@ -297,7 +297,7 @@ const handleSave = async () => {
 
     await loadConfig()
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '保存 MQTT 配置失败')
+    ElMessage.error(error.response?.data?.message || t('save_mqtt_failed'))
   } finally {
     saving.value = false
   }

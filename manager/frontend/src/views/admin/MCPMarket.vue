@@ -39,7 +39,7 @@
                 <el-table-column label="状态" width="90">
                   <template #default="{ row }">
                     <el-tag size="small" :type="row.enabled ? 'success' : 'info'">
-                      {{ row.enabled ? '启用' : '禁用' }}
+                      {{ row.enabled ? t('enabled') : t('disable') }}
                     </el-tag>
                   </template>
                 </el-table-column>
@@ -170,7 +170,7 @@
             <el-table-column label="工具" width="120">
               <template #default="{ row }">
                 <el-tag size="small" :type="row.allowed_tools?.length ? 'warning' : 'info'">
-                  {{ row.allowed_tools?.length ? `${row.allowed_tools.length}个已选` : '全部工具' }}
+                  {{ row.allowed_tools?.length ? `${row.allowed_tools.length}个已选` : t('all_tools') }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -182,7 +182,7 @@
             <el-table-column prop="enabled" :label="t('enabled')" width="90">
               <template #default="{ row }">
                 <el-tag size="small" :type="row.enabled ? 'success' : 'info'">
-                  {{ row.enabled ? '启用' : '禁用' }}
+                  {{ row.enabled ? t('enabled') : t('disable') }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -192,7 +192,7 @@
                 <el-button link type="primary" @click="openEditImportedDialog(row)">编辑</el-button>
                 <el-button link type="primary" @click="openImportedToolsDialog(row)">工具选择</el-button>
                 <el-button link :type="row.enabled ? 'warning' : 'success'" @click="toggleImportedEnabled(row)">
-                  {{ row.enabled ? '禁用' : '启用' }}
+                  {{ row.enabled ? t('disable') : t('enabled') }}
                 </el-button>
                 <el-button link type="danger" @click="deleteImportedItem(row)">删除</el-button>
               </template>
@@ -214,7 +214,7 @@
 
     <el-dialog v-model="detailDialogVisible" title="服务详情" width="900px">
       <div v-loading="detailLoading">
-        <el-empty v-if="!serviceDetail && !detailLoading" description="暂无服务详情" />
+        <el-empty v-if="!serviceDetail && !detailLoading" :description="t('no_service_detail')" />
         <template v-else-if="serviceDetail">
           <div class="detail-grid">
             <div><strong>服务：</strong>{{ serviceDetail.name || '-' }}</div>
@@ -237,7 +237,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="importedDialogVisible" :title="editingImported ? '编辑导入服务' : '新增导入服务'" width="700px">
+    <el-dialog v-model="importedDialogVisible" :title="editingImported ? t('edit_import_service') : t('add_import_service')" width="700px">
       <el-form ref="importedFormRef" :model="importedForm" :rules="importedRules" label-width="120px">
         <el-form-item :label="t('name')" prop="name">
           <el-input v-model="importedForm.name" placeholder="服务展示名称" />
@@ -293,7 +293,7 @@
           </div>
           <div class="tool-selector-actions">
             <el-tag size="small" :type="importedToolMode === 'all' ? 'info' : 'warning'">
-              {{ importedToolMode === 'all' ? '全部工具' : `已选 ${importedSelectedTools.length} 项` }}
+              {{ importedToolMode === 'all' ? t('all_tools') : `已选 ${importedSelectedTools.length} 项` }}
             </el-tag>
             <el-button size="small" :loading="importedToolsLoading" @click="refreshImportedTools">
               探测工具
@@ -316,7 +316,7 @@
           </div>
 
           <div v-if="filteredImportedToolOptions.length === 0" class="tool-picker-empty">
-            {{ importedToolOptions.length === 0 ? '还没有探测到工具，请先点击“探测工具”。' : '未匹配到可选工具。' }}
+            {{ importedToolOptions.length === 0 ? '还没有探测到工具，请先点击“探测工具”。' : t('no_matching_tools') }}
           </div>
           <el-checkbox-group v-else v-model="importedSelectedTools" class="tool-grid">
             <el-checkbox
@@ -328,7 +328,7 @@
             >
               <div class="tool-tile-body">
                 <span class="tool-tile-name">{{ tool.name }}</span>
-                <span class="tool-tile-desc">{{ tool.description || '无描述' }}</span>
+                <span class="tool-tile-desc">{{ tool.description || t('no_description') }}</span>
               </div>
             </el-checkbox>
           </el-checkbox-group>
@@ -341,7 +341,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="marketDialogVisible" :title="editingMarket ? '编辑MCP市场' : '新增MCP市场'" width="640px">
+    <el-dialog v-model="marketDialogVisible" :title="editingMarket ? t('edit_mcp_market') : t('add_mcp_market')" width="640px">
       <el-form ref="marketFormRef" :model="marketForm" :rules="marketRules" label-width="130px">
         <el-form-item :label="t('provider')">
           <el-select v-model="marketForm.provider_id" style="width: 100%" @change="handleProviderChange">
@@ -366,7 +366,7 @@
         <el-form-item label="Token">
           <el-input
             v-model="marketForm.auth.token"
-            :placeholder="editingMarket ? `留空则保持原值（当前：${editingMarket.token_mask || '未设置'}）` : '请输入魔搭 Token'"
+            :placeholder="editingMarket ? `留空则保持原值（当前：${editingMarket.token_mask || t('not_set')}）` : t('enter_modao_token')"
             show-password
             clearable
           />
@@ -475,7 +475,7 @@ const importedRules = {
 }
 
 const toolDialogTitle = computed(() => {
-  return importedToolTarget.value ? `工具选择 · ${importedToolTarget.value.name}` : '工具选择'
+  return importedToolTarget.value ? `工具选择 · ${importedToolTarget.value.name}` : t('tool_selection')
 })
 
 const filteredImportedToolOptions = computed(() => {
@@ -505,7 +505,7 @@ const loadProviders = async () => {
   } catch (error) {
     providerOptions.value = [{ id: 'modelscope', name: t('modelscope') }]
     marketForm.provider_id = marketForm.provider_id || 'modelscope'
-    ElMessage.error(error.response?.data?.error || '加载提供商失败')
+    ElMessage.error(error.response?.data?.error || t('load_provider_failed'))
   }
 }
 
@@ -529,7 +529,7 @@ const applyProviderPreset = (providerId, force = false) => {
   }
 
   if (!editingMarket.value && (force || !marketForm.name) && provider.id === 'modelscope') {
-    marketForm.name = '魔搭MCP市场'
+    marketForm.name = t('modao_mcp_market')
   }
 }
 
@@ -557,7 +557,7 @@ const loadMarkets = async () => {
     const resp = await api.get('/admin/mcp-markets')
     markets.value = resp.data.data || []
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '加载MCP市场失败')
+    ElMessage.error(error.response?.data?.error || t('load_mcp_market_failed'))
   } finally {
     marketsLoading.value = false
   }
@@ -658,7 +658,7 @@ const testMarket = async (row) => {
     const count = resp.data?.data?.service_count ?? 0
     ElMessage.success(`连接成功，可发现 ${count} 个服务`)
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '连接测试失败')
+    ElMessage.error(error.response?.data?.error || t('connection_test_failed'))
   }
 }
 
@@ -678,7 +678,7 @@ const loadServices = async (page = 1) => {
     serviceTotal.value = data.total || 0
     serviceWarnings.value = data.warnings || []
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '加载聚合服务失败')
+    ElMessage.error(error.response?.data?.error || t('load_agg_service_failed'))
   } finally {
     servicesLoading.value = false
   }
@@ -692,7 +692,7 @@ const loadServiceDetail = async (row) => {
     const resp = await api.get(`/admin/mcp-market/services/${row.market_id}/${encodeURIComponent(row.service_id)}`)
     serviceDetail.value = resp.data?.data || null
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '加载服务详情失败')
+    ElMessage.error(error.response?.data?.error || t('load_service_detail_failed'))
   } finally {
     detailLoading.value = false
   }
@@ -720,7 +720,7 @@ const importFromDetail = async () => {
     detailDialogVisible.value = false
     activeTab.value = 'imported'
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '导入失败')
+    ElMessage.error(error.response?.data?.error || t('import_failed'))
   } finally {
     detailImporting.value = false
   }
@@ -741,7 +741,7 @@ const loadImportedItems = async (page = 1) => {
     importedItems.value = data.items || []
     importedTotal.value = data.total || 0
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '加载导入服务失败')
+    ElMessage.error(error.response?.data?.error || t('load_import_service_failed'))
   } finally {
     importedLoading.value = false
   }
@@ -753,11 +753,11 @@ const parseImportedHeaders = () => {
   try {
     const parsed = JSON.parse(txt)
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-      throw new Error('headers 必须是 JSON 对象')
+      throw new Error(t('headers_must_json'))
     }
     return parsed
   } catch (error) {
-    throw new Error('Headers 不是合法 JSON 对象')
+    throw new Error(t('headers_invalid_json'))
   }
 }
 
@@ -788,7 +788,7 @@ const mergeImportedToolOptions = (tools = [], selected = []) => {
     if (!name || merged.has(name)) return
     merged.set(name, {
       name,
-      description: '当前配置已选择'
+      description: t('current_config_selected')
     })
   })
 
@@ -808,7 +808,7 @@ const loadImportedToolOptions = async (serviceId) => {
     mergeImportedToolOptions(data.tools || [], importedSelectedTools.value)
   } catch (error) {
     mergeImportedToolOptions([], importedSelectedTools.value)
-    ElMessage.error(error.response?.data?.error || '加载工具列表失败')
+    ElMessage.error(error.response?.data?.error || t('load_tool_list_failed'))
   } finally {
     importedToolsLoading.value = false
   }
@@ -958,10 +958,10 @@ const toggleImportedEnabled = async (row) => {
   }
   try {
     await api.put(`/admin/mcp-market/imported-services/${row.id}`, payload)
-    ElMessage.success(row.enabled ? '已禁用' : '已启用')
+    ElMessage.success(row.enabled ? t('disabled_done') : t('enabled'))
     await loadImportedItems(importedPage.value)
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '更新状态失败')
+    ElMessage.error(error.response?.data?.error || t('update_status_failed'))
   }
 }
 

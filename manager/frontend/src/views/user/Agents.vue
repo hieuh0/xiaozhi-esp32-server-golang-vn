@@ -156,7 +156,7 @@
         <div class="dialog-footer">
           <el-button @click="handleCloseAddAgent">{{ t('cancel') }}取消</el-button>
           <el-button type="primary" :loading="adding" @click="handleAddAgent">
-            {{ adding ? '创建中...' : '创建智能体' }}
+            {{ adding ? t('creating') : t('create_agent_label') }}
           </el-button>
         </div>
       </template>
@@ -179,7 +179,7 @@
         <div class="dialog-footer">
           <el-button @click="showAddDeviceDialog = false">取消</el-button>
           <el-button type="primary" :loading="addingDevice" @click="handleAddDevice">
-            {{ addingDevice ? '绑定中...' : '绑定设备' }}
+            {{ addingDevice ? t('binding') : t('bind_device') }}
           </el-button>
         </div>
       </template>
@@ -283,7 +283,7 @@ const loadKnowledgeBases = async () => {
     knowledgeBases.value = response.data.data || []
   } catch (error) {
     knowledgeBases.value = []
-    console.error('加载知识库列表失败:', error)
+    console.error(t('load_kb_list_failed'), error)
   }
 }
 
@@ -305,7 +305,7 @@ const handleAddAgent = async () => {
       await loadAgents()
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '添加智能体失败')
+    ElMessage.error(error.response?.data?.error || t('add_agent_failed'))
   } finally {
     adding.value = false
   }
@@ -348,7 +348,7 @@ const handleAddDevice = async () => {
       await handleDeviceBound()
     }
   } catch (error) {
-    ElMessage.error(error.response?.data?.error || '设备绑定失败')
+    ElMessage.error(error.response?.data?.error || t('device_bind_failed'))
   } finally {
     addingDevice.value = false
   }
@@ -397,7 +397,7 @@ const handleDeleteAgent = async (agent) => {
   try {
     await ElMessageBox.confirm(
       `确定要删除智能体 "${agent.name}" 吗？`,
-      '确认删除',
+      t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
         cancelButtonText: t('cancel'),
@@ -410,13 +410,13 @@ const handleDeleteAgent = async (agent) => {
     await loadAgents()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error(error.response?.data?.error || '智能体删除失败')
+      ElMessage.error(error.response?.data?.error || t('agent_delete_failed'))
     }
   }
 }
 
 const truncateText = (value, maxLength = 14) => {
-  const text = String(value || '').trim() || '未设置'
+  const text = String(value || '').trim() || t('not_set')
   if (text.length <= maxLength) {
     return text
   }
@@ -436,11 +436,11 @@ const getVoiceModelText = (agent) => {
   if (voiceName) {
     return voiceName
   }
-  return '未设置'
+  return t('not_set')
 }
 
 const getLLMModelText = (agent) => {
-  return agent.llm_config?.name?.trim() || agent.llm_config?.provider?.trim() || '未设置'
+  return agent.llm_config?.name?.trim() || agent.llm_config?.provider?.trim() || t('not_set')
 }
 
 const getDeviceCountText = (agent) => {
@@ -476,7 +476,7 @@ const getKnowledgeBaseNames = (agent) => {
 const getKnowledgeBaseTooltip = (agent) => {
   const names = getKnowledgeBaseNames(agent)
   if (names.length === 0) {
-    return '关联知识库：未关联'
+    return t('knowledge_base_unlinked')
   }
   return `关联知识库：${names.join('、')}`
 }
@@ -489,11 +489,11 @@ const normalizeMcpServiceNames = (raw) => {
 }
 
 const getConnectionStatusText = (state) => {
-  if (!state || state.loading) return '检测中'
-  if (state.connected || state.status === 'online') return '已连接'
-  if (state.status === 'offline') return '未连接'
-  if (state.status_message) return '连接未知'
-  return '未连接'
+  if (!state || state.loading) return t('detecting')
+  if (state.connected || state.status === 'online') return t('connected')
+  if (state.status === 'offline') return t('not_connected')
+  if (state.status_message) return t('connection_unknown')
+  return t('not_connected')
 }
 
 const getMcpStatusKey = (agent) => {
@@ -505,14 +505,14 @@ const getMcpStatusKey = (agent) => {
 }
 
 const getGlobalMcpServiceCountText = () => {
-  if (globalMcpServiceCountError.value) return '检测失败'
-  if (globalMcpServiceCount.value === null) return '检测中'
+  if (globalMcpServiceCountError.value) return t('detection_failed')
+  if (globalMcpServiceCount.value === null) return t('detecting')
   return `${globalMcpServiceCount.value} 个`
 }
 
 const getMcpServiceScopeText = (agent) => {
   const count = normalizeMcpServiceNames(agent.mcp_service_names).length
-  return count > 0 ? `已选择 ${count} 个服务` : '跟随全局配置'
+  return count > 0 ? `已选择 ${count} 个服务` : t('follow_global_config')
 }
 
 const getMcpClientCountText = (connection) => {
@@ -548,7 +548,7 @@ const getOpenClawStatusKey = (agent) => {
 
 const getOpenClawStatusTooltip = (agent) => {
   const connection = openClawConnectionStatusMap[String(agent.id)]
-  const configText = parseOpenClawConfig(agent).allowed ? '已启用' : '未启用'
+  const configText = parseOpenClawConfig(agent).allowed ? t('enabled') : t('not_enabled')
   return `OpenClaw状态：${configText}｜连接状态：${getConnectionStatusText(connection)}`
 }
 
@@ -583,7 +583,7 @@ const ensureMcpConnectionStatus = async (agentId) => {
       loaded: true,
       connected: false,
       status: 'unknown',
-      status_message: error.response?.data?.error || error.message || '状态获取失败',
+      status_message: error.response?.data?.error || error.message || t('status_fetch_failed'),
       client_count: 0
     }
   }
@@ -597,8 +597,8 @@ const loadGlobalMcpServiceCount = async () => {
     globalMcpServiceCount.value = Array.isArray(options) ? options.length : 0
   } catch (error) {
     globalMcpServiceCount.value = null
-    globalMcpServiceCountError.value = error.response?.data?.error || error.message || '加载失败'
-    console.error('加载全局MCP服务数量失败:', error)
+    globalMcpServiceCountError.value = error.response?.data?.error || error.message || t('load_failed')
+    console.error(t('load_global_mcp_failed'), error)
   }
 }
 
@@ -635,7 +635,7 @@ const ensureOpenClawConnectionStatus = async (agentId) => {
       loaded: true,
       connected: false,
       status: 'unknown',
-      status_message: error.response?.data?.error || error.message || '状态获取失败'
+      status_message: error.response?.data?.error || error.message || t('status_fetch_failed')
     }
   }
 }

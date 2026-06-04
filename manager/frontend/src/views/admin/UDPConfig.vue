@@ -17,7 +17,7 @@
                 <p class="card-description">{{ t('udp_server_config_desc') }}配置主程序内置 UDP Server 的监听地址，供设备侧发现并建立连接。</p>
               </div>
               <el-tag :type="listenReady ? 'success' : 'warning'" effect="plain" round>
-                {{ listenReady ? '监听参数完整' : '待补充' }}
+                {{ listenReady ? t('listen_params_complete') : t('pending_fill') }}
               </el-tag>
             </div>
           </template>
@@ -46,7 +46,7 @@
                 <p class="card-description">这里填写会通过 hello 协议下发给终端的可访问地址，需要设备真实可达。</p>
               </div>
               <el-tag :type="externalReady ? 'success' : 'warning'" effect="plain" round>
-                {{ externalReady ? '下发地址完整' : '待补充' }}
+                {{ externalReady ? t('address_complete') : t('pending_fill') }}
               </el-tag>
             </div>
           </template>
@@ -197,7 +197,7 @@ const handleSave = async () => {
 
     await loadConfig()
   } catch (error) {
-    ElMessage.error(error.response?.data?.message || '保存 UDP 配置失败')
+    ElMessage.error(error.response?.data?.message || t('save_udp_failed'))
   } finally {
     saving.value = false
   }
