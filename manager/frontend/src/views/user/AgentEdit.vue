@@ -4,11 +4,10 @@
       <div class="header-left">
         <el-button text @click="goBack">
           <el-icon><ArrowLeft /></el-icon>
-          返回
-        </el-button>
+          {{ t('back') }}</el-button>
         <h2>{{ form.name || '编辑智能体' }}</h2>
       </div>
-      <el-button type="primary" @click="handleSave" :loading="saving">保存配置</el-button>
+      <el-button type="primary" @click="handleSave" :loading="saving">{{ t('save_config') }}</el-button>
     </div>
 
     <div class="role-strip" v-loading="rolesLoading">

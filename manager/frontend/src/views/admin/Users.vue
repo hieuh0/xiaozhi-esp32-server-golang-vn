@@ -10,8 +10,7 @@
       />
       <el-button type="primary" @click="openAddDialog">
         <el-icon><Plus /></el-icon>
-        添加用户
-      </el-button>
+        {{ t('add_user') }}</el-button>
     </div>
 
     <!-- 用户列表表格 -->
@@ -44,7 +43,7 @@
             @click="handleDeleteUser(row)"
             :disabled="row.role === 'admin'"
           >
-            删除
+            {{ t('delete') }}
           </el-button>
         </template>
       </el-table-column>
@@ -63,29 +62,29 @@
         :rules="userFormRules" 
         label-width="80px"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item :label="t('username')" prop="username">
           <el-input 
             v-model="userForm.username" 
             :disabled="isEditMode"
-            placeholder="请输入用户名"
+            :placeholder="t('enter_username')"
           />
         </el-form-item>
         
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="userForm.email" placeholder="请输入邮箱" />
+        <el-form-item :label="t('email')" prop="email">
+          <el-input v-model="userForm.email" :placeholder="t('enter_email')" />
         </el-form-item>
         
-        <el-form-item v-if="!isEditMode" label="密码" prop="password">
+        <el-form-item v-if="!isEditMode" :label="t('password')" prop="password">
           <el-input 
             v-model="userForm.password" 
             type="password" 
-            placeholder="请输入密码（至少6位）"
+            :placeholder="t('enter_password_min6')"
             show-password
           />
         </el-form-item>
         
-        <el-form-item label="角色" prop="role">
-          <el-select v-model="userForm.role" placeholder="请选择角色" style="width: 100%">
+        <el-form-item :label="t('role')" prop="role">
+          <el-select v-model="userForm.role" :placeholder="t('select_role')" style="width: 100%">
             <el-option label="普通用户" value="user" />
             <el-option label="管理员" value="admin" />
           </el-select>
@@ -113,7 +112,7 @@
         :rules="passwordFormRules" 
         label-width="80px"
       >
-        <el-form-item label="用户">
+        <el-form-item :label="t('user')">
           <el-input v-model="currentUser.username" disabled />
         </el-form-item>
         
@@ -126,7 +125,7 @@
           />
         </el-form-item>
         
-        <el-form-item label="确认密码" prop="confirmPassword">
+        <el-form-item :label="t('confirm_password')" prop="confirmPassword">
           <el-input 
             v-model="passwordForm.confirmPassword" 
             type="password" 

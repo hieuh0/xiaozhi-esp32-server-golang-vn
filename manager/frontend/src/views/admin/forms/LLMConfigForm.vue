@@ -219,7 +219,7 @@ const thinkingConfig = computed(() => {
   if (!config?.visible) {
     return {
       visible: false,
-      label: '深度思考',
+      label: t('deep_thinking'),
       options: [],
       showBudget: false,
       budgetMin: 1,

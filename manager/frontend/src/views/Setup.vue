@@ -4,7 +4,7 @@
       <section class="setup-intro">
         <p class="setup-eyebrow">FIRST RUN EXPERIENCE</p>
         <h1>{{ t('lighter_system_init') }}用更轻的方式完成系统初始化。</h1>
-        <p>先创建管理员账户，再进入统一的控制台和配置向导。这一页也同步切换到新的明亮 Apple 风风格。</p>
+        <p>{{ t('setup_admin_hint') }}</p>
       </section>
 
       <div class="setup-card">

@@ -82,7 +82,7 @@
               :loading="deleteSubmittingID === row.id"
               @click="deleteClone(row)"
             >
-              删除
+              {{ t('delete') }}
             </el-button>
           </div>
         </template>
@@ -97,12 +97,12 @@
       @change="handleAppendAudioFileChange"
     />
 
-    <el-dialog v-model="createDialogVisible" title="创建复刻音色" width="680px">
+    <el-dialog v-model="createDialogVisible" :title="t('create_clone_voice')" width="680px">
       <el-form label-width="140px">
         <el-form-item label="复刻名称">
           <el-input v-model="form.name" placeholder="可选，不填则自动使用文件名" />
         </el-form-item>
-        <el-form-item label="TTS配置" required>
+        <el-form-item :label="t('tts_config_label')" required>
           <el-select v-model="form.tts_config_id" placeholder="请选择可复刻的TTS配置" style="width: 100%" @change="onConfigChange">
             <el-option v-for="cfg in cloneEnabledConfigs" :key="cfg.config_id" :label="`${cfg.name} (${cfg.config_id})`" :value="cfg.config_id" />
           </el-select>
@@ -173,13 +173,13 @@
 
     <el-dialog v-model="editDialogVisible" title="编辑复刻音色" width="620px" @close="resetEditForm">
       <el-form label-width="120px">
-        <el-form-item label="名称">
+        <el-form-item :label="t('name')">
           <el-input v-model="editForm.name" maxlength="100" show-word-limit />
         </el-form-item>
-        <el-form-item label="提供商">
+        <el-form-item :label="t('provider')">
           <el-input v-model="editForm.provider" readonly class="readonly-field" />
         </el-form-item>
-        <el-form-item label="TTS配置">
+        <el-form-item :label="t('tts_config_label')">
           <el-input v-model="editForm.ttsConfigDisplay" readonly class="readonly-field" />
         </el-form-item>
         <el-form-item label="复刻音色ID">

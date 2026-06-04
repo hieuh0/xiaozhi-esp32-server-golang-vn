@@ -14,8 +14,7 @@
         </el-button>
         <el-button plain @click="openAddDeviceDialog">
           <el-icon><Monitor /></el-icon>
-          添加设备
-        </el-button>
+          {{ t('add_device') }}</el-button>
         <el-button plain @click="openInjectMessageDialog">
           <el-icon><ChatDotRound /></el-icon>
           {{ t('voice_push') }}  语音推送
@@ -23,7 +22,7 @@
       </div>
     </section>
 
-    <section v-if="initialLoading" class="agents-grid agents-grid-loading" aria-label="智能体加载中">
+    <section v-if="initialLoading" class="agents-grid agents-grid-loading" aria-:label="t('agent_loading')">
       <article v-for="index in 3" :key="index" class="agent-card agent-card-skeleton apple-surface">
         <div class="skeleton-card-header">
           <div class="skeleton-avatar skeleton-shimmer"></div>
@@ -60,8 +59,7 @@
           <div class="welcome-actions">
             <el-button type="primary" size="large" @click="showAddAgentDialog = true">
               <el-icon><Plus /></el-icon>
-              创建智能体
-            </el-button>
+              {{ t('create_agent_label') }}</el-button>
           </div>
         </div>
       </el-card>
@@ -125,12 +123,10 @@
         <div class="agent-actions">
           <el-button class="agent-action-button agent-action-button-feature" size="small" @click="editAgent(agent.id)">
             <el-icon><Setting /></el-icon>
-            配置
-          </el-button>
+            {{ t('config') }}</el-button>
           <el-button class="agent-action-button" size="small" @click="handleChatHistory(agent.id)">
             <el-icon><ChatDotRound /></el-icon>
-            对话
-          </el-button>
+            {{ t('chat') }}</el-button>
           <el-button class="agent-action-button" size="small" @click="handleManageDevices(agent.id)">
             <el-icon><Connection /></el-icon>
             {{ t('device') }}  设备
@@ -168,7 +164,7 @@
 
     <el-dialog
       v-model="showAddDeviceDialog"
-      title="添加设备"
+      :title="t('add_device')"
       width="520px"
       :close-on-click-modal="false"
       @closed="resetAddDeviceForm"

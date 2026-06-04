@@ -83,7 +83,7 @@
                   </el-button>
                   <el-button size="small" type="danger" @click="removeGlobalServer(index)">
                     <el-icon><Delete /></el-icon>
-                    删除
+                    {{ t('delete') }}
                   </el-button>
                 </div>
               </div>
@@ -416,7 +416,7 @@ const handleSave = async () => {
   saving.value = true
   try {
     const payload = {
-      name: 'MCP全局配置',
+      name: t('mcp_global_config'),
       config_id: 'mcp_global_config',
       is_default: true,
       json_data: generateConfig()

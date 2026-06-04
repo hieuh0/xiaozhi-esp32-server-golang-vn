@@ -47,7 +47,7 @@
             type="danger"
             @click="deleteConfig(scope.row.id)"
           >
-            删除
+            {{ t('delete') }}
           </el-button>
         </template>
       </el-table-column>
@@ -62,7 +62,7 @@
           <div class="empty-description">点击上方"添加配置"按钮创建您的第一个Memory配置</div>
           <el-button type="primary" @click="handleAddConfig" class="empty-action">
             <el-icon><Plus /></el-icon>
-            添加配置
+            {{ t('add_config') }}
           </el-button>
         </div>
       </template>
@@ -81,29 +81,29 @@
         :rules="rules"
         label-width="120px"
       >
-        <el-form-item label="提供商" prop="provider">
-          <el-select v-model="form.provider" placeholder="请选择提供商" style="width: 100%" @change="handleProviderChange">
+        <el-form-item :label="t('provider')" prop="provider">
+          <el-select v-model="form.provider" :placeholder="t('select_provider')" style="width: 100%" @change="handleProviderChange">
             <el-option label="Memobase" value="memobase" />
             <el-option label="Mem0" value="mem0" />
             <el-option label="MemOS" value="memos" />
           </el-select>
         </el-form-item>
         
-        <el-form-item label="配置名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入配置名称" />
+        <el-form-item :label="t('config_name')" prop="name">
+          <el-input v-model="form.name" :placeholder="t('enter_config_name')" />
         </el-form-item>
         
-        <el-form-item label="配置ID" prop="config_id">
-          <el-input v-model="form.config_id" placeholder="请输入唯一的配置ID" />
+        <el-form-item :label="t('config_id')" prop="config_id">
+          <el-input v-model="form.config_id" :placeholder="t('enter_unique_config_id')" />
         </el-form-item>
         
         <!-- Memobase配置字段 -->
         <template v-if="form.provider === 'memobase'">
-          <el-form-item label="API密钥" prop="api_key">
+          <el-form-item :label="t('api_key')" prop="api_key">
             <el-input v-model="form.api_key" type="password" placeholder="请输入Memobase API密钥" show-password />
           </el-form-item>
           
-          <el-form-item label="基础URL" prop="base_url">
+          <el-form-item :label="t('base_url')" prop="base_url">
             <el-input v-model="form.base_url" placeholder="请输入Memobase基础URL" />
           </el-form-item>
           
@@ -122,11 +122,11 @@
         
         <!-- Mem0配置字段 -->
         <template v-if="form.provider === 'mem0' || form.provider === 'memos'">
-          <el-form-item label="API密钥" prop="api_key">
+          <el-form-item :label="t('api_key')" prop="api_key">
             <el-input v-model="form.api_key" type="password" :placeholder="form.provider === 'memos' ? '请输入MemOS兼容API密钥' : '请输入Mem0 API密钥'" show-password />
           </el-form-item>
           
-          <el-form-item label="基础URL" prop="base_url">
+          <el-form-item :label="t('base_url')" prop="base_url">
             <el-input v-model="form.base_url" :placeholder="form.provider === 'memos' ? '请输入MemOS服务基础URL' : '请输入Mem0基础URL'" />
           </el-form-item>
 

@@ -23,7 +23,7 @@
           </template>
 
           <div class="field-grid">
-            <el-form-item label="配置名称" prop="name">
+            <el-form-item :label="t('config_name')" prop="name">
               <el-input v-model="form.name" placeholder="例如：默认 UDP 配置" />
             </el-form-item>
 
@@ -92,7 +92,7 @@ const configId = ref(null)
 const formRef = ref(null)
 
 const createDefaultFormState = () => ({
-  name: 'UDP配置',
+  name: t('udp_config_label'),
   is_default: true,
   external_host: '192.168.0.208',
   external_port: 8990,
@@ -146,7 +146,7 @@ const loadConfig = async () => {
         configData = {}
       }
 
-      form.name = config.name || 'UDP配置'
+      form.name = config.name || t('udp_config_label')
       form.is_default = config.is_default ?? true
       form.external_host = String(configData.external_host || '192.168.0.208')
       form.external_port = Number(configData.external_port) > 0 ? Number(configData.external_port) : 8990

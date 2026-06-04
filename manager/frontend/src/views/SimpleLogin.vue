@@ -3,7 +3,7 @@
     <div class="simple-login-card">
       <div class="simple-login-header">
         <h1>{{ t('simple_login_test') }}简单登录测试</h1>
-        <p>用于快速验证认证链路和路由跳转。</p>
+        <p>{{ t('auth_test_hint') }}</p>
       </div>
 
       <div class="simple-login-form">

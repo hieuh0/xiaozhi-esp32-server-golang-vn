@@ -12,7 +12,7 @@
       <el-table-column :label="t('config_summary')">
         <template #default="scope">{{ getConfigSummary(scope.row) }}</template>
       </el-table-column>
-      <el-table-column label="启用" width="80">
+      <el-table-column :label="t('enabled')" width="80">
         <template #default="scope">
           <el-switch
             v-model="scope.row.enabled"
@@ -41,7 +41,7 @@
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑配置' : '新增配置'" width="700px">
       <el-form :model="form" label-width="100px">
-        <el-form-item label="提供商">
+        <el-form-item :label="t('provider')">
           <el-select v-model="form.provider" style="width: 100%" @change="onProviderChange">
             <el-option value="dify" label="dify" />
             <el-option value="ragflow" label="ragflow" />
@@ -58,8 +58,8 @@
             {{ getProviderWebsite(form.provider) }}
           </a>
         </el-form-item>
-        <el-form-item label="名称"><el-input v-model="form.name" /></el-form-item>
-        <el-form-item label="配置ID"><el-input v-model="form.config_id" /></el-form-item>
+        <el-form-item :label="t('name')"><el-input v-model="form.name" /></el-form-item>
+        <el-form-item :label="t('config_id')"><el-input v-model="form.config_id" /></el-form-item>
         <template v-if="form.provider === 'dify'">
           <el-form-item label="Base URL"><el-input v-model="form.base_url" :placeholder="DEFAULT_DIFY_BASE_URL" /></el-form-item>
           <el-form-item label="API Key"><el-input v-model="form.api_key" type="password" show-password /></el-form-item>
@@ -189,7 +189,7 @@
           <el-form-item label="轮询间隔ms"><el-input-number v-model="form.parse_poll_interval_ms" :min="100" :step="100" style="width:100%" /></el-form-item>
           <el-form-item label="解析超时ms"><el-input-number v-model="form.parse_timeout_ms" :min="1000" :step="1000" style="width:100%" /></el-form-item>
         </template>
-        <el-form-item label="启用"><el-switch v-model="form.enabled" /></el-form-item>
+        <el-form-item :label="t('enabled')"><el-switch v-model="form.enabled" /></el-form-item>
         <el-form-item label="默认"><el-switch v-model="form.is_default" /></el-form-item>
       </el-form>
       <template #footer>

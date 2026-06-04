@@ -13,7 +13,7 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">MQTT Server</p>
-                <h3>监听与接入</h3>
+                <h3>{{ t('listen_and_access') }}</h3>
                 <p class="card-description">{{ t('mqtt_server_config_desc') }}配置内置 MQTT Server 的监听地址和启用状态，供设备与主程序接入。</p>
               </div>
               <el-tag :type="serverReady ? 'success' : 'warning'" effect="plain" round>
@@ -73,11 +73,11 @@
                 <el-input v-model="form.username" placeholder="未启用鉴权可暂时留空" />
               </el-form-item>
 
-              <el-form-item label="管理员密码" prop="password">
+              <el-form-item :label="t('admin_password')" prop="password">
                 <el-input v-model="form.password" type="password" placeholder="未启用鉴权可暂时留空" show-password />
               </el-form-item>
 
-              <el-form-item label="签名密钥" prop="signature_key">
+              <el-form-item :label="t('signature_key')" prop="signature_key">
                 <el-input v-model="form.signature_key" placeholder="请输入与 OTA 保持一致的签名密钥" />
                 <div class="field-help">该密钥需要和 OTA 配置页的签名密钥保持一致。</div>
               </el-form-item>
@@ -282,7 +282,7 @@ const handleSave = async () => {
   saving.value = true
   try {
     const payload = {
-      name: 'MQTT Server配置',
+      name: t('mqtt_server_config_label'),
       config_id: 'mqtt_server_mqtt_server_config',
       provider: 'mqtt_server',
       json_data: JSON.stringify({

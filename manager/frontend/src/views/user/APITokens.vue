@@ -4,8 +4,7 @@
       <router-link class="doc-link" to="/openapi-docs">{{ t('view_public_openapi') }}查看公开 OpenAPI 接口说明</router-link>
       <el-button type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
-        创建 Token
-      </el-button>
+        {{ t('create_token') }}</el-button>
     </div>
 
     <el-alert type="info" :closable="false" show-icon>
@@ -16,7 +15,7 @@
 
     <el-card class="table-card" shadow="never">
       <el-table :data="tokens" v-loading="loading" empty-text="暂无 Token，请先创建">
-        <el-table-column prop="name" label="名称" min-width="180" />
+        <el-table-column prop="name" :label="t('name')" min-width="180" />
         <el-table-column prop="token_prefix" label="前缀" min-width="140" />
         <el-table-column label="状态" width="100">
           <template #default="{ row }">

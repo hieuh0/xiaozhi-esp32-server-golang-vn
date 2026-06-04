@@ -4,8 +4,7 @@
       <div class="filter-controls">
         <el-button v-if="showBackButton" @click="goBack" type="text" class="back-btn">
           <el-icon><ArrowLeft /></el-icon>
-          返回
-        </el-button>
+          {{ t('back') }}</el-button>
         <el-select
           v-model="filterAgentId"
           :placeholder="t('filter_by_agent')"
@@ -26,8 +25,7 @@
       </div>
       <el-button class="add-device-button" type="primary" @click="openAddDeviceDialog">
         <el-icon><Plus /></el-icon>
-        添加设备
-      </el-button>
+        {{ t('add_device') }}</el-button>
     </div>
 
     <div v-if="filteredDevices.length === 0" class="empty-section">
@@ -39,8 +37,7 @@
           <div class="empty-actions">
             <el-button type="primary" size="large" @click="openAddDeviceDialog">
               <el-icon><Plus /></el-icon>
-              添加第一个设备
-            </el-button>
+              {{ t('add_first_device') }}</el-button>
           </div>
         </div>
       </el-card>
@@ -84,7 +81,7 @@
 	                      :icon="Check"
 	                      circle
 	                      :loading="renamingDeviceId === device.id"
-	                      title="保存昵称"
+	                      :title="t('save_nickname')"
 	                      @click="saveDeviceName(device)"
 	                    />
 	                    <el-button
@@ -143,7 +140,7 @@
           <div class="device-actions">
             <el-button class="device-action-button device-action-button-feature" size="small" @click="handleDeviceRole(device.id)">
               <el-icon><User /></el-icon>
-              角色
+              {{ t('role') }}
             </el-button>
             <el-button class="device-action-button" size="small" @click="handleDeviceMcp(device)">
               <el-icon><Setting /></el-icon>
@@ -159,7 +156,7 @@
               @click="handleDeleteDevice(device)"
             >
               <el-icon><Delete /></el-icon>
-              删除
+              {{ t('delete') }}
             </el-button>
           </div>
         </div>
@@ -218,7 +215,7 @@
         <el-divider />
         <el-form :model="mcpCallForm" label-width="90px">
           <el-form-item label="工具">
-            <el-select v-model="mcpCallForm.tool_name" placeholder="请选择工具" style="width:100%" @change="handleMcpToolChange">
+            <el-select v-model="mcpCallForm.tool_name" :placeholder="t('select_tool')" style="width:100%" @change="handleMcpToolChange">
               <el-option v-for="tool in mcpTools" :key="tool.name" :label="tool.name" :value="tool.name" />
             </el-select>
           </el-form-item>

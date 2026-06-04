@@ -1,7 +1,7 @@
 <template>
   <div class="test-page">
     <h1>{{ t('test_page') }}测试页面</h1>
-    <p>如果你能看到这个页面，说明路由系统正常工作。</p>
+    <p>{{ t('routing_works') }}</p>
     <div class="debug-info">
       <h3>{{ t('debug_info_label') }}调试信息：</h3>
       <p>当前路径: {{ $route.path }}</p>

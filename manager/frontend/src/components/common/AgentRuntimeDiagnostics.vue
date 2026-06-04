@@ -57,7 +57,7 @@
             <el-form-item label="工具">
               <el-select
                 v-model="mcpCallForm.tool_name"
-                placeholder="请选择工具"
+                :placeholder="t('select_tool')"
                 style="width: 100%"
                 filterable
                 @change="handleMcpToolChange"

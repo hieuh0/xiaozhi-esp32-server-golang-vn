@@ -22,8 +22,8 @@
               </template>
 
               <el-table :data="markets" stripe v-loading="marketsLoading" height="560">
-                <el-table-column prop="name" label="名称" min-width="140" />
-                <el-table-column prop="provider_id" label="提供商" width="130">
+                <el-table-column prop="name" :label="t('name')" min-width="140" />
+                <el-table-column prop="provider_id" :label="t('provider')" width="130">
                   <template #default="{ row }">
                     <el-tag size="small">{{ row.provider_id || 'generic' }}</el-tag>
                   </template>
@@ -163,7 +163,7 @@
           </template>
 
           <el-table :data="importedItems" stripe v-loading="importedLoading" height="560">
-            <el-table-column prop="name" label="名称" min-width="160" show-overflow-tooltip />
+            <el-table-column prop="name" :label="t('name')" min-width="160" show-overflow-tooltip />
             <el-table-column prop="transport" label="传输" width="140" />
             <el-table-column prop="url" label="URL" min-width="320" show-overflow-tooltip />
             <el-table-column prop="service_id" label="Service ID" min-width="180" show-overflow-tooltip />
@@ -174,12 +174,12 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="provider_id" label="提供商" width="120">
+            <el-table-column prop="provider_id" :label="t('provider')" width="120">
               <template #default="{ row }">
                 <el-tag size="small">{{ row.provider_id || '-' }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="enabled" label="启用" width="90">
+            <el-table-column prop="enabled" :label="t('enabled')" width="90">
               <template #default="{ row }">
                 <el-tag size="small" :type="row.enabled ? 'success' : 'info'">
                   {{ row.enabled ? '启用' : '禁用' }}
@@ -239,10 +239,10 @@
 
     <el-dialog v-model="importedDialogVisible" :title="editingImported ? '编辑导入服务' : '新增导入服务'" width="700px">
       <el-form ref="importedFormRef" :model="importedForm" :rules="importedRules" label-width="120px">
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="t('name')" prop="name">
           <el-input v-model="importedForm.name" placeholder="服务展示名称" />
         </el-form-item>
-        <el-form-item label="启用">
+        <el-form-item :label="t('enabled')">
           <el-switch v-model="importedForm.enabled" />
         </el-form-item>
         <el-form-item label="传输" prop="transport">
@@ -259,7 +259,7 @@
             <el-option v-for="item in markets" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
-        <el-form-item label="提供商">
+        <el-form-item :label="t('provider')">
           <el-input v-model="importedForm.provider_id" placeholder="例如：modelscope" />
         </el-form-item>
         <el-form-item label="Service ID">
@@ -343,13 +343,13 @@
 
     <el-dialog v-model="marketDialogVisible" :title="editingMarket ? '编辑MCP市场' : '新增MCP市场'" width="640px">
       <el-form ref="marketFormRef" :model="marketForm" :rules="marketRules" label-width="130px">
-        <el-form-item label="提供商">
+        <el-form-item :label="t('provider')">
           <el-select v-model="marketForm.provider_id" style="width: 100%" @change="handleProviderChange">
             <el-option v-for="provider in selectableProviderOptions" :key="provider.id" :label="provider.name" :value="provider.id" />
           </el-select>
           <div v-if="currentProvider?.description" class="provider-desc">{{ currentProvider.description }}</div>
         </el-form-item>
-        <el-form-item label="名称" prop="name">
+        <el-form-item :label="t('name')" prop="name">
           <el-input v-model="marketForm.name" placeholder="例如：魔搭MCP市场" />
         </el-form-item>
         <el-form-item label="目录URL" prop="catalog_url">
@@ -358,7 +358,7 @@
         <el-form-item label="详情URL模板" prop="detail_url_template">
           <el-input v-model="marketForm.detail_url_template" placeholder="https://example.com/api/services/{id}（可选）" />
         </el-form-item>
-        <el-form-item label="启用">
+        <el-form-item :label="t('enabled')">
           <el-switch v-model="marketForm.enabled" />
         </el-form-item>
 
@@ -503,7 +503,7 @@ const loadProviders = async () => {
       marketForm.provider_id = getDefaultProviderId()
     }
   } catch (error) {
-    providerOptions.value = [{ id: 'modelscope', name: '魔搭 ModelScope' }]
+    providerOptions.value = [{ id: 'modelscope', name: t('modelscope') }]
     marketForm.provider_id = marketForm.provider_id || 'modelscope'
     ElMessage.error(error.response?.data?.error || '加载提供商失败')
   }

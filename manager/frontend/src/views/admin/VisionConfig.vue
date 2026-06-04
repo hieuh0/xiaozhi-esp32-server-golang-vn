@@ -44,15 +44,15 @@
           <span>模型配置列表</span>
           <el-button type="primary" @click="showDialog = true">
             <el-icon><Plus /></el-icon>
-            添加配置
+            {{ t('add_config') }}
           </el-button>
         </div>
       </template>
 
       <el-table :data="configs" style="width: 100%" v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="配置名称" />
-        <el-table-column prop="provider" label="提供商" />
+        <el-table-column prop="name" :label="t('config_name')" />
+        <el-table-column prop="provider" :label="t('provider')" />
         <el-table-column prop="enabled" label="启用状态" width="80" align="center">
           <template #default="scope">
             <el-switch 
@@ -83,7 +83,7 @@
               type="danger"
               @click="deleteConfig(scope.row.id)"
             >
-              删除
+              {{ t('delete') }}
             </el-button>
           </template>
         </el-table-column>
@@ -103,38 +103,38 @@
         :rules="rules"
         label-width="120px"
       >
-        <el-form-item label="提供商" prop="provider">
-          <el-select v-model="form.provider" placeholder="请选择提供商" style="width: 100%">
+        <el-form-item :label="t('provider')" prop="provider">
+          <el-select v-model="form.provider" :placeholder="t('select_provider')" style="width: 100%">
             <el-option label="阿里云视觉" value="aliyun_vision" />
             <el-option label="豆包视觉" value="doubao_vision" />
           </el-select>
         </el-form-item>
         
-        <el-form-item label="配置名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入配置名称" />
+        <el-form-item :label="t('config_name')" prop="name">
+          <el-input v-model="form.name" :placeholder="t('enter_config_name')" />
         </el-form-item>
         
-        <el-form-item label="类型" prop="type">
-          <el-input v-model="form.type" placeholder="请输入类型" />
+        <el-form-item :label="t('type')" prop="type">
+          <el-input v-model="form.type" :placeholder="t('enter_type')" />
         </el-form-item>
         
         <el-form-item label="模型名称" prop="model_name">
-          <el-input v-model="form.model_name" placeholder="请输入模型名称" />
+          <el-input v-model="form.model_name" :placeholder="t('enter_model_name')" />
         </el-form-item>
         
-        <el-form-item label="API密钥" prop="api_key">
-          <el-input v-model="form.api_key" type="password" placeholder="请输入API密钥" show-password />
+        <el-form-item :label="t('api_key')" prop="api_key">
+          <el-input v-model="form.api_key" type="password" :placeholder="t('enter_api_password')" show-password />
         </el-form-item>
         
-        <el-form-item label="基础URL" prop="base_url">
-          <el-input v-model="form.base_url" placeholder="请输入基础URL" />
+        <el-form-item :label="t('base_url')" prop="base_url">
+          <el-input v-model="form.base_url" :placeholder="t('enter_base_url')" />
         </el-form-item>
         
         <el-form-item label="最大令牌数" prop="max_tokens">
-          <el-input-number v-model="form.max_tokens" :min="1" :max="100000" placeholder="请输入最大令牌数" style="width: 100%" />
+          <el-input-number v-model="form.max_tokens" :min="1" :max="100000" :placeholder="t('enter_max_tokens')" style="width: 100%" />
         </el-form-item>
         
-        <el-form-item label="温度" prop="temperature">
+        <el-form-item :label="t('temperature')" prop="temperature">
           <el-input-number v-model="form.temperature" :min="0" :max="2" :step="0.1" placeholder="请输入温度" style="width: 100%" />
         </el-form-item>
         
@@ -142,8 +142,8 @@
           <el-input-number v-model="form.top_p" :min="0" :max="1" :step="0.1" placeholder="请输入Top P" style="width: 100%" />
         </el-form-item>
         
-        <el-form-item label="超时时间(秒)" prop="timeout">
-          <el-input-number v-model="form.timeout" :min="1" :max="300" placeholder="请输入超时时间" style="width: 100%" />
+        <el-form-item :label="t('timeout_seconds')" prop="timeout">
+          <el-input-number v-model="form.timeout" :min="1" :max="300" :placeholder="t('enter_timeout')" style="width: 100%" />
         </el-form-item>
       </el-form>
       
@@ -361,7 +361,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? '启用' : '禁用'}成功`)
+    ElMessage.success(`${config.enabled ? t('enabled') : '禁用'}成功`)
   } catch (error) {
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))

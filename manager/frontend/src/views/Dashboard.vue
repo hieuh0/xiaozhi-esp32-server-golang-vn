@@ -56,8 +56,7 @@
                 <h3>{{ t('service_address') }}服务地址</h3>
               </div>
               <el-button type="warning" size="small" :loading="otaTestLoading" @click="runOtaTest">
-                OTA 测试
-              </el-button>
+                {{ t('ota_test') }}</el-button>
             </div>
           </template>
 

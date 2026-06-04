@@ -14,7 +14,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="提供商" width="88" show-overflow-tooltip>
+      <el-table-column :label="t('provider')" width="88" show-overflow-tooltip>
         <template #default="scope">
           <el-tag size="small" effect="plain">{{ formatProviderText(scope.row.sync_provider) }}</el-tag>
         </template>
@@ -76,10 +76,10 @@
 
     <el-dialog v-model="dialogVisible" :title="editing ? '编辑知识库' : '新增知识库'" width="680px">
       <el-form :model="form" label-width="90px">
-        <el-form-item label="名称">
+        <el-form-item :label="t('name')">
           <el-input v-model="form.name" maxlength="100" show-word-limit />
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item :label="t('description')">
           <el-input v-model="form.description" />
         </el-form-item>
         <el-form-item label="同步说明">
@@ -463,7 +463,7 @@ const toggleKnowledgeBaseStatus = async (row, checked) => {
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     } else {
-      ElMessage.success(`已${nextStatus === 'active' ? '启用' : '停用'}`)
+      ElMessage.success(`已${nextStatus === 'active' ? t('enabled') : '停用'}`)
     }
     await loadData()
   } catch (e) {
@@ -735,7 +735,7 @@ const getSyncStatusTagType = (status) => {
 }
 
 const getKnowledgeStatusText = (status) => {
-  return String(status || '').trim() === 'active' ? '启用' : '停用'
+  return String(status || '').trim() === 'active' ? t('enabled') : '停用'
 }
 
 const formatProviderText = (provider) => {

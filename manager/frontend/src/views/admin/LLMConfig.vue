@@ -8,8 +8,7 @@
         @click="testAllConfigs"
         :disabled="!getEnabledConfigs().length"
       >
-        测试全部
-      </el-button>
+        {{ t('test_all') }}</el-button>
       <el-button type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
         {{ t('add_config') }}  添加配置
@@ -90,7 +89,7 @@
             type="danger"
             @click="deleteConfig(scope.row.id)"
           >
-            删除
+            {{ t('delete') }}
           </el-button>
         </template>
       </el-table-column>
@@ -336,7 +335,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? '启用' : '禁用'}成功`)
+    ElMessage.success(`${config.enabled ? t('enabled') : '禁用'}成功`)
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled

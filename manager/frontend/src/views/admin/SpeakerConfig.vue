@@ -19,7 +19,7 @@
         :rules="rules"
         label-width="120px"
       >
-        <el-form-item label="服务地址" prop="base_url">
+        <el-form-item :label="t('service_address')" prop="base_url">
           <el-input 
             v-model="form.base_url" 
             placeholder="请输入HTTP服务地址，如：http://192.168.208.214:8080"
@@ -54,7 +54,7 @@
       
       <div class="form-actions">
         <el-button type="primary" @click="handleSave" :loading="saving">
-          保存配置
+          {{ t('save_config') }}
         </el-button>
       </div>
     </el-card>

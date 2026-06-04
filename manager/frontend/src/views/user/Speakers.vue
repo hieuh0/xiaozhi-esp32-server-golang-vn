@@ -38,7 +38,7 @@
     <div v-loading="loading" class="speakers-content">
       <el-table :data="filteredGroups" stripe style="width: 100%">
         <el-table-column prop="name" label="声纹组名称" min-width="150" />
-        <el-table-column prop="agent_name" label="关联智能体" min-width="120" />
+        <el-table-column prop="agent_name" :label="t('link_agent')" min-width="120" />
         <el-table-column label="Prompt" min-width="200">
           <template #default="{ row }">
             <el-popover
@@ -91,7 +91,7 @@
                 @click="handleEditGroup(row)"
               >
                   <el-icon><Edit /></el-icon>
-                  编辑
+                  {{ t('edit') }}
                 </el-button>
               <el-button
                 type="danger"
@@ -99,7 +99,7 @@
                 @click="handleDeleteGroup(row)"
               >
                 <el-icon><Delete /></el-icon>
-                删除
+                {{ t('delete') }}
                 </el-button>
               </div>
           </template>
@@ -123,10 +123,10 @@
         :rules="groupRules"
         label-width="100px"
       >
-        <el-form-item label="关联智能体" prop="agent_id">
+        <el-form-item :label="t('link_agent')" prop="agent_id">
           <el-select
             v-model="groupForm.agent_id"
-            placeholder="请选择智能体"
+            :placeholder="t('select_agent')"
             style="width: 100%"
           >
             <el-option
@@ -140,7 +140,7 @@
         <el-form-item label="声纹名称" prop="name">
           <el-input
             v-model="groupForm.name"
-            placeholder="请输入声纹名称"
+            :placeholder="t('enter_voiceprint_name')"
             :maxlength="100"
             show-word-limit
           />
@@ -153,7 +153,7 @@
             placeholder="请输入角色提示词（可选）"
           />
         </el-form-item>
-        <el-form-item label="描述" prop="description">
+        <el-form-item :label="t('description')" prop="description">
           <el-input
             v-model="groupForm.description"
             type="textarea"
@@ -179,7 +179,7 @@
           </div>
           <div class="form-help">点击后会自动填充 TTS 配置和音色</div>
         </el-form-item>
-        <el-form-item label="TTS配置" prop="tts_config_id">
+        <el-form-item :label="t('tts_config_label')" prop="tts_config_id">
           <el-select
             v-model="groupForm.tts_config_id"
             placeholder="请选择TTS配置（可选）"
@@ -204,7 +204,7 @@
             {{ getCurrentTtsConfigInfo() }}
           </div>
         </el-form-item>
-        <el-form-item label="音色" prop="voice" v-if="groupForm.tts_config_id">
+        <el-form-item :label="t('voice_timbre')" prop="voice" v-if="groupForm.tts_config_id">
           <el-select
             v-model="groupForm.voice"
             placeholder="请选择或输入音色"
@@ -331,7 +331,7 @@
                   @click="handleDeleteSample(row)"
                 >
                   <el-icon><Delete /></el-icon>
-                  删除
+                  {{ t('delete') }}
                 </el-button>
               </template>
             </el-table-column>
@@ -356,10 +356,10 @@
         <el-tab-pane label="从历史记录选择" name="history">
           <div class="history-section">
             <el-form :model="historyForm" label-width="100px">
-              <el-form-item label="智能体">
+              <el-form-item :label="t('agent')">
                 <el-select
                   v-model="historyForm.agent_id"
-                  placeholder="请选择智能体"
+                  :placeholder="t('select_agent')"
                   style="width: 100%"
                   @change="loadHistoryMessages"
                   clearable
@@ -503,7 +503,7 @@
                 :disabled="!canRecord"
               >
                 <el-icon><VideoPlay /></el-icon>
-                开始录制
+                {{ t('start_recording') }}
               </el-button>
               <el-button
                 v-if="isRecording"
@@ -537,7 +537,7 @@
           :loading="submitting"
           :disabled="!hasAudioFile"
         >
-          确定
+          {{ t('confirm') }}
         </el-button>
       </template>
     </el-dialog>
@@ -623,7 +623,7 @@
                 :disabled="!canRecord"
               >
                 <el-icon><VideoPlay /></el-icon>
-                开始录制
+                {{ t('start_recording') }}
               </el-button>
               <el-button
                 v-if="isVerifyRecording"
@@ -985,13 +985,13 @@ const extractVoiceOptions = (provider, config) => {
       }
       // 添加常用的中文音色
       const edgeVoices = [
-        { label: 'zh-CN-XiaoxiaoNeural (晓晓)', value: 'zh-CN-XiaoxiaoNeural' },
-        { label: 'zh-CN-YunxiNeural (云希)', value: 'zh-CN-YunxiNeural' },
-        { label: 'zh-CN-YunyangNeural (云扬)', value: 'zh-CN-YunyangNeural' },
-        { label: 'zh-CN-XiaoyiNeural (晓伊)', value: 'zh-CN-XiaoyiNeural' },
-        { label: 'zh-CN-YunjianNeural (云健)', value: 'zh-CN-YunjianNeural' },
-        { label: 'zh-CN-XiaochenNeural (晓辰)', value: 'zh-CN-XiaochenNeural' },
-        { label: 'zh-CN-XiaohanNeural (晓涵)', value: 'zh-CN-XiaohanNeural' }
+        { label: t('voice_xiaoxiao'), value: 'zh-CN-XiaoxiaoNeural' },
+        { label: t('voice_yunxi'), value: 'zh-CN-YunxiNeural' },
+        { label: t('voice_yunyang'), value: 'zh-CN-YunyangNeural' },
+        { label: t('voice_xiaoyi'), value: 'zh-CN-XiaoyiNeural' },
+        { label: t('voice_yunjian'), value: 'zh-CN-YunjianNeural' },
+        { label: t('voice_xiaochen'), value: 'zh-CN-XiaochenNeural' },
+        { label: t('voice_xiaohan'), value: 'zh-CN-XiaohanNeural' }
       ]
       edgeVoices.forEach(v => {
         if (!options.find(o => o.value === v.value)) {
@@ -1007,10 +1007,10 @@ const extractVoiceOptions = (provider, config) => {
         options.push({ label: config.voice, value: config.voice })
       }
       const doubaoVoices = [
-        { label: '双快思思 (甜美女声)', value: 'zh_female_shuangkuaisisi_moon_bigtts' },
-        { label: 'BV700 V2 (男声)', value: 'BV700_V2_streaming' },
-        { label: 'BV001 (女声)', value: 'BV001_streaming' },
-        { label: 'BV002 (男声)', value: 'BV002_streaming' }
+        { label: t('voice_sweet_female'), value: 'zh_female_shuangkuaisisi_moon_bigtts' },
+        { label: t('voice_bv700v2_male'), value: 'BV700_V2_streaming' },
+        { label: t('voice_bv001_female'), value: 'BV001_streaming' },
+        { label: t('voice_bv002_male'), value: 'BV002_streaming' }
       ]
       doubaoVoices.forEach(v => {
         if (!options.find(o => o.value === v.value)) {
@@ -1025,13 +1025,13 @@ const extractVoiceOptions = (provider, config) => {
         options.push({ label: config.spk_id, value: config.spk_id })
       }
       const cosyVoices = [
-        { label: '中文女', value: '中文女' },
-        { label: '中文男', value: '中文男' },
-        { label: '粤语女', value: '粤语女' },
-        { label: '英文女', value: '英文女' },
-        { label: '英文男', value: '英文男' },
-        { label: '日语男', value: '日语男' },
-        { label: '韩语女', value: '韩语女' }
+        { label: t('chinese_female'), value: t('chinese_female') },
+        { label: t('chinese_male'), value: t('chinese_male') },
+        { label: t('cantonese_female'), value: t('cantonese_female') },
+        { label: t('english_female'), value: t('english_female') },
+        { label: t('english_male'), value: t('english_male') },
+        { label: t('japanese_male'), value: t('japanese_male') },
+        { label: t('korean_female'), value: t('korean_female') }
       ]
       cosyVoices.forEach(v => {
         if (!options.find(o => o.value === v.value)) {
@@ -1046,18 +1046,18 @@ const extractVoiceOptions = (provider, config) => {
         options.push({ label: config.voice, value: config.voice })
       }
       const minimaxVoices = [
-        { label: '青涩（男声）', value: 'male-qn-qingse' },
-        { label: '青涩（女声）', value: 'female-qn-qingse' },
-        { label: '少年（男声）', value: 'male-shaonian' },
-        { label: '少年（女声）', value: 'female-shaonian' },
-        { label: '成熟（男声）', value: 'male-chengshu' },
-        { label: '成熟（女声）', value: 'female-chengshu' },
-        { label: '温暖（男声）', value: 'male-wennuan' },
-        { label: '温暖（女声）', value: 'female-wennuan' },
-        { label: '清朗（男声）', value: 'male-qinglang' },
-        { label: '清朗（女声）', value: 'female-qinglang' },
-        { label: '厚重（男声）', value: 'male-houzhong' },
-        { label: '厚重（女声）', value: 'female-houzhong' }
+        { label: t('voice_fresh_male'), value: 'male-qn-qingse' },
+        { label: t('voice_fresh_female'), value: 'female-qn-qingse' },
+        { label: t('voice_young_male'), value: 'male-shaonian' },
+        { label: t('voice_young_female'), value: 'female-shaonian' },
+        { label: t('voice_mature_male'), value: 'male-chengshu' },
+        { label: t('voice_mature_female'), value: 'female-chengshu' },
+        { label: t('voice_warm_male'), value: 'male-wennuan' },
+        { label: t('voice_warm_female'), value: 'female-wennuan' },
+        { label: t('voice_clear_male'), value: 'male-qinglang' },
+        { label: t('voice_clear_female'), value: 'female-qinglang' },
+        { label: t('voice_heavy_male'), value: 'male-houzhong' },
+        { label: t('voice_heavy_female'), value: 'female-houzhong' }
       ]
       minimaxVoices.forEach(v => {
         if (!options.find(o => o.value === v.value)) {

@@ -476,12 +476,12 @@ const { t } = useLocale()
 
 
 const DOUBAO_MODEL_OPTIONS = [
-  { label: '豆包语音合成 1.1', value: 'seed-tts-1.1' },
-  { label: '豆包语音合成 2.0 Standard', value: 'seed-tts-2.0-standard' },
-  { label: '豆包语音合成 2.0 Expressive', value: 'seed-tts-2.0-expressive' },
-  { label: '豆包声音复刻 1.0', value: 'seed-icl-1.0' },
-  { label: '豆包声音复刻 2.0 Standard', value: 'seed-icl-2.0-standard' },
-  { label: '豆包声音复刻 2.0 Expressive', value: 'seed-icl-2.0-expressive' }
+  { label: t('doubao_tts_v11'), value: 'seed-tts-1.1' },
+  { label: t('doubao_tts_v2_standard'), value: 'seed-tts-2.0-standard' },
+  { label: t('doubao_tts_v2_expressive'), value: 'seed-tts-2.0-expressive' },
+  { label: t('doubao_clone_v1'), value: 'seed-icl-1.0' },
+  { label: t('doubao_clone_v2_standard'), value: 'seed-icl-2.0-standard' },
+  { label: t('doubao_clone_v2_expressive'), value: 'seed-icl-2.0-expressive' }
 ]
 
 const props = defineProps({

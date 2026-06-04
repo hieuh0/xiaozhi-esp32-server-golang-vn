@@ -12,8 +12,7 @@
         <p class="login-eyebrow">XIAOZHI CONTROL CENTER</p>
         <h1>{{ t('xiaozhi_tagline') }}小智 AI Go 到起飞。</h1>
         <p>
-          统一管理智能体、声纹、知识库与服务接入，让设备、模型和语音能力在同一个工作台里协同运行。
-        </p>
+          {{ t('platform_desc') }}</p>
         <div class="login-meta">
           <span class="apple-chip is-primary">{{ t('agent_orchestration') }}智能体编排</span>
           <span class="apple-chip">{{ t('device_access') }}设备接入</span>
@@ -35,21 +34,21 @@
         </template>
 
         <el-tabs v-model="activeTab" class="login-tabs">
-          <el-tab-pane label="登录" name="login">
+          <el-tab-pane :label="t('login')" name="login">
             <el-form
               ref="loginFormRef"
               :model="loginForm"
               :rules="loginRules"
               label-position="top"
             >
-              <el-form-item label="用户名" prop="username">
-                <el-input v-model="loginForm.username" placeholder="请输入用户名" />
+              <el-form-item :label="t('username')" prop="username">
+                <el-input v-model="loginForm.username" :placeholder="t('enter_username')" />
               </el-form-item>
-              <el-form-item label="密码" prop="password">
+              <el-form-item :label="t('password')" prop="password">
                 <el-input
                   v-model="loginForm.password"
                   type="password"
-                  placeholder="请输入密码"
+                  :placeholder="t('enter_password')"
                   @keyup.enter="handleLogin"
                 />
               </el-form-item>
@@ -65,14 +64,14 @@
                   :loading="loginCaptchaLoading"
                   @click="refreshLoginCaptcha"
                 >
-                  换一题
+                  {{ t('refresh_captcha') }}
                 </el-button>
               </div>
-              <el-form-item v-if="loginCaptchaEnabled" label="计算结果" prop="captchaAnswer">
+              <el-form-item v-if="loginCaptchaEnabled" :label="t('calc_result')" prop="captchaAnswer">
                 <el-input
                   v-model="loginForm.captchaAnswer"
                   inputmode="numeric"
-                  placeholder="请输入计算结果"
+                  :placeholder="t('enter_calc_result')"
                   @keyup.enter="handleLogin"
                 />
               </el-form-item>
@@ -84,37 +83,37 @@
                   @click="handleLogin"
                   style="width: 100%"
                 >
-                  登录
+                  {{ t('login') }}
                 </el-button>
               </el-form-item>
             </el-form>
           </el-tab-pane>
 
-          <el-tab-pane label="注册" name="register">
+          <el-tab-pane :label="t('register')" name="register">
             <el-form
               ref="registerFormRef"
               :model="registerForm"
               :rules="registerRules"
               label-position="top"
             >
-              <el-form-item label="用户名" prop="username">
-                <el-input v-model="registerForm.username" placeholder="请输入用户名" />
+              <el-form-item :label="t('username')" prop="username">
+                <el-input v-model="registerForm.username" :placeholder="t('enter_username')" />
               </el-form-item>
-              <el-form-item label="邮箱" prop="email">
-                <el-input v-model="registerForm.email" placeholder="请输入邮箱" />
+              <el-form-item :label="t('email')" prop="email">
+                <el-input v-model="registerForm.email" :placeholder="t('enter_email')" />
               </el-form-item>
-              <el-form-item label="密码" prop="password">
+              <el-form-item :label="t('password')" prop="password">
                 <el-input
                   v-model="registerForm.password"
                   type="password"
-                  placeholder="请输入密码"
+                  :placeholder="t('enter_password')"
                 />
               </el-form-item>
-              <el-form-item label="确认密码" prop="confirmPassword">
+              <el-form-item :label="t('confirm_password')" prop="confirmPassword">
                 <el-input
                   v-model="registerForm.confirmPassword"
                   type="password"
-                  placeholder="请确认密码"
+                  :placeholder="t('confirm_password_prompt')"
                   @keyup.enter="handleRegister"
                 />
               </el-form-item>
@@ -130,14 +129,14 @@
                   :loading="registerCaptchaLoading"
                   @click="refreshRegisterCaptcha"
                 >
-                  换一题
+                  {{ t('refresh_captcha') }}
                 </el-button>
               </div>
-              <el-form-item label="计算结果" prop="captchaAnswer">
+              <el-form-item :label="t('calc_result')" prop="captchaAnswer">
                 <el-input
                   v-model="registerForm.captchaAnswer"
                   inputmode="numeric"
-                  placeholder="请输入计算结果"
+                  :placeholder="t('enter_calc_result')"
                   @keyup.enter="handleRegister"
                 />
               </el-form-item>
@@ -149,7 +148,7 @@
                   @click="handleRegister"
                   style="width: 100%"
                 >
-                  注册
+                  {{ t('register') }}
                 </el-button>
               </el-form-item>
             </el-form>

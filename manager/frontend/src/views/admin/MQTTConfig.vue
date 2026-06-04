@@ -14,7 +14,7 @@
               <div>
                 <p class="card-kicker">Connection</p>
                 <h3>{{ t('connection_params') }}连接参数</h3>
-                <p class="card-description">先补齐地址、协议和客户端身份，保证主程序能稳定连接到目标 Broker。</p>
+                <p class="card-description">{{ t('broker_setup_hint') }}</p>
               </div>
               <el-tag :type="isCoreFieldsComplete ? 'success' : 'warning'" effect="plain" round>
                 {{ isCoreFieldsComplete ? '参数完整' : '待补充' }}
@@ -23,7 +23,7 @@
           </template>
 
           <div class="field-grid">
-            <el-form-item label="配置名称" prop="name">
+            <el-form-item :label="t('config_name')" prop="name">
               <el-input v-model="form.name" placeholder="例如：默认 MQTT 连接" />
             </el-form-item>
 
@@ -32,7 +32,7 @@
             </el-form-item>
 
             <el-form-item label="连接类型" prop="type">
-              <el-select v-model="form.type" placeholder="请选择连接类型" style="width: 100%">
+              <el-select v-model="form.type" :placeholder="t('select_connection_type')" style="width: 100%">
                 <el-option
                   v-for="option in connectionTypeOptions"
                   :key="option.value"
@@ -42,7 +42,7 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="端口" prop="port">
+            <el-form-item :label="t('port')" prop="port">
               <el-input-number
                 v-model="form.port"
                 :min="1"
@@ -79,11 +79,11 @@
           </template>
 
           <div class="field-stack">
-            <el-form-item label="用户名" prop="username">
+            <el-form-item :label="t('username')" prop="username">
               <el-input v-model="form.username" placeholder="未启用鉴权可留空" />
             </el-form-item>
 
-            <el-form-item label="密码" prop="password">
+            <el-form-item :label="t('password')" prop="password">
               <el-input
                 v-model="form.password"
                 type="password"
@@ -132,7 +132,7 @@ const configId = ref(null)
 const formRef = ref()
 
 const createDefaultFormState = () => ({
-  name: 'MQTT配置',
+  name: t('mqtt_config_label'),
   is_default: true,
   enable: true,
   broker: '',
@@ -193,7 +193,7 @@ const generateConfig = () => {
 
 const applyLoadedConfig = (config) => {
   configId.value = config?.id || null
-  form.name = config?.name || 'MQTT配置'
+  form.name = config?.name || t('mqtt_config_label')
   form.is_default = config?.is_default ?? true
 
   let configData = {}

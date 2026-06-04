@@ -3,10 +3,10 @@
     <el-input v-model="modelValue[`${prefix}`].app_id" :placeholder="t('enter_xunfei_app_id')" />
   </el-form-item>
   <el-form-item label="API Key" :prop="`${prefix}.api_key`">
-    <el-input v-model="modelValue[`${prefix}`].api_key" placeholder="请输入API Key" type="password" show-password />
+    <el-input v-model="modelValue[`${prefix}`].api_key" :placeholder="t('enter_api_key')" type="password" show-password />
   </el-form-item>
   <el-form-item label="API Secret" :prop="`${prefix}.api_secret`">
-    <el-input v-model="modelValue[`${prefix}`].api_secret" placeholder="请输入API Secret" type="password" show-password />
+    <el-input v-model="modelValue[`${prefix}`].api_secret" :placeholder="t('enter_api_secret')" type="password" show-password />
   </el-form-item>
   <el-form-item label="WebSocket URL" :prop="`${prefix}.ws_url`">
     <el-input v-model="modelValue[`${prefix}`].ws_url" :placeholder="defaultWsUrl" />

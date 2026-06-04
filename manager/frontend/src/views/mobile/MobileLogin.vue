@@ -39,8 +39,7 @@
                 :loading="loginCaptchaLoading"
                 @click="refreshLoginCaptcha"
               >
-                换一题
-              </van-button>
+                {{ t('refresh_captcha') }}</van-button>
             </div>
             <van-field
               v-if="loginCaptchaEnabled"
@@ -61,7 +60,7 @@
               native-type="submit"
               :loading="loading"
               :disabled="loginCaptchaEnabled && (loginCaptchaLoading || !loginForm.captchaId)"
-              loading-text="登录中..."
+              loading-:text="t('logging_in')"
               class="mobile-login-button"
             >
               {{ t('login') }}  登录
@@ -126,8 +125,7 @@
                 :loading="registerCaptchaLoading"
                 @click="refreshRegisterCaptcha"
               >
-                换一题
-              </van-button>
+                {{ t('refresh_captcha') }}</van-button>
             </div>
             <van-field
               v-model="registerForm.captchaAnswer"
@@ -147,7 +145,7 @@
               native-type="submit"
               :loading="loading"
               :disabled="registerCaptchaLoading || !registerForm.captchaId"
-              loading-text="注册中..."
+              loading-:text="t('registering')"
               class="mobile-login-button"
             >
               {{ t('register') }}  注册

@@ -2,7 +2,7 @@
   <div class="config-page">
     <div class="page-actions">
       <el-button @click="loadSettings" :loading="loading">{{ t('refresh') }}</el-button>
-      <el-button type="primary" @click="saveSettings" :loading="saving">保存设置</el-button>
+      <el-button type="primary" @click="saveSettings" :loading="saving">{{ t('save_settings') }}</el-button>
     </div>
 
     <el-card v-loading="loading">
@@ -18,16 +18,14 @@
             :inactive-text="t('close')"
           />
           <div class="form-help">
-            开启后登录页需要完成数字算术题；关闭后登录只校验用户名和密码。默认开启。
-          </div>
+            {{ t('captcha_enabled_hint') }}</div>
         </el-form-item>
 
         <el-divider content-position="left">{{ t('chat_params') }}</el-divider>
         <el-form-item :label="t('session_max_idle_time')" prop="chat.max_idle_duration">
           <el-input-number v-model="form.chat.max_idle_duration" :min="0" :step="1000" style="width: 100%;" />
           <div class="form-help">
-            单位毫秒。设置为 0 表示不限制会话空闲时长（不会因空闲自动断开）。建议值：30000~120000。
-          </div>
+            {{ t('session_idle_hint') }}</div>
         </el-form-item>
         <el-form-item :label="t('sentence_end_silence_threshold')" prop="chat.chat_max_silence_duration">
           <el-input-number v-model="form.chat.chat_max_silence_duration" :min="0" :step="10" style="width: 100%;" />
@@ -37,7 +35,7 @@
         </el-form-item>
         <el-form-item :label="t('realtime_interrupt_mode')" prop="chat.realtime_mode">
           <el-select v-model="form.chat.realtime_mode" style="width: 100%;">
-            <el-option :value="1" label="1 - vad打断模式" />
+            <el-option :value="1" :label="t('vad_interrupt_mode_1')" />
             <el-option :value="2" :label="t('asr_interrupt_mode')" />
             <el-option :value="3" :label="t('asr_voiceprint_interrupt')" />
             <el-option :value="4" :label="t('asr_result_interrupt')" />
@@ -53,8 +51,7 @@
             :placeholder="t('system_prompt_prefix_hint')"
           />
           <div class="form-help">
-            生效顺序：全局System Prompt描述 → 角色/设备提示词 → 时间/记忆等运行时信息。
-          </div>
+            {{ t('system_prompt_order_hint') }}</div>
         </el-form-item>
       </el-form>
     </el-card>

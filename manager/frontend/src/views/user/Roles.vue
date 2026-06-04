@@ -3,8 +3,7 @@
     <div class="page-actions">
       <el-button type="primary" @click="showCreateDialog = true">
         <el-icon><Plus /></el-icon>
-        创建角色
-      </el-button>
+        {{ t('create_role') }}</el-button>
     </div>
 
     <!-- 角色卡片列表 -->
@@ -20,12 +19,10 @@
                   <el-dropdown-menu>
                     <el-dropdown-item command="edit">
                       <el-icon><Edit /></el-icon>
-                      编辑
-                    </el-dropdown-item>
+                      {{ t('edit') }}</el-dropdown-item>
                   <el-dropdown-item command="duplicate">
                     <el-icon><CopyDocument /></el-icon>
-                    复制
-                  </el-dropdown-item>
+                    {{ t('copy') }}</el-dropdown-item>
                   <el-dropdown-item command="toggle-status">
                     <el-icon><SwitchButton /></el-icon>
                     {{ isRoleActive(role) ? '关闭' : '开启' }}
@@ -84,10 +81,10 @@
           <section class="dialog-section">
             <h4 class="dialog-section-title">基本信息</h4>
             <el-form-item label="角色名称" prop="name">
-              <el-input v-model="form.name" placeholder="请输入角色名称" />
+              <el-input v-model="form.name" :placeholder="t('enter_role_name')" />
             </el-form-item>
 
-            <el-form-item label="描述" prop="description">
+            <el-form-item :label="t('description')" prop="description">
               <el-input
                 v-model="form.description"
                 type="textarea"
@@ -138,7 +135,7 @@
               </div>
             </el-form-item>
 
-            <el-form-item label="TTS配置">
+            <el-form-item :label="t('tts_config_label')">
               <el-select
                 v-model="form.tts_config_id"
                 placeholder="请选择TTS配置（可选）"
@@ -162,7 +159,7 @@
               </div>
             </el-form-item>
 
-            <el-form-item label="音色" v-if="form.tts_config_id">
+            <el-form-item :label="t('voice_timbre')" v-if="form.tts_config_id">
               <el-select
                 v-model="form.voice"
                 placeholder="请选择或输入音色（支持搜索和自定义输入）"

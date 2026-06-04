@@ -25,7 +25,7 @@ const { t } = useLocale()
 const props = defineProps({
   title: {
     type: String,
-    default: '小智管理系统'
+    default: '小智管理系统' /* static: cannot use t() inside defineProps */
   },
   showBack: {
     type: Boolean,

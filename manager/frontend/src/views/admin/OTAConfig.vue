@@ -19,7 +19,7 @@
         </template>
 
         <div class="field-grid">
-          <el-form-item label="签名密钥" prop="signature_key" class="field-span-full">
+          <el-form-item :label="t('signature_key')" prop="signature_key" class="field-span-full">
             <el-input v-model="form.signature_key" placeholder="请输入 OTA 与 MQTT Server 共用的签名密钥" show-password />
             <div class="field-help">
               该密钥需要和 MQTT Server 配置页中的签名密钥完全一致，否则终端拿到的连接凭证将无法通过校验。
@@ -302,7 +302,7 @@ const saveConfig = async () => {
   saving.value = true
   try {
     const configData = {
-      name: 'OTA配置',
+      name: t('ota_config_label'),
       config_id: 'ota_ota_config',
       json_data: JSON.stringify(buildConfigObject()),
       enabled: true,

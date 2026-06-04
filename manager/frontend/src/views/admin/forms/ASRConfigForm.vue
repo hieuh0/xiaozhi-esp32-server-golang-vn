@@ -45,8 +45,7 @@
         </div>
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          格式：[前向, 中间, 后向]，例如：[5, 10, 5]
-        </div>
+          {{ t('frame_size_format_hint') }}</div>
       </el-form-item>
       <el-form-item :label="t('chunk_interval')" prop="funasr.chunk_interval">
         <el-input-number v-model="model.funasr.chunk_interval" :min="1" style="width: 100%" />
@@ -61,8 +60,7 @@
         <el-switch v-model="model.funasr.auto_end" />
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          确保FunASR已进行相应配置
-        </div>
+          {{ t('funasr_config_hint') }}</div>
       </el-form-item>
     </div>
     <div v-if="model.provider === 'aliyun_funasr'">
@@ -70,8 +68,7 @@
         <el-input v-model="model.aliyun_funasr.api_key" type="password" show-password :placeholder="t('optional_dashscope_key')" />
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          可以为空，默认回退DASHSCOPE_API_KEY
-        </div>
+          {{ t('optional_dashscope_fallback') }}</div>
       </el-form-item>
       <el-form-item label="WS URL" prop="aliyun_funasr.ws_url">
         <el-input v-model="model.aliyun_funasr.ws_url" placeholder="wss://dashscope.aliyuncs.com/api-ws/v1/inference/" />
@@ -191,8 +188,7 @@
         <el-input v-model="model.aliyun_qwen3.api_key" type="password" show-password :placeholder="t('optional_dashscope_key')" />
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          可以为空，默认回退DASHSCOPE_API_KEY
-        </div>
+          {{ t('optional_dashscope_fallback') }}</div>
       </el-form-item>
       <el-form-item label="WS URL" prop="aliyun_qwen3.ws_url">
         <el-input v-model="model.aliyun_qwen3.ws_url" placeholder="wss://dashscope.aliyuncs.com/api-ws/v1/realtime" />
@@ -213,8 +209,7 @@
         </el-select>
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          主程序当前仅支持 16000
-        </div>
+          {{ t('sample_rate_16000_hint') }}</div>
       </el-form-item>
       <el-form-item :label="t('language')" prop="aliyun_qwen3.language">
         <el-input v-model="model.aliyun_qwen3.language" placeholder="zh" />
@@ -223,8 +218,7 @@
         <el-switch v-model="model.aliyun_qwen3.auto_end" />
         <div class="form-tip">
           <el-icon><InfoFilled /></el-icon>
-          开启时使用 server_vad，关闭时使用 Manual 模式
-        </div>
+          {{ t('server_vad_hint') }}</div>
       </el-form-item>
       <el-form-item :label="t('vad_threshold')" prop="aliyun_qwen3.vad_threshold" v-if="model.aliyun_qwen3?.auto_end">
         <el-input-number v-model="model.aliyun_qwen3.vad_threshold" :min="0" :max="1" :step="0.1" :precision="2" style="width: 100%" />
@@ -269,7 +263,7 @@ const ASR_PROVIDER_DEFAULTS = {
     }
   },
   aliyun_funasr: {
-    name: '阿里云 FunASR ASR',
+    name: t('aliyun_funasr_asr'),
     config_id: 'aliyun_funasr_default',
     data: {
       api_key: '',
@@ -284,7 +278,7 @@ const ASR_PROVIDER_DEFAULTS = {
     }
   },
   doubao: {
-    name: '豆包 ASR',
+    name: t('doubao_asr'),
     config_id: 'doubao_default',
     data: {
       appid: '',
@@ -301,7 +295,7 @@ const ASR_PROVIDER_DEFAULTS = {
     }
   },
   aliyun_qwen3: {
-    name: '阿里云 Qwen3 ASR',
+    name: t('aliyun_qwen3_asr'),
     config_id: 'aliyun_qwen3_default',
     data: {
       api_key: '',
@@ -317,7 +311,7 @@ const ASR_PROVIDER_DEFAULTS = {
     }
   },
   xunfei: {
-    name: '讯飞 ASR',
+    name: t('xunfei_asr'),
     config_id: 'xunfei_default',
     data: {
       appid: '',

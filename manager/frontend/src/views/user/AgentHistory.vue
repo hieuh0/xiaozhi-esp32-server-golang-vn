@@ -17,8 +17,7 @@
       <div class="header-right">
         <el-button @click="handleExport" :loading="exporting">
           <el-icon><Download /></el-icon>
-          导出记录
-        </el-button>
+          {{ t('export_records') }}</el-button>
       </div>
     </div>
 
@@ -243,7 +242,7 @@ const loadAgent = async () => {
   }
   try {
     const response = await api.get(`/user/agents/${agentId.value}`)
-    agentName.value = response.data.data?.name || '智能体'
+    agentName.value = response.data.data?.name || t('agent')
   } catch (error) {
     console.error('加载智能体信息失败:', error)
     ElMessage.error(t('load_agent_info_failed'))

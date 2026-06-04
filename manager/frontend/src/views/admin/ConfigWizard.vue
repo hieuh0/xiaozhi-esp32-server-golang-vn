@@ -30,7 +30,7 @@
             <el-input v-model="otaForm.signature_key" :placeholder="t('shared_with_mqtt_auth')" clearable />
           </el-form-item>
           <el-form-item :label="t('enable_mqtt_udp')" prop="enableMqttUdp">
-            <el-switch v-model="otaForm.enableMqttUdp" active-text="启用" inactive-text="不启用" />
+            <el-switch v-model="otaForm.enableMqttUdp" active-:text="t('enabled')" inactive-:text="t('disabled')" />
             <span class="form-hint">{{ t('enable_mqtt_hint') }}</span>
           </el-form-item>
           <template v-if="otaForm.enableMqttUdp">
@@ -118,7 +118,7 @@
         </div>
         <div class="ota-test-section">
           <el-button type="warning" :loading="otaTestLoading" @click="runOtaTest">
-            OTA 测试
+            {{ t('ota_test') }}
           </el-button>
           <div v-if="otaTestResult !== null" class="ota-test-result">
             <span class="result-label">OTA 接口返回：</span>
@@ -192,7 +192,7 @@ const otaForm = reactive({
 })
 
 const vadForm = reactive({
-  name: '默认VAD',
+  name: t('default_vad'),
   config_id: 'ten_vad_default',
   provider: 'ten_vad',
   webrtc_vad: {
@@ -353,7 +353,7 @@ const asrFormRules = {
 }
 
 const llmForm = reactive({
-  name: '默认LLM',
+  name: t('default_llm'),
   config_id: 'openai_default',
   provider: 'openai',
   type: 'openai',
@@ -430,7 +430,7 @@ const llmFormRules = {
 }
 
 const ttsForm = reactive({
-  name: '默认TTS',
+  name: t('default_tts'),
   config_id: 'minimax_default',
   provider: 'minimax',
   double_stream: false,
@@ -618,7 +618,7 @@ async function saveMqttServerConfig() {
     }
   }
   const payload = {
-    name: 'MQTT Server配置',
+    name: t('mqtt_server_config_label'),
     config_id: 'mqtt_server_mqtt_server_config',
     provider: 'mqtt_server',
     json_data: JSON.stringify(configData),
@@ -672,7 +672,7 @@ async function saveMqttConfig() {
   }
 
   const payload = {
-    name: 'MQTT配置',
+    name: t('mqtt_config_label'),
     config_id: 'mqtt_wizard_default',
     is_default: true,
     json_data: JSON.stringify(configData)
@@ -695,7 +695,7 @@ async function saveUdpConfig() {
     external_port: port
   }
   const payload = {
-    name: 'UDP配置',
+    name: t('udp_config_label'),
     config_id: 'udp_wizard_default',
     is_default: true,
     json_data: JSON.stringify(configData)
@@ -743,7 +743,7 @@ async function saveOta() {
   }
   const mqttEndpoint = otaForm.enableMqttUdp ? finalMqttEndpoint.value : ''
   const payload = {
-    name: 'OTA配置',
+    name: t('ota_config_label'),
     config_id: 'ota_ota_config',
     provider: 'default',
     json_data: JSON.stringify({
