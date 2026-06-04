@@ -41,14 +41,14 @@
       </el-form-item>
     </template>
     <template v-if="model.provider === 'silero_vad'">
-      <el-divider content-position="left">Silero VAD 配置</el-divider>
-      <el-form-item label="模型路径" prop="silero_vad.model_path">
-        <el-input v-model="model.silero_vad.model_path" placeholder="请输入模型文件路径" />
+      <el-divider content-position="left">{{ t('silero_vad_config') }}</el-divider>
+      <el-form-item :label="t('model_path_label')" prop="silero_vad.model_path">
+        <el-input v-model="model.silero_vad.model_path" :placeholder="t('model_path_input')" />
       </el-form-item>
-      <el-form-item label="阈值" prop="silero_vad.threshold">
+      <el-form-item :label="t('threshold')" prop="silero_vad.threshold">
         <el-input-number v-model="model.silero_vad.threshold" :min="0" :max="1" :step="0.1" :precision="2" style="width: 100%" />
       </el-form-item>
-      <el-form-item label="最小静音持续时间(ms)" prop="silero_vad.min_silence_duration_ms">
+      <el-form-item :label="t('min_silence_duration_ms')" prop="silero_vad.min_silence_duration_ms">
         <el-input-number v-model="model.silero_vad.min_silence_duration_ms" :min="10" :max="5000" style="width: 100%" />
       </el-form-item>
       <el-form-item :label="t('sample_rate')" prop="silero_vad.sample_rate">
@@ -57,37 +57,37 @@
           <el-option label="16000 Hz" :value="16000" />
         </el-select>
       </el-form-item>
-      <el-form-item label="声道数" prop="silero_vad.channels">
+      <el-form-item :label="t('channel_count_label')" prop="silero_vad.channels">
         <el-select v-model="model.silero_vad.channels" style="width: 100%">
-          <el-option label="单声道" :value="1" />
-          <el-option label="双声道" :value="2" />
+          <el-option :label="t('mono_channel')" :value="1" />
+          <el-option :label="t('stereo_channel')" :value="2" />
         </el-select>
       </el-form-item>
-      <el-form-item label="Session数" prop="silero_vad.pool_size">
+      <el-form-item :label="t('session_count')" prop="silero_vad.pool_size">
         <el-input-number v-model="model.silero_vad.pool_size" :min="1" :max="100" style="width: 100%" />
-        <div style="font-size: 12px; color: #909399; margin-top: 4px;">默认：CPU 核心数</div>
+        <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ t('default_cpu_cores') }}</div>
       </el-form-item>
-      <el-form-item label="获取超时时间(ms)" prop="silero_vad.acquire_timeout_ms">
+      <el-form-item :label="t('fetch_timeout_ms')" prop="silero_vad.acquire_timeout_ms">
         <el-input-number v-model="model.silero_vad.acquire_timeout_ms" :min="100" :max="30000" style="width: 100%" />
       </el-form-item>
     </template>
     <template v-if="model.provider === 'ten_vad'">
-      <el-divider content-position="left">TEN VAD 配置</el-divider>
-      <el-form-item label="帧移大小" prop="ten_vad.hop_size">
+      <el-divider content-position="left">{{ t('ten_vad_config') }}</el-divider>
+      <el-form-item :label="t('hop_size_label')" prop="ten_vad.hop_size">
         <el-input-number v-model="model.ten_vad.hop_size" :min="128" :max="1024" style="width: 100%" />
-        <div style="font-size: 12px; color: #909399; margin-top: 4px;">默认：320</div>
+        <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ t('hop_size_default') }}</div>
       </el-form-item>
-      <el-form-item label="VAD检测阈值" prop="ten_vad.threshold">
+      <el-form-item :label="t('vad_threshold_label')" prop="ten_vad.threshold">
         <el-input-number v-model="model.ten_vad.threshold" :min="0" :max="1" :step="0.1" :precision="2" style="width: 100%" />
-        <div style="font-size: 12px; color: #909399; margin-top: 4px;">推荐值：0.3</div>
+        <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ t('vad_threshold_recommended') }}</div>
       </el-form-item>
-      <el-form-item label="连接池大小" prop="ten_vad.pool_size">
+      <el-form-item :label="t('pool_size_label')" prop="ten_vad.pool_size">
         <el-input-number v-model="model.ten_vad.pool_size" :min="1" :max="100" style="width: 100%" />
-        <div style="font-size: 12px; color: #909399; margin-top: 4px;">推荐值：10</div>
+        <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ t('pool_size_recommended') }}</div>
       </el-form-item>
-      <el-form-item label="获取超时时间(ms)" prop="ten_vad.acquire_timeout_ms">
+      <el-form-item :label="t('fetch_timeout_ms')" prop="ten_vad.acquire_timeout_ms">
         <el-input-number v-model="model.ten_vad.acquire_timeout_ms" :min="100" :max="30000" style="width: 100%" />
-        <div style="font-size: 12px; color: #909399; margin-top: 4px;">推荐值：3000</div>
+        <div style="font-size: 12px; color: #909399; margin-top: 4px;">{{ t('timeout_recommended') }}</div>
       </el-form-item>
     </template>
   </el-form>

@@ -1,10 +1,30 @@
-const defaultOption = { label: '默认', value: 'default' }
-const enableOption = { label: '开启', value: 'enabled' }
-const disableOption = { label: '关闭', value: 'disabled' }
+import { useLocaleStore } from '../../../stores/locale'
+import zh from '../../../locales/zh'
+import vi from '../../../locales/vi'
+import en from '../../../locales/en'
+
+const _maps = { zh, vi, en }
+function _t(key) {
+  try {
+    const store = useLocaleStore()
+    const lang = store.lang
+    return _maps[lang]?.[key] ?? _maps.zh[key] ?? key
+  } catch {
+    return _maps.zh[key] ?? key
+  }
+}
+
+function _opts(arr) {
+  return arr.map(o => ({ ...o, label: _t(o.label) }))
+}
+
+const defaultOption = { label: 'default', value: 'default' }
+const enableOption = { label: 'enable', value: 'enabled' }
+const disableOption = { label: 'close', value: 'disabled' }
 const clearHistoryOptions = [
-  { label: '默认', value: 'default' },
-  { label: '清除', value: true },
-  { label: '保留', value: false }
+  { label: 'default', value: 'default' },
+  { label: 'option_clear', value: true },
+  { label: 'option_retain', value: false }
 ]
 
 function withDefault(options) {
@@ -21,35 +41,35 @@ function createModel(value, thinking, extra = {}) {
 }
 
 const openAIReasoningStandard = withDefault([
-  { label: '极低', value: 'minimal' },
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' }
+  { label: 'level_minimal', value: 'minimal' },
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' }
 ])
 
 const openAIReasoningCodex = withDefault([
-  { label: '关闭', value: 'none' },
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' }
+  { label: 'close', value: 'none' },
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' }
 ])
 
 const openAIReasoningCodexMax = withDefault([
-  { label: '关闭', value: 'none' },
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '极高', value: 'xhigh' }
+  { label: 'close', value: 'none' },
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' },
+  { label: 'level_very_high', value: 'xhigh' }
 ])
 
 const openAIReasoningLegacy = withDefault([
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' }
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' }
 ])
 
 const openAIReasoningHighOnly = withDefault([
-  { label: '高', value: 'high' }
+  { label: 'level_high', value: 'high' }
 ])
 
 const booleanThinkingOptions = withDefault([
@@ -58,31 +78,31 @@ const booleanThinkingOptions = withDefault([
 ])
 
 const doubaoReasoningOptions = withDefault([
-  { label: '关闭', value: 'minimal' },
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' }
+  { label: 'close', value: 'minimal' },
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' }
 ])
 
 const anthropicAdaptiveOptions = [
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '极高', value: 'max' }
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' },
+  { label: 'level_very_high', value: 'max' }
 ]
 
 const openAIReasoningLatest = withDefault([
-  { label: '关闭', value: 'none' },
-  { label: '低', value: 'low' },
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '极高', value: 'xhigh' }
+  { label: 'close', value: 'none' },
+  { label: 'level_low', value: 'low' },
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' },
+  { label: 'level_very_high', value: 'xhigh' }
 ])
 
 const openAIReasoningLatestPro = withDefault([
-  { label: '中', value: 'medium' },
-  { label: '高', value: 'high' },
-  { label: '极高', value: 'xhigh' }
+  { label: 'level_medium', value: 'medium' },
+  { label: 'level_high', value: 'high' },
+  { label: 'level_very_high', value: 'xhigh' }
 ])
 
 const openAIReasoningRequest = {
@@ -92,18 +112,18 @@ const openAIReasoningRequest = {
 }
 
 const anthropicManualThinking = {
-  label: '深度思考',
-  options: withDefault([{ label: '手动思考', value: 'enabled' }]),
+  label: 'deep_thinking',
+  options: withDefault([{ label: 'manual_thinking', value: 'enabled' }]),
   showBudgetFor: ['enabled'],
   budgetMin: 1024,
   budgetRequiredFor: ['enabled']
 }
 
 const anthropicAdaptiveThinking = {
-  label: '深度思考',
+  label: 'deep_thinking',
   options: withDefault([
-    { label: '手动思考', value: 'enabled' },
-    { label: '自适应思考', value: 'adaptive' }
+    { label: 'manual_thinking', value: 'enabled' },
+    { label: 'adaptive_thinking', value: 'adaptive' }
   ]),
   showBudgetFor: ['enabled'],
   budgetMin: 1024,
@@ -113,14 +133,14 @@ const anthropicAdaptiveThinking = {
 }
 
 const zhipuThinkingConfig = {
-  label: '深度思考',
+  label: 'deep_thinking',
   options: booleanThinkingOptions,
   showClearThinkingFor: ['enabled'],
   clearThinkingOptions: clearHistoryOptions
 }
 
 const aliyunThinkingConfig = {
-  label: '深度思考',
+  label: 'deep_thinking',
   options: booleanThinkingOptions,
   showBudgetFor: ['enabled'],
   budgetMin: 1,
@@ -128,7 +148,7 @@ const aliyunThinkingConfig = {
 }
 
 const siliconflowThinkingConfig = {
-  label: '深度思考',
+  label: 'deep_thinking',
   options: booleanThinkingOptions,
   showBudgetFor: ['enabled'],
   budgetMin: 128,
@@ -157,75 +177,75 @@ const editableBaseURLProviders = new Set(['openai', 'ollama', 'azure', 'dify', '
 const catalog = {
   openai: {
     quickUrl: 'https://api.openai.com/v1',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: '默认优先使用官方稳定别名；如需锁定行为，可手动输入精确快照模型 ID。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_openai',
     models: [
-      createModel('gpt-5.4', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.4-pro', { label: '思考强度', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.4-mini', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.4-nano', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2-pro', { label: '思考强度', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-chat-latest', false, { hint: 'ChatGPT 专用别名，适合兼容旧工作流；新接入优先选择主线 GPT-5.* 模型。' }),
-      createModel('gpt-5-pro', { label: '思考强度', options: openAIReasoningHighOnly }, { request: openAIReasoningRequest }),
-      createModel('gpt-5', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-mini', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-nano', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.3-codex', { label: '思考强度', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2-codex', { label: '思考强度', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-codex', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.1', { label: '思考强度', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.1-codex', { label: '思考强度', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.1-codex-mini', { label: '思考强度', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.1-codex-max', { label: '思考强度', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
-      createModel('o3', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o4-mini', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o3-mini', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o1', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest })
+      createModel('gpt-5.4', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.4-pro', { label: 'thinking_intensity', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.4-mini', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.4-nano', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2-pro', { label: 'thinking_intensity', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-chat-latest', false, { hintKey: 'model_hint_gpt5_chat_latest' }),
+      createModel('gpt-5-pro', { label: 'thinking_intensity', options: openAIReasoningHighOnly }, { request: openAIReasoningRequest }),
+      createModel('gpt-5', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-mini', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-nano', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.3-codex', { label: 'thinking_intensity', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2-codex', { label: 'thinking_intensity', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-codex', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.1', { label: 'thinking_intensity', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.1-codex', { label: 'thinking_intensity', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.1-codex-mini', { label: 'thinking_intensity', options: openAIReasoningCodex }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.1-codex-max', { label: 'thinking_intensity', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
+      createModel('o3', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o4-mini', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o3-mini', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o1', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest })
     ],
     fallbackThinking: {
-      label: '思考强度',
+      label: 'thinking_intensity',
       options: openAIReasoningCodex,
-      hint: '自定义模型未命中文档内列表，已回退到通用 reasoning_effort 配置；是否生效取决于实际模型。'
+      hintKey: 'fallback_hint_openai'
     }
   },
   ollama: {
     quickUrl: 'http://127.0.0.1:11434/v1',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: 'Ollama 使用本地或私有模型服务，模型列表和地址都允许自定义。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_ollama',
     models: [],
     fallbackThinking: null
   },
   azure: {
     quickUrl: 'https://your-resource-name.openai.azure.com/openai/v1/',
-    modelPlaceholder: '请选择官方模型名或输入自定义部署名',
-    modelHint: 'Azure 这里填写的是 deployment name；列表中的名称主要用于参考其底层模型能力。',
+    modelPlaceholderKey: 'select_azure_model_or_deployment',
+    modelHintKey: 'model_hint_azure',
     models: [
-      createModel('gpt-5.4', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.4-pro', { label: '思考强度', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2', { label: '思考强度', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2-chat', false, { hint: 'Azure 文档中的 Chat 型号通常通过 deployment 名称接入；是否开放取决于区域和配额。' }),
-      createModel('gpt-5.3-codex', { label: '思考强度', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
-      createModel('gpt-5.2-codex', { label: '思考强度', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-mini', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-nano', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-chat', { label: '思考强度', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
-      createModel('gpt-5-pro', { label: '思考强度', options: openAIReasoningHighOnly }, { request: openAIReasoningRequest }),
-      createModel('o4-mini', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o3', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o3-mini', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
-      createModel('o1', { label: '思考强度', options: openAIReasoningLegacy }, { request: openAIReasoningRequest })
+      createModel('gpt-5.4', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.4-pro', { label: 'thinking_intensity', options: openAIReasoningLatestPro }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2', { label: 'thinking_intensity', options: openAIReasoningLatest }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2-chat', false, { hintKey: 'model_hint_azure_gpt52_chat' }),
+      createModel('gpt-5.3-codex', { label: 'thinking_intensity', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
+      createModel('gpt-5.2-codex', { label: 'thinking_intensity', options: openAIReasoningCodexMax }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-mini', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-nano', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-chat', { label: 'thinking_intensity', options: openAIReasoningStandard }, { request: openAIReasoningRequest }),
+      createModel('gpt-5-pro', { label: 'thinking_intensity', options: openAIReasoningHighOnly }, { request: openAIReasoningRequest }),
+      createModel('o4-mini', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o3', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o3-mini', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest }),
+      createModel('o1', { label: 'thinking_intensity', options: openAIReasoningLegacy }, { request: openAIReasoningRequest })
     ],
     fallbackThinking: {
-      label: '思考强度',
+      label: 'thinking_intensity',
       options: openAIReasoningCodex,
-      hint: 'Azure 自定义 deployment 未命中文档模型时，会回退到通用 reasoning_effort 配置；具体兼容性以部署模型为准。'
+      hintKey: 'fallback_hint_azure'
     }
   },
   anthropic: {
     quickUrl: 'https://api.anthropic.com/v1/',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: '默认优先使用官方稳定别名；若需要固定版本或回归测试，可改填带日期的精确模型 ID。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_anthropic',
     models: [
       createModel('claude-opus-4-6', anthropicAdaptiveThinking),
       createModel('claude-sonnet-4-6', anthropicAdaptiveThinking),
@@ -237,13 +257,13 @@ const catalog = {
     ],
     fallbackThinking: {
       ...anthropicAdaptiveThinking,
-      hint: '自定义模型未命中文档内列表。若使用手动思考，需要显式填写 budget_tokens；Adaptive 请仅在文档确认支持的模型上使用。'
+      hintKey: 'fallback_hint_anthropic'
     }
   },
   zhipu: {
     quickUrl: 'https://open.bigmodel.cn/api/paas/v4',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: '智谱文档支持通过 thinking.type 和 clear_thinking 控制思考模式。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_zhipu',
     models: [
       createModel('glm-5', zhipuThinkingConfig),
       createModel('glm-4.7', zhipuThinkingConfig),
@@ -258,13 +278,13 @@ const catalog = {
     ],
     fallbackThinking: {
       ...zhipuThinkingConfig,
-      hint: '自定义模型未命中文档内列表，已回退到通用 thinking.type / clear_thinking 配置。'
+      hintKey: 'fallback_hint_zhipu'
     }
   },
   aliyun: {
     quickUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: '默认优先使用官方稳定别名；如果你要锁定具体版本，再手动填写带日期或小版本后缀的模型 ID。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_aliyun',
     models: [
       createModel('qwen-plus-latest', aliyunThinkingConfig),
       createModel('qwen-turbo-latest', aliyunThinkingConfig),
@@ -277,35 +297,35 @@ const catalog = {
       createModel('glm-4.5', aliyunThinkingConfig),
       createModel('glm-4.5-air', aliyunThinkingConfig),
       createModel('kimi-k2-thinking', aliyunThinkingConfig),
-      createModel('qwen3-235b-a22b-thinking-2507', aliyunThinkingConfig, { label: 'qwen3-235b-a22b-thinking-2507（版本化）' }),
-      createModel('qwen3-30b-a3b-thinking-2507', aliyunThinkingConfig, { label: 'qwen3-30b-a3b-thinking-2507（版本化）' }),
-      createModel('kimi/kimi-k2.5', aliyunThinkingConfig, { label: 'kimi/kimi-k2.5（版本化）' })
+      createModel('qwen3-235b-a22b-thinking-2507', aliyunThinkingConfig, { versioned: true }),
+      createModel('qwen3-30b-a3b-thinking-2507', aliyunThinkingConfig, { versioned: true }),
+      createModel('kimi/kimi-k2.5', aliyunThinkingConfig, { versioned: true })
     ],
     fallbackThinking: {
       ...aliyunThinkingConfig,
-      hint: '自定义模型未命中文档内列表。若模型支持 thinking_budget，可按文档填写；留空时不会传该字段。'
+      hintKey: 'fallback_hint_aliyun'
     }
   },
   doubao: {
     quickUrl: 'https://ark.cn-beijing.volces.com/api/v3',
-    modelPlaceholder: '请选择或输入模型 ID（通常带版本后缀）',
-    modelHint: '豆包优先填写官方真实 Model ID。当前未确认有稳定别名可通用替代，建议以控制台或模型列表中的 Model ID 为准。',
+    modelPlaceholderKey: 'select_or_enter_model_id',
+    modelHintKey: 'model_hint_doubao',
     models: [
-      createModel('doubao-seed-2-0-pro-260215', { label: '思考强度', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Pro (doubao-seed-2-0-pro-260215)' }),
-      createModel('doubao-seed-2-0-lite-260215', { label: '思考强度', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Lite (doubao-seed-2-0-lite-260215)' }),
-      createModel('doubao-seed-2-0-mini-260215', { label: '思考强度', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Mini (doubao-seed-2-0-mini-260215)' }),
-      createModel('doubao-seed-1-6-251015', { label: '思考强度', options: doubaoReasoningOptions }, { label: 'Doubao Seed 1.6 (doubao-seed-1-6-251015)' })
+      createModel('doubao-seed-2-0-pro-260215', { label: 'thinking_intensity', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Pro (doubao-seed-2-0-pro-260215)' }),
+      createModel('doubao-seed-2-0-lite-260215', { label: 'thinking_intensity', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Lite (doubao-seed-2-0-lite-260215)' }),
+      createModel('doubao-seed-2-0-mini-260215', { label: 'thinking_intensity', options: doubaoReasoningOptions }, { label: 'Doubao Seed 2.0 Mini (doubao-seed-2-0-mini-260215)' }),
+      createModel('doubao-seed-1-6-251015', { label: 'thinking_intensity', options: doubaoReasoningOptions }, { label: 'Doubao Seed 1.6 (doubao-seed-1-6-251015)' })
     ],
     fallbackThinking: {
-      label: '思考强度',
+      label: 'thinking_intensity',
       options: doubaoReasoningOptions,
-      hint: '自定义模型未命中文档内列表，已回退到通用 reasoning_effort 配置；是否生效取决于实际模型。'
+      hintKey: 'fallback_hint_doubao'
     }
   },
   siliconflow: {
     quickUrl: 'https://api.siliconflow.cn/v1',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: 'SiliconFlow 文档直接列出了 enable_thinking 支持模型；仅对文档列出的模型展示预算配置。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_siliconflow',
     models: [
       createModel('Pro/zai-org/GLM-5', siliconflowThinkingConfig),
       createModel('Pro/zai-org/GLM-4.7', siliconflowThinkingConfig),
@@ -329,25 +349,25 @@ const catalog = {
     ],
     fallbackThinking: {
       ...siliconflowThinkingConfig,
-      hint: '自定义模型未命中文档内列表。若模型支持 enable_thinking / thinking_budget，可按文档填写；留空时不会传 thinking_budget。'
+      hintKey: 'fallback_hint_siliconflow'
     }
   },
   deepseek: {
     quickUrl: 'https://api.deepseek.com/v1',
-    modelPlaceholder: '请选择或输入模型名称',
-    modelHint: '官方 DeepSeek 通过选择不同模型切换思考模式：deepseek-chat 为非思考，deepseek-reasoner 为思考。',
+    modelPlaceholderKey: 'select_or_enter_model_name',
+    modelHintKey: 'model_hint_deepseek',
     models: [
       createModel('deepseek-chat', false, {
-        hint: 'deepseek-chat 是非思考模型，不需要额外 thinking 参数。'
+        hintKey: 'model_hint_deepseek_chat'
       }),
       createModel('deepseek-reasoner', false, {
-        hint: 'deepseek-reasoner 已内置思考模式，不需要额外 thinking 参数。'
+        hintKey: 'model_hint_deepseek_reasoner'
       })
     ],
     fallbackThinking: {
-      label: '深度思考',
+      label: 'deep_thinking',
       options: booleanThinkingOptions,
-      hint: '官方 DeepSeek 推荐通过模型名切换思考模式。自定义代理若额外支持 thinking.type，可在这里启用兼容开关。'
+      hintKey: 'fallback_hint_deepseek'
     }
   }
 }
@@ -390,27 +410,29 @@ export function getProviderQuickUrl(provider) {
 
 export function getProviderModelOptions(provider) {
   return (catalog[provider]?.models || []).map(model => ({
-    label: model.label,
+    label: model.versioned ? `${model.label} ${_t('versioned_suffix')}` : model.label,
     value: model.value
   }))
 }
 
 export function getProviderModelHint(provider) {
-  return catalog[provider]?.modelHint || ''
+  const key = catalog[provider]?.modelHintKey
+  return key ? _t(key) : ''
 }
 
 export function getProviderModelFieldLabel(provider) {
   if (provider === 'azure') {
-    return '部署名称'
+    return _t('deployment_name')
   }
   if (provider === 'doubao') {
-    return '模型 ID'
+    return _t('model_id_label')
   }
-  return '模型名称'
+  return _t('model_name_label')
 }
 
 export function getProviderModelPlaceholder(provider) {
-  return catalog[provider]?.modelPlaceholder || '请选择或输入模型名称'
+  const key = catalog[provider]?.modelPlaceholderKey
+  return _t(key || 'select_or_enter_model_name')
 }
 
 export function resolveProviderModel(provider, modelName) {
@@ -434,12 +456,17 @@ export function getProviderRequestConfig(provider, modelName) {
   }
 }
 
+function resolveHint(obj) {
+  if (obj?.hintKey) return _t(obj.hintKey)
+  return obj?.hint || ''
+}
+
 export function getProviderThinkingConfig(provider, modelName) {
   const model = resolveProviderModel(provider, modelName)
   if (model?.thinking === false) {
     return {
       visible: false,
-      hint: model.hint || ''
+      hint: resolveHint(model)
     }
   }
 
@@ -447,23 +474,23 @@ export function getProviderThinkingConfig(provider, modelName) {
   if (!source) {
     return {
       visible: false,
-      hint: model?.hint || ''
+      hint: resolveHint(model)
     }
   }
 
   return {
     visible: true,
-    label: source.label || '深度思考',
-    options: cloneOptions(source.options),
+    label: _t(source.label || 'deep_thinking'),
+    options: _opts(cloneOptions(source.options)),
     showBudgetFor: [...(source.showBudgetFor || [])],
     budgetMin: source.budgetMin || 1,
     budgetMax: source.budgetMax || 100000,
     budgetStep: source.budgetStep || 1,
     budgetRequiredFor: [...(source.budgetRequiredFor || [])],
     showEffortFor: [...(source.showEffortFor || [])],
-    effortOptions: cloneOptions(source.effortOptions || []),
+    effortOptions: _opts(cloneOptions(source.effortOptions || [])),
     showClearThinkingFor: [...(source.showClearThinkingFor || [])],
-    clearThinkingOptions: cloneOptions(source.clearThinkingOptions || clearHistoryOptions),
-    hint: model?.hint || source.hint || ''
+    clearThinkingOptions: _opts(cloneOptions(source.clearThinkingOptions || clearHistoryOptions)),
+    hint: resolveHint(model) || resolveHint(source)
   }
 }

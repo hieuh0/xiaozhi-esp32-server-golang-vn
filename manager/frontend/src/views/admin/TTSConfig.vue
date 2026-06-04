@@ -11,7 +11,7 @@
         {{ t('test_all') }}</el-button>
       <el-button type="primary" @click="showDialog = true">
         <el-icon><Plus /></el-icon>
-        {{ t('add_config') }}  添加配置
+        {{ t('add_config') }}
       </el-button>
     </div>
 
@@ -32,7 +32,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="is_default" label="默认配置" width="80" align="center">
+      <el-table-column prop="is_default" :label="t('default_config')" width="80" align="center">
         <template #default="scope">
           <el-switch 
             v-model="scope.row.is_default" 
@@ -41,35 +41,33 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="测试结果" width="120" align="center">
+      <el-table-column :label="t('test_result')" width="120" align="center">
         <template #default="scope">
           <template v-if="testResults[scope.row.config_id]">
             <el-tooltip v-if="testResults[scope.row.config_id].ok" :content="formatTestResultTip(testResults[scope.row.config_id])" placement="top">
               <span class="test-result test-ok">{{ formatTestResultLabel(testResults[scope.row.config_id]) }}</span>
             </el-tooltip>
             <el-tooltip v-else :content="testResults[scope.row.config_id].message" placement="top" :show-after="200">
-              <span class="test-result test-err">错误</span>
+              <span class="test-result test-err">{{ t('error') }}</span>
             </el-tooltip>
           </template>
           <span v-else class="test-result test-none">-</span>
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="创建时间" width="180">
+      <el-table-column prop="created_at" :label="t('created_at')" width="180">
         <template #default="scope">
           {{ formatDate(scope.row.created_at) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="260">
+      <el-table-column :label="t('actions')" width="260">
         <template #default="scope">
-          <el-button size="small" @click="editConfig(scope.row)">编辑</el-button>
+          <el-button size="small" @click="editConfig(scope.row)">{{ t('edit') }}</el-button>
           <el-button
             size="small"
             type="warning"
             :loading="testingId === scope.row.config_id"
             @click="testConfig(scope.row, 'tts')"
-          >
-            测试
-          </el-button>
+          >{{ t('test') }}</el-button>
           <el-button
             size="small"
             type="danger"
@@ -98,10 +96,8 @@
       />
       
       <template #footer>
-        <el-button @click="handleDialogClose">取消</el-button>
-        <el-button type="warning" plain @click="testCurrentConfig" :loading="testingCurrent">
-          测试
-        </el-button>
+        <el-button @click="handleDialogClose">{{ t('cancel') }}</el-button>
+        <el-button type="warning" plain @click="testCurrentConfig" :loading="testingCurrent">{{ t('test') }}</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
           {{ t('save') }}
         </el-button>
@@ -531,7 +527,7 @@ const handleSave = async () => {
         showDialog.value = false
         loadConfigs()
       } catch (error) {
-        ElMessage.error('保存失败: ' + (error.response?.data?.message || error.message))
+        ElMessage.error(t('save_failed_colon') + (error.response?.data?.message || error.message))
       } finally {
         saving.value = false
       }
@@ -542,7 +538,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? t('enabled') : t('disable')}成功`)
+    ElMessage.success(config.enabled ? t('enabled_success') : t('disable_success'))
   } catch (error) {
     // 恢复开关状态
     config.enabled = !config.enabled
@@ -585,11 +581,11 @@ const getEnabledConfigs = () => {
 
 function formatTestResultLabel(r) {
   if (!r?.ok) return t('error')
-  return r.first_packet_ms != null ? `正确 ${r.first_packet_ms}ms` : t('correct')
+  return r.first_packet_ms != null ? t('correct_result', { ms: r.first_packet_ms }) : t('correct')
 }
 function formatTestResultTip(r) {
   if (!r?.ok) return ''
-  return r.first_packet_ms != null ? `通过，耗时 ${r.first_packet_ms}ms` : t('passed')
+  return r.first_packet_ms != null ? t('passed_result', { ms: r.first_packet_ms }) : t('passed')
 }
 function formatTestMessage(result) {
   const base = result.message || ''
@@ -602,9 +598,9 @@ const testConfig = async (row, type) => {
     const result = await testSingleConfig(type, row.config_id)
     testResults.value = { ...testResults.value, [row.config_id]: result }
     if (result.ok) {
-      ElMessage.success(`${row.name || row.config_id}：${formatTestMessage(result)}`)
+      ElMessage.success(`${row.name || row.config_id}${t('label_colon')}${formatTestMessage(result)}`)
     } else {
-      ElMessage.warning(`${row.name || row.config_id}：${result.message}`)
+      ElMessage.warning(`${row.name || row.config_id}${t('label_colon')}${result.message}`)
     }
   } catch (err) {
     ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
@@ -632,7 +628,7 @@ const testAllConfigs = async () => {
         testResults.value = { ...testResults.value, [row.config_id]: { ok: false, message: t('request_failed') } }
       }
     }
-    ElMessage.success(`全部测试完成：${okCount}/${list.length} 通过`)
+    ElMessage.success(t('all_tests_complete_msg', { ok: okCount, total: list.length }))
   } catch (err) {
     ElMessage.error(err.response?.data?.error || t('test_request_failed_v2'))
   } finally {

@@ -211,7 +211,7 @@ const requestCapabilityHint = computed(() => {
   if (!blockedFields.length) {
     return ''
   }
-  return `当前模型按文档不建议单独设置 ${blockedFields.join('、')}，保存时不会透传这些字段。`
+  return t('blocked_fields_warning', { fields: blockedFields.join(t('enum_join_sep')) })
 })
 
 const thinkingConfig = computed(() => {
@@ -432,7 +432,7 @@ function validate(callback) {
       return Promise.reject(new Error(t('thinking_budget_required')))
     }
     if (thinkingConfig.value.showBudget && props.model?.thinking_budget_tokens !== null && props.model?.thinking_budget_tokens !== undefined && props.model?.thinking_budget_tokens !== '' && Number(props.model?.thinking_budget_tokens) < thinkingConfig.value.budgetMin) {
-      return Promise.reject(new Error(`思考预算不能小于 ${thinkingConfig.value.budgetMin}`))
+      return Promise.reject(new Error(t('budget_min_validation', { min: thinkingConfig.value.budgetMin })))
     }
     return true
   })
