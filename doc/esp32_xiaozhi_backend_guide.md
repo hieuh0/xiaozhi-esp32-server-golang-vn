@@ -1,108 +1,108 @@
-# ESP32 小智AI后端部署与使用指南
-本指南提供了在ESP32上使用本项目作为后端的完整部署流程，包括服务器部署、设备配置和控制台配置三大部分。
-## 1.服务器部署
-服务器部署方式有两种，一种是本机部署，另一种方式是docker部署。
-### Docker 部署
-您可以通过以下两种方式进行 Docker 部署：
-*   **方式一（推荐 - 包含控制台）**：[Docker Compose 快速入门 »](doc/docker_compose.md)
-*   **方式二（纯服务，无控制台）**：[Docker 快速入门 »](doc/docker.md)
+# Hướng Dẫn Triển Khai và Sử Dụng Backend ESP32 Tiểu Trí AI
+Hướng dẫn này cung cấp quy trình triển khai đầy đủ để sử dụng dự án này làm backend trên ESP32, bao gồm ba phần chính: triển khai máy chủ, cấu hình thiết bị và cấu hình bảng điều khiển.
+## 1. Triển Khai Máy Chủ
+Có hai cách triển khai máy chủ: triển khai trực tiếp trên máy và triển khai qua Docker.
+### Triển Khai Docker
+Bạn có thể thực hiện triển khai Docker theo một trong hai cách sau:
+*   **Cách 1 (Khuyến nghị - bao gồm bảng điều khiển)**: [Hướng dẫn nhanh Docker Compose »](doc/docker_compose.md)
+*   **Cách 2 (Chỉ dịch vụ, không có bảng điều khiển)**: [Hướng dẫn nhanh Docker »](doc/docker.md)
 
-**重要说明：**
-*   `docker-compose` 命令是一个独立于 Docker Engine 的工具。如果您使用的是较新版本的 Docker，也可以直接使用 `docker compose` 命令（`docker` CLI 的一个子命令），两者功能等效。
+**Lưu ý quan trọng:**
+*   Lệnh `docker-compose` là một công cụ độc lập với Docker Engine. Nếu bạn đang dùng phiên bản Docker mới hơn, bạn cũng có thể dùng trực tiếp lệnh `docker compose` (một lệnh con của `docker` CLI) — hai cách này có chức năng tương đương.
 
-**服务端口映射说明：**
-部署后，容器内的服务端口将映射到宿主机，默认配置如下：
-*   **`8989:8989`**：WebSocket 服务端口。
-*   **`2883:2883`**：MQTT 服务端口。
-*   **`8888:8888/udp`**：UDP 服务端口。
+**Giải thích ánh xạ cổng dịch vụ:**
+Sau khi triển khai, các cổng dịch vụ bên trong container sẽ được ánh xạ ra máy chủ. Cấu hình mặc định như sau:
+*   **`8989:8989`**: Cổng dịch vụ WebSocket.
+*   **`2883:2883`**: Cổng dịch vụ MQTT.
+*   **`8888:8888/udp`**: Cổng dịch vụ UDP.
 
-### 本机部署
-参考README.md
+### Triển Khai Trực Tiếp Trên Máy
+Tham khảo README.md
 
-## 2.配置 ESP32 OTA 更新地址
+## 2. Cấu Hình Địa Chỉ Cập Nhật OTA cho ESP32
 
-ESP32 设备支持两种方式来配置 OTA 服务器的地址：
+Thiết bị ESP32 hỗ trợ hai cách để cấu hình địa chỉ máy chủ OTA:
 
-### 方式一：通过 WiFi 配网修改（适用于设备已部署后）
+### Cách 1: Sửa Qua Cấu Hình WiFi (Áp dụng khi thiết bị đã được triển khai)
 
-此方法需通过设备的 Web 配网界面进行修改。
+Phương pháp này yêu cầu chỉnh sửa thông qua giao diện cấu hình Web của thiết bị.
 
-**操作步骤：**
-1.  启动 ESP32 设备，使其进入 WiFi 配网模式（表现为开启一个 AP 热点）。
-2.  使用手机或电脑连接到此热点，并在浏览器中访问其配置页面（地址通常为 `192.168.4.1`）。
-3.  在页面中找到 **OTA** 相关选项。
-4.  将 OTA 服务器地址修改为：`http://<你的服务器IP>:8989/xiaozhi/ota/`
-    **例如**：`http://192.168.1.12:8989/xiaozhi/ota/`
-5.  保存配置并配网。
+**Các bước thực hiện:**
+1.  Khởi động thiết bị ESP32 để vào chế độ cấu hình WiFi (thiết bị sẽ phát một điểm truy cập AP).
+2.  Dùng điện thoại hoặc máy tính kết nối vào điểm truy cập đó, rồi truy cập trang cấu hình trong trình duyệt (địa chỉ thường là `192.168.4.1`).
+3.  Tìm tùy chọn liên quan đến **OTA** trên trang.
+4.  Sửa địa chỉ máy chủ OTA thành: `http://<IP máy chủ của bạn>:8989/xiaozhi/ota/`
+    **Ví dụ**: `http://192.168.1.12:8989/xiaozhi/ota/`
+5.  Lưu cấu hình và tiến hành kết nối WiFi.
 
-### 方式二：通过编译配置修改
+### Cách 2: Sửa Qua Cấu Hình Biên Dịch
 
-此方法需要在重新编译 ESP32 的固件，修改项目配置文件来预置 OTA 地址。
+Phương pháp này yêu cầu biên dịch lại firmware ESP32, chỉnh sửa file cấu hình dự án để cài sẵn địa chỉ OTA.
 
-**操作步骤：**
-1.  在您的 ESP32 项目目录下，找到配置文件`config.json`的对应位置。
-2.  添加或修改 OTA 服务器地址的配置项：
+**Các bước thực hiện:**
+1.  Trong thư mục dự án ESP32 của bạn, tìm vị trí file cấu hình `config.json`.
+2.  Thêm hoặc sửa mục cấu hình địa chỉ máy chủ OTA:
     ```json
-    "CONFIG_OTA_URL": "http://<你的服务器IP>/xiaozhi/ota/"
+    "CONFIG_OTA_URL": "http://<IP máy chủ của bạn>/xiaozhi/ota/"
     ```
 
-## 3.控制台配置
-### 服务配置
+## 3. Cấu Hình Bảng Điều Khiển
+### Cấu Hình Dịch Vụ
 
 ```mermaid
 graph TD
-    subgraph Server[服务器]
-        OTA[OTA 服务]
+    subgraph Server[Máy chủ]
+        OTA[Dịch vụ OTA]
         MQTT_Broker[MQTT Server]
-        UDP_Service[UDP 服务]
+        UDP_Service[Dịch vụ UDP]
     end
 
-    subgraph Config[配置关联]
-        Key[签名密钥] --> OTA
+    subgraph Config[Liên kết cấu hình]
+        Key[Khóa ký] --> OTA
         Key --> MQTT_Broker
         
-        MQTT_Broker -->|管理员账户密码| Console_MQTT[控制台 MQTT 客户端]
+        MQTT_Broker -->|Tài khoản & mật khẩu quản trị| Console_MQTT[MQTT Client bảng điều khiển]
         MQTT_Broker -->|IP:2883| OTA
     end
 
-    UDP_Service -->|外部主机: 服务器IP| App[外部应用]
+    UDP_Service -->|Máy chủ ngoài: IP máy chủ| App[Ứng dụng bên ngoài]
 
 ```
-#### OTA配置
-将签名密钥修改为mqtt server配置页面中的'签名密钥' 一致
-可以选择是否启用MQTT配置，如果启用，MQTT端点设置为服务器IP:2883
-#### MQTT配置
-如果使用自带的MQTT代理，将Broker地址修改为127.0.0.1，端口号修改为2883
-如果使用外部MQTT，请按需修改
-将认证配置修改为 MQTT Server配置中的管理员账户及密码
+#### Cấu Hình OTA
+Sửa khóa ký để khớp với "Khóa ký" trong trang cấu hình MQTT Server.
+Có thể chọn có bật cấu hình MQTT hay không; nếu bật, đặt điểm cuối MQTT là IP máy chủ:2883.
+#### Cấu Hình MQTT
+Nếu dùng MQTT broker tích hợp sẵn, đặt địa chỉ Broker là 127.0.0.1 và số cổng là 2883.
+Nếu dùng MQTT bên ngoài, hãy chỉnh sửa theo nhu cầu.
+Sửa cấu hình xác thực thành tài khoản quản trị và mật khẩu trong phần cấu hình MQTT Server.
 
-#### MQTT Server配置
-将监听端口设置为2883
-设置管理员用户与密码
-将签名密钥设置为ota配置页面签名密钥一致
+#### Cấu Hình MQTT Server
+Đặt cổng lắng nghe là 2883.
+Thiết lập tài khoản và mật khẩu quản trị.
+Đặt khóa ký giống với khóa ký trên trang cấu hình OTA.
 
-#### UDP配置
-将监听端口设置为8888
-将外部主机设置为你的服务器ip，例如192.168.1.12
-#### MCP配置
-全局MCP服务器为外部MCP服务器，如没有外部MCP服务器可以暂时不配置
+#### Cấu Hình UDP
+Đặt cổng lắng nghe là 8888.
+Đặt máy chủ ngoài là IP máy chủ của bạn, ví dụ 192.168.1.12.
+#### Cấu Hình MCP
+MCP Server toàn cục là máy chủ MCP bên ngoài; nếu chưa có máy chủ MCP bên ngoài thì có thể tạm thời bỏ qua phần này.
 
-### AI配置
+### Cấu Hình AI
 ```mermaid
 flowchart LR
-    A[语音输入] --> B[VAD<br>语音活动检测]
-    B --> C[ASR<br>语音识别]
-    C --> D[LLM<br>大语言模型]
-    D --> E[TTS<br>语音合成]
-    E --> F[语音输出]
+    A[Đầu vào giọng nói] --> B[VAD<br>Phát hiện hoạt động giọng nói]
+    B --> C[ASR<br>Nhận dạng giọng nói]
+    C --> D[LLM<br>Mô hình ngôn ngữ lớn]
+    D --> E[TTS<br>Tổng hợp giọng nói]
+    E --> F[Đầu ra giọng nói]
 
 ```
-#### VAD配置
-使用WebRTC VAD，无需外部配置
-#### ASR配置
-填写ASR的配置，即使是docker部署的服务器，也没有本地部署ASR，可以手动部署。
-部署教程参考 [FunASR实时语音听写服务开发指南](https://github.com/modelscope/FunASR/blob/main/runtime/docs/SDK_advanced_guide_online_zh.md)
-#### LLM配置
-填写自己的APIKEY
-#### TTS配置
-注意事项，小智 TTS已经不能正常使用，推荐使用edge
+#### Cấu Hình VAD
+Sử dụng WebRTC VAD, không cần cấu hình bên ngoài.
+#### Cấu Hình ASR
+Điền cấu hình ASR; ngay cả với máy chủ triển khai qua Docker cũng không có ASR triển khai cục bộ — bạn có thể tự triển khai thủ công.
+Tham khảo hướng dẫn triển khai tại [Hướng dẫn phát triển dịch vụ chuyển giọng nói thời gian thực FunASR](https://github.com/modelscope/FunASR/blob/main/runtime/docs/SDK_advanced_guide_online_zh.md)
+#### Cấu Hình LLM
+Điền APIKEY của bạn.
+#### Cấu Hình TTS
+Lưu ý: TTS của Tiểu Trí hiện không còn hoạt động bình thường, khuyến nghị sử dụng edge.

@@ -1,13 +1,13 @@
-# MQTT UDP Bridge 配置指南
+# Hướng Dẫn Cấu Hình MQTT UDP Bridge
 
 ---
 
-### 名词解析
+### Giải Thích Thuật Ngữ
 
-- **xiaozhi-mqtt-gateway:** 虾哥官方 mqtt udp bridge项目，实现了MQTT和UDP协议到WebSocket的转换。该服务允许设备通过MQTT协议进行控制消息传输，同时通过UDP协议高效传输音频数据，并将这些数据桥接到WebSocket服务。[xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway) 
-- **xiaozhi-esp32-server-golang:** 本项目
+- **xiaozhi-mqtt-gateway:** Dự án mqtt udp bridge chính thức của Xiả Gē, thực hiện chuyển đổi giao thức MQTT và UDP sang WebSocket. Dịch vụ này cho phép thiết bị truyền tải thông điệp điều khiển qua giao thức MQTT, đồng thời truyền dữ liệu âm thanh hiệu quả qua giao thức UDP, và bắc cầu các dữ liệu này sang dịch vụ WebSocket. [xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway) 
+- **xiaozhi-esp32-server-golang:** Dự án hiện tại
 
-### 整体架构
+### Kiến Trúc Tổng Thể
 
 ```mermaid
 flowchart TD
@@ -31,29 +31,29 @@ flowchart TD
 ```
 
 
-## 一、MQTT UDP Bridge 配置指南
+## I. Hướng Dẫn Cấu Hình MQTT UDP Bridge
 
-### 安装步骤
+### Các Bước Cài Đặt
 ---
-1. 克隆仓库
+1. Sao chép kho mã nguồn
 ```
 git clone 'https://github.com/78/xiaozhi-mqtt-gateway'
 cd xiaozhi-mqtt-gateway
 ```
-2. 安装依赖
+2. Cài đặt các phụ thuộc
 ```
 npm install
 ```
-3. 创建配置文件
+3. Tạo tệp cấu hình
 ```
 mkdir -p config
 cp config/mqtt.json.example config/mqtt.json
 ```
-4. 编辑配置文件 config/mqtt.json，设置适当的参数
+4. Chỉnh sửa tệp cấu hình config/mqtt.json, thiết lập các tham số phù hợp
 
-### 配置说明
-配置文件 config/mqtt.json 需要包含以下内容:
-- `chat_servers`：填写 小智golang服务器ip和端口，***path必须为/xiaozhi/mqtt_udp/v1/***
+### Mô Tả Cấu Hình
+Tệp cấu hình config/mqtt.json cần chứa các nội dung sau:
+- `chat_servers`：Điền địa chỉ IP và cổng của máy chủ xiaozhi golang, ***path bắt buộc phải là /xiaozhi/mqtt_udp/v1/***
 ```
 {
   "debug": false,
@@ -67,37 +67,37 @@ cp config/mqtt.json.example config/mqtt.json
 }
 ```
 
-### 环境变量
-创建 .env 文件并设置以下环境变量:
+### Biến Môi Trường
+Tạo tệp .env và thiết lập các biến môi trường sau:
 ```
-MQTT_PORT=1883              # MQTT服务器端口
-UDP_PORT=8884               # UDP服务器端口
-PUBLIC_IP=192.168.0.100     # 服务器公网IP
+MQTT_PORT=1883              # Cổng máy chủ MQTT
+UDP_PORT=8884               # Cổng máy chủ UDP
+PUBLIC_IP=192.168.0.100     # IP công khai của máy chủ
 
-#MQTT_SIGNATURE_KEY=mqtt_key # mqtt key, 可选，如果配置则进行mqtt认证，需与 websocket服务器配置的key相同
+#MQTT_SIGNATURE_KEY=mqtt_key # Khóa MQTT, tùy chọn, nếu được cấu hình thì sẽ thực hiện xác thực MQTT, cần giống với khóa được cấu hình trên máy chủ websocket
 ```
 
-### 运行
+### Chạy Ứng Dụng
 
-##### 开发环境
+##### Môi Trường Phát Triển
 
 ```
-# 直接运行
+# Chạy trực tiếp
 node app.js
 
-# 调试模式运行
+# Chạy ở chế độ debug
 DEBUG=mqtt-server node app.js
 ```
 
 ---
 
-## 二、小智golang后端服务配置指南
+## II. Hướng Dẫn Cấu Hình Dịch Vụ Backend xiaozhi golang
 
 
 
-### 1. 关键配置项说明
+### 1. Mô Tả Các Mục Cấu Hình Quan Trọng
 
-#### 关闭 本地 MQTT 和 UDP服务器
+#### Tắt Máy Chủ MQTT và UDP Cục Bộ
 ```yaml
 mqtt:
   enable: false
@@ -109,12 +109,12 @@ mqtt:
   password: "test!@#"
 ```
 
-#### OTA 配置（设备通过 OTA 获取连接参数）
-- `ota.signature_key`: 需要与xiaozhi-mqtt-bridge中的 .env文件中***MQTT_SIGNATURE_KEY***相同
-- `test`/`external`：内外网环境区分
-- `websocket.url`：返回的WebSocket 服务地址
-- `mqtt.endpoint`：MQTT 服务地址和端口
-- `mqtt.enable`：是否启用 MQTT（true 时设备优先用 MQTT+UDP）
+#### Cấu Hình OTA（Thiết bị lấy tham số kết nối qua OTA）
+- `ota.signature_key`: Cần giống với ***MQTT_SIGNATURE_KEY*** trong tệp .env của xiaozhi-mqtt-bridge
+- `test`/`external`：Phân biệt môi trường mạng nội bộ và bên ngoài
+- `websocket.url`：Địa chỉ dịch vụ WebSocket được trả về
+- `mqtt.endpoint`：Địa chỉ và cổng dịch vụ MQTT
+- `mqtt.enable`：Có bật MQTT hay không（khi là true, thiết bị ưu tiên sử dụng MQTT+UDP）
 
 
 ```yaml
@@ -135,7 +135,7 @@ ota:
 ```
 ---
 
-## 三、参考文档
-- [mqtt_udp.md](./mqtt_udp.md)（详细架构、配置、流程）
-- [mqtt_udp_protocol.md](./mqtt_udp_protocol.md)（协议与数据流程）
-- [config.md](./config.md)（配置项详细说明）
+## III. Tài Liệu Tham Khảo
+- [mqtt_udp.md](./mqtt_udp.md)（Kiến trúc, cấu hình và quy trình chi tiết）
+- [mqtt_udp_protocol.md](./mqtt_udp_protocol.md)（Giao thức và quy trình dữ liệu）
+- [config.md](./config.md)（Mô tả chi tiết các mục cấu hình）

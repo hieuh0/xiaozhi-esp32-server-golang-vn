@@ -1,152 +1,152 @@
-# VAD/ASR/LLM/TTS 全链路压测 Mock 方案（待确认）
+# Phương án Mock Kiểm thử Áp lực Toàn Chuỗi VAD/ASR/LLM/TTS (Chờ Xác nhận)
 
-> 目标：在不调用真实 ASR/LLM/TTS 付费服务的前提下，保留现有 WebSocket 全链路行为，支持高并发压测、可控时延注入、可观测性统计。
+> Mục tiêu: Không gọi các dịch vụ tính phí ASR/LLM/TTS thực, giữ nguyên hành vi toàn chuỗi WebSocket hiện có, hỗ trợ kiểm thử áp lực đồng thời cao, tiêm độ trễ có kiểm soát và thống kê khả năng quan sát.
 
-## 1. 设计目标
+## 1. Mục tiêu Thiết kế
 
-1. **链路完整**：保留「设备音频输入 -> VAD -> ASR -> LLM -> TTS -> 音频下发」主流程。
-2. **零外部成本**：ASR/LLM/TTS 均返回本地 mock 数据，不访问第三方云服务。
-3. **低侵入**：基于现有 provider 工厂机制扩展 `mock` provider，尽量不改业务主流程。
-4. **可压测可复现**：支持固定返回、模板返回、按概率错误注入、按配置注入延时。
-5. **可对照真实服务**：通过配置切换，后续可随时恢复真实 provider 对比性能。
+1. **Chuỗi đầy đủ**: Giữ nguyên luồng chính "đầu vào âm thanh từ thiết bị -> VAD -> ASR -> LLM -> TTS -> phát âm thanh".
+2. **Chi phí ngoài bằng không**: ASR/LLM/TTS đều trả về dữ liệu mock cục bộ, không truy cập dịch vụ đám mây bên thứ ba.
+3. **Ít xâm phạm**: Dựa trên cơ chế factory provider hiện có để mở rộng `mock` provider, hạn chế tối đa thay đổi luồng nghiệp vụ chính.
+4. **Có thể kiểm thử áp lực và tái hiện**: Hỗ trợ trả về cố định, trả về theo mẫu, tiêm lỗi theo xác suất, tiêm độ trễ theo cấu hình.
+5. **Có thể đối chiếu với dịch vụ thực**: Thông qua chuyển đổi cấu hình, có thể khôi phục provider thực bất cứ lúc nào để so sánh hiệu năng.
 
-## 2. 总体方案
+## 2. Phương án Tổng thể
 
-采用 **Provider 级 Mock + 压测客户端复用** 的方案：
+Sử dụng phương án **Mock cấp Provider + Tái sử dụng Client Kiểm thử Áp lực**:
 
-- 新增三个 provider：
+- Thêm mới ba provider:
   - `asr/mock`
   - `llm/mock`
   - `tts/mock`
-- 在后台配置里新增对应配置项（`type=asr|llm|tts`, `provider=mock`）。
-- 通过角色/智能体绑定 mock 配置，实现会话内全链路 mock。
-- 压测侧继续使用现有 websocket 压测工具（`ws_multi`）并发压入音频。
+- Thêm mục cấu hình tương ứng trong cấu hình backend (`type=asr|llm|tts`, `provider=mock`).
+- Liên kết cấu hình mock thông qua role/agent để thực hiện mock toàn chuỗi trong phiên.
+- Phía kiểm thử áp lực tiếp tục sử dụng công cụ kiểm thử áp lực websocket hiện có (`ws_multi`) để đẩy âm thanh đồng thời.
 
-这样可以保证：
-- WebSocket 协议、会话状态机、消息编排逻辑都走真实代码路径。
-- 仅替换对外部云服务的调用，成本最低、风险最小。
+Điều này đảm bảo:
+- Giao thức WebSocket, state machine phiên, logic điều phối message đều đi qua đường mã thực.
+- Chỉ thay thế các lời gọi đến dịch vụ đám mây ngoài, chi phí thấp nhất, rủi ro nhỏ nhất.
 
-## 3. Mock 行为设计
+## 3. Thiết kế Hành vi Mock
 
 ### 3.1 ASR Mock
 
-输入：音频帧流（保持现有接口）。
-输出：识别文本（固定/轮询/按规则）。
+Đầu vào: luồng khung âm thanh (giữ nguyên interface hiện có).
+Đầu ra: văn bản nhận dạng (cố định / vòng quay / theo quy tắc).
 
-建议配置：
+Cấu hình đề xuất:
 
 - `mode`: `fixed` | `sequence` | `echo_hint`
-- `fixed_text`: 固定返回，例如“你好，这是压测文本”
-- `sequence_texts`: 文本数组，按请求轮转
-- `first_token_delay_ms`: 首包延迟模拟
-- `final_delay_ms`: 结束包延迟模拟
-- `error_rate`: 0~1 概率注入识别失败
+- `fixed_text`: trả về cố định, ví dụ "Xin chào, đây là văn bản kiểm thử áp lực"
+- `sequence_texts`: mảng văn bản, xoay vòng theo yêu cầu
+- `first_token_delay_ms`: mô phỏng độ trễ gói đầu tiên
+- `final_delay_ms`: mô phỏng độ trễ gói kết thúc
+- `error_rate`: xác suất 0~1 tiêm lỗi nhận dạng
 
 ### 3.2 LLM Mock
 
-输入：ASR 文本 + 上下文消息。
-输出：回复文本（可携带上下文长度信息）。
+Đầu vào: văn bản ASR + các message ngữ cảnh.
+Đầu ra: văn bản phản hồi (có thể mang thông tin độ dài ngữ cảnh).
 
-建议配置：
+Cấu hình đề xuất:
 
 - `mode`: `fixed` | `template` | `echo`
-- `fixed_answer`: 固定回复
-- `template`: 模板，例如 `"收到：{{input}}"`
-- `first_token_delay_ms`: 首 token 延迟
-- `stream_chunk_chars`: 流式每片字符数
-- `total_delay_ms`: 完成总耗时模拟
-- `error_rate`: 概率失败
+- `fixed_answer`: phản hồi cố định
+- `template`: mẫu, ví dụ `"Đã nhận: {{input}}"`
+- `first_token_delay_ms`: độ trễ token đầu tiên
+- `stream_chunk_chars`: số ký tự mỗi đoạn khi stream
+- `total_delay_ms`: mô phỏng tổng thời gian hoàn thành
+- `error_rate`: lỗi theo xác suất
 
 ### 3.3 TTS Mock
 
-输入：LLM 文本。
-输出：可播放的 Opus/PCM 帧（建议优先 Opus，兼容当前链路）。
+Đầu vào: văn bản LLM.
+Đầu ra: khung Opus/PCM có thể phát (ưu tiên Opus, tương thích chuỗi hiện tại).
 
-建议配置：
+Cấu hình đề xuất:
 
 - `audio_source`: `builtin_silence` | `builtin_beep` | `file`
-- `file_path`: 预置音频路径（本地 wav/opus）
-- `frame_duration_ms`: 分帧长度（如 20ms）
-- `first_frame_delay_ms`: 首帧延迟
-- `inter_frame_delay_ms`: 帧间延迟
-- `error_rate`: 概率失败
+- `file_path`: đường dẫn âm thanh được cài sẵn (wav/opus cục bộ)
+- `frame_duration_ms`: độ dài mỗi khung (ví dụ 20ms)
+- `first_frame_delay_ms`: độ trễ khung đầu tiên
+- `inter_frame_delay_ms`: độ trễ giữa các khung
+- `error_rate`: lỗi theo xác suất
 
-> 为降低复杂度，第一版建议：先返回“静音帧 + 固定时延”，后续再补“beep/文件回放”。
+> Để giảm độ phức tạp, phiên bản đầu tiên đề xuất: trả về "khung im lặng + độ trễ cố định" trước, sau đó bổ sung "beep/phát lại file".
 
-## 4. 压测场景矩阵
+## 4. Ma trận Kịch bản Kiểm thử Áp lực
 
-### 场景 A：纯成功链路（基准）
-- ASR 固定文本
-- LLM 固定短回复
-- TTS 静音帧
-- 目标：测最大稳定并发、平均RT、P95/P99
+### Kịch bản A: Chuỗi thành công thuần túy (cơ sở)
+- ASR văn bản cố định
+- LLM phản hồi ngắn cố định
+- TTS khung im lặng
+- Mục tiêu: đo đồng thời ổn định tối đa, RT trung bình, P95/P99
 
-### 场景 B：高时延链路
-- ASR/LLM/TTS 分别注入 100~500ms 延迟
-- 目标：测超时阈值、排队堆积情况
+### Kịch bản B: Chuỗi độ trễ cao
+- ASR/LLM/TTS mỗi bước tiêm độ trễ 100~500ms
+- Mục tiêu: đo ngưỡng timeout, tình trạng xếp hàng tích lũy
 
-### 场景 C：错误注入链路
-- error_rate 设置 1%/5%/10%
-- 目标：测错误恢复、连接稳定性、重试策略
+### Kịch bản C: Chuỗi tiêm lỗi
+- error_rate đặt 1%/5%/10%
+- Mục tiêu: đo khả năng phục hồi lỗi, độ ổn định kết nối, chiến lược retry
 
-### 场景 D：长文本链路
-- LLM 输出超长文本（如 500~1500 字）
-- 目标：测 TTS 分帧、发送背压和内存稳定性
+### Kịch bản D: Chuỗi văn bản dài
+- LLM xuất văn bản rất dài (ví dụ 500~1500 ký tự)
+- Mục tiêu: đo phân khung TTS, back pressure gửi và độ ổn định bộ nhớ
 
-## 5. 指标与验收标准（建议）
+## 5. Chỉ số và Tiêu chuẩn Nghiệm thu (Đề xuất)
 
-核心指标：
-- 会话成功率（成功返回语音）
-- 端到端首帧时延（listen stop -> 首个音频包）
-- 端到端完成时延（listen stop -> tts finish）
-- 每秒活跃会话数 / 峰值并发
-- 错误率（分 ASR/LLM/TTS 阶段）
-- 服务资源：CPU、内存、Goroutine、GC 次数
+Chỉ số cốt lõi:
+- Tỷ lệ thành công phiên (trả về giọng nói thành công)
+- Độ trễ khung đầu tiên end-to-end (listen stop -> gói âm thanh đầu tiên)
+- Độ trễ hoàn thành end-to-end (listen stop -> tts finish)
+- Số phiên hoạt động mỗi giây / đỉnh đồng thời
+- Tỷ lệ lỗi (phân theo giai đoạn ASR/LLM/TTS)
+- Tài nguyên dịch vụ: CPU, bộ nhớ, Goroutine, số lần GC
 
-建议验收（可后续调整）：
-- 成功率 >= 99%
-- 在目标并发下 P95 首帧时延 < 1.5s
-- 持续 30min 无明显内存泄漏（RSS 变化可控）
+Nghiệm thu đề xuất (có thể điều chỉnh sau):
+- Tỷ lệ thành công >= 99%
+- P95 độ trễ khung đầu tiên < 1.5s ở mức đồng thời mục tiêu
+- Không rò rỉ bộ nhớ rõ ràng trong 30 phút liên tục (biến động RSS có thể kiểm soát)
 
-## 6. 实施步骤（分两阶段）
+## 6. Các Bước Triển khai (Chia hai giai đoạn)
 
-### Phase 1（最小可用，1~2 天）
-1. 增加 ASR/LLM/TTS 三个 mock provider 注册。
-2. 每个 provider 支持固定返回 + 固定延迟 + 错误率。
-3. 后台新增三条 mock 配置并可设为默认。
-4. 跑通 `ws_multi` 并输出基准压测结果。
+### Phase 1 (Khả dụng tối thiểu, 1~2 ngày)
+1. Thêm đăng ký ba mock provider ASR/LLM/TTS.
+2. Mỗi provider hỗ trợ trả về cố định + độ trễ cố định + tỷ lệ lỗi.
+3. Thêm ba cấu hình mock mới ở backend và có thể đặt làm mặc định.
+4. Chạy thông `ws_multi` và xuất kết quả kiểm thử áp lực cơ sở.
 
-### Phase 2（增强，1~2 天）
-1. 增加模板回复、序列回复、文件音频回放。
-2. 增加更细粒度指标日志（分阶段耗时）。
-3. 增加压测脚本（批量场景执行 + 汇总报表）。
+### Phase 2 (Tăng cường, 1~2 ngày)
+1. Thêm phản hồi theo mẫu, phản hồi tuần tự, phát lại âm thanh từ file.
+2. Thêm log chỉ số chi tiết hơn (thời gian tiêu thụ theo từng giai đoạn).
+3. Thêm script kiểm thử áp lực (thực thi hàng loạt kịch bản + báo cáo tổng hợp).
 
-## 7. 风险与规避
+## 7. Rủi ro và Biện pháp Phòng tránh
 
-1. **音频格式不匹配**：mock tts 输出格式需与当前下游解码一致。
-   - 规避：第一版沿用现有常用编码路径并增加格式校验日志。
-2. **并发下日志过大**：高并发详细日志会影响性能。
-   - 规避：压测模式降级日志级别，关键指标聚合输出。
-3. **配置误切真实服务**：导致仍调用外部接口。
-   - 规避：压测环境禁网或加入 provider 白名单校验（非 mock 拒绝启动）。
+1. **Định dạng âm thanh không khớp**: định dạng đầu ra mock tts cần nhất quán với bộ giải mã downstream hiện tại.
+   - Phòng tránh: phiên bản đầu tiên dùng lại đường mã encoding phổ biến hiện có và thêm log kiểm tra định dạng.
+2. **Log quá lớn khi đồng thời cao**: log chi tiết đồng thời cao sẽ ảnh hưởng hiệu năng.
+   - Phòng tránh: chế độ kiểm thử áp lực giảm cấp log level, các chỉ số quan trọng xuất ra dạng tổng hợp.
+3. **Cấu hình nhầm sang dịch vụ thực**: dẫn đến vẫn gọi interface ngoài.
+   - Phòng tránh: môi trường kiểm thử áp lực chặn mạng hoặc thêm kiểm tra whitelist provider (không phải mock thì từ chối khởi động).
 
-## 8. 你确认后我将执行的落地内容
+## 8. Nội dung Triển khai Tôi Sẽ Thực hiện Sau Khi Bạn Xác nhận
 
-确认后我会按以下清单直接改代码：
+Sau khi xác nhận, tôi sẽ sửa code trực tiếp theo danh sách sau:
 
-1. 新增 `internal/domain/asr/mock`、`internal/domain/llm/mock`、`internal/domain/tts/mock`。
-2. 在 provider factory / pool 注册点挂载 `mock` provider。
-3. 补充默认配置样例（可在管理后台直接选 mock）。
-4. 增加最小单元测试（至少 provider 行为测试）。
-5. 给出一份压测执行命令清单（并发阶梯 + 指标采集）。
+1. Thêm mới `internal/domain/asr/mock`, `internal/domain/llm/mock`, `internal/domain/tts/mock`.
+2. Gắn `mock` provider vào điểm đăng ký provider factory / pool.
+3. Bổ sung mẫu cấu hình mặc định (có thể chọn mock trực tiếp trong trang quản trị).
+4. Thêm unit test tối thiểu (ít nhất test hành vi provider).
+5. Cung cấp một danh sách lệnh thực thi kiểm thử áp lực (bậc thang đồng thời + thu thập chỉ số).
 
 ---
 
-## 需你确认的选项
+## Các Lựa chọn Cần Bạn Xác nhận
 
-请确认以下 4 点，我再开始正式改造：
+Vui lòng xác nhận 4 điểm sau, tôi sẽ bắt đầu cải tạo chính thức:
 
-1. **Mock 粒度**：是否同意按 provider 级 mock（推荐）？
-2. **TTS 输出**：第一版是否接受“静音帧”作为 mock 音频（最快）？
-3. **压测目标并发**：先以多少并发为目标（如 100/300/500）？
-4. **验收阈值**：是否按本文默认验收标准执行？
+1. **Độ chi tiết Mock**: Bạn có đồng ý mock theo cấp provider không (khuyến nghị)?
+2. **Đầu ra TTS**: Phiên bản đầu tiên có chấp nhận "khung im lặng" làm âm thanh mock không (nhanh nhất)?
+3. **Mức đồng thời mục tiêu kiểm thử áp lực**: Mục tiêu ban đầu là bao nhiêu đồng thời (ví dụ 100/300/500)?
+4. **Ngưỡng nghiệm thu**: Có thực hiện theo tiêu chuẩn nghiệm thu mặc định của tài liệu này không?

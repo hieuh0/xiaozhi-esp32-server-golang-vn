@@ -1,29 +1,29 @@
-# 编译与部署指南
+# Hướng Dẫn Biên Dịch và Triển Khai
 
-本文面向需要从源码编译、调试和部署本项目的开发者，整理主程序、控制台前后端、声纹服务的编译与部署方式。
+Tài liệu này dành cho các nhà phát triển cần biên dịch, gỡ lỗi và triển khai dự án từ mã nguồn, bao gồm cách biên dịch và triển khai chương trình chính, frontend/backend bảng điều khiển, và dịch vụ nhận dạng giọng nói.
 
-建议按下面的阅读顺序使用本文：
+Khuyến nghị đọc theo thứ tự sau:
 
-- 先看整体架构，明确每个服务的位置和调用关系
-- 再按“主程序 -> 控制台后端 -> 控制台前端 -> 声纹服务”的顺序分别完成编译与部署
-- 最后如果需要制作一体化发布包，再看文末的 AIO 打包流程
+- Xem kiến trúc tổng thể trước để hiểu vị trí và quan hệ gọi nhau của từng dịch vụ
+- Sau đó lần lượt biên dịch và triển khai theo thứ tự "Chương trình chính -> Backend bảng điều khiển -> Frontend bảng điều khiển -> Dịch vụ nhận dạng giọng nói"
+- Cuối cùng, nếu cần tạo gói phát hành tích hợp (AIO), xem phần quy trình đóng gói AIO ở cuối tài liệu
 
-本文优先介绍每个服务分别编译、分别部署的方式；AIO 形态放在后面单独说明。
+Tài liệu này ưu tiên giới thiệu cách biên dịch và triển khai từng dịch vụ riêng biệt; hình thức AIO được trình bày riêng ở phần sau.
 
-## 1. 服务拆分说明
+## 1. Mô Tả Phân Tách Dịch Vụ
 
-日常开发、联调、单独替换某个服务时，建议使用分离部署形态：
+Trong quá trình phát triển hàng ngày, kiểm thử tích hợp, hoặc khi thay thế một dịch vụ cụ thể, nên sử dụng hình thức triển khai phân tách:
 
-- 主程序：`cmd/server`
-- 控制台后端：`manager/backend`
-- 控制台前端：`manager/frontend`
-- 声纹服务：`asr_server` 子模块
+- Chương trình chính: `cmd/server`
+- Backend bảng điều khiển: `manager/backend`
+- Frontend bảng điều khiển: `manager/frontend`
+- Dịch vụ nhận dạng giọng nói: submodule `asr_server`
 
-这四部分分别编译、分别启动，最适合开发调试。
+Bốn thành phần này được biên dịch và khởi động riêng biệt, phù hợp nhất cho phát triển và gỡ lỗi.
 
-一体化的 AIO 打包方式放在本文后半部分，适合做发布包或交付包。
+Cách đóng gói AIO tích hợp được trình bày ở nửa sau của tài liệu, phù hợp để tạo gói phát hành hoặc gói bàn giao.
 
-## 2. 整体架构
+## 2. Kiến Trúc Tổng Thể
 
 ```mermaid
 flowchart LR
@@ -38,84 +38,84 @@ flowchart LR
     Main --> AI["ASR / LLM / TTS / MCP / OTA 等外部能力"]
 ```
 
-### 2.1 各服务在架构中的位置
+### 2.1 Vị Trí Của Từng Dịch Vụ Trong Kiến Trúc
 
-| 服务 | 代码目录 | 主要职责 | 常见端口 |
+| Dịch vụ | Thư mục mã nguồn | Chức năng chính | Cổng thường dùng |
 | --- | --- | --- | --- |
-| 主程序 | `cmd/server` | 设备接入、会话编排、ASR/LLM/TTS 调度、OTA、WebSocket/MQTT/UDP | `8989` / `2883` / `8990` |
-| 控制台后端 | `manager/backend` | 管理 API、配置管理、历史记录、声纹组管理 | `8080` |
-| 控制台前端 | `manager/frontend` | 管理页面、配置向导、测试工具 | 开发态 `3000` |
-| 声纹服务 | `asr_server` | 声纹注册、识别、验证、流式接口 | 源码默认 `9000` |
+| Chương trình chính | `cmd/server` | Tiếp nhận thiết bị, điều phối phiên, lên lịch ASR/LLM/TTS, OTA, WebSocket/MQTT/UDP | `8989` / `2883` / `8990` |
+| Backend bảng điều khiển | `manager/backend` | API quản lý, quản lý cấu hình, lịch sử, quản lý nhóm giọng nói | `8080` |
+| Frontend bảng điều khiển | `manager/frontend` | Trang quản lý, trình hướng dẫn cấu hình, công cụ kiểm thử | Môi trường phát triển `3000` |
+| Dịch vụ nhận dạng giọng nói | `asr_server` | Đăng ký, nhận dạng, xác minh giọng nói, giao diện streaming | Mặc định mã nguồn `9000` |
 
-### 2.2 关键地址对齐关系
+### 2.2 Quan Hệ Căn Chỉnh Địa Chỉ Quan Trọng
 
-分离部署时，下面四个地址一定要对齐：
+Khi triển khai phân tách, bốn địa chỉ sau phải được căn chỉnh:
 
-| 调用方向 | 配置项 | 典型值 |
+| Hướng gọi | Mục cấu hình | Giá trị điển hình |
 | --- | --- | --- |
-| 前端 -> 后端 | `VITE_API_TARGET` | `http://127.0.0.1:8080` |
-| 主程序 -> 控制台后端 | `config/config.yaml` -> `manager.backend_url` | `http://127.0.0.1:8080` |
-| 控制台后端 -> 声纹服务 | `manager/backend/config/config.json` -> `speaker_service.url` 或 `SPEAKER_SERVICE_URL` | `http://127.0.0.1:9000` |
-| 主程序 -> 声纹服务 | `config/config.yaml` -> `voice_identify.base_url` | `http://127.0.0.1:9000` |
+| Frontend -> Backend | `VITE_API_TARGET` | `http://127.0.0.1:8080` |
+| Chương trình chính -> Backend bảng điều khiển | `config/config.yaml` -> `manager.backend_url` | `http://127.0.0.1:8080` |
+| Backend bảng điều khiển -> Dịch vụ giọng nói | `manager/backend/config/config.json` -> `speaker_service.url` hoặc `SPEAKER_SERVICE_URL` | `http://127.0.0.1:9000` |
+| Chương trình chính -> Dịch vụ giọng nói | `config/config.yaml` -> `voice_identify.base_url` | `http://127.0.0.1:9000` |
 
-## 3. 环境准备
+## 3. Chuẩn Bị Môi Trường
 
-### 3.1 拉取代码与子模块
+### 3.1 Lấy Mã Nguồn và Submodule
 
-声纹服务是 Git 子模块，首次拉取后请执行：
+Dịch vụ nhận dạng giọng nói là một Git submodule, sau khi clone lần đầu hãy chạy:
 
 ```bash
 git submodule update --init --recursive
 ```
 
-如果你是新克隆仓库，推荐直接：
+Nếu bạn clone repository mới, nên dùng trực tiếp:
 
 ```bash
 git clone --recursive <repo-url>
 ```
 
-### 3.2 推荐工具版本
+### 3.2 Phiên Bản Công Cụ Khuyến Nghị
 
-- Go：`1.24.x`，与 CI 中的 `1.24.4` 保持一致
-- Node.js：`20.x`
-- npm：跟随 Node 20
+- Go: `1.24.x`, đồng bộ với `1.24.4` trong CI
+- Node.js: `20.x`
+- npm: theo Node 20
 
-### 3.3 Linux 本地编译公共依赖
+### 3.3 Phụ Thuộc Chung Khi Biên Dịch Cục Bộ Trên Linux
 
-主程序和声纹服务都涉及 CGO、ONNX Runtime 或 ten-vad 动态库，Ubuntu 可参考：
+Cả chương trình chính và dịch vụ nhận dạng giọng nói đều liên quan đến CGO, ONNX Runtime hoặc thư viện động ten-vad. Trên Ubuntu có thể tham khảo:
 
 ```bash
 sudo apt-get update
 sudo apt-get install -y pkg-config libopus0 libopusfile-dev libc++1 libc++abi1
 ```
 
-主程序本地源码编译还需要安装 ONNX Runtime 1.21.0，步骤可直接参考根目录 `README.md` 中“本地编译”章节。
+Khi biên dịch cục bộ từ mã nguồn của chương trình chính, cần cài thêm ONNX Runtime 1.21.0. Các bước có thể tham khảo trực tiếp phần "Biên dịch cục bộ" trong `README.md` tại thư mục gốc.
 
-### 3.4 建议先准备的基础设施
+### 3.4 Cơ Sở Hạ Tầng Nên Chuẩn Bị Trước
 
-- MySQL：控制台后端使用 MySQL 时需要
-- Qdrant：声纹服务使用 `qdrant` 存储时需要
+- MySQL: cần thiết khi backend bảng điều khiển sử dụng MySQL
+- Qdrant: cần thiết khi dịch vụ nhận dạng giọng nói dùng `qdrant` để lưu trữ
 
-如果只是本地功能验证：
+Nếu chỉ xác minh chức năng cục bộ:
 
-- 控制台后端可先用 SQLite
-- 声纹服务可先用 JSON 存储
+- Backend bảng điều khiển có thể dùng SQLite trước
+- Dịch vụ nhận dạng giọng nói có thể dùng lưu trữ JSON trước
 
-## 4. 分离部署：各服务编译与部署
+## 4. Triển Khai Phân Tách: Biên Dịch và Triển Khai Từng Dịch Vụ
 
-### 4.1 主程序
+### 4.1 Chương Trình Chính
 
-代码目录：`cmd/server`
+Thư mục mã nguồn: `cmd/server`
 
-### 关键配置
+### Cấu Hình Quan Trọng
 
-配置文件默认位置：
+Vị trí mặc định của file cấu hình:
 
 ```text
 config/config.yaml
 ```
 
-源码部署时最常改的是：
+Khi triển khai từ mã nguồn, các mục thường thay đổi nhất là:
 
 - `manager.backend_url`
 - `websocket.host` / `websocket.port`
@@ -124,7 +124,7 @@ config/config.yaml
 - `voice_identify.enable`
 - `voice_identify.base_url`
 
-如果使用分离部署，推荐先把下面两项改对：
+Nếu dùng triển khai phân tách, khuyến nghị sửa đúng hai mục sau trước:
 
 ```yaml
 manager:
@@ -135,14 +135,14 @@ voice_identify:
   base_url: "http://127.0.0.1:9000"
 ```
 
-### 编译
+### Biên Dịch
 
 ```bash
 go mod tidy
 go build -o xiaozhi_server ./cmd/server
 ```
 
-Windows PowerShell 本地编译启用 Silero VAD 时，需要先让 CGO 找到 ONNX Runtime 头文件和 import library：
+Khi biên dịch cục bộ trên Windows PowerShell với Silero VAD được bật, cần cho CGO tìm thấy header file và import library của ONNX Runtime trước:
 
 ```powershell
 $env:CGO_ENABLED = "1"
@@ -153,38 +153,38 @@ go mod tidy
 go build -o xiaozhi_server.exe ./cmd/server
 ```
 
-### 启动
+### Khởi Động
 
 ```bash
 ./xiaozhi_server -c config/config.yaml
 ```
 
-### 部署建议
+### Khuyến Nghị Triển Khai
 
-1. 分离部署模式下，主程序本身不负责控制台前后端和声纹服务进程管理。
-2. 主程序启动前，建议控制台后端已经可访问，否则 `manager` 配置提供者拉配置时会失败。
-3. 如果设备走 WebSocket，核心接入地址通常为 `ws://<host>:8989/xiaozhi/v1/`。
+1. Trong chế độ triển khai phân tách, chương trình chính không chịu trách nhiệm quản lý tiến trình của frontend/backend bảng điều khiển và dịch vụ nhận dạng giọng nói.
+2. Trước khi khởi động chương trình chính, nên đảm bảo backend bảng điều khiển đã có thể truy cập, nếu không provider cấu hình `manager` sẽ thất bại khi kéo cấu hình.
+3. Nếu thiết bị dùng WebSocket, địa chỉ tiếp nhận chính thường là `ws://<host>:8989/xiaozhi/v1/`.
 
-### 4.2 控制台后端
+### 4.2 Backend Bảng Điều Khiển
 
-代码目录：`manager/backend`
+Thư mục mã nguồn: `manager/backend`
 
-### 关键配置
+### Cấu Hình Quan Trọng
 
-配置文件默认位置：
+Vị trí mặc định của file cấu hình:
 
 ```text
 manager/backend/config/config.json
 ```
 
-重点关注：
+Chú ý các mục chính:
 
-- `database.type`：`mysql` 或 `sqlite`
+- `database.type`: `mysql` hoặc `sqlite`
 - `database.mysql` / `database.sqlite`
 - `speaker_service.url`
 - `history.audio_base_path`
 
-支持的环境变量覆盖：
+Các biến môi trường được hỗ trợ để ghi đè:
 
 - `DB_HOST`
 - `DB_PORT`
@@ -194,7 +194,7 @@ manager/backend/config/config.json
 - `SPEAKER_SERVICE_URL`
 - `AUDIO_BASE_PATH`
 
-### 编译
+### Biên Dịch
 
 ```bash
 cd manager/backend
@@ -202,31 +202,31 @@ go mod tidy
 go build -o main .
 ```
 
-### 启动
+### Khởi Động
 
 ```bash
 cd manager/backend
 ./main -c config/config.json
 ```
 
-开发态也可以直接运行：
+Trong môi trường phát triển cũng có thể chạy trực tiếp:
 
 ```bash
 cd manager/backend
 go run main.go -c config/config.json
 ```
 
-### 部署建议
+### Khuyến Nghị Triển Khai
 
-1. 本地调试优先用 SQLite，减少依赖。
-2. 联调声纹功能时，请确保 `speaker_service.url` 已指向声纹服务。
-3. 控制台后端启动后，主程序和前端都应指向这个服务。
+1. Ưu tiên dùng SQLite khi gỡ lỗi cục bộ để giảm phụ thuộc.
+2. Khi kiểm thử tích hợp chức năng nhận dạng giọng nói, hãy đảm bảo `speaker_service.url` đã trỏ đến dịch vụ nhận dạng giọng nói.
+3. Sau khi backend bảng điều khiển khởi động, cả chương trình chính và frontend đều nên trỏ đến dịch vụ này.
 
-### 4.3 控制台前端
+### 4.3 Frontend Bảng Điều Khiển
 
-代码目录：`manager/frontend`
+Thư mục mã nguồn: `manager/frontend`
 
-控制台前端主要用于本地开发联调，先装依赖再启动开发服务器即可：
+Frontend bảng điều khiển chủ yếu dùng cho phát triển và kiểm thử tích hợp cục bộ, chỉ cần cài dependencies rồi khởi động server phát triển:
 
 ```bash
 cd manager/frontend
@@ -234,36 +234,36 @@ npm ci
 npm run dev
 ```
 
-默认开发地址：
+Địa chỉ phát triển mặc định:
 
-- 前端页面：`http://127.0.0.1:3000`
-- API 代理目标：`http://127.0.0.1:8080`
+- Trang frontend: `http://127.0.0.1:3000`
+- Đích proxy API: `http://127.0.0.1:8080`
 
-如需修改代理目标，可设置：
+Nếu cần thay đổi đích proxy, có thể đặt:
 
 ```bash
 VITE_API_TARGET=http://127.0.0.1:8080
 ```
 
-或修改 `manager/frontend/.env`。
+Hoặc sửa `manager/frontend/.env`.
 
-### 4.4 声纹服务
+### 4.4 Dịch Vụ Nhận Dạng Giọng Nói
 
-代码目录：`asr_server`
+Thư mục mã nguồn: `asr_server`
 
-### 关键说明
+### Mô Tả Quan Trọng
 
-`asr_server` 是子模块，源码单独运行时默认读取：
+`asr_server` là một submodule, khi chạy riêng từ mã nguồn sẽ mặc định đọc:
 
 ```text
 asr_server/config.json
 ```
 
-默认端口在当前子模块配置里是 `9000`。实际部署时务必与主程序、控制台后端中的声纹服务地址保持一致。
+Cổng mặc định trong cấu hình submodule hiện tại là `9000`. Khi triển khai thực tế, phải đảm bảo đồng bộ với địa chỉ dịch vụ nhận dạng giọng nói trong chương trình chính và backend bảng điều khiển.
 
-### 关键配置
+### Cấu Hình Quan Trọng
 
-重点关注：
+Chú ý các mục chính:
 
 - `server.port`
 - `speaker.enabled`
@@ -273,14 +273,14 @@ asr_server/config.json
 - `speaker.qdrant.collection_name`
 - `speaker.model_path`
 
-常见选择：
+Lựa chọn phổ biến:
 
-1. 开发联调：`speaker.storage_type = "json"`
-2. 生产部署：`speaker.storage_type = "qdrant"`
+1. Phát triển và kiểm thử tích hợp: `speaker.storage_type = "json"`
+2. Triển khai sản xuất: `speaker.storage_type = "qdrant"`
 
-### 源码编译
+### Biên Dịch Từ Mã Nguồn
 
-Linux / macOS：
+Linux / macOS:
 
 ```bash
 cd asr_server
@@ -288,7 +288,7 @@ go mod tidy
 CGO_ENABLED=1 go build -o voice_server main.go
 ```
 
-Windows PowerShell：
+Windows PowerShell:
 
 ```powershell
 cd asr_server
@@ -297,9 +297,9 @@ go mod tidy
 go build -o voice_server.exe main.go
 ```
 
-### 启动
+### Khởi Động
 
-Linux / macOS：
+Linux / macOS:
 
 ```bash
 cd asr_server
@@ -307,45 +307,45 @@ export LD_LIBRARY_PATH="$PWD/lib:$PWD/lib/ten-vad/lib/Linux/x64:${LD_LIBRARY_PAT
 ./voice_server
 ```
 
-Windows：
+Windows:
 
 ```powershell
 cd asr_server
 .\voice_server.exe
 ```
 
-### 部署建议
+### Khuyến Nghị Triển Khai
 
-1. 本地开发先用 JSON 存储跑通接口，再切 Qdrant。
-2. 若主程序启用了 `voice_identify.enable=true`，请同步修改主程序里的 `voice_identify.base_url`。
-3. 控制台后端的 `speaker_service.url` 也必须指向同一个声纹服务地址。
+1. Khi phát triển cục bộ, dùng lưu trữ JSON để chạy thông giao diện trước, sau đó chuyển sang Qdrant.
+2. Nếu chương trình chính đã bật `voice_identify.enable=true`, hãy đồng thời sửa `voice_identify.base_url` trong chương trình chính.
+3. `speaker_service.url` của backend bảng điều khiển cũng phải trỏ đến cùng địa chỉ dịch vụ nhận dạng giọng nói.
 
-### 4.5 推荐启动顺序
+### 4.5 Thứ Tự Khởi Động Khuyến Nghị
 
-本文按“主程序 -> 控制台后端 -> 控制台前端 -> 声纹服务”介绍，但实际启动建议按依赖顺序执行：
+Tài liệu này giới thiệu theo thứ tự "Chương trình chính -> Backend bảng điều khiển -> Frontend bảng điều khiển -> Dịch vụ nhận dạng giọng nói", nhưng khi khởi động thực tế nên theo thứ tự phụ thuộc:
 
 1. MySQL / SQLite
 2. Qdrant
-3. 声纹服务 `asr_server`
-4. 控制台后端 `manager/backend`
-5. 主程序 `cmd/server`
-6. 控制台前端 `manager/frontend`
+3. Dịch vụ nhận dạng giọng nói `asr_server`
+4. Backend bảng điều khiển `manager/backend`
+5. Chương trình chính `cmd/server`
+6. Frontend bảng điều khiển `manager/frontend`
 
-## 5. 与 Release 一致的 AIO 打包流程
+## 5. Quy Trình Đóng Gói AIO Đồng Bộ Với Release
 
-如果你的目标是复刻当前仓库的发布包，而不是分离部署，建议按 CI 思路执行。
+Nếu mục tiêu của bạn là tái tạo gói phát hành của repository hiện tại thay vì triển khai phân tách, nên thực hiện theo tư duy CI.
 
-在开始 AIO 打包前，请先确认你已经理解并跑通过第 4 章中的分离部署流程。
+Trước khi bắt đầu đóng gói AIO, hãy xác nhận rằng bạn đã hiểu và chạy thành công quy trình triển khai phân tách trong Chương 4.
 
-当前仓库的 AIO 形态会先构建前端，再通过 Go build tags 把下列能力一起打进主程序：
+Hình thức AIO của repository hiện tại sẽ build frontend trước, sau đó dùng Go build tags để đưa các khả năng sau vào chương trình chính:
 
 - `manager`
 - `asr_server`
 - `embed_ui`
 
-因此，最终产物里的 `xiaozhi_server` 实际上是“主程序 + 控制台后端 + 声纹服务 + 已嵌入的控制台前端”。
+Do đó, `xiaozhi_server` trong sản phẩm cuối cùng thực chất là "chương trình chính + backend bảng điều khiển + dịch vụ nhận dạng giọng nói + frontend bảng điều khiển đã nhúng".
 
-### 5.1 前端先构建
+### 5.1 Build Frontend Trước
 
 ```bash
 cd manager/frontend
@@ -353,25 +353,25 @@ npm ci
 npm run build
 ```
 
-然后把前端产物复制到后端静态目录：
+Sau đó copy sản phẩm frontend vào thư mục static của backend:
 
 ```bash
 mkdir -p ../backend/static/dist
 cp -r dist/* ../backend/static/dist/
 ```
 
-### 5.2 编译带内嵌服务的主程序
+### 5.2 Biên Dịch Chương Trình Chính Với Dịch Vụ Nhúng
 
-回到仓库根目录执行：
+Quay về thư mục gốc của repository và thực hiện:
 
 ```bash
 go mod tidy
 go build -tags "nolibopusfile asr_server manager embed_ui" -ldflags "-s -w" -o xiaozhi_server ./cmd/server
 ```
 
-### 5.3 启动 AIO 包
+### 5.3 Khởi Động Gói AIO
 
-CI 打包时会把以下文件一起放到发布目录：
+Khi CI đóng gói, các file sau sẽ được đặt cùng vào thư mục phát hành:
 
 - `main_config.yaml`
 - `manager.json`
@@ -379,7 +379,7 @@ CI 打包时会把以下文件一起放到发布目录：
 - `models/`
 - `data/`
 
-本地手动运行时可参考：
+Khi chạy thủ công cục bộ có thể tham khảo:
 
 ```bash
 ./xiaozhi_server \
@@ -388,83 +388,83 @@ CI 打包时会把以下文件一起放到发布目录：
   -asr-config asr_server.json
 ```
 
-### 5.4 AIO 打包补充说明
+### 5.4 Ghi Chú Bổ Sung Về Đóng Gói AIO
 
-实际发布时通常还会额外完成：
+Khi phát hành thực tế thường cần thực hiện thêm:
 
-- ten-vad / sherpa-onnx 运行库打包
-- `models/`、`data/`、示例配置复制
-- 平台目录重命名与压缩
+- Đóng gói thư viện runtime ten-vad / sherpa-onnx
+- Copy `models/`, `data/`, cấu hình mẫu
+- Đổi tên thư mục theo nền tảng và nén lại
 
-## 6. 整体部署完成后的简单使用说明
+## 6. Hướng Dẫn Sử Dụng Cơ Bản Sau Khi Triển Khai Hoàn Tất
 
-### 6.1 打开控制台
+### 6.1 Mở Bảng Điều Khiển
 
-部署完成后，浏览器访问：
+Sau khi triển khai xong, truy cập bằng trình duyệt:
 
 ```text
-http://<服务器IP或域名>:8080
+http://<IP hoặc tên miền máy chủ>:8080
 ```
 
-如果是前后端分离且没有做统一反向代理，请按你的前端发布端口访问。
+Nếu frontend và backend được tách riêng và chưa có reverse proxy thống nhất, hãy truy cập theo cổng phát hành frontend của bạn.
 
-### 6.2 完成基础配置
+### 6.2 Hoàn Thành Cấu Hình Cơ Bản
 
-首次进入后，建议按控制台配置向导完成：
+Lần đầu vào, nên hoàn thành theo trình hướng dẫn cấu hình bảng điều khiển:
 
-1. OTA 地址
-2. VAD 配置
-3. ASR 配置
-4. LLM 配置
-5. TTS 配置
+1. Địa chỉ OTA
+2. Cấu hình VAD
+3. Cấu hình ASR
+4. Cấu hình LLM
+5. Cấu hình TTS
 
-### 6.3 验证声纹服务
+### 6.3 Xác Minh Dịch Vụ Nhận Dạng Giọng Nói
 
-如果需要声纹识别：
+Nếu cần nhận dạng giọng nói:
 
-1. 在控制台中创建声纹组
-2. 上传样本音频
-3. 确认控制台后端能访问声纹服务
-4. 确认主程序的 `voice_identify.enable=true`
-5. 确认主程序的 `voice_identify.base_url` 指向正确地址
+1. Tạo nhóm giọng nói trong bảng điều khiển
+2. Upload file âm thanh mẫu
+3. Xác nhận backend bảng điều khiển có thể truy cập dịch vụ nhận dạng giọng nói
+4. Xác nhận `voice_identify.enable=true` trong chương trình chính
+5. Xác nhận `voice_identify.base_url` trong chương trình chính trỏ đến địa chỉ đúng
 
-### 6.4 连接设备
+### 6.4 Kết Nối Thiết Bị
 
-设备常见接入信息如下：
+Thông tin tiếp nhận thiết bị thường gặp như sau:
 
-- WebSocket：`ws://<host>:8989/xiaozhi/v1/`
-- OTA 接口：`http://<host>:8989/xiaozhi/ota/`
-- MQTT：`<host>:2883`
-- UDP：`<host>:8990`
+- WebSocket: `ws://<host>:8989/xiaozhi/v1/`
+- Giao diện OTA: `http://<host>:8989/xiaozhi/ota/`
+- MQTT: `<host>:2883`
+- UDP: `<host>:8990`
 
-### 6.5 最小联调闭环
+### 6.5 Vòng Lặp Kiểm Thử Tích Hợp Tối Thiểu
 
-建议按下面顺序做一次冒烟验证：
+Khuyến nghị thực hiện một lần kiểm thử smoke theo thứ tự sau:
 
-1. 打开控制台，确认页面能加载。
-2. 在控制台里完成一套可用的 VAD / ASR / LLM / TTS 配置。
-3. 确认主程序日志中已经成功拉到控制台配置。
-4. 如果启用声纹，先在控制台上传样本，再测试识别。
-5. 让设备通过 OTA 拿到 WebSocket 或 MQTT/UDP 地址并连入主程序。
+1. Mở bảng điều khiển, xác nhận trang có thể tải được.
+2. Hoàn thành một bộ cấu hình VAD / ASR / LLM / TTS khả dụng trong bảng điều khiển.
+3. Xác nhận trong log chương trình chính đã kéo thành công cấu hình từ bảng điều khiển.
+4. Nếu bật nhận dạng giọng nói, upload mẫu trong bảng điều khiển trước, sau đó kiểm thử nhận dạng.
+5. Để thiết bị lấy địa chỉ WebSocket hoặc MQTT/UDP qua OTA và kết nối vào chương trình chính.
 
-## 7. 常见坑位
+## 7. Các Vấn Đề Thường Gặp
 
-### 7.1 声纹服务地址不一致
+### 7.1 Địa Chỉ Dịch Vụ Nhận Dạng Giọng Nói Không Đồng Bộ
 
-最常见的问题是下面两个地址没有同时改：
+Vấn đề phổ biến nhất là hai địa chỉ sau chưa được sửa cùng lúc:
 
 - `manager/backend/config/config.json` -> `speaker_service.url`
 - `config/config.yaml` -> `voice_identify.base_url`
 
-### 7.2 忘记初始化子模块
+### 7.2 Quên Khởi Tạo Submodule
 
-如果 `asr_server/server/setup.go` 不存在，说明子模块没有拉下来，AIO 编译和 Release 编译都会失败。
+Nếu `asr_server/server/setup.go` không tồn tại, có nghĩa là submodule chưa được kéo về, cả biên dịch AIO lẫn biên dịch Release đều sẽ thất bại.
 
-### 7.3 把“分离部署”和“AIO 包”混用了
+### 7.3 Lẫn Lộn Giữa "Triển Khai Phân Tách" và "Gói AIO"
 
-请记住：
+Hãy nhớ:
 
-- 分离部署：四个服务分别构建、分别运行
-- AIO 打包：前端、后端、声纹服务被一起编进 `xiaozhi_server`
+- Triển khai phân tách: bốn dịch vụ được build và chạy riêng biệt
+- Đóng gói AIO: frontend, backend, dịch vụ nhận dạng giọng nói được biên dịch chung vào `xiaozhi_server`
 
-先确定目标形态，再决定构建命令和配置文件。
+Xác định rõ hình thức mục tiêu trước, rồi mới quyết định lệnh build và file cấu hình.

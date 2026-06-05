@@ -1,32 +1,32 @@
-# 🚦 数据流程
+# 🚦 Luồng Dữ Liệu
 
-1. **调用 OTA 接口**
-   - 获取 **MQTT**、**WebSocket** 地址
+1. **Gọi giao diện OTA**
+   - Lấy địa chỉ **MQTT** và **WebSocket**
 
-2. **连接 MQTT**
-   - 内置 `mqtt_server` 会发布一条生命周期事件到 `/p2p/device_public/_server/lifecycle`
-   - 主程序根据 `device_id` 创建或复用 MQTT transport，并最佳努力预热设备侧 MCP
+2. **Kết nối MQTT**
+   - `mqtt_server` tích hợp sẽ phát một sự kiện vòng đời tới `/p2p/device_public/_server/lifecycle`
+   - Chương trình chính tạo mới hoặc tái sử dụng MQTT transport dựa trên `device_id`, đồng thời cố gắng khởi động trước MCP phía thiết bị
 
-3. **发送 `hello` 消息**
-   - 获取：
+3. **Gửi tin nhắn `hello`**
+   - Nhận được:
      - 🎵 `audio_params`
-     - 🌐 UDP 服务器地址
+     - 🌐 Địa chỉ máy chủ UDP
      - 🔑 `aes_key`
      - 🧩 `nonce`
 
-4. **连接 UDP 服务器**
-   - 进行语音数据的发送与接收
+4. **Kết nối máy chủ UDP**
+   - Thực hiện gửi và nhận dữ liệu giọng nói
 
-5. **发送 `listen`、`abort` 等后续信令**
-   - 信令语义保持不变，仍基于 `hello` 完成后的聊天级初始化
+5. **Gửi các tín hiệu tiếp theo như `listen`, `abort`, v.v.**
+   - Ngữ nghĩa tín hiệu không thay đổi, vẫn dựa trên khởi tạo cấp phiên trò chuyện sau khi hoàn thành `hello`
 
 ---
 
-# 🧭 生命周期 Topic
+# 🧭 Topic Vòng Đời
 
-- **Topic**：`/p2p/device_public/_server/lifecycle`
-- **用途**：仅供服务端内部使用，用于传递设备 MQTT 上下线事件
-- **消息体示例**：
+- **Topic**: `/p2p/device_public/_server/lifecycle`
+- **Mục đích**: Chỉ dùng nội bộ phía máy chủ, dùng để truyền sự kiện thiết bị kết nối/ngắt kết nối MQTT
+- **Ví dụ nội dung tin nhắn**:
   ```json
   {
     "type": "mqtt_lifecycle",
@@ -37,40 +37,40 @@
   }
   ```
 
-- **状态定义**
-  - `online`：设备刚连上 `mqtt_server`，主程序可提前准备 transport 和 MCP
-  - `offline`：设备与 `mqtt_server` 断开，主程序立即映射离线状态，但 transport 会保留一段时间用于短时重连复用
+- **Định nghĩa trạng thái**
+  - `online`: Thiết bị vừa kết nối tới `mqtt_server`, chương trình chính có thể chuẩn bị trước transport và MCP
+  - `offline`: Thiết bị ngắt kết nối khỏi `mqtt_server`, chương trình chính lập tức ánh xạ trạng thái ngoại tuyến, nhưng transport sẽ được giữ lại trong một khoảng thời gian để tái sử dụng khi kết nối lại nhanh
 
-- **边界说明**
-  - 生命周期事件不替代 `hello`
-  - 生命周期事件只维护连接级资源，不承载 `audio_params`、UDP 协商等聊天级信息
+- **Lưu ý phạm vi**
+  - Sự kiện vòng đời không thay thế `hello`
+  - Sự kiện vòng đời chỉ duy trì tài nguyên cấp kết nối, không mang thông tin cấp phiên trò chuyện như `audio_params`, đàm phán UDP, v.v.
 
 ---
 
-# 🛠️ 服务端流程
+# 🛠️ Luồng Xử Lý Phía Máy Chủ
 
-| 步骤 | 说明 |
+| Bước | Mô tả |
 | :--- | :--- |
-| 1. MQTT 生命周期监听 | 收到 `online` 事件时，创建或复用 transport，并最佳努力预热设备侧 MCP |
-| 2. `hello` 处理 | 返回 `audio_params`、UDP 地址、密钥和 `nonce`，并准备聊天级会话状态 |
-| 3. MQTT 消息监听 | 收到 `type: listen, state: start` 时，初始化 `clientState` 结构，状态为 `start` |
-| 4. UDP 服务 | 收到包后解析 `nonce`，查找对应 `clientState`，填充远程地址，状态为 `recv` |
-| 5. 停止接收 | 收到 `type: listen, state: stop` 或自动检测无声音时，停止接收 |
-| 6. MQTT 生命周期离线 | 收到 `offline` 事件时，立即映射离线状态，并在保留期后再回收 transport |
+| 1. Lắng nghe vòng đời MQTT | Khi nhận sự kiện `online`, tạo mới hoặc tái sử dụng transport, đồng thời cố gắng khởi động trước MCP phía thiết bị |
+| 2. Xử lý `hello` | Trả về `audio_params`, địa chỉ UDP, khóa và `nonce`, đồng thời chuẩn bị trạng thái phiên cấp trò chuyện |
+| 3. Lắng nghe tin nhắn MQTT | Khi nhận `type: listen, state: start`, khởi tạo cấu trúc `clientState` với trạng thái `start` |
+| 4. Dịch vụ UDP | Sau khi nhận gói tin, phân tích `nonce`, tìm `clientState` tương ứng, điền địa chỉ từ xa, trạng thái chuyển sang `recv` |
+| 5. Dừng nhận | Khi nhận `type: listen, state: stop` hoặc tự động phát hiện không có âm thanh, dừng nhận |
+| 6. Vòng đời MQTT ngoại tuyến | Khi nhận sự kiện `offline`, lập tức ánh xạ trạng thái ngoại tuyến và thu hồi transport sau thời gian giữ lại |
 
 ---
 
-# 🔗 关联关系
+# 🔗 Quan Hệ Liên Kết
 
-- OTA 验证 **MAC 地址** 和 **clientId**，并关联到 **uid**
-- OTA 下发的 **MQTT 地址** 和 **mqtt_clientId** 关联 **MAC 地址** 和 **clientId**
-- 通过 **MQTT 连接生命周期消息** 可提前关联 **MAC 地址**、`device_id`、`client_id`
-- 通过 **MQTT `hello` 消息** 可关联到 `audio_params`、`aes_key`、`nonce`
-- 通过 **UDP 音频消息** 可关联到 `nonce`
+- OTA xác thực **địa chỉ MAC** và **clientId**, liên kết với **uid**
+- **Địa chỉ MQTT** và **mqtt_clientId** được OTA cấp phát liên kết với **địa chỉ MAC** và **clientId**
+- Qua **tin nhắn vòng đời kết nối MQTT** có thể liên kết trước **địa chỉ MAC**, `device_id`, `client_id`
+- Qua **tin nhắn MQTT `hello`** có thể liên kết tới `audio_params`, `aes_key`, `nonce`
+- Qua **tin nhắn âm thanh UDP** có thể liên kết tới `nonce`
 
 ---
 
-> **说明：**
-> - `clientState` 结构用于维护每个客户端的聊天级会话状态和资源。
-> - transport 与 MCP 可在 MQTT 上线阶段提前准备，但真正的聊天级协商仍以 `hello` 为准。
-> - `nonce` 是客户端与服务端之间的唯一标识，用于安全关联和数据路由。
+> **Ghi chú:**
+> - Cấu trúc `clientState` dùng để duy trì trạng thái phiên cấp trò chuyện và tài nguyên của từng client.
+> - transport và MCP có thể được chuẩn bị trước trong giai đoạn kết nối MQTT, nhưng đàm phán cấp trò chuyện thực sự vẫn lấy `hello` làm chuẩn.
+> - `nonce` là định danh duy nhất giữa client và máy chủ, dùng cho liên kết bảo mật và định tuyến dữ liệu.

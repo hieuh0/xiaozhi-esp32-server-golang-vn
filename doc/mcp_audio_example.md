@@ -1,103 +1,103 @@
-# MCP Audio Server 独立仓库使用说明
+# Hướng dẫn sử dụng MCP Audio Server từ kho lưu trữ độc lập
 
-## 概述
+## Tổng quan
 
-MCP Audio Server 已经拆分为独立仓库，推荐直接使用独立项目进行运行、调试和二次开发。
+MCP Audio Server đã được tách ra thành kho lưu trữ độc lập. Khuyến nghị sử dụng trực tiếp dự án độc lập để chạy, gỡ lỗi và phát triển thêm.
 
-独立项目名称：
+Tên dự án độc lập:
 
 - `mcp_audio_server`
 - `github.com/hackers365/mcp_audio_server`
 
-核心目标是演示：
+Mục tiêu cốt lõi là minh họa:
 
-- 如何通过 `musicPlayer` 工具返回 `ResourceLink`
-- 如何通过 `resource/read` 分页读取音频数据
-- 如何用 `BlobResourceContents` 返回 base64 编码的音频片段
+- Cách trả về `ResourceLink` thông qua công cụ `musicPlayer`
+- Cách đọc dữ liệu âm thanh theo phân trang qua `resource/read`
+- Cách trả về đoạn âm thanh mã hóa base64 bằng `BlobResourceContents`
 
-这个独立仓库既可以直接运行，也适合作为接入模板。
+Kho lưu trữ độc lập này vừa có thể chạy trực tiếp, vừa phù hợp để làm mẫu tích hợp.
 
-## 推荐使用方式
+## Cách sử dụng khuyến nghị
 
-推荐在独立仓库中使用 MCP Audio Server。
+Khuyến nghị sử dụng MCP Audio Server từ kho lưu trữ độc lập.
 
-推荐先获取独立仓库，再进入项目目录：
+Khuyến nghị lấy kho lưu trữ độc lập trước, sau đó vào thư mục dự án:
 
 ```bash
 git clone https://github.com/hackers365/mcp_audio_server.git
 cd mcp_audio_server
 ```
 
-## 服务暴露的能力
+## Khả năng mà dịch vụ cung cấp
 
-当前服务只暴露两类能力：
+Hiện tại dịch vụ chỉ cung cấp hai loại khả năng:
 
-1. 工具 `musicPlayer`
-2. 资源 `resource://read_from_http`
+1. Công cụ `musicPlayer`
+2. Tài nguyên `resource://read_from_http`
 
 ### `musicPlayer`
 
-- 作用：根据用户输入的歌曲名搜索音乐并返回可播放资源
-- 入参：`query`
-- 返回：`ResourceLink`
+- Chức năng: Tìm kiếm bài hát theo tên người dùng nhập và trả về tài nguyên có thể phát
+- Tham số đầu vào: `query`
+- Giá trị trả về: `ResourceLink`
 
-返回的 `ResourceLink` 关键字段含义如下：
+Ý nghĩa các trường quan trọng trong `ResourceLink` trả về:
 
 - `URI`: `resource://read_from_http`
-- `Name`: 实际歌曲名
-- `Description`: 实际音频 URL
+- `Name`: Tên bài hát thực tế
+- `Description`: URL âm thanh thực tế
 - `MIMEType`: `audio/mpeg`
 
 ### `resource://read_from_http`
 
-- 作用：按分页读取远端音频数据
-- 调用方式：通过 `resource/read`
-- 参数通过 `Arguments` 传递
+- Chức năng: Đọc dữ liệu âm thanh từ xa theo phân trang
+- Cách gọi: Thông qua `resource/read`
+- Tham số truyền qua `Arguments`
 
-请求参数格式：
+Định dạng tham số yêu cầu:
 
 ```json
 {
-  "url": "实际音频URL",
+  "url": "URL âm thanh thực tế",
   "start": 0,
   "end": 102400
 }
 ```
 
-参数说明：
+Mô tả tham số:
 
-- `url`: 真实音频地址，来自 `ResourceLink.Description`
-- `start`: 起始字节偏移
-- `end`: 结束字节偏移，不包含该位置
+- `url`: Địa chỉ âm thanh thực, lấy từ `ResourceLink.Description`
+- `start`: Vị trí byte bắt đầu
+- `end`: Vị trí byte kết thúc, không bao gồm vị trí này
 
-返回内容为 `BlobResourceContents`：
+Nội dung trả về là `BlobResourceContents`:
 
 - `MIMEType`: `audio/mpeg`
-- `Blob`: base64 编码后的音频二进制数据
+- `Blob`: Dữ liệu nhị phân âm thanh được mã hóa base64
 
-当数据读完时，服务端会返回 base64 编码后的 `[DONE]` 作为结束标记。
+Khi đọc hết dữ liệu, server sẽ trả về `[DONE]` được mã hóa base64 làm dấu hiệu kết thúc.
 
-## 调用流程
+## Luồng gọi
 
-完整流程如下：
+Luồng đầy đủ như sau:
 
-1. 客户端调用 `musicPlayer`
-2. 工具搜索歌曲并返回 `ResourceLink`
-3. 客户端对 `resource://read_from_http` 发起 `resource/read`
-4. 每次通过 `Arguments` 传 `url`、`start`、`end`
-5. Server 返回 base64 编码的 `BlobResourceContents`
-6. 客户端解码后按音频流持续播放，直到收到 `[DONE]`
+1. Client gọi `musicPlayer`
+2. Công cụ tìm kiếm bài hát và trả về `ResourceLink`
+3. Client gửi `resource/read` tới `resource://read_from_http`
+4. Mỗi lần truyền `url`, `start`, `end` qua `Arguments`
+5. Server trả về `BlobResourceContents` được mã hóa base64
+6. Client giải mã và phát liên tục theo luồng âm thanh cho đến khi nhận được `[DONE]`
 
-## 运行方式
+## Cách chạy
 
-独立仓库支持两种传输方式：
+Kho lưu trữ độc lập hỗ trợ hai phương thức truyền tải:
 
-- 默认：`stdio`
-- 可选：HTTP Streamable MCP
+- Mặc định: `stdio`
+- Tùy chọn: HTTP Streamable MCP
 
-### stdio 模式
+### Chế độ stdio
 
-直接启动：
+Khởi động trực tiếp:
 
 ```bash
 git clone https://github.com/hackers365/mcp_audio_server.git
@@ -105,59 +105,59 @@ cd mcp_audio_server
 go run .
 ```
 
-### HTTP 模式
+### Chế độ HTTP
 
-显式指定 HTTP 传输：
+Chỉ định rõ ràng phương thức truyền tải HTTP:
 
 ```bash
 cd mcp_audio_server
 go run . -t http
 ```
 
-或：
+Hoặc:
 
 ```bash
 cd mcp_audio_server
 go run . --transport http
 ```
 
-HTTP 模式下监听信息为：
+Thông tin lắng nghe ở chế độ HTTP:
 
-- 端口：`3001`
-- 路径：`/mcp`
-- 完整地址：`http://localhost:3001/mcp`
+- Cổng: `3001`
+- Đường dẫn: `/mcp`
+- Địa chỉ đầy đủ: `http://localhost:3001/mcp`
 
-## 当前使用注意事项
+## Lưu ý khi sử dụng hiện tại
 
-独立仓库可以直接构建和运行，使用前建议注意以下几点：
+Kho lưu trữ độc lập có thể xây dựng và chạy trực tiếp. Trước khi sử dụng, nên lưu ý các điểm sau:
 
-- 歌曲搜索和真实 URL 获取依赖 `github.com/scroot/music-sd/pkg/netease` 和 `github.com/scroot/music-sd/pkg/qq`
-- 音乐搜索结果和可播放链接的稳定性取决于外部站点能力
-- 如果把这个独立项目移植到其他项目中，通常需要同步补齐上述依赖和搜索逻辑
+- Việc tìm kiếm bài hát và lấy URL thực tế phụ thuộc vào `github.com/scroot/music-sd/pkg/netease` và `github.com/scroot/music-sd/pkg/qq`
+- Độ ổn định của kết quả tìm kiếm nhạc và các liên kết có thể phát phụ thuộc vào khả năng của các trang web bên ngoài
+- Nếu chuyển dự án độc lập này sang dự án khác, thường cần bổ sung đồng bộ các phụ thuộc và logic tìm kiếm nêu trên
 
-如果你的目标是快速接入自己的音频工具，建议优先复用协议和数据流，而不是直接复用歌曲搜索实现。
+Nếu mục tiêu của bạn là tích hợp nhanh công cụ âm thanh của riêng mình, khuyến nghị ưu tiên tái sử dụng giao thức và luồng dữ liệu thay vì trực tiếp tái sử dụng phần triển khai tìm kiếm bài hát.
 
-## 作为模板接入时应保持不变的部分
+## Các phần cần giữ nguyên khi sử dụng làm mẫu tích hợp
 
-如果要把这个独立项目改造成你自己的音频 MCP Server，建议保留下面这些协议约定：
+Nếu muốn chuyển đổi dự án độc lập này thành MCP Audio Server của riêng bạn, khuyến nghị giữ nguyên các quy ước giao thức sau:
 
-- 工具返回 `ResourceLink`
-- `resource/read` 使用 `Arguments` 分页读取
-- 音频数据通过 `BlobResourceContents.Blob` 返回
-- `Blob` 内容保持为 base64 编码
-- 音频 MIME 类型与真实数据一致；当前独立仓库为 `audio/mpeg`
-- 流结束时返回 `[DONE]`
+- Công cụ trả về `ResourceLink`
+- `resource/read` sử dụng `Arguments` để đọc theo phân trang
+- Dữ liệu âm thanh được trả về qua `BlobResourceContents.Blob`
+- Nội dung `Blob` giữ nguyên dạng mã hóa base64
+- Loại MIME âm thanh phải khớp với dữ liệu thực tế; kho lưu trữ độc lập hiện tại là `audio/mpeg`
+- Trả về `[DONE]` khi kết thúc luồng
 
-这样可以与当前主服务里的音频消费逻辑保持兼容。
+Như vậy có thể duy trì tính tương thích với logic tiêu thụ âm thanh trong dịch vụ chính hiện tại.
 
-## 与当前主服务的兼容性
+## Tính tương thích với dịch vụ chính hiện tại
 
-当前主服务对音频类 MCP 工具的消费逻辑已经按以下方式处理：
+Logic tiêu thụ công cụ MCP loại âm thanh trong dịch vụ chính hiện tại đã được xử lý theo cách sau:
 
-- 识别 `ResourceLink`
-- 使用 `Arguments` 方式分页调用 `resource/read`
-- 解码 `BlobResourceContents.Blob`
-- 按 MIME 类型解析音频格式
-- 持续播放直到读取完成
+- Nhận dạng `ResourceLink`
+- Gọi `resource/read` theo phân trang bằng phương thức `Arguments`
+- Giải mã `BlobResourceContents.Blob`
+- Phân tích định dạng âm thanh theo loại MIME
+- Phát liên tục cho đến khi đọc xong
 
-因此，这个独立项目的协议形态可以继续作为音频类 MCP 工具的参考模板。
+Do đó, hình thái giao thức của dự án độc lập này có thể tiếp tục được sử dụng làm mẫu tham chiếu cho các công cụ MCP loại âm thanh.

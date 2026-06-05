@@ -1,69 +1,69 @@
-# MCP 工具调用返回内容类型文档
+# Tài liệu các loại nội dung trả về khi gọi công cụ MCP
 
-## 概述
+## Tổng quan
 
-本文档详细描述了程序支持的工具调用返回内容类型。程序采用**结构化响应系统**，支持多种内容类型的处理和渲染。
+Tài liệu này mô tả chi tiết các loại nội dung trả về khi gọi công cụ mà chương trình hỗ trợ. Chương trình sử dụng **hệ thống phản hồi có cấu trúc**, hỗ trợ xử lý và render nhiều loại nội dung khác nhau.
 
-## 🔧 核心处理流程
+## 🔧 Luồng xử lý cốt lõi
 
-### 工具调用响应处理
+### Xử lý phản hồi gọi công cụ
 
-工具调用响应的核心处理器负责：
+Bộ xử lý cốt lõi của phản hồi gọi công cụ chịu trách nhiệm:
 
-1. **工具调用执行**: 遍历所有工具调用请求
-2. **结果解析**: 解析工具返回的结果
-3. **内容类型识别**: 根据内容类型进行不同的处理
-4. **资源渲染**: 处理音频、文本、资源链接等不同类型的内容
+1. **Thực thi gọi công cụ**: Duyệt qua tất cả các yêu cầu gọi công cụ
+2. **Phân tích kết quả**: Phân tích kết quả trả về từ công cụ
+3. **Nhận diện loại nội dung**: Xử lý khác nhau tùy theo loại nội dung
+4. **Render tài nguyên**: Xử lý các loại nội dung khác nhau như âm thanh, văn bản, liên kết tài nguyên
 
-## 📋 支持的内容类型
+## 📋 Các loại nội dung được hỗ trợ
 
-### 1. 音频内容 (AudioContent)
+### 1. Nội dung âm thanh (AudioContent)
 
-**类型**: `mcp_go.AudioContent`
+**Kiểu**: `mcp_go.AudioContent`
 
-**特征**:
-- 包含 Base64 编码的音频数据
-- 支持多种音频格式 (MIME Type)
-- 直接播放，终止后续 LLM 处理
+**Đặc điểm**:
+- Chứa dữ liệu âm thanh được mã hóa Base64
+- Hỗ trợ nhiều định dạng âm thanh (MIME Type)
+- Phát trực tiếp, kết thúc quá trình xử lý LLM tiếp theo
 
-**处理流程**:
+**Luồng xử lý**:
 ```go
 if audioContent, ok := content.(mcp_go.AudioContent); ok {
-    // 解码 Base64 音频数据
+    // Giải mã dữ liệu âm thanh Base64
     rawAudioData, err := base64.StdEncoding.DecodeString(audioContent.Data)
-    // 使用 music_player 播放音频
+    // Sử dụng music_player để phát âm thanh
     audioChan, err := play_music.PlayMusicFromAudioData(ctx, rawAudioData, ...)
-    // 发送播放状态消息
+    // Gửi thông báo trạng thái phát
     l.serverTransport.SendSentenceStart(playText)
-    // 通过 TTS 管理器播放音频
+    // Phát âm thanh thông qua TTS manager
     l.ttsManager.SendTTSAudio(ctx, audioChan, true)
 }
 ```
 
-**使用场景**:
-- 音乐播放工具
-- 语音合成工具
-- 音频文件播放
+**Trường hợp sử dụng**:
+- Công cụ phát nhạc
+- Công cụ tổng hợp giọng nói
+- Phát tệp âm thanh
 
-### 2. 资源链接 (ResourceLink)
+### 2. Liên kết tài nguyên (ResourceLink)
 
-**类型**: `mcp_go.ResourceLink`
+**Kiểu**: `mcp_go.ResourceLink`
 
-**特征**:
-- 包含资源 URI 和元数据
-- 支持分页读取大型资源
-- 流式处理，适合大文件
-- 使用 Pipe 机制实现实时音频流播放
+**Đặc điểm**:
+- Chứa URI tài nguyên và metadata
+- Hỗ trợ đọc phân trang cho tài nguyên lớn
+- Xử lý luồng, phù hợp với tệp lớn
+- Sử dụng cơ chế Pipe để phát luồng âm thanh theo thời gian thực
 
-**处理流程**:
+**Luồng xử lý**:
 ```go
 if resourceLink, ok := content.(mcp_go.ResourceLink); ok {
-    // 创建 Pipe 用于流式传输
+    // Tạo Pipe để truyền dữ liệu luồng
     pipeReader, pipeWriter = io.Pipe()
     
-    // 启动分页读取协程
+    // Khởi động goroutine đọc phân trang
     go func() {
-        // 分页读取资源
+        // Đọc tài nguyên theo trang
         resourceResult, err := client.ReadResource(readCtx, mcp_go.ReadResourceRequest{
             Params: mcp_go.ReadResourceParams{
                 URI: resourceLink.URI,
@@ -75,39 +75,39 @@ if resourceLink, ok := content.(mcp_go.ResourceLink); ok {
             },
         })
         
-        // 处理 BlobResourceContents
+        // Xử lý BlobResourceContents
         for _, content := range resourceResult.Contents {
             if audioContent, ok := content.(mcp_go.BlobResourceContents); ok {
-                // 解码并发送到音频流通道
+                // Giải mã và gửi vào kênh luồng âm thanh
                 rawAudioData, err := base64.StdEncoding.DecodeString(audioContent.Blob)
                 streamChan <- rawAudioData
             }
         }
     }()
     
-    // 使用 music_player 播放音频流
+    // Sử dụng music_player để phát luồng âm thanh
     audioChan, err := play_music.PlayMusicFromPipe(ctx, pipeReader, ...)
 }
 ```
 
-**分页读取参数详解**:
+**Chi tiết tham số đọc phân trang**:
 
-#### 请求参数格式
+#### Định dạng tham số yêu cầu
 ```go
 Arguments: map[string]any{
-    "url": resourceLink.Description,  // 实际资源URL
-    "start": start,                   // 起始字节位置
-    "end": start + page,              // 结束字节位置
+    "url": resourceLink.Description,  // URL tài nguyên thực tế
+    "start": start,                   // Vị trí byte bắt đầu
+    "end": start + page,              // Vị trí byte kết thúc
 }
 ```
 
-#### 参数说明
-- **url**: 实际资源的 URL 地址，来自 `resourceLink.Description`
-- **start**: 起始字节位置，从0开始计数
-- **end**: 结束字节位置（不包含），即读取范围 [start, end)
-- **分页大小**: 由 `McpReadResourcePageSize` 常量定义，默认 100KB
+#### Giải thích tham số
+- **url**: Địa chỉ URL của tài nguyên thực tế, lấy từ `resourceLink.Description`
+- **start**: Vị trí byte bắt đầu, tính từ 0
+- **end**: Vị trí byte kết thúc (không bao gồm), tức là phạm vi đọc [start, end)
+- **Kích thước trang**: Được định nghĩa bởi hằng số `McpReadResourcePageSize`, mặc định 100KB
 
-#### 分页读取流程
+#### Luồng đọc phân trang
 ```go
 start := 0
 page := McpReadResourcePageSize  // 100 * 1024
@@ -115,10 +115,10 @@ totalRead := 0
 pageCount := 0
 
 for {
-    // 创建带超时的上下文
+    // Tạo context với timeout
     readCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
     
-    // 发送分页读取请求
+    // Gửi yêu cầu đọc phân trang
     resourceResult, err := client.ReadResource(readCtx, mcp_go.ReadResourceRequest{
         Params: mcp_go.ReadResourceParams{
             URI: resourceLink.URI,
@@ -131,42 +131,42 @@ for {
     })
     cancel()
     
-    // 处理返回的 BlobResourceContents
+    // Xử lý BlobResourceContents trả về
     for _, content := range resourceResult.Contents {
         if audioContent, ok := content.(mcp_go.BlobResourceContents); ok {
-            // 解码Base64数据
+            // Giải mã dữ liệu Base64
             rawAudioData, err := base64.StdEncoding.DecodeString(audioContent.Blob)
             
-            // 检查是否为结束标志
+            // Kiểm tra có phải cờ kết thúc không
             if string(rawAudioData) == McpReadResourceStreamDoneFlag {
-                return nil // 读取完成
+                return nil // Đọc hoàn tất
             }
             
-            // 发送到音频流通道
+            // Gửi vào kênh luồng âm thanh
             streamChan <- rawAudioData
             totalRead += len(rawAudioData)
         }
     }
     
-    // 检查读取完成条件
+    // Kiểm tra điều kiện đọc hoàn tất
     if len(rawAudioData) < page || !hasData {
-        return nil // 读取完成
+        return nil // Đọc hoàn tất
     }
     
-    // 更新起始位置
+    // Cập nhật vị trí bắt đầu
     start += page
     pageCount++
 }
 ```
 
-#### 流式处理机制
+#### Cơ chế xử lý luồng
 
-**Pipe 传输架构**:
+**Kiến trúc truyền dữ liệu qua Pipe**:
 ```go
-// 创建 Pipe 用于音频流传输
+// Tạo Pipe để truyền luồng âm thanh
 pipeReader, pipeWriter = io.Pipe()
 
-// 启动数据写入协程
+// Khởi động goroutine ghi dữ liệu
 go func() {
     for {
         select {
@@ -182,147 +182,147 @@ go func() {
     }
 }()
 
-// 使用 music_player 从 Pipe 播放音频
+// Sử dụng music_player phát âm thanh từ Pipe
 audioChan, err := play_music.PlayMusicFromPipe(ctx, pipeReader, ...)
 ```
 
-#### 错误处理机制
+#### Cơ chế xử lý lỗi
 
-**超时重试**:
+**Thử lại khi timeout**:
 ```go
 if err != nil {
-    // 如果是超时错误，尝试重试
+    // Nếu là lỗi timeout, thử lại
     if strings.Contains(err.Error(), "timeout") || strings.Contains(err.Error(), "deadline") {
-        log.Warnf("资源读取超时，尝试重试...")
+        log.Warnf("Đọc tài nguyên bị timeout, đang thử lại...")
         time.Sleep(1 * time.Second)
         continue
     }
-    return fmt.Errorf("读取资源失败: %v", err)
+    return fmt.Errorf("đọc tài nguyên thất bại: %v", err)
 }
 ```
 
-**上下文取消**:
+**Hủy context**:
 ```go
 select {
 case <-ctx.Done():
-    log.Debugf("资源读取被取消")
+    log.Debugf("Đọc tài nguyên bị hủy")
     return nil
 case streamChan <- rawAudioData:
-    // 正常发送数据
+    // Gửi dữ liệu bình thường
 }
 ```
 
-#### 分页机制特性
-- **内存优化**: 分页读取避免一次性加载大文件到内存
-- **流式处理**: 边读取边播放，支持实时音频流
-- **自动结束**: 检测 `McpReadResourceStreamDoneFlag` 标志判断读取完成
-- **错误恢复**: 支持超时重试和上下文取消
-- **实时播放**: 使用 Pipe 机制实现边读取边播放
-- **超时控制**: 每次分页读取都有30秒超时限制
+#### Đặc điểm cơ chế phân trang
+- **Tối ưu bộ nhớ**: Đọc phân trang tránh tải toàn bộ tệp lớn vào bộ nhớ cùng lúc
+- **Xử lý luồng**: Đọc và phát đồng thời, hỗ trợ luồng âm thanh thời gian thực
+- **Tự động kết thúc**: Phát hiện cờ `McpReadResourceStreamDoneFlag` để xác định hoàn tất
+- **Khôi phục lỗi**: Hỗ trợ thử lại khi timeout và hủy context
+- **Phát thời gian thực**: Sử dụng cơ chế Pipe để phát trong khi đọc
+- **Kiểm soát timeout**: Mỗi lần đọc phân trang có giới hạn timeout 30 giây
 
-#### 配置参数
-- **McpReadResourcePageSize**: 分页大小，默认 100KB (100 * 1024)
-- **McpReadResourceStreamDoneFlag**: 流结束标志，为 `"[DONE]"`
-- **读取超时**: 每次分页读取的超时时间，默认30秒
-- **重试机制**: 超时错误自动重试，间隔1秒
+#### Tham số cấu hình
+- **McpReadResourcePageSize**: Kích thước trang đọc, mặc định 100KB (100 * 1024)
+- **McpReadResourceStreamDoneFlag**: Cờ kết thúc luồng, giá trị là `"[DONE]"`
+- **Timeout đọc**: Thời gian timeout mỗi lần đọc phân trang, mặc định 30 giây
+- **Cơ chế thử lại**: Tự động thử lại khi có lỗi timeout, khoảng cách 1 giây
 
-**使用场景**:
-- 大型音频文件播放
-- 流媒体资源处理
-- 网络资源访问
-- 实时音频流播放
+**Trường hợp sử dụng**:
+- Phát tệp âm thanh lớn
+- Xử lý tài nguyên media trực tuyến
+- Truy cập tài nguyên mạng
+- Phát luồng âm thanh thời gian thực
 
-### 3. 文本内容 (TextContent)
+### 3. Nội dung văn bản (TextContent)
 
-**类型**: `mcp_go.TextContent`
+**Kiểu**: `mcp_go.TextContent`
 
-**特征**:
-- 纯文本内容
-- 累积到响应消息中
-- 不终止后续处理
+**Đặc điểm**:
+- Nội dung văn bản thuần túy
+- Tích lũy vào thông điệp phản hồi
+- Không kết thúc quá trình xử lý tiếp theo
 
-**处理流程**:
+**Luồng xử lý**:
 ```go
 if textContent, ok := content.(mcp_go.TextContent); ok {
     mcpContent += textContent.Text
 }
 ```
 
-**使用场景**:
-- 查询结果返回
-- 状态信息显示
-- 错误消息展示
+**Trường hợp sử dụng**:
+- Trả về kết quả truy vấn
+- Hiển thị thông tin trạng thái
+- Hiển thị thông báo lỗi
 
-### 4. Blob 资源内容 (BlobResourceContents)
+### 4. Nội dung tài nguyên Blob (BlobResourceContents)
 
-**类型**: `mcp_go.BlobResourceContents`
+**Kiểu**: `mcp_go.BlobResourceContents`
 
-**特征**:
-- 二进制数据内容
-- Base64 编码
-- 支持流式处理
+**Đặc điểm**:
+- Nội dung dữ liệu nhị phân
+- Mã hóa Base64
+- Hỗ trợ xử lý luồng
 
-**处理流程**:
+**Luồng xử lý**:
 ```go
 if audioContent, ok := content.(mcp_go.BlobResourceContents); ok {
     rawAudioData, err := base64.StdEncoding.DecodeString(audioContent.Blob)
-    // 检查是否为结束标志
+    // Kiểm tra có phải cờ kết thúc không
     if string(rawAudioData) == McpReadResourceStreamDoneFlag {
         return nil
     }
-    // 发送到音频流通道
+    // Gửi vào kênh luồng âm thanh
     streamChan <- rawAudioData
 }
 ```
 
-## 🏗️ 结构化响应系统
+## 🏗️ Hệ thống phản hồi có cấu trúc
 
-### 响应类型分类
+### Phân loại kiểu phản hồi
 
-程序支持四种主要的响应类型：
+Chương trình hỗ trợ bốn loại phản hồi chính:
 
-#### 1. 动作类响应 (MCPActionResponse)
-- **用途**: 执行特定动作，如播放音乐、退出对话
-- **终止性**: 可配置，通常终止后续 LLM 处理
-- **控制标志**: `FinalAction`, `NoFurtherResponse`, `SilenceLLM`
+#### 1. Phản hồi hành động (MCPActionResponse)
+- **Mục đích**: Thực thi các hành động cụ thể, như phát nhạc, thoát hội thoại
+- **Tính kết thúc**: Có thể cấu hình, thường kết thúc quá trình xử lý LLM tiếp theo
+- **Cờ điều khiển**: `FinalAction`, `NoFurtherResponse`, `SilenceLLM`
 
-#### 2. 音频类响应 (MCPAudioResponse)
-- **用途**: 音频资源播放
-- **终止性**: 通常终止后续处理
-- **特征**: 包含音频数据和播放信息
+#### 2. Phản hồi âm thanh (MCPAudioResponse)
+- **Mục đích**: Phát tài nguyên âm thanh
+- **Tính kết thúc**: Thường kết thúc quá trình xử lý tiếp theo
+- **Đặc điểm**: Chứa dữ liệu âm thanh và thông tin phát
 
-#### 3. 内容类响应 (MCPContentResponse)
-- **用途**: 返回查询数据、状态信息
-- **终止性**: 不终止后续处理
-- **特征**: 包含数据和显示提示
+#### 3. Phản hồi nội dung (MCPContentResponse)
+- **Mục đích**: Trả về dữ liệu truy vấn, thông tin trạng thái
+- **Tính kết thúc**: Không kết thúc quá trình xử lý tiếp theo
+- **Đặc điểm**: Chứa dữ liệu và gợi ý hiển thị
 
-#### 4. 错误类响应 (MCPErrorResponse)
-- **用途**: 统一错误处理
-- **终止性**: 不终止后续处理
-- **特征**: 包含错误码和建议
+#### 4. Phản hồi lỗi (MCPErrorResponse)
+- **Mục đích**: Xử lý lỗi thống nhất
+- **Tính kết thúc**: Không kết thúc quá trình xử lý tiếp theo
+- **Đặc điểm**: Chứa mã lỗi và gợi ý
 
-### 响应处理接口
+### Giao diện xử lý phản hồi
 
 ```go
 type MCPResponse interface {
     GetType() MCPResponseType
     GetSuccess() bool
-    IsTerminal() bool // 关键：判断是否终止后续LLM处理
+    IsTerminal() bool // Quan trọng: xác định có kết thúc xử lý LLM tiếp theo không
     ToJSON() (string, error)
     GetContent() []mcp_go.Content
 }
 ```
 
-## 🔄 处理流程详解
+## 🔄 Chi tiết luồng xử lý
 
-### 1. 工具调用执行
+### 1. Thực thi gọi công cụ
 ```go
 fcResult, err := tool.InvokableRun(toolCtx, toolCall.Function.Arguments)
 ```
 
-### 2. 结果解析
+### 2. Phân tích kết quả
 ```go
-// 尝试解析本地工具结果
+// Thử phân tích kết quả công cụ nội bộ
 if mcpResp, ok := l.handleLocalToolResult(fcResult); ok {
     contentList = mcpResp.GetContent()
 } else if toolCallResult, ok := l.handleToolResult(fcResult); ok {
@@ -330,135 +330,135 @@ if mcpResp, ok := l.handleLocalToolResult(fcResult); ok {
 }
 ```
 
-> `handleToolResult` **不再要求工具返回值必须是 JSON**。  
-> - 如果返回的是标准 MCP `CallToolResult` JSON，会按结构化内容解析。  
-> - 如果返回的是普通字符串，会自动包装成 `TextContent` 继续后续流程。  
-> 这样普通文本工具和结构化 MCP 工具都可以被统一处理。
+> `handleToolResult` **không còn yêu cầu giá trị trả về của công cụ phải là JSON**.  
+> - Nếu trả về là JSON `CallToolResult` MCP chuẩn, sẽ được phân tích theo nội dung có cấu trúc.  
+> - Nếu trả về là chuỗi thông thường, sẽ tự động được bọc thành `TextContent` để tiếp tục xử lý.  
+> Như vậy cả công cụ văn bản thông thường và công cụ MCP có cấu trúc đều có thể được xử lý thống nhất.
 
-### 3. 内容类型处理
+### 3. Xử lý loại nội dung
 ```go
 for _, content := range contentList {
     switch content.(type) {
     case mcp_go.AudioContent:
-        // 处理音频内容
+        // Xử lý nội dung âm thanh
     case mcp_go.ResourceLink:
-        // 处理资源链接
+        // Xử lý liên kết tài nguyên
     case mcp_go.TextContent:
-        // 处理文本内容
+        // Xử lý nội dung văn bản
     }
 }
 ```
 
-### 4. 后续处理控制
+### 4. Kiểm soát xử lý tiếp theo
 ```go
 if invokeToolSuccess && !shouldStopLLMProcessing {
     l.DoLLmRequest(ctx, nil, l.einoTools, true)
 }
 ```
 
-## 📊 内容类型对比表
+## 📊 Bảng so sánh các loại nội dung
 
-| 内容类型 | 终止性 | 处理方式 | 使用场景 | 示例工具 |
+| Loại nội dung | Tính kết thúc | Cách xử lý | Trường hợp sử dụng | Công cụ ví dụ |
 |----------|--------|----------|----------|----------|
-| **AudioContent** | 终止 | 直接播放 | 小音频文件 | play_music |
-| **ResourceLink** | 终止 | 分页读取+流式播放 | 大文件/流媒体 | music_player |
-| **TextContent** | 不终止 | 累积文本 | 信息查询 | get_datetime |
-| **BlobResourceContents** | 终止 | 流式处理 | 音频流数据 | audio_stream |
+| **AudioContent** | Kết thúc | Phát trực tiếp | Tệp âm thanh nhỏ | play_music |
+| **ResourceLink** | Kết thúc | Đọc phân trang + phát luồng | Tệp lớn/media trực tuyến | music_player |
+| **TextContent** | Không kết thúc | Tích lũy văn bản | Truy vấn thông tin | get_datetime |
+| **BlobResourceContents** | Kết thúc | Xử lý luồng | Dữ liệu luồng âm thanh | audio_stream |
 
-## 🎯 最佳实践
+## 🎯 Thực hành tốt nhất
 
-### 1. 工具实现建议
-- **音频工具**: 返回 `AudioContent` 或 `ResourceLink`
-- **查询工具**: 返回 `TextContent`
-- **动作工具**: 使用结构化响应系统
+### 1. Khuyến nghị triển khai công cụ
+- **Công cụ âm thanh**: Trả về `AudioContent` hoặc `ResourceLink`
+- **Công cụ truy vấn**: Trả về `TextContent`
+- **Công cụ hành động**: Sử dụng hệ thống phản hồi có cấu trúc
 
-### 2. 性能优化
-- 大文件使用 `ResourceLink` 进行分页处理，支持流式播放
-- 小音频文件直接使用 `AudioContent`，减少网络开销
-- 文本内容避免过长，影响响应速度
-- 使用 Pipe 机制实现边读取边播放，提升用户体验
+### 2. Tối ưu hiệu suất
+- Tệp lớn sử dụng `ResourceLink` để đọc phân trang, hỗ trợ phát luồng
+- Tệp âm thanh nhỏ dùng trực tiếp `AudioContent`, giảm chi phí mạng
+- Tránh nội dung văn bản quá dài, ảnh hưởng tốc độ phản hồi
+- Sử dụng cơ chế Pipe để phát trong khi đọc, nâng cao trải nghiệm người dùng
 
-### 3. 错误处理
-- 使用 `MCPErrorResponse` 统一错误格式
-- 提供有意义的错误码和建议
-- 保持向后兼容性
+### 3. Xử lý lỗi
+- Sử dụng `MCPErrorResponse` để thống nhất định dạng lỗi
+- Cung cấp mã lỗi và gợi ý có ý nghĩa
+- Duy trì tính tương thích ngược
 
-## 🔧 配置参数
+## 🔧 Tham số cấu hình
 
-### 分页配置
-- `McpReadResourcePageSize`: 资源读取分页大小，默认 100KB (100 * 1024)
-- `McpReadResourceStreamDoneFlag`: 流结束标志，为 `"[DONE]"`
-- **读取超时**: 每次分页读取的超时时间，默认30秒
-- **重试机制**: 超时错误自动重试，间隔1秒
+### Cấu hình phân trang
+- `McpReadResourcePageSize`: Kích thước trang đọc tài nguyên, mặc định 100KB (100 * 1024)
+- `McpReadResourceStreamDoneFlag`: Cờ kết thúc luồng, giá trị là `"[DONE]"`
+- **Timeout đọc**: Thời gian timeout mỗi lần đọc phân trang, mặc định 30 giây
+- **Cơ chế thử lại**: Tự động thử lại khi có lỗi timeout, khoảng cách 1 giây
 
-### 音频配置
-- `OutputAudioFormat.SampleRate`: 输出音频采样率
-- `OutputAudioFormat.FrameDuration`: 输出音频帧时长
-- **音频格式**: 根据 `resourceLink.MIMEType` 自动识别
+### Cấu hình âm thanh
+- `OutputAudioFormat.SampleRate`: Tốc độ lấy mẫu âm thanh đầu ra
+- `OutputAudioFormat.FrameDuration`: Thời lượng khung âm thanh đầu ra
+- **Định dạng âm thanh**: Tự động nhận diện theo `resourceLink.MIMEType`
 
-## 📝 扩展指南
+## 📝 Hướng dẫn mở rộng
 
-### 添加新的内容类型
-1. 在 `mcp_go` 包中定义新的内容类型
-2. 在 `handleToolCallResponse` 中添加类型处理逻辑
-3. 实现相应的处理函数
-4. 更新文档和测试
+### Thêm loại nội dung mới
+1. Định nghĩa loại nội dung mới trong gói `mcp_go`
+2. Thêm logic xử lý loại vào `handleToolCallResponse`
+3. Triển khai hàm xử lý tương ứng
+4. Cập nhật tài liệu và kiểm thử
 
-### 自定义响应类型
-1. 继承 `MCPResponseBase`
-2. 实现 `MCPResponse` 接口
-3. 在 `ParseMCPResponse` 中添加解析逻辑
-4. 提供便利构造函数
+### Tùy chỉnh kiểu phản hồi
+1. Kế thừa `MCPResponseBase`
+2. Triển khai giao diện `MCPResponse`
+3. Thêm logic phân tích vào `ParseMCPResponse`
+4. Cung cấp hàm khởi tạo tiện lợi
 
-## 🎵 MCP Audio Server 独立仓库
+## 🎵 Kho lưu trữ độc lập MCP Audio Server
 
-### 概述
+### Tổng quan
 
-MCP Audio Server 已经拆分为独立仓库，推荐通过独立项目运行和调试音频类 MCP Server。当前文档中的这一节主要说明它与主服务的协议兼容方式。
+MCP Audio Server đã được tách thành kho lưu trữ độc lập, khuyến nghị chạy và gỡ lỗi Audio MCP Server thông qua dự án độc lập. Phần này trong tài liệu hiện tại chủ yếu giải thích cách thức tương thích giao thức với dịch vụ chính.
 
-### 核心功能
+### Chức năng cốt lõi
 
-#### 1. 音乐播放工具
-- **工具名称**: `musicPlayer`
-- **功能**: 搜索并播放音乐
-- **返回**: `ResourceLink` 类型的音频资源链接
+#### 1. Công cụ phát nhạc
+- **Tên công cụ**: `musicPlayer`
+- **Chức năng**: Tìm kiếm và phát nhạc
+- **Trả về**: Liên kết tài nguyên âm thanh kiểu `ResourceLink`
 
-#### 2. 音频资源模板
-- **URI 格式**: `resource://read_from_http`
-- **功能**: 支持分页读取音频数据，通过 Arguments 传递参数
-- **参数**: url (实际音乐URL), start (起始位置), end (结束位置)
-- **返回**: `BlobResourceContents` 类型的音频数据
+#### 2. Template tài nguyên âm thanh
+- **Định dạng URI**: `resource://read_from_http`
+- **Chức năng**: Hỗ trợ đọc phân trang dữ liệu âm thanh, truyền tham số qua Arguments
+- **Tham số**: url (URL nhạc thực tế), start (vị trí bắt đầu), end (vị trí kết thúc)
+- **Trả về**: Dữ liệu âm thanh kiểu `BlobResourceContents`
 
-### 关键特性
+### Tính năng quan trọng
 
-- **分页读取**: 支持大文件的流式处理
-- **HTTP Range 请求**: 实现音频数据的分段获取
-- **错误处理**: 处理 416 状态码等异常情况
-- **超时重试**: 自动重试超时错误，间隔1秒
-- **上下文取消**: 支持优雅的资源读取取消
-- **Base64 编码**: 安全传递音乐 URL 参数
-- **多传输支持**: stdio 和 HTTP 两种传输方式
-- **实时播放**: 使用 Pipe 机制实现边读取边播放
+- **Đọc phân trang**: Hỗ trợ xử lý luồng cho tệp lớn
+- **HTTP Range request**: Thực hiện lấy dữ liệu âm thanh theo từng đoạn
+- **Xử lý lỗi**: Xử lý các trường hợp bất thường như mã trạng thái 416
+- **Thử lại khi timeout**: Tự động thử lại lỗi timeout, khoảng cách 1 giây
+- **Hủy context**: Hỗ trợ hủy đọc tài nguyên một cách graceful
+- **Mã hóa Base64**: Truyền tham số URL nhạc an toàn
+- **Hỗ trợ nhiều phương thức truyền tải**: Hai phương thức stdio và HTTP
+- **Phát thời gian thực**: Sử dụng cơ chế Pipe để phát trong khi đọc
 
-### 使用方式
+### Cách sử dụng
 
 ```bash
-# 获取并进入独立仓库
+# Lấy và vào kho lưu trữ độc lập
 git clone https://github.com/hackers365/mcp_audio_server.git
 cd mcp_audio_server
 
-# 启动服务器
+# Khởi động server
 go run .
 
-# 工具调用
+# Gọi công cụ
 {
   "name": "musicPlayer",
   "arguments": {"query": "周杰伦"}
 }
 ```
 
-这个独立项目展示了如何构建支持音频资源处理的 MCP 工具，可作为开发其他音频相关工具的参考模板。更完整的使用说明可参考 `doc/mcp_audio_example.md`。
+Dự án độc lập này trình bày cách xây dựng công cụ MCP hỗ trợ xử lý tài nguyên âm thanh, có thể dùng làm template tham khảo khi phát triển các công cụ liên quan đến âm thanh khác. Hướng dẫn sử dụng đầy đủ hơn có thể tham khảo tại `doc/mcp_audio_example.md`.
 
 ---
 
-*本文档反映了程序当前支持的所有工具调用返回内容类型。* 
+*Tài liệu này phản ánh tất cả các loại nội dung trả về khi gọi công cụ mà chương trình hiện đang hỗ trợ.* 

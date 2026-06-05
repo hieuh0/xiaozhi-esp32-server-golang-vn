@@ -1,179 +1,179 @@
-# 管理后台使用指南
+# Hướng dẫn sử dụng trang quản trị
 
-## 访问管理后台
+## Truy cập trang quản trị
 
-- 地址：http://<服务器IP或域名>:8080
+- Địa chỉ: http://<IP máy chủ hoặc tên miền>:8080
 
 ---
 
-## 一、配置向导
+## I. Trình hướng dẫn cấu hình
 
-首次登录后自动进入配置向导，共5个步骤。
+Sau khi đăng nhập lần đầu, hệ thống tự động vào trình hướng dẫn cấu hình gồm 5 bước.
 
-### Step 1: OTA 配置
+### Step 1: Cấu hình OTA
 
-配置OTA服务器信息，用于配置下发给小智硬件的 websocket和mqtt地址。
+Cấu hình thông tin máy chủ OTA, dùng để phân phối địa chỉ websocket và mqtt xuống phần cứng Xiaozhi.
 
 <!-- 截图位置：OTA配置界面 -->
-> 图：OTA配置向导界面
+> Hình: Giao diện hướng dẫn cấu hình OTA
 
-| 配置项 | 说明 |
+| Mục cấu hình | Mô tả |
 |-------|------|
-| MQTT Broker | MQTT服务器地址 |
-| MQTT Port | MQTT端口（默认1883） |
-| UDP Port | UDP端口 |
+| MQTT Broker | Địa chỉ máy chủ MQTT |
+| MQTT Port | Cổng MQTT (mặc định 1883) |
+| UDP Port | Cổng UDP |
 | ... | ... |
 
-**测试连通性**：点击「测试当前配置」验证MQTT/UDP连接。
+**Kiểm tra kết nối**: Nhấn "Kiểm tra cấu hình hiện tại" để xác minh kết nối MQTT/UDP.
 
 ---
 
-### Step 2: VAD 配置
+### Step 2: Cấu hình VAD
 
-选择语音活动检测引擎：
+Chọn engine phát hiện hoạt động giọng nói:
 
 <!-- 截图位置：VAD配置界面 -->
-> 图：VAD配置向导界面
+> Hình: Giao diện hướng dẫn cấu hình VAD
 
-| 引擎 | 说明 | 推荐场景 |
+| Engine | Mô tả | Trường hợp khuyến nghị |
 |-----|------|---------|
-| Silero VAD | 高精度 | 生产环境 |
-| WebRTC VAD | 轻量级 | 资源受限 |
-| ten_vad | 本地C++版本 | 高性能需求 |
+| Silero VAD | Độ chính xác cao | Môi trường production |
+| WebRTC VAD | Nhẹ | Tài nguyên hạn chế |
+| ten_vad | Phiên bản C++ cục bộ | Yêu cầu hiệu năng cao |
 
 ---
 
-### Step 3: ASR 配置
+### Step 3: Cấu hình ASR
 
-选择语音识别引擎：
+Chọn engine nhận dạng giọng nói:
 
 <!-- 截图位置：ASR配置界面 -->
-> 图：ASR配置向导界面
+> Hình: Giao diện hướng dẫn cấu hình ASR
 
-| 引擎 | 说明 |
+| Engine | Mô tả |
 |-----|------|
-| FunASR | 本地识别，需下载模型 |
-| Doubao ASR | 云端API |
+| FunASR | Nhận dạng cục bộ, cần tải model |
+| Doubao ASR | API đám mây |
 
 ---
 
-### Step 4: LLM 配置
+### Step 4: Cấu hình LLM
 
-选择大语言模型：
+Chọn mô hình ngôn ngữ lớn:
 
 <!-- 截图位置：LLM配置界面 -->
-> 图：LLM配置向导界面
+> Hình: Giao diện hướng dẫn cấu hình LLM
 
-| 引擎 | 说明 |
+| Engine | Mô tả |
 |-----|------|
-| OpenAI兼容 | 支持各类API |
-| Ollama | 本地部署 |
-| Doubao | 字节豆包 |
+| Tương thích OpenAI | Hỗ trợ nhiều loại API |
+| Ollama | Triển khai cục bộ |
+| Doubao | Doubao của ByteDance |
 
 ---
 
-### Step 5: TTS 配置
+### Step 5: Cấu hình TTS
 
-选择语音合成引擎：
+Chọn engine tổng hợp giọng nói:
 
 <!-- 截图位置：TTS配置界面 -->
-> 图：TTS配置向导界面
+> Hình: Giao diện hướng dẫn cấu hình TTS
 
-| 引擎 | 说明 |
+| Engine | Mô tả |
 |-----|------|
-| Doubao TTS | 云端API |
-| EdgeTTS | 微软免费TTS |
-| CosyVoice | 本地高质量 |
+| Doubao TTS | API đám mây |
+| EdgeTTS | TTS miễn phí của Microsoft |
+| CosyVoice | Chất lượng cao cục bộ |
 
 ---
 
-## 二、配置测试
+## II. Kiểm tra cấu hình
 
-### 测试单个配置
+### Kiểm tra từng cấu hình
 
-在各配置页面，点击配置项右侧的「测试」按钮：
+Tại các trang cấu hình, nhấn nút "Kiểm tra" ở bên phải mục cấu hình:
 
 <!-- 截图位置：单个配置测试按钮 -->
-> 图：配置测试按钮
+> Hình: Nút kiểm tra cấu hình
 
-测试结果说明：
+Giải thích kết quả kiểm tra:
 
-| 字段 | 说明 |
+| Trường | Mô tả |
 |-----|------|
-| 状态 | 成功/失败 |
-| 首包延迟 | 毫秒级响应时间 |
-| 消息 | 错误详情（如失败） |
+| Trạng thái | Thành công / Thất bại |
+| Độ trễ gói đầu | Thời gian phản hồi tính bằng mili giây |
+| Thông báo | Chi tiết lỗi (nếu thất bại) |
 
 <!-- 截图位置：测试结果弹窗 -->
-> 图：配置测试结果弹窗
+> Hình: Hộp thoại kết quả kiểm tra cấu hình
 
-### 批量测试
+### Kiểm tra hàng loạt
 
-在配置管理页面，点击「测试全部」批量测试所有配置：
+Tại trang quản lý cấu hình, nhấn "Kiểm tra tất cả" để kiểm tra hàng loạt tất cả cấu hình:
 
 <!-- 截图位置：批量测试界面 -->
-> 图：批量测试界面
+> Hình: Giao diện kiểm tra hàng loạt
 
-### 测试类型支持
+### Các loại kiểm tra được hỗ trợ
 
-| 测试类型 | 说明 |
+| Loại kiểm tra | Mô tả |
 |---------|------|
-| VAD | 语音活动检测连通性与响应时间 |
-| ASR | 语音识别连通性与首包延迟 |
-| LLM | 大模型推理连通性与首包延迟 |
-| TTS | 语音合成连通性与首包延迟 |
-| OTA | MQTT/UDP 连通性测试 |
+| VAD | Kết nối và thời gian phản hồi phát hiện hoạt động giọng nói |
+| ASR | Kết nối và độ trễ gói đầu nhận dạng giọng nói |
+| LLM | Kết nối và độ trễ gói đầu suy luận mô hình lớn |
+| TTS | Kết nối và độ trễ gói đầu tổng hợp giọng nói |
+| OTA | Kiểm tra kết nối MQTT/UDP |
 
 ---
 
-## 三、延迟监控
+## III. Giám sát độ trễ
 
-查看系统各模块的首包延迟统计：
+Xem thống kê độ trễ gói đầu của các module trong hệ thống:
 
 <!-- 截图位置：延迟监控界面 -->
-> 图：延迟监控界面
+> Hình: Giao diện giám sát độ trễ
 
-### 延迟优化建议
+### Gợi ý tối ưu hóa độ trễ
 
-| 模块 | 优化方向 |
+| Module | Hướng tối ưu hóa |
 |-----|---------|
-| ASR | 使用本地模型或就近的API节点 |
-| LLM | 选择更小的模型或使用流式输出 |
-| TTS | 使用边缘TTS或本地模型 |
+| ASR | Sử dụng model cục bộ hoặc node API gần nhất |
+| LLM | Chọn model nhỏ hơn hoặc dùng đầu ra streaming |
+| TTS | Sử dụng edge TTS hoặc model cục bộ |
 
 ---
 
-## 四、配置管理
+## IV. Quản lý cấu hình
 
-### 编辑配置
+### Chỉnh sửa cấu hình
 
-进入「配置管理」→ 对应模块 → 编辑配置项
+Vào "Quản lý cấu hình" → Module tương ứng → Chỉnh sửa mục cấu hình
 
 <!-- 截图位置：配置管理界面 -->
-> 图：配置管理界面
+> Hình: Giao diện quản lý cấu hình
 
-### 启用/禁用配置
+### Bật/Tắt cấu hình
 
-通过开关控制配置是否生效。
+Dùng công tắc để kiểm soát cấu hình có hiệu lực hay không.
 
-### 设置默认配置
+### Đặt cấu hình mặc định
 
-每个模块可设置一个默认配置，设备未指定时使用默认。
+Mỗi module có thể đặt một cấu hình mặc định, được dùng khi thiết bị chưa chỉ định cấu hình cụ thể.
 
 ---
 
-## 常见问题
+## Câu hỏi thường gặp
 
-### Q1: 配置测试失败？
+### Q1: Kiểm tra cấu hình thất bại?
 
-1. 检查网络连接
-2. 验证API密钥是否正确
-3. 查看主程序控制台日志
+1. Kiểm tra kết nối mạng
+2. Xác minh API key có chính xác không
+3. Xem log console của chương trình chính
 
-### Q2: 如何恢复默认配置？
+### Q2: Làm thế nào để khôi phục cấu hình mặc định?
 
-删除 `config/` 目录下的配置文件，重启服务。
+Xóa các file cấu hình trong thư mục `config/`, sau đó khởi động lại dịch vụ.
 
-### Q3: 配置修改后需要重启吗？
+### Q3: Cấu hình sau khi chỉnh sửa có cần khởi động lại không?
 
-大部分配置修改后实时生效，部分模块配置可能需要重启设备连接。
+Hầu hết các thay đổi cấu hình có hiệu lực ngay lập tức, tuy nhiên một số module có thể cần khởi động lại kết nối thiết bị.

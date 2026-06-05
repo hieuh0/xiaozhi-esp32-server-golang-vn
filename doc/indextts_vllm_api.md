@@ -1,48 +1,48 @@
-# IndexTTS vLLM 接口对接说明
+# Hướng dẫn tích hợp giao diện IndexTTS vLLM
 
-本文档用于说明本项目接入 `indextts_vllm` 时对服务端接口的要求，适用于：
+Tài liệu này mô tả các yêu cầu đối với giao diện phía máy chủ khi tích hợp `indextts_vllm` vào dự án, áp dụng cho:
 
-- 主程序 TTS 推理（`/audio/speech`）
-- 管理员界面拉取音色（`/audio/voices`）
-- 用户声音复刻（`/audio/clone`，用于本项目复刻流程）
+- Suy luận TTS chương trình chính (`/audio/speech`)
+- Giao diện quản trị lấy danh sách giọng đọc (`/audio/voices`)
+- Nhân bản giọng nói người dùng (`/audio/clone`, dùng cho quy trình nhân bản trong dự án này)
 
-## 1. 快速兼容清单
+## 1. Danh sách kiểm tra tương thích nhanh
 
-你的 IndexTTS 服务至少需要满足以下三点：
+Dịch vụ IndexTTS của bạn cần đáp ứng tối thiểu ba điểm sau:
 
-- 提供 `POST /audio/speech`，入参兼容 OpenAI TTS 风格：`input`、`voice`、`model`
-- 提供 `GET /audio/voices`，返回可枚举音色列表（JSON 对象）
-- 若使用本项目“声音复刻”能力，提供 `POST /audio/clone`（`multipart/form-data`）
+- Cung cấp `POST /audio/speech`, tham số đầu vào tương thích với phong cách OpenAI TTS: `input`, `voice`, `model`
+- Cung cấp `GET /audio/voices`, trả về danh sách giọng đọc có thể liệt kê (đối tượng JSON)
+- Nếu sử dụng tính năng "nhân bản giọng nói" của dự án này, cung cấp `POST /audio/clone` (`multipart/form-data`)
 
-推荐返回音频格式：`audio/wav`（16-bit PCM）。
+Định dạng âm thanh trả về được khuyến nghị: `audio/wav` (16-bit PCM).
 
-## 2. 配置项映射（管理员 -> TTS配置 -> IndexTTS(vLLM)）
+## 2. Ánh xạ cấu hình (Quản trị viên -> Cấu hình TTS -> IndexTTS(vLLM))
 
-| 管理端字段 | 用途 | 发送位置 |
+| Trường phía quản trị | Mục đích | Vị trí gửi |
 | --- | --- | --- |
-| `api_url` | IndexTTS 服务地址 | 作为基础 URL，拼接端点 |
-| `api_key` | 可选鉴权 | `Authorization: Bearer <api_key>` |
-| `model` | 模型名 | `/audio/speech` 请求体 `model` |
-| `voice` | 默认音色 | `/audio/speech` 请求体 `voice` |
-| `frame_duration` | 帧时长（ms） | 本地音频切帧参数 |
+| `api_url` | Địa chỉ dịch vụ IndexTTS | Dùng làm URL cơ sở, ghép với endpoint |
+| `api_key` | Xác thực tùy chọn | `Authorization: Bearer <api_key>` |
+| `model` | Tên mô hình | Trường `model` trong body yêu cầu `/audio/speech` |
+| `voice` | Giọng đọc mặc định | Trường `voice` trong body yêu cầu `/audio/speech` |
+| `frame_duration` | Thời lượng khung (ms) | Tham số cắt khung âm thanh cục bộ |
 
-说明：
+Ghi chú:
 
-- 管理员界面在点击“音色”下拉时，会使用当前输入框里的最新 `api_url` 拉取 `/audio/voices`。
-- `api_url` 支持填写基础地址（如 `http://127.0.0.1:7860`），也兼容填写到具体路径（如 `/audio/speech`）。
+- Khi nhấp vào danh sách thả xuống "Giọng đọc" trên giao diện quản trị, hệ thống sẽ dùng giá trị `api_url` mới nhất trong ô nhập để lấy `/audio/voices`.
+- `api_url` hỗ trợ nhập địa chỉ cơ sở (ví dụ: `http://127.0.0.1:7860`) hoặc đường dẫn cụ thể (ví dụ: `/audio/speech`).
 
-## 3. 接口要求
+## 3. Yêu cầu giao diện
 
 ### 3.1 `GET /audio/voices`
 
-用途：管理员配置页“音色”下拉、用户侧音色选项。
+Mục đích: Danh sách thả xuống "Giọng đọc" trên trang cấu hình quản trị, tùy chọn giọng đọc phía người dùng.
 
-请求头：
+Header yêu cầu:
 
 - `Accept: application/json`
-- `Authorization: Bearer <api_key>`（可选）
+- `Authorization: Bearer <api_key>` (tùy chọn)
 
-返回示例（推荐）：
+Ví dụ phản hồi (khuyến nghị):
 
 ```json
 {
@@ -51,22 +51,22 @@
 }
 ```
 
-要求：
+Yêu cầu:
 
-- 返回类型建议为 JSON 对象（键名会被当作音色 ID）。
-- 本项目会过滤掉前缀为 `indextts_vllm` 的系统音色，再追加用户复刻音色。
+- Loại trả về được khuyến nghị là đối tượng JSON (tên khóa sẽ được dùng làm ID giọng đọc).
+- Dự án này sẽ lọc bỏ các giọng hệ thống có tiền tố `indextts_vllm`, sau đó thêm vào các giọng nhân bản của người dùng.
 
 ### 3.2 `POST /audio/speech`
 
-用途：主程序 TTS 合成、复刻后试听。
+Mục đích: Tổng hợp TTS của chương trình chính, nghe thử sau khi nhân bản.
 
-请求头：
+Header yêu cầu:
 
 - `Content-Type: application/json`
 - `Accept: audio/wav,application/octet-stream,*/*`
-- `Authorization: Bearer <api_key>`（可选）
+- `Authorization: Bearer <api_key>` (tùy chọn)
 
-请求体示例：
+Ví dụ body yêu cầu:
 
 ```json
 {
@@ -76,23 +76,23 @@
 }
 ```
 
-返回：
+Phản hồi:
 
-- 成功：二进制音频流（建议 `audio/wav`）
-- 失败：HTTP 4xx/5xx，并返回可读错误信息
+- Thành công: Luồng âm thanh nhị phân (khuyến nghị `audio/wav`)
+- Thất bại: HTTP 4xx/5xx, kèm thông báo lỗi có thể đọc được
 
-### 3.3 `POST /audio/clone`（本项目复刻功能需要）
+### 3.3 `POST /audio/clone` (cần thiết cho tính năng nhân bản của dự án)
 
-用途：`/user/voice-clones` 提交复刻任务时调用。
+Mục đích: Được gọi khi `/user/voice-clones` gửi tác vụ nhân bản.
 
-请求类型：`multipart/form-data`
+Loại yêu cầu: `multipart/form-data`
 
-表单字段：
+Các trường form:
 
-- `voice`：期望生成的音色 ID
-- `audio`：参考音频文件（wav/mp3/m4a 等）
+- `voice`: ID giọng đọc mong muốn tạo ra
+- `audio`: File âm thanh tham chiếu (wav/mp3/m4a, v.v.)
 
-返回示例：
+Ví dụ phản hồi:
 
 ```json
 {
@@ -101,42 +101,42 @@
 }
 ```
 
-要求：
+Yêu cầu:
 
-- 建议响应中包含 `voice` 字段；若缺失，本项目会回退使用请求中的 `voice` 字段值。
+- Khuyến nghị phản hồi chứa trường `voice`; nếu thiếu, dự án này sẽ dùng giá trị trường `voice` trong yêu cầu thay thế.
 
-## 4. 兼容参考（api_server.py）
+## 4. Tham khảo tương thích (api_server.py)
 
-可参考以下实现风格：
+Có thể tham khảo phong cách triển khai sau:
 
-- `POST /audio/speech`：读取 `input`、`voice`、`model`
-- `GET /audio/voices`：返回可用音色字典
+- `POST /audio/speech`: Đọc `input`, `voice`, `model`
+- `GET /audio/voices`: Trả về từ điển giọng đọc khả dụng
 
-参考链接：
+Liên kết tham khảo:
 
 - https://github.com/hackers365/index-tts-vllm/blob/master/api_server.py
 
-## 5. 常见问题排查
+## 5. Xử lý sự cố thường gặp
 
-### 5.1 管理端点击音色下拉报错
+### 5.1 Lỗi khi nhấp vào danh sách thả xuống giọng đọc trên trang quản trị
 
-优先检查：
+Kiểm tra trước tiên:
 
-- `api_url` 是否可达（最新输入值）
-- `/audio/voices` 是否返回 JSON 对象
-- 是否需要 `api_key`
+- `api_url` có thể truy cập được không (giá trị nhập mới nhất)
+- `/audio/voices` có trả về đối tượng JSON không
+- Có cần `api_key` không
 
-### 5.2 合成成功但播放异常
+### 5.2 Tổng hợp thành công nhưng phát âm thanh bất thường
 
-优先检查：
+Kiểm tra trước tiên:
 
-- 服务端是否返回标准 WAV（PCM16、采样率正确）
-- 中间链路是否有转码或截断
-- 响应头 `Content-Type` 是否正确
+- Máy chủ có trả về WAV chuẩn không (PCM16, tốc độ lấy mẫu đúng)
+- Có bị chuyển mã hoặc cắt bớt ở các liên kết trung gian không
+- Header phản hồi `Content-Type` có đúng không
 
-### 5.3 复刻任务失败
+### 5.3 Tác vụ nhân bản thất bại
 
-优先检查：
+Kiểm tra trước tiên:
 
-- `/audio/clone` 是否接受 `voice + audio` 的 multipart 请求
-- 响应 JSON 是否可解析、是否包含可用 `voice`
+- `/audio/clone` có chấp nhận yêu cầu multipart với `voice + audio` không
+- JSON phản hồi có thể phân tích được không, có chứa `voice` khả dụng không

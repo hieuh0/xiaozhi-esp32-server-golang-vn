@@ -1,235 +1,235 @@
-# 设备/智能体维度 MCP 远程调用说明
+# Hướng Dẫn Gọi Từ Xa MCP Theo Chiều Thiết Bị / Tác Nhân
 
-本文档介绍管理控制台中的 **MCP 远程调用调试能力**，包括：
+Tài liệu này mô tả **khả năng gỡ lỗi gọi từ xa MCP** trong bảng điều khiển quản lý, bao gồm:
 
-- 智能体维度 MCP 接入点（Endpoint）生成
-- 智能体维度工具列表获取与远程调用
-- 设备维度工具列表获取与远程调用
-- 管理员与普通用户的权限差异
+- Tạo điểm kết nối (Endpoint) MCP theo chiều tác nhân
+- Lấy danh sách công cụ và gọi từ xa theo chiều tác nhân
+- Lấy danh sách công cụ và gọi từ xa theo chiều thiết bị
+- Sự khác biệt về quyền hạn giữa quản trị viên và người dùng thông thường
 
-相关文档：
+Tài liệu liên quan:
 
-- [MCP 架构说明](./mcp.md)
-- [MCP 市场功能说明](./mcp_market.md)
-- [管理后台使用指南](./manager_console_guide.md)
-
----
-
-## 1. 功能定位
-
-该功能主要用于“调试与验证”：
-
-- 快速查看当前智能体/设备暴露了哪些 MCP 工具
-- 在控制台中直接构造参数并调用工具
-- 获取智能体维度 MCP endpoint，供外部 MCP 客户端接入测试
-
-适合场景：
-
-- 验证某个远程 MCP 服务是否已生效
-- 检查工具 schema / 参数样例
-- 排查智能体与设备的 MCP 行为差异
+- [Mô tả kiến trúc MCP](./mcp.md)
+- [Mô tả chức năng thị trường MCP](./mcp_market.md)
+- [Hướng dẫn sử dụng bảng quản trị](./manager_console_guide.md)
 
 ---
 
-## 2. 两种调用维度的区别
+## 1. Mục Đích Tính Năng
 
-## 2.1 智能体维度（Agent）
+Tính năng này chủ yếu dùng cho "gỡ lỗi và xác minh":
 
-特点：
+- Nhanh chóng xem tác nhân/thiết bị hiện tại đang phơi ra những công cụ MCP nào
+- Trực tiếp xây dựng tham số và gọi công cụ trong bảng điều khiển
+- Lấy MCP endpoint theo chiều tác nhân để các MCP client bên ngoài kết nối kiểm thử
 
-- 面向“智能体配置”视角
-- 支持获取该智能体的 MCP endpoint（带 token）
-- 支持拉取工具列表、直接发起工具调用
-- 受智能体配置（如 `mcp_service_names`）影响
+Phù hợp với các trường hợp:
 
-常见用途：
-
-- 验证智能体筛选后的可用 MCP 工具集合
-- 复制 endpoint 给外部调试客户端使用
-
-## 2.2 设备维度（Device）
-
-特点：
-
-- 面向“具体设备连接”视角
-- 直接通过设备当前连接上下文请求工具详情/调用工具
-- 通常依赖设备在线与 WebSocket 控制器可用
-
-常见用途：
-
-- 排查“同一个智能体在不同设备上工具表现不一致”
-- 验证设备当前在线会话侧的 MCP 能力
+- Xác minh xem một dịch vụ MCP từ xa đã có hiệu lực chưa
+- Kiểm tra schema công cụ / ví dụ tham số
+- Phân tích sự khác biệt hành vi MCP giữa tác nhân và thiết bị
 
 ---
 
-## 3. 页面入口（管理员 / 普通用户）
+## 2. Sự Khác Biệt Giữa Hai Chiều Gọi
 
-### 3.1 管理员
+## 2.1 Chiều Tác Nhân (Agent)
 
-- `管理员 -> 智能体管理`（智能体维度 endpoint / tools / call）
-- `管理员 -> 设备管理`（设备维度 tools / call）
+Đặc điểm:
 
-### 3.2 普通用户
+- Hướng đến góc nhìn "cấu hình tác nhân"
+- Hỗ trợ lấy MCP endpoint của tác nhân (kèm token)
+- Hỗ trợ lấy danh sách công cụ, trực tiếp gọi công cụ
+- Bị ảnh hưởng bởi cấu hình tác nhân (ví dụ `mcp_service_names`)
 
-- `我的智能体`（智能体维度 tools / call）
-- `我的设备` / `智能体设备`（设备维度 tools / call）
-- `智能体编辑`（配置 `mcp_service_names`，影响智能体维度可见服务范围）
+Dùng phổ biến để:
+
+- Xác minh tập hợp công cụ MCP khả dụng sau khi tác nhân lọc
+- Sao chép endpoint cho client gỡ lỗi bên ngoài sử dụng
+
+## 2.2 Chiều Thiết Bị (Device)
+
+Đặc điểm:
+
+- Hướng đến góc nhìn "kết nối thiết bị cụ thể"
+- Trực tiếp yêu cầu chi tiết công cụ / gọi công cụ qua ngữ cảnh kết nối hiện tại của thiết bị
+- Thường phụ thuộc vào việc thiết bị đang trực tuyến và bộ điều khiển WebSocket khả dụng
+
+Dùng phổ biến để:
+
+- Phân tích "cùng một tác nhân nhưng biểu hiện công cụ khác nhau trên các thiết bị khác nhau"
+- Xác minh khả năng MCP phía phiên làm việc trực tuyến hiện tại của thiết bị
 
 ---
 
-## 4. 智能体维度：完整调试流程
+## 3. Lối Vào Trang (Quản Trị Viên / Người Dùng Thông Thường)
 
-## 4.1 配置智能体可用 MCP 服务（可选但推荐）
+### 3.1 Quản Trị Viên
 
-在智能体编辑页可设置 `mcp_service_names`（服务名列表，逗号分隔）：
+- `Quản trị viên -> Quản lý tác nhân` (endpoint / tools / call theo chiều tác nhân)
+- `Quản trị viên -> Quản lý thiết bị` (tools / call theo chiều thiết bị)
 
-- 留空：使用全部已启用的全局 MCP 服务
-- 填写：仅使用指定服务名（必须是系统中已启用且存在的服务）
+### 3.2 Người Dùng Thông Thường
 
-系统会对该字段做：
+- `Tác nhân của tôi` (tools / call theo chiều tác nhân)
+- `Thiết bị của tôi` / `Thiết bị tác nhân` (tools / call theo chiều thiết bị)
+- `Chỉnh sửa tác nhân` (cấu hình `mcp_service_names`, ảnh hưởng đến phạm vi dịch vụ hiển thị theo chiều tác nhân)
 
-- 去重
-- 去空格
-- 合法性校验（服务名必须存在于已启用全局服务集合）
+---
 
-## 4.2 获取智能体 MCP Endpoint
+## 4. Chiều Tác Nhân: Quy Trình Gỡ Lỗi Hoàn Chỉnh
 
-控制台可获取智能体专属 MCP 接入点 URL，格式类似：
+## 4.1 Cấu Hình Dịch Vụ MCP Khả Dụng Cho Tác Nhân (Tùy Chọn Nhưng Khuyến Nghị)
+
+Trong trang chỉnh sửa tác nhân có thể đặt `mcp_service_names` (danh sách tên dịch vụ, phân cách bằng dấu phẩy):
+
+- Để trống: sử dụng toàn bộ dịch vụ MCP toàn cục đã được bật
+- Điền vào: chỉ sử dụng tên dịch vụ được chỉ định (phải là dịch vụ đã tồn tại và đang được bật trong hệ thống)
+
+Hệ thống sẽ thực hiện các xử lý sau với trường này:
+
+- Loại bỏ trùng lặp
+- Xóa khoảng trắng
+- Kiểm tra tính hợp lệ (tên dịch vụ phải tồn tại trong tập hợp dịch vụ toàn cục đang được bật)
+
+## 4.2 Lấy MCP Endpoint Của Tác Nhân
+
+Bảng điều khiển có thể lấy URL điểm kết nối MCP dành riêng cho tác nhân, định dạng tương tự:
 
 ```text
 ws(s)://<host>/mcp?token=<jwt>
 ```
 
-说明：
+Giải thích:
 
-- endpoint 基于默认 OTA 配置中的 `external.websocket.url` 推导域名与协议
-- token 中包含当前用户与智能体上下文（用于权限校验/绑定用途）
-- 适合外部 MCP 客户端临时调试，不建议公开分享
+- endpoint suy ra tên miền và giao thức từ `external.websocket.url` trong cấu hình OTA mặc định
+- token chứa ngữ cảnh người dùng và tác nhân hiện tại (dùng để kiểm tra quyền / ràng buộc)
+- Phù hợp để các MCP client bên ngoài gỡ lỗi tạm thời, không khuyến nghị chia sẻ công khai
 
-## 4.3 获取工具列表
+## 4.3 Lấy Danh Sách Công Cụ
 
-控制台会请求智能体维度 MCP 工具详情，返回内容通常包含：
+Bảng điều khiển sẽ yêu cầu chi tiết công cụ MCP theo chiều tác nhân, nội dung trả về thường bao gồm:
 
 - `name`
-- 工具描述
-- 参数 schema
-- 参数样例（若设备端/服务端提供）
+- Mô tả công cụ
+- Schema tham số
+- Ví dụ tham số (nếu phía thiết bị / máy chủ cung cấp)
 
-如果无法获取（例如控制器未初始化或客户端暂不可达），后端会返回空列表而不是报错，便于页面继续操作。
+Nếu không thể lấy được (ví dụ bộ điều khiển chưa khởi tạo hoặc client tạm thời không tiếp cận được), backend sẽ trả về danh sách rỗng thay vì báo lỗi, để trang tiếp tục hoạt động.
 
-## 4.4 直接调用工具
+## 4.4 Gọi Công Cụ Trực Tiếp
 
-在控制台中填写：
+Trong bảng điều khiển điền vào:
 
 - `tool_name`
-- `arguments`（JSON）
+- `arguments` (JSON)
 
-发起调用后可在结果框查看完整返回体（JSON 格式）。
+Sau khi gọi có thể xem toàn bộ phần thân trả về (định dạng JSON) trong ô kết quả.
 
 ---
 
-## 5. 设备维度：完整调试流程
+## 5. Chiều Thiết Bị: Quy Trình Gỡ Lỗi Hoàn Chỉnh
 
-## 5.1 获取设备工具列表
+## 5.1 Lấy Danh Sách Công Cụ Của Thiết Bị
 
-选择设备后，控制台会使用设备标识（内部会映射到设备名）向 WebSocket 控制器请求 MCP 工具详情。
+Sau khi chọn thiết bị, bảng điều khiển sẽ dùng định danh thiết bị (nội bộ sẽ ánh xạ sang tên thiết bị) để yêu cầu bộ điều khiển WebSocket cung cấp chi tiết công cụ MCP.
 
-常见失败情况：
+Các trường hợp thất bại phổ biến:
 
-- 设备不在线
-- 设备不属于当前用户（用户视角）
-- WebSocket 控制器暂不可用
+- Thiết bị không trực tuyến
+- Thiết bị không thuộc người dùng hiện tại (góc nhìn người dùng)
+- Bộ điều khiển WebSocket tạm thời không khả dụng
 
-在这些情况下，接口通常返回空工具列表或权限错误。
+Trong những trường hợp này, giao diện thường trả về danh sách công cụ rỗng hoặc lỗi quyền hạn.
 
-## 5.2 调用设备 MCP 工具
+## 5.2 Gọi Công Cụ MCP Của Thiết Bị
 
-与智能体维度类似，填写：
+Tương tự chiều tác nhân, điền vào:
 
 - `tool_name`
-- `arguments`（JSON）
+- `arguments` (JSON)
 
-区别在于调用体使用的是 `device_id`（实际后端会传设备名）上下文，因此更接近“当前设备会话”的真实执行环境。
+Điểm khác biệt là phần thân gọi dùng ngữ cảnh `device_id` (backend thực tế truyền tên thiết bị), do đó gần hơn với môi trường thực thi thực sự của "phiên làm việc thiết bị hiện tại".
 
 ---
 
-## 6. 权限与接口差异（管理员 vs 普通用户）
+## 6. Sự Khác Biệt Quyền Hạn và Giao Diện (Quản Trị Viên vs Người Dùng Thông Thường)
 
-### 6.1 普通用户接口
+### 6.1 Giao Diện Người Dùng Thông Thường
 
-智能体维度：
+Chiều tác nhân:
 
 - `GET /user/agents/:id/mcp-endpoint`
 - `GET /user/agents/:id/mcp-tools`
 - `POST /user/agents/:id/mcp-call`
 
-设备维度：
+Chiều thiết bị:
 
 - `GET /user/devices/:id/mcp-tools`
 - `POST /user/devices/:id/mcp-call`
 
-智能体服务筛选辅助：
+Hỗ trợ lọc dịch vụ tác nhân:
 
 - `GET /user/agents/:id/mcp-services/options`
 
-普通用户仅能操作属于自己的智能体/设备。
+Người dùng thông thường chỉ có thể thao tác với tác nhân / thiết bị thuộc về mình.
 
-### 6.2 管理员接口
+### 6.2 Giao Diện Quản Trị Viên
 
-智能体维度：
+Chiều tác nhân:
 
 - `GET /admin/agents/:id/mcp-endpoint`
 - `GET /admin/agents/:id/mcp-tools`
 - `POST /admin/agents/:id/mcp-call`
 
-设备维度：
+Chiều thiết bị:
 
 - `GET /admin/devices/:id/mcp-tools`
 - `POST /admin/devices/:id/mcp-call`
 
-管理员可跨用户调试任意智能体/设备（前提是记录存在且连接链路正常）。
+Quản trị viên có thể gỡ lỗi bất kỳ tác nhân / thiết bị nào xuyên người dùng (với điều kiện bản ghi tồn tại và liên kết kết nối bình thường).
 
 ---
 
-## 7. Endpoint 生成逻辑（智能体维度）
+## 7. Logic Tạo Endpoint (Chiều Tác Nhân)
 
-智能体 endpoint 生成依赖：
+Việc tạo endpoint tác nhân phụ thuộc vào:
 
-1. 默认 OTA 配置（`type=ota` 且 `is_default=true`）
-2. OTA 配置中的 `external.websocket.url`
-3. 基于当前用户 ID + 智能体 ID 生成的稳定 token
+1. Cấu hình OTA mặc định (`type=ota` và `is_default=true`)
+2. `external.websocket.url` trong cấu hình OTA
+3. Token ổn định được tạo dựa trên ID người dùng hiện tại + ID tác nhân
 
-生成结果会使用：
+Kết quả tạo ra sẽ dùng:
 
-- 同协议（`ws` / `wss`）
-- 同 host（域名/IP + 端口）
-- 固定路径 `/mcp`
+- Cùng giao thức (`ws` / `wss`)
+- Cùng host (tên miền/IP + cổng)
+- Đường dẫn cố định `/mcp`
 
-因此如果无法生成 endpoint，请优先检查 OTA 外网 WebSocket 配置。
+Do đó nếu không thể tạo endpoint, hãy ưu tiên kiểm tra cấu hình WebSocket mạng ngoài của OTA.
 
 ---
 
-## 8. 常见问题与排查
+## 8. Câu Hỏi Thường Gặp và Cách Phân Tích
 
-### 8.1 工具列表为空
+### 8.1 Danh Sách Công Cụ Trống
 
-可能原因：
+Nguyên nhân có thể:
 
-- 设备不在线（设备维度）
-- WebSocket 控制器未初始化
-- 客户端未返回工具详情
-- 智能体维度被 `mcp_service_names` 过滤后无可用服务
+- Thiết bị không trực tuyến (chiều thiết bị)
+- Bộ điều khiển WebSocket chưa khởi tạo
+- Client không trả về chi tiết công cụ
+- Chiều tác nhân bị lọc bởi `mcp_service_names` dẫn đến không còn dịch vụ khả dụng
 
-建议排查顺序：
+Trình tự phân tích đề nghị:
 
-1. 确认设备在线状态
-2. 检查全局 MCP 服务是否启用
-3. 检查智能体 `mcp_service_names` 配置
-4. 在控制台重试获取工具
+1. Xác nhận trạng thái trực tuyến của thiết bị
+2. Kiểm tra xem dịch vụ MCP toàn cục có được bật không
+3. Kiểm tra cấu hình `mcp_service_names` của tác nhân
+4. Thử lại lấy công cụ trên bảng điều khiển
 
-### 8.2 调用时报参数 JSON 错误
+### 8.2 Báo Lỗi JSON Tham Số Khi Gọi
 
-控制台参数区要求合法 JSON 对象，例如：
+Khu vực tham số trong bảng điều khiển yêu cầu đối tượng JSON hợp lệ, ví dụ:
 
 ```json
 {
@@ -237,29 +237,28 @@ ws(s)://<host>/mcp?token=<jwt>
 }
 ```
 
-常见错误：
+Lỗi thường gặp:
 
-- 单引号
-- 尾逗号
-- 顶层不是对象
+- Dấu nháy đơn
+- Dấu phẩy cuối dòng
+- Cấp cao nhất không phải là đối tượng
 
-### 8.3 获取智能体 endpoint 失败
+### 8.3 Lấy Endpoint Tác Nhân Thất Bại
 
-通常是 OTA 默认配置缺失或 `external.websocket.url` 未配置。
+Thường do thiếu cấu hình OTA mặc định hoặc `external.websocket.url` chưa được cấu hình.
 
-### 8.4 明明导入了 MCP 服务，但智能体调用看不到
+### 8.4 Đã Nhập Dịch Vụ MCP Nhưng Không Thấy Khi Gọi Tác Nhân
 
-检查：
+Kiểm tra:
 
-1. 导入服务是否启用
-2. 全局 MCP 配置总开关与服务启用状态
-3. 智能体是否通过 `mcp_service_names` 排除了该服务
+1. Dịch vụ nhập vào có được bật không
+2. Tổng công tắc cấu hình MCP toàn cục và trạng thái bật của dịch vụ
+3. Tác nhân có loại trừ dịch vụ đó qua `mcp_service_names` không
 
 ---
 
-## 9. 最佳实践
+## 9. Thực Hành Tốt Nhất
 
-- 先在管理员侧验证“设备维度”工具可用，再验证“智能体维度”工具筛选结果
-- 对生产智能体建议显式配置 `mcp_service_names`，避免无关工具暴露给模型
-- 将 endpoint 视为敏感调试入口，避免在公共渠道传播带 token 的 URL
-
+- Trước tiên xác minh khả năng dùng công cụ theo "chiều thiết bị" ở phía quản trị viên, sau đó xác minh kết quả lọc công cụ theo "chiều tác nhân"
+- Đối với tác nhân trong môi trường sản xuất, nên cấu hình tường minh `mcp_service_names` để tránh công cụ không liên quan bị phơi ra cho mô hình
+- Coi endpoint như một lối vào gỡ lỗi nhạy cảm, tránh truyền URL có kèm token qua các kênh công khai

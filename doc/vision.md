@@ -1,18 +1,18 @@
-# 视觉识别配置流程及说明
+# Quy trình cấu hình nhận dạng hình ảnh và hướng dẫn sử dụng
 
-## 1. 功能简介
+## 1. Giới thiệu tính năng
 
-本系统支持视觉识别功能，主要通过调用外部视觉识别服务（如阿里云 Qwen-VL、火山豆包 Vision 等）实现图像理解、内容识别等能力。相关参数可通过配置文件灵活调整。
+Hệ thống hỗ trợ tính năng nhận dạng hình ảnh, chủ yếu thông qua việc gọi các dịch vụ nhận dạng hình ảnh bên ngoài (như Aliyun Qwen-VL, Volcano Doubao Vision, v.v.) để thực hiện khả năng hiểu hình ảnh và nhận dạng nội dung. Các tham số liên quan có thể được điều chỉnh linh hoạt thông qua tệp cấu hình.
 
-## 2. 配置文件位置
+## 2. Vị trí tệp cấu hình
 
-视觉识别相关配置文件位于：
+Tệp cấu hình liên quan đến nhận dạng hình ảnh nằm tại:
 
-- `config/config.yaml`：主配置文件，包含 vision 相关参数。
+- `config/config.yaml`: Tệp cấu hình chính, chứa các tham số liên quan đến vision.
 
-## 3. 主要参数说明
+## 3. Mô tả các tham số chính
 
-`config/config.yaml` 中 vision 配置示例：
+Ví dụ cấu hình vision trong `config/config.yaml`:
 
 ```yaml
 vision:
@@ -34,49 +34,49 @@ vision:
       max_tokens: 500
 ```
 
-- `enable_auth`：是否启用视觉识别接口的鉴权。
-- `vision_url`：**返回给客户端用于图片识别的 HTTP 请求地址**，客户端通过该地址上传图片并获取识别结果。
-- `vllm.provider`：指定当前使用的视觉识别服务（如 aliyun_vision、doubao_vision）。
-- `aliyun_vision`/`doubao_vision`：各大视觉识别服务的接入参数，包括：
-  - `type`：API 类型（如 openai 兼容接口）。
-  - `model_name`：所用视觉识别模型名称。
-  - `base_url`：服务 API 地址。
-  - `api_key`：服务访问密钥。
-  - `max_token`/`max_tokens`：最大 token 数。
+- `enable_auth`: Có bật xác thực cho giao diện nhận dạng hình ảnh hay không.
+- `vision_url`: **Địa chỉ HTTP trả về cho client để nhận dạng hình ảnh**, client sử dụng địa chỉ này để tải ảnh lên và nhận kết quả nhận dạng.
+- `vllm.provider`: Chỉ định dịch vụ nhận dạng hình ảnh hiện đang sử dụng (ví dụ: aliyun_vision, doubao_vision).
+- `aliyun_vision`/`doubao_vision`: Các tham số kết nối của từng dịch vụ nhận dạng hình ảnh, bao gồm:
+  - `type`: Loại API (ví dụ: giao diện tương thích openai).
+  - `model_name`: Tên mô hình nhận dạng hình ảnh được sử dụng.
+  - `base_url`: Địa chỉ API của dịch vụ.
+  - `api_key`: Khóa truy cập dịch vụ.
+  - `max_token`/`max_tokens`: Số token tối đa.
 
-## 4. 配置流程
+## 4. Quy trình cấu hình
 
-1. 根据实际需求，选择并注册所需的视觉识别服务（如阿里云、火山豆包等），获取 API Key。
-2. 编辑 `config/config.yaml`，在 `vision` 字段下填写 vision_url、provider 及对应服务的参数。
-3. 启动服务，检查日志确认视觉识别模块加载成功。
-4. 通过 API 或前端页面上传图片，验证识别效果。
+1. Dựa trên nhu cầu thực tế, chọn và đăng ký dịch vụ nhận dạng hình ảnh cần thiết (như Aliyun, Volcano Doubao, v.v.), lấy API Key.
+2. Chỉnh sửa `config/config.yaml`, điền vision_url, provider và các tham số của dịch vụ tương ứng trong trường `vision`.
+3. Khởi động dịch vụ, kiểm tra log để xác nhận module nhận dạng hình ảnh được tải thành công.
+4. Tải ảnh lên thông qua API hoặc trang giao diện người dùng để xác minh kết quả nhận dạng.
 
-## 5. 常见问题与排查
+## 5. Các vấn đề thường gặp và cách khắc phục
 
-- **接口访问失败**：检查 `vision_url` 是否正确，服务是否启动。
-- **鉴权失败**：如启用鉴权，需检查 `api_key` 是否正确、有效。
-- **识别结果异常**：确认 provider 及模型名称填写无误，API Key 有效，外部服务可用。
+- **Truy cập giao diện thất bại**: Kiểm tra xem `vision_url` có chính xác không, dịch vụ có đang chạy không.
+- **Xác thực thất bại**: Nếu bật xác thực, cần kiểm tra xem `api_key` có chính xác và còn hiệu lực không.
+- **Kết quả nhận dạng bất thường**: Xác nhận provider và tên mô hình được điền đúng, API Key còn hiệu lực, dịch vụ bên ngoài khả dụng.
 
 ---
 
-如需补充具体的 API 调用方式、前端集成说明或特定视觉识别服务的配置，请联系开发者。
+Nếu cần bổ sung phương thức gọi API cụ thể, hướng dẫn tích hợp giao diện người dùng hoặc cấu hình cho dịch vụ nhận dạng hình ảnh cụ thể, vui lòng liên hệ với nhà phát triển.
 
-## 6. 典型流程步骤与流程图
+## 6. Các bước quy trình điển hình và sơ đồ luồng
 
-### 步骤说明
-1. 服务端调用 LLM，识别到用户意图为"要拍照"。
-2. 服务端通过 MCP Tool 向终端下发拍照指令。
-3. 终端收到指令后进行拍照。
-4. 终端将拍摄的图片通过 vision_url 进行图片内容识别。
-5. 终端将识别到的图片内容以 MCP Tool 响应的方式返回给服务端。
-6. 服务端获取到拍照及识别结果后，可再次调用 LLM 进行后续处理。
+### Mô tả các bước
+1. Máy chủ gọi LLM, nhận dạng ý định người dùng là "muốn chụp ảnh".
+2. Máy chủ gửi lệnh chụp ảnh đến thiết bị đầu cuối thông qua MCP Tool.
+3. Thiết bị đầu cuối nhận lệnh và tiến hành chụp ảnh.
+4. Thiết bị đầu cuối gửi ảnh đã chụp đến `vision_url` để nhận dạng nội dung hình ảnh.
+5. Thiết bị đầu cuối trả về nội dung hình ảnh đã nhận dạng cho máy chủ dưới dạng phản hồi MCP Tool.
+6. Sau khi máy chủ nhận được kết quả chụp ảnh và nhận dạng, có thể gọi LLM một lần nữa để xử lý tiếp theo.
 
-### 流程图
+### Sơ đồ luồng
 ```mermaid
 flowchart TD
-    A["服务端调用 LLM 识别到 '要拍照'"] --> B["服务端调用终端拍照（MCP Tool）"]
-    B --> C["终端拍照"]
-    C --> D["终端调用 vision_url 识别图片内容"]
-    D --> E["终端将识别内容以 MCP Tool 响应返回服务端"]
-    E --> F["服务端获取内容后再次调用 LLM"]
+    A["Máy chủ gọi LLM nhận dạng 'muốn chụp ảnh'"] --> B["Máy chủ ra lệnh cho thiết bị đầu cuối chụp ảnh (MCP Tool)"]
+    B --> C["Thiết bị đầu cuối chụp ảnh"]
+    C --> D["Thiết bị đầu cuối gọi vision_url để nhận dạng nội dung ảnh"]
+    D --> E["Thiết bị đầu cuối trả về nội dung đã nhận dạng cho máy chủ qua phản hồi MCP Tool"]
+    E --> F["Máy chủ nhận nội dung và gọi LLM lần nữa"]
 ```

@@ -1,12 +1,12 @@
-# OTA接口MQTT认证配置
+# Cấu hình xác thực MQTT cho giao diện OTA
 
-## 概述
+## Tổng quan
 
-OTA接口现在支持基于HMAC-SHA256签名的MQTT密码验证机制，提供更安全的认证方式。同时MQTT服务器也支持相应的验证逻辑。
+Giao diện OTA hiện hỗ trợ cơ chế xác thực mật khẩu MQTT dựa trên chữ ký HMAC-SHA256, cung cấp phương thức xác thực an toàn hơn. Máy chủ MQTT cũng hỗ trợ logic xác minh tương ứng.
 
-## 配置结构
+## Cấu trúc cấu hình
 
-### 配置文件 (config/config.yaml)
+### Tệp cấu hình (config/config.yaml)
 
 ```yaml
 mqtt_server:
@@ -27,111 +27,111 @@ ota:
       endpoint: "www.youdomain.cn"
 ```
 
-### 配置说明
+### Giải thích cấu hình
 
-- `mqtt_server.signature_key`: MQTT签名密钥，用于生成MQTT密码签名
-- `ota.signature_key`: OTA下发MQTT 密码 时使用的key，需要与mqtt_server.signature_key对应
-- `ota.test`: 测试环境配置（内网IP使用）
-- `ota.external`: 外部环境配置（外网IP使用）
+- `mqtt_server.signature_key`: Khóa chữ ký MQTT, dùng để tạo chữ ký mật khẩu MQTT
+- `ota.signature_key`: Khóa được dùng khi OTA gửi xuống mật khẩu MQTT, cần khớp với `mqtt_server.signature_key`
+- `ota.test`: Cấu hình môi trường kiểm thử (dùng cho IP mạng nội bộ)
+- `ota.external`: Cấu hình môi trường bên ngoài (dùng cho IP mạng công cộng)
 
-### 与 xiaozhi-mqtt-gateway 集成
+### Tích hợp với xiaozhi-mqtt-gateway
 
-本系统与虾哥官方的 [xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway) 项目配合使用，实现完整的MQTT认证流程：
+Hệ thống này được sử dụng kết hợp với dự án chính thức [xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway) để thực hiện quy trình xác thực MQTT đầy đủ:
 
-1. **配置一致性要求**: `ota.signature_key` 必须与 xiaozhi-mqtt-gateway 项目中的签名密钥完全一致
-2. **认证流程**: 
-   - xiaozhi-mqtt-gateway 负责生成MQTT连接凭据
-   - 本系统负责验证MQTT连接凭据
-   - 双方使用相同的签名算法和密钥确保认证成功
-3. **部署建议**: 建议将两个项目部署在同一网络环境中，确保配置同步更新
+1. **Yêu cầu nhất quán cấu hình**: `ota.signature_key` phải hoàn toàn giống với khóa chữ ký trong dự án xiaozhi-mqtt-gateway
+2. **Quy trình xác thực**:
+   - xiaozhi-mqtt-gateway chịu trách nhiệm tạo thông tin xác thực kết nối MQTT
+   - Hệ thống này chịu trách nhiệm xác minh thông tin xác thực kết nối MQTT
+   - Cả hai bên sử dụng cùng thuật toán chữ ký và khóa để đảm bảo xác thực thành công
+3. **Khuyến nghị triển khai**: Nên triển khai cả hai dự án trong cùng một môi trường mạng, đảm bảo cấu hình được cập nhật đồng bộ
 
-## 工具函数
+## Các hàm tiện ích
 
-### 1. 密码签名生成
+### 1. Tạo chữ ký mật khẩu
 
 ```go
-// 生成HMAC-SHA256密码签名
+// Tạo chữ ký mật khẩu HMAC-SHA256
 password := util.GeneratePasswordSignature(data, key)
 ```
 
-### 2. MQTT凭据生成
+### 2. Tạo thông tin xác thực MQTT
 
 ```go
-// 生成完整的MQTT连接凭据
+// Tạo thông tin xác thực kết nối MQTT đầy đủ
 credentials, err := util.GenerateMqttCredentials(deviceId, clientId, ip, signatureKey)
 if err != nil {
-    // 处理错误
+    // Xử lý lỗi
 }
-// credentials包含: ClientId, Username, Password
+// credentials bao gồm: ClientId, Username, Password
 ```
 
-### 3. MQTT凭据验证
+### 3. Xác minh thông tin xác thực MQTT
 
 ```go
-// 验证MQTT连接凭据
+// Xác minh thông tin xác thực kết nối MQTT
 credentialInfo, err := util.ValidateMqttCredentials(clientId, username, password, signatureKey)
 if err != nil {
-    // 验证失败
+    // Xác minh thất bại
 }
-// credentialInfo包含: GroupId, MacAddress, UUID, UserData
+// credentialInfo bao gồm: GroupId, MacAddress, UUID, UserData
 ```
 
-## MQTT认证逻辑
+## Logic xác thực MQTT
 
-### 1. Client ID格式
+### 1. Định dạng Client ID
 
 ```
 GID_test@@@{deviceId}@@@{clientId}
 ```
 
-示例：
+Ví dụ:
 ```
 GID_test@@@02_4A_7D_E3_89_BF@@@e3b0c442-98fc-4e1a-8c3d-6a5b6a5b6a5b
 ```
 
-### 2. Username格式
+### 2. Định dạng Username
 
-Base64编码的JSON，包含客户端IP信息：
+JSON được mã hóa Base64, chứa thông tin IP của client:
 
 ```yaml
 ip: "1.202.193.194"
 ```
 
-Base64编码后：
+Sau khi mã hóa Base64:
 ```
 eyJpcCI6IjEuMjAyLjE5My4xOTQifQ==
 ```
 
-### 3. Password生成
+### 3. Tạo Password
 
-使用HMAC-SHA256算法生成密码签名：
+Sử dụng thuật toán HMAC-SHA256 để tạo chữ ký mật khẩu:
 
 ```go
 signatureData := clientId + "|" + username
 password := HMAC-SHA256(signatureData, signature_key)
 ```
 
-### 4. 验证逻辑
+### 4. Logic xác minh
 
-客户端验证时需要：
+Khi xác minh phía client cần:
 
-1. 解析clientId，提取groupId、macAddress、uuid
-2. 解码username，获取IP信息
-3. 使用相同的签名密钥和算法验证密码
+1. Phân tích clientId, trích xuất groupId, macAddress, uuid
+2. Giải mã username, lấy thông tin IP
+3. Xác minh mật khẩu bằng cùng khóa và thuật toán chữ ký
 
-## MQTT服务器认证
+## Xác thực máy chủ MQTT
 
-### 认证流程
+### Quy trình xác thực
 
-1. **超级管理员验证**
-   - 用户名: `admin` (可配置)
-   - 密码: `shijingbo!@#` (可配置)
+1. **Xác minh quản trị viên cấp cao**
+   - Tên đăng nhập: `admin` (có thể cấu hình)
+   - Mật khẩu: `shijingbo!@#` (có thể cấu hình)
 
-2. **普通用户验证**
-   - 优先使用HMAC-SHA256签名验证
-   - 如果未配置签名密钥，回退到AES验证方式
+2. **Xác minh người dùng thông thường**
+   - Ưu tiên sử dụng xác minh chữ ký HMAC-SHA256
+   - Nếu chưa cấu hình khóa chữ ký, fallback về phương thức xác minh AES
 
-### 认证钩子实现
+### Triển khai hook xác thực
 
 ```go
 func (h *AuthHook) OnConnectAuthenticate(cl *mqttServer.Client, pk packets.Packet) bool {
@@ -139,12 +139,12 @@ func (h *AuthHook) OnConnectAuthenticate(cl *mqttServer.Client, pk packets.Packe
     password := string(pk.Connect.Password)
     clientId := string(pk.Connect.ClientIdentifier)
 
-    // 超级管理员校验
+    // Kiểm tra quản trị viên cấp cao
     if username == adminUsername && password == adminPassword {
         return true
     }
 
-    // 普通用户校验 - 使用新的签名验证逻辑
+    // Kiểm tra người dùng thông thường - sử dụng logic xác minh chữ ký mới
     signatureKey := viper.GetString("mqtt_server.signature_key")
     if signatureKey != "" {
         credentialInfo, err := util.ValidateMqttCredentials(clientId, username, password, signatureKey)
@@ -154,27 +154,27 @@ func (h *AuthHook) OnConnectAuthenticate(cl *mqttServer.Client, pk packets.Packe
         return true
     }
 
-    // 回退到AES验证逻辑
+    // Fallback về logic xác minh AES
     return h.validateWithAes(username, password)
 }
 ```
 
-## 兼容性
+## Khả năng tương thích
 
-- 如果未配置`mqtt_server.signature_key`，系统会回退到原来的SHA256/AES密码生成方式
-- 保持向后兼容性，不会影响现有功能
-- MQTT服务器支持多种认证方式并存
+- Nếu chưa cấu hình `mqtt_server.signature_key`, hệ thống sẽ fallback về phương thức tạo mật khẩu SHA256/AES ban đầu
+- Duy trì khả năng tương thích ngược, không ảnh hưởng đến các chức năng hiện có
+- Máy chủ MQTT hỗ trợ nhiều phương thức xác thực cùng tồn tại
 
-## 安全建议
+## Khuyến nghị bảo mật
 
-1. 使用强随机字符串作为签名密钥
-2. 定期轮换签名密钥
-3. 在生产环境中使用HTTPS/WSS连接
-4. 监控异常登录尝试
-5. 启用日志记录，跟踪认证成功/失败情况
-6. **确保 xiaozhi-mqtt-gateway 与本系统的签名密钥同步更新**
+1. Sử dụng chuỗi ngẫu nhiên mạnh làm khóa chữ ký
+2. Định kỳ xoay vòng khóa chữ ký
+3. Sử dụng kết nối HTTPS/WSS trong môi trường sản xuất
+4. Giám sát các lần đăng nhập bất thường
+5. Bật ghi nhật ký, theo dõi các lần xác thực thành công/thất bại
+6. **Đảm bảo khóa chữ ký của xiaozhi-mqtt-gateway và hệ thống này được cập nhật đồng bộ**
 
-## 数据结构
+## Cấu trúc dữ liệu
 
 ### MqttCredentials
 ```go
@@ -195,32 +195,32 @@ type MqttCredentialInfo struct {
 }
 ``` 
 
-# 虾哥官方 xiaozhi-mqtt-gateway 使用说明
+# Hướng dẫn sử dụng xiaozhi-mqtt-gateway chính thức
 
-本系统可以与虾哥官方的 [xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway) 项目配合使用。
+Hệ thống này có thể được sử dụng kết hợp với dự án chính thức [xiaozhi-mqtt-gateway](https://github.com/78/xiaozhi-mqtt-gateway).
 
-只需ota接口中MQTT的用户名密码与xiaozhi-mqtt-gateway认证通过，为确保MQTT认证正常工作，**`ota.signature_key` 配置必须与 xiaozhi-mqtt-gateway 中的签名密钥保持一致**。
+Chỉ cần tên đăng nhập và mật khẩu MQTT trong giao diện OTA vượt qua xác thực của xiaozhi-mqtt-gateway. Để đảm bảo xác thực MQTT hoạt động bình thường, **cấu hình `ota.signature_key` phải giữ nhất quán với khóa chữ ký trong xiaozhi-mqtt-gateway**.
 
-配置如下:
-1. 不启用mqtt server (使用 xiaozhi-mqtt-gateway)
-2. `ota.signature_key` 配置必须与 xiaozhi-mqtt-gateway 中的签名密钥保持一致
-3. 配置 xiaozhi-mqtt-gateway 的websocket后端为本项目地址
+Cấu hình như sau:
+1. Không bật mqtt server (sử dụng xiaozhi-mqtt-gateway)
+2. Cấu hình `ota.signature_key` phải giữ nhất quán với khóa chữ ký trong xiaozhi-mqtt-gateway
+3. Cấu hình backend websocket của xiaozhi-mqtt-gateway trỏ đến địa chỉ dự án này
 
 ```yaml
 mqtt_server:
   enable: false
 ota:
   signature_key: "your_ota_signature_key_here"
-  test:  # 内网测试的返回
+  test:  # Kết quả trả về cho môi trường kiểm thử nội bộ
     websocket:
       url: "ws://192.168.208.214:8989/xiaozhi/v1/"
     mqtt:
       enable: true
-      endpoint: "192.168.208.214:1883"  # xiaozhi-mqtt-gateway中的mqtt server地址
-  external:  # 外网的返回
+      endpoint: "192.168.208.214:1883"  # Địa chỉ mqtt server trong xiaozhi-mqtt-gateway
+  external:  # Kết quả trả về cho mạng công cộng
     websocket:
       url: "wss://www.tb263.cn:55555/go_ws/xiaozhi/v1/"
     mqtt:
       enable: true
-      endpoint: "mqtt.youdomain.com:1883"  # xiaozhi-mqtt-gateway中的mqtt server地址
+      endpoint: "mqtt.youdomain.com:1883"  # Địa chỉ mqtt server trong xiaozhi-mqtt-gateway
 ```

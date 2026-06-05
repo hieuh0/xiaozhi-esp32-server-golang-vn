@@ -1,23 +1,23 @@
-# 知识库功能说明
+# Hướng dẫn chức năng Cơ sở tri thức
 
-本文档介绍项目中的 **知识库（Knowledge Base / RAG）** 功能，包括管理员侧 provider 配置、普通用户侧知识库与文档管理、召回测试，以及主程序聊天链路中的知识库检索集成。
+Tài liệu này mô tả chức năng **Cơ sở tri thức (Knowledge Base / RAG)** trong dự án, bao gồm cấu hình provider phía quản trị viên, quản lý cơ sở tri thức và tài liệu phía người dùng thường, kiểm thử truy hồi, cũng như tích hợp truy hồi cơ sở tri thức trong luồng chat của chương trình chính.
 
-相关文档：
+Tài liệu liên quan:
 
-- [管理后台使用指南](./manager_console_guide.md)
-- [MCP 架构说明](./mcp.md)（知识库检索工具 `search_knowledge` 会通过本地工具链路触发）
+- [Hướng dẫn sử dụng trang quản trị](./manager_console_guide.md)
+- [Mô tả kiến trúc MCP](./mcp.md)（Công cụ truy hồi cơ sở tri thức `search_knowledge` sẽ được kích hoạt qua chuỗi công cụ nội bộ）
 
 ---
 
-## 1. 功能概览
+## 1. Tổng quan chức năng
 
-知识库功能用于为智能体提供“文档依据型回答”能力，包含三层：
+Chức năng cơ sở tri thức dùng để cung cấp khả năng "trả lời dựa trên tài liệu" cho các agent, bao gồm ba tầng:
 
-1. 管理员配置知识库检索 provider（Dify / RAGFlow / WeKnora）
-2. 普通用户创建知识库与文档，并异步同步到 provider
-3. 智能体关联知识库，在对话时触发本地 `search_knowledge` 工具完成召回
+1. Quản trị viên cấu hình provider truy hồi cơ sở tri thức（Dify / RAGFlow / WeKnora）
+2. Người dùng thường tạo cơ sở tri thức và tài liệu, đồng bộ không đồng bộ lên provider
+3. Agent liên kết cơ sở tri thức, kích hoạt công cụ `search_knowledge` nội bộ để thực hiện truy hồi khi đối thoại
 
-当前前端管理页已支持的 provider：
+Các provider hiện được hỗ trợ trên trang quản lý frontend:
 
 - `dify`
 - `ragflow`
@@ -25,60 +25,60 @@
 
 ---
 
-## 2. 角色分工
+## 2. Phân công vai trò
 
-## 2.1 管理员
+## 2.1 Quản trị viên
 
-负责：
+Chịu trách nhiệm:
 
-- 配置知识库检索 provider（全局）
-- 维护 provider 连接参数与默认阈值
-- （可选）代用户管理知识库
+- Cấu hình provider truy hồi cơ sở tri thức（toàn cục）
+- Duy trì tham số kết nối provider và ngưỡng mặc định
+- （Tuỳ chọn）Quản lý cơ sở tri thức thay người dùng
 
-入口：
+Đường dẫn truy cập:
 
-- `管理员 -> 知识库检索配置`
+- `Quản trị viên -> Cấu hình truy hồi cơ sở tri thức`
 
-## 2.2 普通用户
+## 2.2 Người dùng thường
 
-负责：
+Chịu trách nhiệm:
 
-- 创建/编辑/删除自己的知识库
-- 管理知识库文档（文本录入 / 文件上传）
-- 发起手动同步与重试
-- 使用“召回测试”验证关键词命中效果
-- 在智能体中选择关联知识库
+- Tạo/chỉnh sửa/xóa cơ sở tri thức của mình
+- Quản lý tài liệu cơ sở tri thức（nhập văn bản / tải file lên）
+- Khởi động đồng bộ thủ công và thử lại
+- Dùng "Kiểm thử truy hồi" để xác minh hiệu quả truy hồi từ khóa
+- Chọn liên kết cơ sở tri thức trong agent
 
-入口：
+Đường dẫn truy cập:
 
-- `普通用户 -> 我的知识库`
-- `普通用户 -> 智能体编辑（关联知识库）`
+- `Người dùng -> Cơ sở tri thức của tôi`
+- `Người dùng -> Chỉnh sửa agent（liên kết cơ sở tri thức）`
 
 ---
 
-## 3. 管理员：知识库检索配置（Provider 配置）
+## 3. Quản trị viên: Cấu hình truy hồi cơ sở tri thức（Cấu hình Provider）
 
-管理端支持维护多个 provider 配置，并指定默认 provider。
+Trang quản trị hỗ trợ duy trì nhiều cấu hình provider và chỉ định provider mặc định.
 
-常见配置项（按 provider 不同有所差异）：
+Các mục cấu hình thường gặp（có thể khác nhau tuỳ provider）:
 
 - `Base URL`
 - `API Key / Token`
-- 默认检索阈值
-- provider 特定参数（如 RAGFlow 相似度阈值、WeKnora 分块参数等）
+- Ngưỡng truy hồi mặc định
+- Tham số đặc thù của provider（ví dụ: ngưỡng độ tương đồng RAGFlow, tham số phân đoạn WeKnora, v.v.）
 
 ### 3.1 Dify
 
-典型配置项：
+Các mục cấu hình điển hình:
 
 - `base_url`
 - `api_key`
 - `score_threshold`
-- 其他 provider 参数
+- Các tham số provider khác
 
 ### 3.2 RAGFlow
 
-典型配置项：
+Các mục cấu hình điển hình:
 
 - `base_url`
 - `api_key`
@@ -86,170 +86,170 @@
 
 ### 3.3 WeKnora
 
-典型配置项：
+Các mục cấu hình điển hình:
 
 - `base_url`
 - `api_key`
 - `score_threshold`
-- 分块参数（`chunk_size` / `chunk_overlap` / `separators`）
-- 解析轮询参数（`parse_poll_interval_ms` / `parse_timeout_ms`）
+- Tham số phân đoạn（`chunk_size` / `chunk_overlap` / `separators`）
+- Tham số polling phân tích（`parse_poll_interval_ms` / `parse_timeout_ms`）
 
-管理页还支持拉取 WeKnora 模型列表（embedding / llm / rerank）辅助填写配置。
+Trang quản trị còn hỗ trợ lấy danh sách mô hình WeKnora（embedding / llm / rerank）để hỗ trợ điền cấu hình.
 
 ---
 
-## 4. 普通用户：我的知识库（KB 管理）
+## 4. Người dùng thường: Cơ sở tri thức của tôi（Quản lý KB）
 
-入口：
+Đường dẫn truy cập:
 
-- `普通用户 -> 我的知识库`
+- `Người dùng -> Cơ sở tri thức của tôi`
 
-支持操作：
+Các thao tác được hỗ trợ:
 
-- 新增/编辑知识库
-- 设置状态（`active` / `inactive`）
-- 设置检索阈值（可继承全局）
-- 文档管理
-- 手动重试同步
-- 召回测试
-- 删除知识库
+- Thêm/chỉnh sửa cơ sở tri thức
+- Đặt trạng thái（`active` / `inactive`）
+- Đặt ngưỡng truy hồi（có thể kế thừa toàn cục）
+- Quản lý tài liệu
+- Thử lại đồng bộ thủ công
+- Kiểm thử truy hồi
+- Xóa cơ sở tri thức
 
-### 4.1 知识库字段（用户可见）
+### 4.1 Các trường cơ sở tri thức（hiển thị với người dùng）
 
-常见展示列：
+Các cột thường hiển thị:
 
 - ID
-- 名称
-- 描述
-- 提供商
-- 状态
-- 同步状态
-- 最近同步时间
-- 操作
+- Tên
+- Mô tả
+- Nhà cung cấp
+- Trạng thái
+- Trạng thái đồng bộ
+- Thời gian đồng bộ gần nhất
+- Thao tác
 
-说明：
+Lưu ý:
 
-- 同步失败时，错误信息会以“提示（tooltip）”形式显示在“同步状态”列中，避免表格横向过宽
+- Khi đồng bộ thất bại, thông tin lỗi sẽ hiển thị dưới dạng "tooltip" trong cột "Trạng thái đồng bộ", tránh bảng bị quá rộng theo chiều ngang
 
-### 4.2 同步状态（常见）
+### 4.2 Trạng thái đồng bộ（thường gặp）
 
-知识库与文档都可能出现类似状态：
+Cả cơ sở tri thức lẫn tài liệu đều có thể xuất hiện các trạng thái tương tự:
 
-- 待同步
-- 上传中 / 已上传 / 解析中
-- 已同步
-- 失败（含上传失败、解析失败等）
+- Chờ đồng bộ
+- Đang tải lên / Đã tải lên / Đang phân tích
+- Đã đồng bộ
+- Thất bại（bao gồm lỗi tải lên, lỗi phân tích, v.v.）
 
-如失败可点击 `重试同步` 重新入队异步任务。
-
----
-
-## 5. 文档管理（知识库下）
-
-每个知识库可包含多条文档，支持：
-
-- 文本型文档（在线编辑）
-- 文件上传创建文档（按 provider 限制格式）
-
-页面功能：
-
-- 新增文档
-- 编辑文档（文件型文档通常不支持在线编辑）
-- 删除文档
-- 重试同步
-- 文件上传
-
-### 5.1 文件上传格式
-
-前端会根据当前知识库 provider 展示不同的 `accept` 提示与上传说明：
-
-- Dify：支持常见文本/文档格式（如 txt/md/pdf/html/xlsx/docx/csv 等）
-- RAGFlow：支持更广文件类型（含图片、日志、配置文件等）
-- WeKnora：支持较广文件类型（含 Office、图片、邮件等）
-
-具体可上传格式请以页面提示为准。
+Nếu thất bại có thể nhấn `Thử lại đồng bộ` để đưa lại vào hàng đợi tác vụ không đồng bộ.
 
 ---
 
-## 6. 召回测试（用户侧）
+## 5. Quản lý tài liệu（trong cơ sở tri thức）
 
-知识库列表中可对单个知识库执行 `召回测试`，用于直接验证 provider 检索效果。
+Mỗi cơ sở tri thức có thể chứa nhiều tài liệu, hỗ trợ:
 
-测试项：
+- Tài liệu dạng văn bản（chỉnh sửa trực tuyến）
+- Tạo tài liệu bằng cách tải file lên（định dạng giới hạn theo provider）
 
-- `query`：测试关键词或问题
+Chức năng trên trang:
+
+- Thêm tài liệu
+- Chỉnh sửa tài liệu（tài liệu dạng file thường không hỗ trợ chỉnh sửa trực tuyến）
+- Xóa tài liệu
+- Thử lại đồng bộ
+- Tải file lên
+
+### 5.1 Định dạng file tải lên
+
+Frontend sẽ hiển thị gợi ý `accept` và hướng dẫn tải lên khác nhau tuỳ theo provider của cơ sở tri thức hiện tại:
+
+- Dify：Hỗ trợ các định dạng văn bản/tài liệu thông dụng（ví dụ: txt/md/pdf/html/xlsx/docx/csv, v.v.）
+- RAGFlow：Hỗ trợ nhiều loại file hơn（bao gồm hình ảnh, log, file cấu hình, v.v.）
+- WeKnora：Hỗ trợ nhiều loại file（bao gồm Office, hình ảnh, email, v.v.）
+
+Các định dạng có thể tải lên cụ thể xin tham khảo gợi ý trên trang.
+
+---
+
+## 6. Kiểm thử truy hồi（phía người dùng）
+
+Trong danh sách cơ sở tri thức, có thể thực hiện `Kiểm thử truy hồi` cho từng cơ sở tri thức, dùng để xác minh trực tiếp hiệu quả truy hồi của provider.
+
+Các mục kiểm thử:
+
+- `query`：Từ khóa hoặc câu hỏi kiểm thử
 - `top_k`
-- `threshold`（仅本次测试生效，可为空）
+- `threshold`（Chỉ có hiệu lực cho lần kiểm thử này, có thể để trống）
 
-返回内容：
+Nội dung trả về:
 
-- 命中条数
-- 命中来源（title）
+- Số lượng kết quả trúng
+- Nguồn trúng（title）
 - score
-- 命中文本片段
-- 响应耗时
+- Đoạn văn bản trúng
+- Thời gian phản hồi
 
-### 6.1 阈值优先级（逻辑说明）
+### 6.1 Thứ tự ưu tiên ngưỡng（giải thích logic）
 
-通常按以下优先级取阈值：
+Thông thường ngưỡng được lấy theo thứ tự ưu tiên sau:
 
-1. 本次测试请求阈值（若填写）
-2. 知识库自身阈值
-3. provider 全局默认阈值
+1. Ngưỡng trong yêu cầu kiểm thử lần này（nếu đã điền）
+2. Ngưỡng của cơ sở tri thức
+3. Ngưỡng mặc định toàn cục của provider
 
-### 6.2 WeKnora 参数说明（重要）
+### 6.2 Giải thích tham số WeKnora（quan trọng）
 
-当前 WeKnora 召回测试已按知识库维度使用：
+Kiểm thử truy hồi WeKnora hiện đã sử dụng theo chiều cơ sở tri thức:
 
-- `knowledge_base_ids`（知识库 ID 列表）
+- `knowledge_base_ids`（danh sách ID cơ sở tri thức）
 
-用于精确限制检索范围到当前知识库。
-
----
-
-## 7. 智能体关联知识库
-
-在智能体编辑页可为智能体选择多个知识库（多选）。
-
-行为说明：
-
-- 支持多库关联
-- 对话时会根据模型判断是否触发知识库检索
-- 若可判断具体知识库，工具调用会传 `knowledge_base_ids`
-- 检索失败时会降级为普通 LLM 对话（前端有提示文案）
+Dùng để giới hạn phạm vi truy hồi chính xác vào cơ sở tri thức hiện tại.
 
 ---
 
-## 8. 主程序对话链路中的知识库检索
+## 7. Agent liên kết cơ sở tri thức
 
-主程序通过本地工具 `search_knowledge` 实现知识库检索。
+Trong trang chỉnh sửa agent có thể chọn nhiều cơ sở tri thức cho agent（chọn nhiều）.
 
-工具调用参数核心字段：
+Giải thích hành vi:
+
+- Hỗ trợ liên kết nhiều cơ sở tri thức
+- Khi đối thoại, mô hình sẽ tự phán đoán có cần kích hoạt truy hồi cơ sở tri thức hay không
+- Nếu có thể xác định được cơ sở tri thức cụ thể, lệnh gọi công cụ sẽ truyền `knowledge_base_ids`
+- Khi truy hồi thất bại sẽ hạ cấp về đối thoại LLM thông thường（frontend có thông báo gợi ý）
+
+---
+
+## 8. Truy hồi cơ sở tri thức trong luồng đối thoại của chương trình chính
+
+Chương trình chính thực hiện truy hồi cơ sở tri thức thông qua công cụ nội bộ `search_knowledge`.
+
+Các trường cốt lõi trong tham số gọi công cụ:
 
 - `query`
 - `top_k`
-- `knowledge_base_ids`（可选，知识库 ID 列表）
+- `knowledge_base_ids`（Tuỳ chọn, danh sách ID cơ sở tri thức）
 
-行为说明：
+Giải thích hành vi:
 
-- 不传 `knowledge_base_ids`：在当前智能体关联的所有可用知识库中检索
-- 传入 `knowledge_base_ids`：仅在指定知识库内检索
+- Không truyền `knowledge_base_ids`：Truy hồi trong tất cả các cơ sở tri thức khả dụng được liên kết với agent hiện tại
+- Truyền `knowledge_base_ids`：Chỉ truy hồi trong các cơ sở tri thức được chỉ định
 
-这使得模型可以在已知问题归属时缩小检索范围，提升相关性并减少无关召回。
+Điều này cho phép mô hình thu hẹp phạm vi truy hồi khi đã biết câu hỏi thuộc về đâu, nâng cao độ liên quan và giảm truy hồi không liên quan.
 
-### 8.1 WeKnora 主程序检索参数
+### 8.1 Tham số truy hồi chương trình chính WeKnora
 
-当前 WeKnora 主程序检索请求已使用：
+Yêu cầu truy hồi chương trình chính WeKnora hiện đã sử dụng:
 
 - `knowledge_base_ids`
 
-与控制台召回测试保持一致。
+Nhất quán với kiểm thử truy hồi trên console.
 
 ---
 
-## 9. 接口清单（用户侧）
+## 9. Danh sách API（phía người dùng）
 
-### 9.1 知识库 CRUD
+### 9.1 CRUD cơ sở tri thức
 
 - `GET /user/knowledge-bases`
 - `POST /user/knowledge-bases`
@@ -258,11 +258,11 @@
 - `DELETE /user/knowledge-bases/:id`
 - `POST /user/knowledge-bases/:id/sync`
 
-### 9.2 召回测试
+### 9.2 Kiểm thử truy hồi
 
 - `POST /user/knowledge-bases/:id/test-search`
 
-### 9.3 文档管理
+### 9.3 Quản lý tài liệu
 
 - `GET /user/knowledge-bases/:id/documents`
 - `POST /user/knowledge-bases/:id/documents`
@@ -271,27 +271,27 @@
 - `DELETE /user/knowledge-bases/:id/documents/:doc_id`
 - `POST /user/knowledge-bases/:id/documents/:doc_id/sync`
 
-### 9.4 智能体关联知识库
+### 9.4 Agent liên kết cơ sở tri thức
 
 - `GET /user/agents/:id/knowledge-bases`
 - `PUT /user/agents/:id/knowledge-bases`
 
 ---
 
-## 10. 接口清单（管理员侧）
+## 10. Danh sách API（phía quản trị viên）
 
-### 10.1 provider 配置管理
+### 10.1 Quản lý cấu hình provider
 
 - `GET /admin/knowledge-search-configs`
 - `POST /admin/knowledge-search-configs`
 - `PUT /admin/knowledge-search-configs/:id`
 - `DELETE /admin/knowledge-search-configs/:id`
 
-### 10.2 WeKnora 模型拉取（配置辅助）
+### 10.2 Lấy danh sách mô hình WeKnora（hỗ trợ cấu hình）
 
 - `POST /admin/knowledge-search-configs/weknora/models`
 
-### 10.3 管理员代用户管理知识库（按用户维度）
+### 10.3 Quản trị viên quản lý cơ sở tri thức thay người dùng（theo chiều người dùng）
 
 - `GET /admin/users/:id/knowledge-bases`
 - `POST /admin/users/:id/knowledge-bases`
@@ -300,33 +300,32 @@
 
 ---
 
-## 11. 常见问题与排查
+## 11. Câu hỏi thường gặp và cách xử lý
 
-### 11.1 知识库创建后一直未命中
+### 11.1 Cơ sở tri thức tạo xong nhưng mãi không truy hồi được
 
-优先排查：
+Ưu tiên kiểm tra:
 
-1. 知识库/文档是否已同步成功
-2. 外部 provider 是否已完成索引构建
-3. 检索阈值是否过高
-4. `query` 是否过于宽泛或偏离文档内容
+1. Cơ sở tri thức / tài liệu đã đồng bộ thành công chưa
+2. Provider bên ngoài đã hoàn thành xây dựng chỉ mục chưa
+3. Ngưỡng truy hồi có quá cao không
+4. `query` có quá chung chung hoặc lệch xa nội dung tài liệu không
 
-### 11.2 文件上传后文档不能编辑
+### 11.2 Tài liệu không thể chỉnh sửa sau khi tải file lên
 
-文件上传创建的文档通常作为“文件型文档”处理，前端会限制在线编辑，建议删除后重新上传。
+Tài liệu được tạo bằng cách tải file lên thường được xử lý như "tài liệu dạng file", frontend sẽ hạn chế chỉnh sửa trực tuyến, nên xóa và tải lên lại.
 
-### 11.3 WeKnora 检索范围不对
+### 11.3 Phạm vi truy hồi WeKnora không đúng
 
-确认：
+Xác nhận:
 
-- 控制台召回测试是否使用当前知识库发起测试
-- 智能体工具调用中是否正确传入 `knowledge_base_ids`
+- Kiểm thử truy hồi trên console có đang sử dụng cơ sở tri thức hiện tại để kiểm thử không
+- Lệnh gọi công cụ của agent có truyền đúng `knowledge_base_ids` không
 
 ---
 
-## 12. 使用建议
+## 12. Khuyến nghị sử dụng
 
-- 为不同业务域拆分多个知识库（如售后、产品、合同）
-- 使用“召回测试”先调好阈值，再接入智能体
-- 在智能体说明中明确何时需要知识库回答，可提升触发质量
-
+- Chia thành nhiều cơ sở tri thức theo từng lĩnh vực nghiệp vụ（ví dụ: hậu mãi, sản phẩm, hợp đồng）
+- Dùng "Kiểm thử truy hồi" để điều chỉnh ngưỡng trước, rồi mới tích hợp vào agent
+- Trong mô tả agent, nêu rõ khi nào cần trả lời từ cơ sở tri thức để nâng cao chất lượng kích hoạt

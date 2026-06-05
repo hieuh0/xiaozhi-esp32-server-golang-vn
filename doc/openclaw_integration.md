@@ -1,38 +1,38 @@
-# OpenClaw 接入说明
+# Hướng dẫn tích hợp OpenClaw
 
-## 架构图
+## Sơ đồ kiến trúc
 
 ```mermaid
 flowchart LR
-  Device[设备语音输入] --> ASR[主服务 STT/ChatSession]
-  ASR --> Route{OpenClaw关键词路由}
-  Route -- 打开龙虾 / 进入龙虾 --> OCSession[OpenClaw 会话]
-  Route -- 其他文本 --> LLM[普通 LLM 对话链路]
-  OCSession --> Plugin[xiaozhi 插件]
-  Plugin --> ChannelCmd[角色配置命令<br/>openclaw config set channels.xiaozhi ...]
+  Device[Đầu vào giọng nói thiết bị] --> ASR[Dịch vụ chính STT/ChatSession]
+  ASR --> Route{Định tuyến từ khóa OpenClaw}
+  Route -- 打开龙虾 / 进入龙虾 --> OCSession[Phiên OpenClaw]
+  Route -- Văn bản khác --> LLM[Luồng hội thoại LLM thông thường]
+  OCSession --> Plugin[Plugin xiaozhi]
+  Plugin --> ChannelCmd[Lệnh cấu hình nhân vật<br/>openclaw config set channels.xiaozhi ...]
   ChannelCmd --> OCSession
 ```
 
-## 安装步骤
+## Các bước cài đặt
 
-1. 确保 OpenClaw 已正常运行。
-2. 在智能体的 `OpenClaw设置` 弹层复制角色配置命令，系统会自动填入当前服务的 WebSocket URL 和该智能体的 JWT token。
-3. 在 OpenClaw 控制台角色配置中依次执行以下四条命令：
+1. Đảm bảo OpenClaw đã hoạt động bình thường.
+2. Trong hộp thoại `Cài đặt OpenClaw` của agent, sao chép lệnh cấu hình nhân vật — hệ thống sẽ tự động điền WebSocket URL của dịch vụ hiện tại và JWT token của agent đó.
+3. Trong bảng cấu hình nhân vật của console OpenClaw, lần lượt thực thi bốn lệnh sau:
    `openclaw config set channels.xiaozhi.enabled true --strict-json`
    `openclaw config set channels.xiaozhi.url "{url}"`
    `openclaw config set channels.xiaozhi.token "{token}"`
    `openclaw gateway restart`
-4. 其中 `{url}` 和 `{token}` 使用弹层里复制出的实际值替换，最后执行 `openclaw gateway restart` 使配置生效。
+4. Trong đó `{url}` và `{token}` được thay bằng giá trị thực tế đã sao chép từ hộp thoại; cuối cùng thực thi `openclaw gateway restart` để cấu hình có hiệu lực.
 
-## 使用方法
+## Cách sử dụng
 
-1. 在智能体的 `OpenClaw设置` 弹层点击“复制命令”。
-2. 在 OpenClaw 控制台角色配置中执行复制出的四条命令，完成 `enabled`、`url`、`token` 配置并重启 gateway。
-3. 安装和配置完成后，即可在 OpenClaw 会话中调用 xiaozhi 插件能力。
-4. 在 `查看openclaw` 弹层可使用“发送测试”验证连通性与回复。
-5. 在设备侧可通过 `打开龙虾` / `进入龙虾` 进入 OpenClaw 模式，通过 `关闭龙虾` / `退出龙虾` 退出模式。
+1. Trong hộp thoại `Cài đặt OpenClaw` của agent, nhấn "Sao chép lệnh".
+2. Trong bảng cấu hình nhân vật của console OpenClaw, thực thi bốn lệnh đã sao chép để hoàn tất cấu hình `enabled`, `url`, `token` và khởi động lại gateway.
+3. Sau khi cài đặt và cấu hình xong, có thể gọi khả năng plugin xiaozhi trong phiên OpenClaw.
+4. Trong hộp thoại `Xem openclaw`, có thể dùng "Gửi kiểm tra" để xác minh kết nối và phản hồi.
+5. Ở phía thiết bị, có thể dùng `打开龙虾` / `进入龙虾` để vào chế độ OpenClaw, và dùng `关闭龙虾` / `退出龙虾` để thoát khỏi chế độ.
 
-## 排查建议
+## Gợi ý khắc phục sự cố
 
-- 状态显示未连接：确认 `channels.xiaozhi.url` 与 `channels.xiaozhi.token` 使用的是最新值，且 `channels.xiaozhi.enabled` 已设为 `true`。
-- 对话测试超时：检查四条角色配置命令是否执行成功、URL/token 是否正确、是否已执行 `openclaw gateway restart`、OpenClaw 会话是否在线。
+- Trạng thái hiển thị chưa kết nối: xác nhận `channels.xiaozhi.url` và `channels.xiaozhi.token` đang sử dụng giá trị mới nhất, và `channels.xiaozhi.enabled` đã được đặt thành `true`.
+- Kiểm tra hội thoại bị timeout: kiểm tra xem bốn lệnh cấu hình nhân vật đã thực thi thành công chưa, URL/token có đúng không, đã thực thi `openclaw gateway restart` chưa, và phiên OpenClaw có đang trực tuyến không.

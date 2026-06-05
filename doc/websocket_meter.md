@@ -1,4 +1,4 @@
-### 压测
+### Kiểm tra tải (Stress Test)
 
 ```
 root@hackers365-System-Product-Name:~# docker run -itd --name websocket_meter docker.jsdelivr.fyi/hackers365/xiaozhi_websocket_client                      
@@ -9,44 +9,44 @@ root@87311584e5fe:/workspace#
 root@87311584e5fe:/workspace# ./ws_multi  -h
 Usage of ./ws_multi:
   -count int
-        客户端数量 (default 10)
+        Số lượng client (default 10)
   -device string
-        设备ID
+        ID thiết bị
   -server string
-        服务器地址 (default "ws://localhost:8989/xiaozhi/v1/")
+        Địa chỉ máy chủ (default "ws://localhost:8989/xiaozhi/v1/")
   -text string
-        聊天内容, 多句以逗号分隔会依次发送 (default "你好")
+        Nội dung trò chuyện, nhiều câu phân cách bằng dấu phẩy sẽ được gửi lần lượt (default "你好")
 root@87311584e5fe:/workspace# ./ws_multi -count 1 -server wss://joeyzhou.chat/ws/xiaozhi/v1/ -text "你好,在干什么,一起出去玩吧" 
-运行小智客户端
-服务器: wss://joeyzhou.chat/ws/xiaozhi/v1/
-客户端数量: 1
-发送内容: 你好,在干什么,一起出去玩吧
-2025-05-27 09:54:51.095 [info] [audio_utils.go:199] tts云端首帧耗时: 532 ms
-2025-05-27 09:54:51.098 [info] [audio_utils.go:269] tts云端->首帧解码完成耗时: 535 ms
-2025-05-27 09:54:51.401 [info] [cosyvoice.go:306] tts耗时: 从输入至获取MP3数据结束耗时: 838 ms
-2025-05-27 09:54:51.748 [info] [audio_utils.go:199] tts云端首帧耗时: 344 ms
-2025-05-27 09:54:51.752 [info] [audio_utils.go:269] tts云端->首帧解码完成耗时: 347 ms
-2025-05-27 09:54:51.901 [info] [cosyvoice.go:306] tts耗时: 从输入至获取MP3数据结束耗时: 497 ms
-2025-05-27 09:54:52.292 [info] [audio_utils.go:199] tts云端首帧耗时: 387 ms
-2025-05-27 09:54:52.296 [info] [audio_utils.go:269] tts云端->首帧解码完成耗时: 391 ms
-2025-05-27 09:54:52.628 [info] [cosyvoice.go:306] tts耗时: 从输入至获取MP3数据结束耗时: 723 ms
-0 客户端开始运行
-0 客户端已连接到服务器: wss://joeyzhou.chat/ws/xiaozhi/v1/
-收到消息: {Type:hello Text: State: SessionID:cafd2800-1979-06d5-19cf-b8bf53bb55dc Transport:websocket AudioFormat:<nil>}
-发送Opus帧: 20
-发送Opus帧: 50
-发送Opus帧: 59
+Đang chạy client Xiaozhi
+Máy chủ: wss://joeyzhou.chat/ws/xiaozhi/v1/
+Số lượng client: 1
+Nội dung gửi: 你好,在干什么,一起出去玩吧
+2025-05-27 09:54:51.095 [info] [audio_utils.go:199] tts thời gian nhận khung đầu tiên từ cloud: 532 ms
+2025-05-27 09:54:51.098 [info] [audio_utils.go:269] tts cloud->hoàn thành giải mã khung đầu tiên: 535 ms
+2025-05-27 09:54:51.401 [info] [cosyvoice.go:306] tts thời gian xử lý: từ đầu vào đến khi nhận xong dữ liệu MP3: 838 ms
+2025-05-27 09:54:51.748 [info] [audio_utils.go:199] tts thời gian nhận khung đầu tiên từ cloud: 344 ms
+2025-05-27 09:54:51.752 [info] [audio_utils.go:269] tts cloud->hoàn thành giải mã khung đầu tiên: 347 ms
+2025-05-27 09:54:51.901 [info] [cosyvoice.go:306] tts thời gian xử lý: từ đầu vào đến khi nhận xong dữ liệu MP3: 497 ms
+2025-05-27 09:54:52.292 [info] [audio_utils.go:199] tts thời gian nhận khung đầu tiên từ cloud: 387 ms
+2025-05-27 09:54:52.296 [info] [audio_utils.go:269] tts cloud->hoàn thành giải mã khung đầu tiên: 391 ms
+2025-05-27 09:54:52.628 [info] [cosyvoice.go:306] tts thời gian xử lý: từ đầu vào đến khi nhận xong dữ liệu MP3: 723 ms
+0 Client bắt đầu chạy
+0 Client đã kết nối đến máy chủ: wss://joeyzhou.chat/ws/xiaozhi/v1/
+Nhận được tin nhắn: {Type:hello Text: State: SessionID:cafd2800-1979-06d5-19cf-b8bf53bb55dc Transport:websocket AudioFormat:<nil>}
+Đang gửi khung Opus: 20
+Đang gửi khung Opus: 50
+Đang gửi khung Opus: 59
 ```
 
-#### 整体说明
-    1. 程序会根据用户输入的文本, 调用tts接口生成音频数据，依次发送给服务器
-    2. 耗时统计从 type: listen, state: stop开始进行计时，直到收到服务器第一帧音频数据停止
+#### Mô tả tổng quan
+    1. Chương trình sẽ dựa vào văn bản người dùng nhập vào, gọi giao diện tts để tạo dữ liệu âm thanh, sau đó gửi lần lượt đến máy chủ
+    2. Thống kê thời gian phản hồi bắt đầu từ khi gửi type: listen, state: stop và dừng lại khi nhận được khung âm thanh đầu tiên từ máy chủ
 
-#### 参数说明：
-    -count: 并发数量
-    -device: 默认会随机生成deviceId，如果使用此参数来指定设备，-count必须为1
-    -server: websocket服务器地址
-    -text: 要发送的内容, 以“,”号分隔，循环发送
+#### Mô tả tham số:
+    -count: Số lượng kết nối đồng thời
+    -device: Mặc định sẽ tạo deviceId ngẫu nhiên, nếu dùng tham số này để chỉ định thiết bị, -count phải là 1
+    -server: Địa chỉ máy chủ websocket
+    -text: Nội dung cần gửi, phân cách bằng dấu ",", gửi vòng lặp
 
-#### 输出说明
-    可以将输出重定向至日志文件, 然后tail -f xx.log | grep '平均响应时间'
+#### Mô tả đầu ra
+    Có thể chuyển hướng đầu ra vào file log, sau đó dùng tail -f xx.log | grep 'Thời gian phản hồi trung bình'

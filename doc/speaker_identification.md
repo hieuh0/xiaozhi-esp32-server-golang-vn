@@ -1,131 +1,133 @@
-# 声纹识别功能文档
+# Tài liệu tính năng nhận dạng giọng nói (Speaker Identification)
 
-> 声纹识别（Speaker Identification）是 xiaozhi-esp32-server-golang 项目中的一项核心功能，用于识别设备端用户的身份，并根据识别结果动态切换 TTS 音色。
+> Nhận dạng giọng nói (Speaker Identification) là một tính năng cốt lõi trong dự án xiaozhi-esp32-server-golang, dùng để nhận dạng danh tính người dùng phía thiết bị và tự động chuyển đổi giọng TTS dựa trên kết quả nhận dạng.
 
 ---
 
-## 一、功能概述
+## I. Tổng quan tính năng
 
-声纹识别通过提取用户语音的声纹特征（embedding），与预先注册的声纹数据进行比对，实现用户身份识别。
+Nhận dạng giọng nói hoạt động bằng cách trích xuất đặc trưng giọng nói (embedding) của người dùng, so sánh với dữ liệu giọng đã đăng ký sẵn để xác định danh tính.
 
-### 核心能力
+### Khả năng cốt lõi
 
-| 能力 | 说明 |
+| Khả năng | Mô tả |
 |------|------|
-| 🎤 **声纹注册** | 上传用户音频样本，提取声纹特征并存储 |
-| 🔍 **声纹识别** | 实时识别说话人身份 |
-| ✅ **声纹验证** | 验证音频是否属于指定用户 |
-| 📡 **流式识别** | 通过 WebSocket 进行实时流式声纹识别 |
-| 🔊 **动态 TTS 切换** | 根据识别结果动态切换对应用户的 TTS 音色 |
+| 🎤 **Đăng ký giọng nói** | Tải lên mẫu âm thanh của người dùng, trích xuất đặc trưng giọng và lưu trữ |
+| 🔍 **Nhận dạng giọng nói** | Nhận dạng danh tính người nói theo thời gian thực |
+| ✅ **Xác minh giọng nói** | Xác minh âm thanh có thuộc về người dùng chỉ định hay không |
+| 📡 **Nhận dạng theo luồng** | Nhận dạng giọng nói theo luồng thời gian thực qua WebSocket |
+| 🔊 **Chuyển đổi TTS động** | Tự động chuyển đổi giọng TTS tương ứng dựa trên kết quả nhận dạng |
 
 ---
 
-## 二、系统架构
+## II. Kiến trúc hệ thống
 
-### 2.1 整体架构
+### 2.1 Kiến trúc tổng thể
 
 ```
 ┌──────────────────┐     ┌──────────────────────┐     ┌──────────────────┐
-│   ESP32 设备     │────▶│ xiaozhi-esp32-server │────▶│   voice-server   │
-│  (采集音频)      │     │     (主服务)          │     │ (声纹识别服务)   │
-└──────────────────┘     └──────────────────────┘     └──────────────────┘
+│   Thiết bị ESP32 │────▶│ xiaozhi-esp32-server │────▶│   voice-server   │
+│  (thu âm thanh)  │     │   (dịch vụ chính)    │     │(dịch vụ nhận dạng│
+└──────────────────┘     └──────────────────────┘     │   giọng nói)     │
+                                                       └──────────────────┘
                                                               │
                                                               ▼
                                                       ┌──────────────────┐
-                                                      │  Qdrant 向量库   │
-                                                      │ (存储声纹特征)   │
+                                                      │  Qdrant vector DB│
+                                                      │(lưu đặc trưng    │
+                                                      │   giọng nói)     │
                                                       └──────────────────┘
 ```
 
-### 2.2 组件说明
+### 2.2 Mô tả các thành phần
 
-| 组件 | 职责 |
+| Thành phần | Trách nhiệm |
 |------|------|
-| **xiaozhi-esp32-server** | 主服务，负责设备连接、会话管理、声纹识别结果处理 |
-| **voice-server (asr_server)** | 声纹识别服务，负责特征提取、注册、识别、验证 |
-| **Manager (后台管理)** | Web 管理后台，提供声纹组管理、样本管理的 API 和 UI |
-| **Qdrant** | 向量数据库，存储声纹特征向量 |
+| **xiaozhi-esp32-server** | Dịch vụ chính, quản lý kết nối thiết bị, quản lý phiên, xử lý kết quả nhận dạng giọng nói |
+| **voice-server (asr_server)** | Dịch vụ nhận dạng giọng nói, trích xuất đặc trưng, đăng ký, nhận dạng, xác minh |
+| **Manager (quản trị web)** | Giao diện quản trị web, cung cấp API và UI quản lý nhóm giọng nói và mẫu âm thanh |
+| **Qdrant** | Cơ sở dữ liệu vector, lưu trữ các vector đặc trưng giọng nói |
 
 ---
 
-## 三、完整流程描述
+## III. Mô tả luồng xử lý đầy đủ
 
-### 3.1 声纹注册流程
+### 3.1 Luồng đăng ký giọng nói
 
 ```
-用户上传音频 → Manager API → voice-server 注册接口 → 提取 embedding → 存入 Qdrant
+Người dùng tải âm thanh → Manager API → voice-server đăng ký → trích xuất embedding → lưu vào Qdrant
                   │
                   ▼
-            保存到本地文件 + 数据库记录
+            Lưu file cục bộ + ghi nhận vào cơ sở dữ liệu
 ```
 
-**详细步骤：**
+**Các bước chi tiết:**
 
-1. 用户在 Manager Web 界面上传音频文件（WAV 格式）
-2. Manager 后端生成唯一 UUID，保存音频文件到本地存储
-3. 调用 voice-server 的 `/api/v1/speaker/register` 接口
-4. voice-server 使用 sherpa-onnx 模型提取声纹特征（192 维向量）
-5. 声纹特征存入 Qdrant 向量数据库
-6. Manager 创建 `SpeakerSample` 数据库记录
+1. Người dùng tải lên file âm thanh (định dạng WAV) qua giao diện Manager Web
+2. Backend Manager tạo UUID duy nhất, lưu file âm thanh vào bộ nhớ cục bộ
+3. Gọi endpoint `/api/v1/speaker/register` của voice-server
+4. voice-server dùng mô hình sherpa-onnx trích xuất đặc trưng giọng (vector 192 chiều)
+5. Đặc trưng giọng được lưu vào cơ sở dữ liệu vector Qdrant
+6. Manager tạo bản ghi `SpeakerSample` trong cơ sở dữ liệu
 
-### 3.2 实时声纹识别流程
+### 3.2 Luồng nhận dạng giọng nói theo thời gian thực
 
 ```
-ESP32 采集音频 → VAD 检测语音 → 同时发送到 ASR 和声纹识别
+ESP32 thu âm → VAD phát hiện giọng → gửi đồng thời đến ASR và nhận dạng giọng nói
                                         │
                                         ▼
-                              WebSocket 流式识别
+                              Nhận dạng theo luồng qua WebSocket
                                         │
                                         ▼
-                              语音结束时获取识别结果
+                              Lấy kết quả khi kết thúc giọng nói
                                         │
                                         ▼
-                              根据识别结果切换 TTS 音色
+                              Chuyển đổi giọng TTS theo kết quả nhận dạng
 ```
 
-**详细步骤：**
+**Các bước chi tiết:**
 
-1. **VAD 检测**：ESP32 采集的音频经过 VAD（Voice Activity Detection）检测
-2. **双通道发送**：检测到语音时，音频数据同时发送到：
-   - ASR 服务（语音转文字）
-   - 声纹识别服务（WebSocket 流式识别）
-3. **流式处理**：声纹识别服务持续接收音频块
-4. **结果获取**：当检测到语音结束（静默）时，调用 `FinishAndIdentify` 获取识别结果
-5. **TTS 切换**：根据识别结果，动态切换对应用户配置的 TTS 音色
+1. **Phát hiện VAD**: Âm thanh từ ESP32 được xử lý qua VAD (Voice Activity Detection)
+2. **Gửi hai kênh**: Khi phát hiện giọng nói, dữ liệu âm thanh được gửi đồng thời đến:
+   - Dịch vụ ASR (chuyển giọng thành văn bản)
+   - Dịch vụ nhận dạng giọng nói (nhận dạng theo luồng WebSocket)
+3. **Xử lý theo luồng**: Dịch vụ nhận dạng giọng nói liên tục nhận các khối âm thanh
+4. **Lấy kết quả**: Khi phát hiện kết thúc giọng nói (im lặng), gọi `FinishAndIdentify` để lấy kết quả nhận dạng
+5. **Chuyển đổi TTS**: Dựa trên kết quả nhận dạng, tự động chuyển đổi giọng TTS theo cấu hình của người dùng tương ứng
 
-### 3.3 启用条件
+### 3.3 Điều kiện kích hoạt
 
-声纹识别需要同时满足以下条件才会启动：
+Nhận dạng giọng nói chỉ khởi động khi thỏa mãn đồng thời các điều kiện sau:
 
-- `voice_identify.enable = true`：全局配置中启用声纹识别
-- 设备配置中存在声纹组配置
-- `speakerManager` 已成功初始化
+- `voice_identify.enable = true`: Bật nhận dạng giọng nói trong cấu hình toàn cục
+- Cấu hình thiết bị có chứa cấu hình nhóm giọng nói
+- `speakerManager` đã khởi tạo thành công
 
 ---
 
-## 四、配置说明
+## IV. Mô tả cấu hình
 
-### 4.1 主程序配置（config.yaml）
+### 4.1 Cấu hình chương trình chính (config.yaml)
 
-在 `config.yaml` 中添加以下配置：
+Thêm cấu hình sau vào `config.yaml`:
 
 ```yaml
-# 声纹识别配置
+# Cấu hình nhận dạng giọng nói
 voice_identify:
-  enable: true                              # 是否启用声纹识别
-  base_url: "http://voice-server:8080"      # voice-server 服务地址
-  threshold: 0.6                            # 声纹识别阈值，范围 0.0-1.0
+  enable: true                              # Có bật nhận dạng giọng nói hay không
+  base_url: "http://voice-server:8080"      # Địa chỉ dịch vụ voice-server
+  threshold: 0.6                            # Ngưỡng nhận dạng giọng nói, phạm vi 0.0-1.0
 ```
 
-| 配置项 | 类型 | 默认值 | 说明 |
+| Tham số cấu hình | Kiểu | Giá trị mặc định | Mô tả |
 |--------|------|--------|------|
-| `enable` | bool | false | 是否启用声纹识别功能 |
-| `base_url` | string | - | voice-server 服务的 HTTP 地址 |
-| `threshold` | float | 0.6 | 识别阈值，值越高要求匹配越严格 |
+| `enable` | bool | false | Có bật tính năng nhận dạng giọng nói hay không |
+| `base_url` | string | - | Địa chỉ HTTP của dịch vụ voice-server |
+| `threshold` | float | 0.6 | Ngưỡng nhận dạng, giá trị càng cao yêu cầu khớp càng chặt |
 
-### 4.2 Docker Compose 配置
+### 4.2 Cấu hình Docker Compose
 
-#### Backend 服务环境变量
+#### Biến môi trường dịch vụ Backend
 
 ```yaml
 backend:
@@ -133,7 +135,7 @@ backend:
     - SPEAKER_SERVICE_URL=http://voice-server:8080
 ```
 
-#### voice-server 服务环境变量
+#### Biến môi trường dịch vụ voice-server
 
 ```yaml
 voice-server:
@@ -146,135 +148,135 @@ voice-server:
     - VAD_ASR_LOGGING_LEVEL=info
 ```
 
-| 环境变量 | 说明 |
+| Biến môi trường | Mô tả |
 |----------|------|
-| `VAD_ASR_SPEAKER_ENABLED` | 是否启用声纹识别功能 |
-| `VAD_ASR_SPEAKER_VECTOR_DB_HOST` | Qdrant 服务地址 |
-| `VAD_ASR_SPEAKER_VECTOR_DB_PORT` | Qdrant gRPC 端口 |
-| `VAD_ASR_SPEAKER_VECTOR_DB_COLLECTION_NAME` | Qdrant Collection 名称 |
-| `VAD_ASR_SPEAKER_THRESHOLD` | 声纹识别阈值 |
-| `VAD_ASR_LOGGING_LEVEL` | 日志级别 |
+| `VAD_ASR_SPEAKER_ENABLED` | Có bật tính năng nhận dạng giọng nói hay không |
+| `VAD_ASR_SPEAKER_VECTOR_DB_HOST` | Địa chỉ dịch vụ Qdrant |
+| `VAD_ASR_SPEAKER_VECTOR_DB_PORT` | Cổng gRPC của Qdrant |
+| `VAD_ASR_SPEAKER_VECTOR_DB_COLLECTION_NAME` | Tên Collection trong Qdrant |
+| `VAD_ASR_SPEAKER_THRESHOLD` | Ngưỡng nhận dạng giọng nói |
+| `VAD_ASR_LOGGING_LEVEL` | Mức độ log |
 
 ---
 
-## 五、API 接口说明
+## V. Mô tả API
 
-### 5.1 Manager 后台 API
+### 5.1 API quản trị Manager
 
-#### 声纹组管理
+#### Quản lý nhóm giọng nói
 
-| 方法 | 路径 | 说明 |
+| Phương thức | Đường dẫn | Mô tả |
 |------|------|------|
-| POST | `/api/speaker-groups` | 创建声纹组 |
-| GET | `/api/speaker-groups` | 获取声纹组列表 |
-| GET | `/api/speaker-groups/:id` | 获取声纹组详情 |
-| PUT | `/api/speaker-groups/:id` | 更新声纹组 |
-| DELETE | `/api/speaker-groups/:id` | 删除声纹组 |
-| POST | `/api/speaker-groups/:id/verify` | 验证声纹 |
+| POST | `/api/speaker-groups` | Tạo nhóm giọng nói |
+| GET | `/api/speaker-groups` | Lấy danh sách nhóm giọng nói |
+| GET | `/api/speaker-groups/:id` | Lấy chi tiết nhóm giọng nói |
+| PUT | `/api/speaker-groups/:id` | Cập nhật nhóm giọng nói |
+| DELETE | `/api/speaker-groups/:id` | Xóa nhóm giọng nói |
+| POST | `/api/speaker-groups/:id/verify` | Xác minh giọng nói |
 
-#### 声纹样本管理
+#### Quản lý mẫu giọng nói
 
-| 方法 | 路径 | 说明 |
+| Phương thức | Đường dẫn | Mô tả |
 |------|------|------|
-| POST | `/api/speaker-groups/:id/samples` | 添加声纹样本 |
-| GET | `/api/speaker-groups/:id/samples` | 获取样本列表 |
-| GET | `/api/speaker-samples/:id/audio` | 获取样本音频文件 |
-| DELETE | `/api/speaker-samples/:id` | 删除样本 |
+| POST | `/api/speaker-groups/:id/samples` | Thêm mẫu giọng nói |
+| GET | `/api/speaker-groups/:id/samples` | Lấy danh sách mẫu |
+| GET | `/api/speaker-samples/:id/audio` | Lấy file âm thanh mẫu |
+| DELETE | `/api/speaker-samples/:id` | Xóa mẫu |
 
-### 5.2 voice-server API
+### 5.2 API voice-server
 
-#### HTTP 接口
+#### Giao diện HTTP
 
-| 方法 | 路径 | 说明 |
+| Phương thức | Đường dẫn | Mô tả |
 |------|------|------|
-| POST | `/api/v1/speaker/register` | 注册声纹 |
-| POST | `/api/v1/speaker/identify` | 识别声纹 |
-| POST | `/api/v1/speaker/verify` | 验证声纹 |
-| GET | `/api/v1/speaker/list` | 获取所有说话人 |
-| DELETE | `/api/v1/speaker/:id` | 删除说话人 |
-| GET | `/api/v1/speaker/stats` | 获取统计信息 |
+| POST | `/api/v1/speaker/register` | Đăng ký giọng nói |
+| POST | `/api/v1/speaker/identify` | Nhận dạng giọng nói |
+| POST | `/api/v1/speaker/verify` | Xác minh giọng nói |
+| GET | `/api/v1/speaker/list` | Lấy danh sách tất cả người nói |
+| DELETE | `/api/v1/speaker/:id` | Xóa người nói |
+| GET | `/api/v1/speaker/stats` | Lấy thông tin thống kê |
 
-#### WebSocket 流式识别
+#### Nhận dạng theo luồng WebSocket
 
-**连接地址：** `ws://voice-server:8080/api/v1/speaker/stream`
+**Địa chỉ kết nối:** `ws://voice-server:8080/api/v1/speaker/stream`
 
-**消息流程：**
+**Luồng tin nhắn:**
 
-1. 客户端发送音频块（PCM float32，小端序）
-2. 客户端发送完成命令：`{"action": "finish"}`
-3. 服务端返回识别结果
+1. Client gửi khối âm thanh (PCM float32, little-endian)
+2. Client gửi lệnh hoàn thành: `{"action": "finish"}`
+3. Server trả về kết quả nhận dạng
 
 ---
 
-## 六、向量数据库（Qdrant）
+## VI. Cơ sở dữ liệu vector (Qdrant)
 
-### 6.1 数据存储结构
+### 6.1 Cấu trúc lưu trữ dữ liệu
 
 ```json
 {
-    "uid": "用户 ID",
-    "agent_id": "智能体 ID",
-    "speaker_id": "说话人 ID（声纹组主键）",
-    "speaker_name": "说话人名称（声纹组名称）",
-    "uuid": "样本的唯一标识",
+    "uid": "ID người dùng",
+    "agent_id": "ID agent",
+    "speaker_id": "ID người nói (khóa chính nhóm giọng nói)",
+    "speaker_name": "Tên người nói (tên nhóm giọng nói)",
+    "uuid": "Định danh duy nhất của mẫu",
     "sample_index": 0,
     "created_at": 1704672000,
     "updated_at": 1704672000
 }
 ```
 
-### 6.2 向量配置
+### 6.2 Cấu hình vector
 
-| 配置 | 值 |
+| Cấu hình | Giá trị |
 |------|-----|
-| 向量维度 | 192 |
-| 距离度量 | Cosine（余弦相似度） |
-| Collection 名称 | `speaker_embeddings`（可配置） |
+| Số chiều vector | 192 |
+| Độ đo khoảng cách | Cosine (độ tương đồng cosine) |
+| Tên Collection | `speaker_embeddings` (có thể cấu hình) |
 
-### 6.3 数据隔离
+### 6.3 Cách ly dữ liệu
 
-支持多维度数据隔离：
+Hỗ trợ cách ly dữ liệu đa chiều:
 
-- **UID**：用户级别隔离
-- **Agent ID**：智能体级别隔离
-- 同一用户的不同智能体可以有独立的声纹数据
+- **UID**: Cách ly theo cấp người dùng
+- **Agent ID**: Cách ly theo cấp agent
+- Các agent khác nhau của cùng một người dùng có thể có dữ liệu giọng nói độc lập
 
 ---
 
-## 七、数据库表结构
+## VII. Cấu trúc bảng cơ sở dữ liệu
 
-### 7.1 SpeakerGroup（声纹组表）
+### 7.1 SpeakerGroup (Bảng nhóm giọng nói)
 
 ```sql
 CREATE TABLE `speaker_groups` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `user_id` INT UNSIGNED NOT NULL COMMENT '所属用户ID',
-  `agent_id` INT UNSIGNED NOT NULL COMMENT '关联的智能体ID',
-  `name` VARCHAR(100) NOT NULL COMMENT '声纹名称',
-  `prompt` TEXT COMMENT '角色提示词',
-  `description` TEXT COMMENT '描述信息',
-  `tts_config_id` VARCHAR(100) COMMENT 'TTS配置ID',
-  `voice` VARCHAR(200) COMMENT '音色值',
+  `user_id` INT UNSIGNED NOT NULL COMMENT 'ID người dùng sở hữu',
+  `agent_id` INT UNSIGNED NOT NULL COMMENT 'ID agent liên kết',
+  `name` VARCHAR(100) NOT NULL COMMENT 'Tên giọng nói',
+  `prompt` TEXT COMMENT 'Prompt nhân vật',
+  `description` TEXT COMMENT 'Thông tin mô tả',
+  `tts_config_id` VARCHAR(100) COMMENT 'ID cấu hình TTS',
+  `voice` VARCHAR(200) COMMENT 'Giá trị giọng nói',
   `status` VARCHAR(20) NOT NULL DEFAULT 'active',
-  `sample_count` INT NOT NULL DEFAULT 0 COMMENT '样本数量',
+  `sample_count` INT NOT NULL DEFAULT 0 COMMENT 'Số lượng mẫu',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 );
 ```
 
-### 7.2 SpeakerSample（声纹样本表）
+### 7.2 SpeakerSample (Bảng mẫu giọng nói)
 
 ```sql
 CREATE TABLE `speaker_samples` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `speaker_group_id` INT UNSIGNED NOT NULL COMMENT '关联的声纹组ID',
-  `user_id` INT UNSIGNED NOT NULL COMMENT '所属用户ID',
-  `uuid` VARCHAR(36) NOT NULL COMMENT 'UUID唯一标识',
-  `file_path` VARCHAR(500) NOT NULL COMMENT '音频文件本地存储路径',
-  `file_name` VARCHAR(255) COMMENT '原始文件名',
-  `file_size` BIGINT COMMENT '文件大小（字节）',
-  `duration` FLOAT COMMENT '音频时长（秒）',
+  `speaker_group_id` INT UNSIGNED NOT NULL COMMENT 'ID nhóm giọng nói liên kết',
+  `user_id` INT UNSIGNED NOT NULL COMMENT 'ID người dùng sở hữu',
+  `uuid` VARCHAR(36) NOT NULL COMMENT 'Định danh UUID duy nhất',
+  `file_path` VARCHAR(500) NOT NULL COMMENT 'Đường dẫn lưu trữ file âm thanh cục bộ',
+  `file_name` VARCHAR(255) COMMENT 'Tên file gốc',
+  `file_size` BIGINT COMMENT 'Kích thước file (byte)',
+  `duration` FLOAT COMMENT 'Thời lượng âm thanh (giây)',
   `status` VARCHAR(20) NOT NULL DEFAULT 'active',
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -285,18 +287,18 @@ CREATE TABLE `speaker_samples` (
 
 ---
 
-## 八、使用指南
+## VIII. Hướng dẫn sử dụng
 
-### 8.1 部署 voice-server
+### 8.1 Triển khai voice-server
 
-参考 [docker_compose.md](docker_compose.md) 中的完整部署配置，确保以下服务已启动：
+Tham khảo cấu hình triển khai đầy đủ trong [docker_compose.md](docker_compose.md), đảm bảo các dịch vụ sau đã được khởi động:
 
-- **Qdrant**：向量数据库
-- **voice-server**：声纹识别服务
+- **Qdrant**: Cơ sở dữ liệu vector
+- **voice-server**: Dịch vụ nhận dạng giọng nói
 
-### 8.2 配置主程序
+### 8.2 Cấu hình chương trình chính
 
-在主程序的 `config.yaml` 中添加声纹识别配置：
+Thêm cấu hình nhận dạng giọng nói vào `config.yaml` của chương trình chính:
 
 ```yaml
 voice_identify:
@@ -305,73 +307,73 @@ voice_identify:
   threshold: 0.6
 ```
 
-### 8.3 创建声纹组
+### 8.3 Tạo nhóm giọng nói
 
-1. 登录 Manager Web 控制台
-2. 进入"智能体" → 选择目标智能体 → "声纹管理"
-3. 点击"新建声纹组"，填写名称、描述等信息
-4. 配置对应的 TTS 音色（可选）
+1. Đăng nhập vào Manager Web Console
+2. Vào "Agent" → chọn agent mục tiêu → "Quản lý giọng nói"
+3. Nhấn "Tạo nhóm giọng nói mới", điền tên, mô tả và các thông tin khác
+4. Cấu hình giọng TTS tương ứng (tùy chọn)
 
-### 8.4 上传声纹样本
+### 8.4 Tải lên mẫu giọng nói
 
-1. 在声纹组详情页点击"添加样本"
-2. 上传 WAV 格式的音频文件（建议 3-10 秒清晰语音）
-3. 系统自动提取声纹特征并存储
+1. Nhấn "Thêm mẫu" trên trang chi tiết nhóm giọng nói
+2. Tải lên file âm thanh định dạng WAV (khuyến nghị giọng nói rõ ràng 3-10 giây)
+3. Hệ thống tự động trích xuất đặc trưng giọng nói và lưu trữ
 
-### 8.5 测试声纹识别
+### 8.5 Kiểm tra nhận dạng giọng nói
 
-1. 在声纹组详情页点击"验证"
-2. 上传测试音频
-3. 查看识别结果和置信度
-
----
-
-## 九、关键技术点
-
-### 9.1 声纹特征提取
-
-- 使用 **sherpa-onnx** 模型提取声纹特征
-- 输出 192 维的 embedding 向量
-- 支持任意采样率输入，自动重采样
-
-### 9.2 相似度计算
-
-- 使用 **余弦相似度**（Cosine Similarity）计算声纹匹配度
-- 相似度范围：[-1, 1]
-- 默认阈值 0.6，可根据实际场景调整
-
-### 9.3 VAD 预处理
-
-- 使用 TEN-VAD 进行静音过滤
-- 注册时保留前后 100ms 的静音边界
-- 实时识别时仅发送语音活动检测到的音频段
+1. Nhấn "Xác minh" trên trang chi tiết nhóm giọng nói
+2. Tải lên âm thanh thử nghiệm
+3. Xem kết quả nhận dạng và độ tin cậy
 
 ---
 
-## 十、常见问题
+## IX. Các điểm kỹ thuật quan trọng
 
-### Q1: 声纹识别不生效？
+### 9.1 Trích xuất đặc trưng giọng nói
 
-检查以下配置：
-1. `voice_identify.enable` 是否为 `true`
-2. `voice_identify.base_url` 是否正确
-3. 设备是否已配置声纹组
-4. voice-server 服务是否正常运行
+- Sử dụng mô hình **sherpa-onnx** để trích xuất đặc trưng giọng nói
+- Đầu ra là vector embedding 192 chiều
+- Hỗ trợ đầu vào với bất kỳ tần số lấy mẫu nào, tự động resample
 
-### Q2: 识别准确率低？
+### 9.2 Tính toán độ tương đồng
 
-- 提高声纹样本质量（清晰、无噪音、3-10秒）
-- 增加声纹样本数量（建议 3-5 个样本）
-- 调整识别阈值
+- Sử dụng **độ tương đồng cosine** (Cosine Similarity) để tính mức độ khớp giọng nói
+- Phạm vi độ tương đồng: [-1, 1]
+- Ngưỡng mặc định 0.6, có thể điều chỉnh theo tình huống thực tế
 
-### Q3: TTS 音色未切换？
+### 9.3 Tiền xử lý VAD
 
-检查声纹组配置中的 `tts_config_id` 或 `voice` 字段是否正确配置。
+- Sử dụng TEN-VAD để lọc khoảng lặng
+- Khi đăng ký, giữ lại biên 100ms im lặng trước và sau
+- Khi nhận dạng thời gian thực, chỉ gửi các đoạn âm thanh được phát hiện có giọng nói
 
 ---
 
-## 十一、相关文档
+## X. Câu hỏi thường gặp
 
-- [Docker Compose 部署](docker_compose.md)
-- [配置文档](config.md)
-- [视觉识别](vision.md)
+### Q1: Nhận dạng giọng nói không hoạt động?
+
+Kiểm tra các cấu hình sau:
+1. `voice_identify.enable` có đang là `true` không
+2. `voice_identify.base_url` có đúng không
+3. Thiết bị đã được cấu hình nhóm giọng nói chưa
+4. Dịch vụ voice-server có đang chạy bình thường không
+
+### Q2: Độ chính xác nhận dạng thấp?
+
+- Nâng cao chất lượng mẫu giọng nói (rõ ràng, không tiếng ồn, 3-10 giây)
+- Tăng số lượng mẫu giọng nói (khuyến nghị 3-5 mẫu)
+- Điều chỉnh ngưỡng nhận dạng
+
+### Q3: Giọng TTS không chuyển đổi?
+
+Kiểm tra xem trường `tts_config_id` hoặc `voice` trong cấu hình nhóm giọng nói đã được cấu hình đúng chưa.
+
+---
+
+## XI. Tài liệu liên quan
+
+- [Triển khai Docker Compose](docker_compose.md)
+- [Tài liệu cấu hình](config.md)
+- [Nhận dạng hình ảnh](vision.md)
