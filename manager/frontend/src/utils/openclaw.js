@@ -1,3 +1,13 @@
+import { useLocaleStore } from '../stores/locale'
+import zh from '../locales/zh.js'
+import vi from '../locales/vi.js'
+import en from '../locales/en.js'
+
+const _lm = { zh, vi, en }
+function _tl(key) {
+  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
+}
+
 const OPENCLAW_CHANNEL_NAME = 'xiaozhi'
 const OPENCLAW_CHANNEL_CONFIG_PREFIX = `channels.${OPENCLAW_CHANNEL_NAME}`
 
@@ -29,19 +39,19 @@ export function buildOpenClawCommands(endpoint) {
 
     const steps = [
       {
-        title: '启用渠道',
+        title: _tl('enable_channel'),
         command: `openclaw config set ${OPENCLAW_CHANNEL_CONFIG_PREFIX}.enabled true --strict-json`
       },
       {
-        title: '配置地址',
+        title: _tl('config_address'),
         command: `openclaw config set ${OPENCLAW_CHANNEL_CONFIG_PREFIX}.url "${url}"`
       },
       {
-        title: '配置令牌',
+        title: _tl('config_token'),
         command: `openclaw config set ${OPENCLAW_CHANNEL_CONFIG_PREFIX}.token "${token}"`
       },
       {
-        title: '重启网关',
+        title: _tl('restart_gateway'),
         command: 'openclaw gateway restart'
       }
     ]

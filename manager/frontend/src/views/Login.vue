@@ -3,23 +3,23 @@
     <div class="login-shell">
       <section class="login-hero">
         <div class="login-brand">
-          <img class="login-brand-logo" :src="appLogo" alt="小智管理系统" />
+          <img class="login-brand-logo" :src="appLogo" :alt="t('xiaozhi_management_system')" />
           <div>
-            <strong>{{ t('xiaozhi_management_system') }}小智管理系统</strong>
-            <span>{{ t('ai_platform_title') }}AI 服务与设备管理平台</span>
+            <strong>{{ t('xiaozhi_management_system') }}</strong>
+            <span>{{ t('ai_platform_title') }}</span>
           </div>
         </div>
         <p class="login-eyebrow">XIAOZHI CONTROL CENTER</p>
-        <h1>{{ t('xiaozhi_tagline') }}小智 AI Go 到起飞。</h1>
+        <h1>{{ t('xiaozhi_tagline') }}</h1>
         <p>
           {{ t('platform_desc') }}</p>
         <div class="login-meta">
-          <span class="apple-chip is-primary">{{ t('agent_orchestration') }}智能体编排</span>
-          <span class="apple-chip">{{ t('device_access') }}设备接入</span>
-          <span class="apple-chip">{{ t('voiceprint_knowledge') }}声纹与知识库</span>
+          <span class="apple-chip is-primary">{{ t('agent_orchestration') }}</span>
+          <span class="apple-chip">{{ t('device_access') }}</span>
+          <span class="apple-chip">{{ t('voiceprint_knowledge') }}</span>
           <span class="apple-chip">MCP / OpenClaw</span>
-          <span class="apple-chip">{{ t('mcp_remote_call') }}MCP 远程调用</span>
-          <span class="apple-chip">{{ t('proactive_voice_push') }}主动语音下发</span>
+          <span class="apple-chip">{{ t('mcp_remote_call') }}</span>
+          <span class="apple-chip">{{ t('proactive_voice_push') }}</span>
         </div>
       </section>
 
@@ -28,7 +28,7 @@
           <div class="card-header">
             <div>
               <p class="card-eyebrow">WELCOME BACK</p>
-              <h2>{{ t('login_or_create') }}登录或创建账户</h2>
+              <h2>{{ t('login_or_create') }}</h2>
             </div>
           </div>
         </template>
@@ -54,9 +54,9 @@
               </el-form-item>
               <div v-if="loginCaptchaEnabled" class="captcha-strip">
                 <div class="captcha-copy">
-                  <span class="captcha-label">人机验证</span>
+                  <span class="captcha-label">{{ t('captcha') }}</span>
                   <strong>{{ loginCaptchaPrompt || t('generating_questions') }}</strong>
-                  <p>简单算术题，防止脚本批量登录。</p>
+                  <p>{{ t('arithmetic_captcha_hint') }}</p>
                 </div>
                 <el-button
                   link
@@ -119,9 +119,9 @@
               </el-form-item>
               <div class="captcha-strip">
                 <div class="captcha-copy">
-                  <span class="captcha-label">人机验证</span>
+                  <span class="captcha-label">{{ t('captcha') }}</span>
                   <strong>{{ registerCaptchaPrompt || t('generating_questions') }}</strong>
-                  <p>完成简单算式后再提交注册。</p>
+                  <p>{{ t('captcha_math_hint') }}</p>
                 </div>
                 <el-button
                   link

@@ -37,7 +37,7 @@
     <!-- 声纹组列表 -->
     <div v-loading="loading" class="speakers-content">
       <el-table :data="filteredGroups" stripe style="width: 100%">
-        <el-table-column prop="name" label="声纹组名称" min-width="150" />
+        <el-table-column prop="name" :label="t('voiceprint_group_name')" min-width="150" />
         <el-table-column prop="agent_name" :label="t('link_agent')" min-width="120" />
         <el-table-column label="Prompt" min-width="200">
           <template #default="{ row }">
@@ -55,17 +55,17 @@
             <span v-else class="text-muted">-</span>
           </template>
         </el-table-column>
-        <el-table-column prop="sample_count" label="样本数量" width="100" align="center">
+        <el-table-column prop="sample_count" :label="t('sample_count')" width="100" align="center">
           <template #default="{ row }">
             <el-tag type="info">{{ row.sample_count }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="180">
+        <el-table-column prop="created_at" :label="t('created_at')" width="180">
           <template #default="{ row }">
             {{ formatDate(row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="360" fixed="right">
+        <el-table-column :label="t('actions')" width="360" fixed="right">
           <template #default="{ row }">
             <div class="action-buttons">
             <el-button
@@ -73,17 +73,13 @@
               size="small"
               @click="handleVerifyGroup(row)"
             >
-              <el-icon><VideoPlay /></el-icon>
-              验证
-            </el-button>
+              <el-icon><VideoPlay /></el-icon>{{ t('verify') }}</el-button>
             <el-button
               type="primary"
               size="small"
               @click="handleViewSamples(row)"
             >
-              <el-icon><View /></el-icon>
-              管理声纹
-            </el-button>
+              <el-icon><View /></el-icon>{{ t('manage_voiceprints') }}</el-button>
               <el-button
                 type="primary"
                 size="small"
@@ -137,7 +133,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="声纹名称" prop="name">
+        <el-form-item :label="t('voiceprint_name')" prop="name">
           <el-input
             v-model="groupForm.name"
             :placeholder="t('enter_voiceprint_name')"
@@ -163,7 +159,7 @@
             show-word-limit
           />
         </el-form-item>
-        <el-form-item label="我复刻的音色" v-if="cloneVoicePresets.length > 0">
+        <el-form-item :label="t('my_cloned_voice')" v-if="cloneVoicePresets.length > 0">
           <div class="clone-voice-line" v-loading="cloneVoicesLoading">
             <button
               v-for="clone in cloneVoicePresets"
@@ -177,12 +173,12 @@
               <span class="clone-voice-name">{{ clone.name || clone.provider_voice_id }}</span>
             </button>
           </div>
-          <div class="form-help">点击后会自动填充 TTS 配置和音色</div>
+          <div class="form-help">{{ t('click_auto_fill') }}</div>
         </el-form-item>
         <el-form-item :label="t('tts_config_label')" prop="tts_config_id">
           <el-select
             v-model="groupForm.tts_config_id"
-            placeholder="请选择TTS配置（可选）"
+            :placeholder="t('select_tts_config_opt')"
             clearable
             style="width: 100%"
             @change="handleTtsConfigChange"
@@ -195,7 +191,7 @@
             >
               <div class="config-option">
                 {{ ttsConfig.name }}
-                <el-tag v-if="ttsConfig.is_default" type="success" size="small" style="margin-left: 8px;">默认</el-tag>
+                <el-tag v-if="ttsConfig.is_default" type="success" size="small" style="margin-left: 8px;">{{ t('default') }}</el-tag>
               </div>
               <span class="config-desc">{{ ttsConfig.provider || t('no_description_alt') }}</span>
             </el-option>
@@ -207,7 +203,7 @@
         <el-form-item :label="t('voice_timbre')" prop="voice" v-if="groupForm.tts_config_id">
           <el-select
             v-model="groupForm.voice"
-            placeholder="请选择或输入音色"
+            :placeholder="t('select_or_enter_voice')"
             filterable
             allow-create
             clearable
@@ -226,7 +222,7 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showGroupDialog = false">取消</el-button>
+        <el-button @click="showGroupDialog = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="handleSubmitGroup" :loading="submitting">
           {{ groupDialogMode === 'add' ? t('create') : t('save') }}
         </el-button>
@@ -288,7 +284,7 @@
                 </el-button>
               </template>
             </el-table-column>
-            <el-table-column prop="file_name" label="文件名" min-width="150" />
+            <el-table-column prop="file_name" :label="t('filename_label')" min-width="150" />
             <el-table-column prop="file_size" label="文件大小" width="100">
               <template #default="{ row }">
                 {{ formatFileSize(row.file_size) }}
@@ -299,12 +295,12 @@
                 {{ row.duration ? row.duration + 's' : '-' }}
               </template>
             </el-table-column>
-            <el-table-column prop="created_at" label="创建时间" width="180">
+            <el-table-column prop="created_at" :label="t('created_at')" width="180">
               <template #default="{ row }">
                 {{ formatDate(row.created_at) }}
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="180" fixed="right">
+            <el-table-column :label="t('actions')" width="180" fixed="right">
               <template #default="{ row }">
                 <el-button
                   type="primary"
@@ -413,7 +409,7 @@
                     {{ formatDate(row.created_at) }}
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="100">
+                <el-table-column :label="t('actions')" width="100">
                   <template #default="{ row }">
                     <el-button
                       type="primary"
@@ -470,7 +466,7 @@
         </el-tab-pane>
 
         <!-- 录制音频 -->
-        <el-tab-pane label="录制音频" name="record">
+        <el-tab-pane :label="t('record_audio')" name="record">
           <div class="record-section">
             <div class="record-status">
               <div v-if="!isRecording && !recordedBlob" class="record-ready">
@@ -488,7 +484,7 @@
               </div>
               <div v-else-if="recordedBlob" class="record-complete">
                 <el-icon size="48" color="var(--apple-success)"><CircleCheck /></el-icon>
-                <p>录制完成</p>
+                <p>{{ t('recording_complete') }}</p>
                 <p class="record-tip">时长: {{ formatRecordTime(recordTime) }}</p>
                 <audio :src="recordedBlobUrl" controls class="record-preview"></audio>
               </div>
@@ -530,7 +526,7 @@
       </el-tabs>
 
       <template #footer>
-        <el-button @click="handleCloseUploadDialog">取消</el-button>
+        <el-button @click="handleCloseUploadDialog">{{ t('cancel') }}</el-button>
         <el-button
           type="primary"
           @click="handleSubmitSample"
@@ -590,7 +586,7 @@
         </el-tab-pane>
 
         <!-- 录制音频 -->
-        <el-tab-pane label="录制音频" name="record">
+        <el-tab-pane :label="t('record_audio')" name="record">
           <div class="record-section">
             <div class="record-status">
               <div v-if="!isVerifyRecording && !verifyRecordedBlob" class="record-ready">
@@ -608,7 +604,7 @@
               </div>
               <div v-else-if="verifyRecordedBlob" class="record-complete">
                 <el-icon size="48" color="var(--apple-success)"><CircleCheck /></el-icon>
-                <p>录制完成</p>
+                <p>{{ t('recording_complete') }}</p>
                 <p class="record-tip">时长: {{ formatRecordTime(verifyRecordTime) }}</p>
                 <audio :src="verifyRecordedBlobUrl" controls class="record-preview"></audio>
               </div>
@@ -671,15 +667,13 @@
       </div>
 
       <template #footer>
-        <el-button @click="handleCloseVerifyDialog">取消</el-button>
+        <el-button @click="handleCloseVerifyDialog">{{ t('cancel') }}</el-button>
         <el-button
           type="primary"
           @click="handleSubmitVerify"
           :loading="verifying"
           :disabled="!hasVerifyAudioFile"
-        >
-          验证
-        </el-button>
+        >{{ t('verify') }}</el-button>
       </template>
     </el-dialog>
 

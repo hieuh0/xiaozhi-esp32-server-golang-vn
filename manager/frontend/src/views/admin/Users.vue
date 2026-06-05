@@ -25,17 +25,17 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="创建时间" width="180">
+      <el-table-column prop="created_at" :label="t('created_at')" width="180">
         <template #default="{ row }">
           {{ formatDateTime(row.created_at) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="360">
+      <el-table-column :label="t('actions')" width="360">
         <template #default="{ row }">
-          <el-button size="small" @click="openEditDialog(row)">编辑</el-button>
-          <el-button size="small" type="success" @click="openQuotaDialog(row)" :disabled="row.role === 'admin'">复刻额度</el-button>
+          <el-button size="small" @click="openEditDialog(row)">{{ t('edit') }}</el-button>
+          <el-button size="small" type="success" @click="openQuotaDialog(row)" :disabled="row.role === 'admin'">{{ t('voice_clone_quota') }}</el-button>
           <el-button size="small" type="warning" @click="openResetPasswordDialog(row)">
-            重置密码
+            {{ t('reset_password_title') }}
           </el-button>
           <el-button 
             size="small" 
@@ -92,7 +92,7 @@
       </el-form>
       
       <template #footer>
-        <el-button @click="userDialogVisible = false">取消</el-button>
+        <el-button @click="userDialogVisible = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="handleUserSubmit" :loading="userSubmitLoading">
           {{ isEditMode ? t('save') : t('add') }}
         </el-button>
@@ -102,7 +102,7 @@
     <!-- 重置密码对话框 -->
     <el-dialog 
       v-model="resetPasswordDialogVisible" 
-      title="重置密码" 
+      :title="t('reset_password_title')"
       width="400px"
       @close="resetPasswordForm"
     >
@@ -116,11 +116,11 @@
           <el-input v-model="currentUser.username" disabled />
         </el-form-item>
         
-        <el-form-item label="新密码" prop="newPassword">
+        <el-form-item :label="t('new_password')" prop="newPassword">
           <el-input 
             v-model="passwordForm.newPassword" 
             type="password" 
-            placeholder="请输入新密码（至少6位）"
+            :placeholder="t('new_password_ph')"
             show-password
           />
         </el-form-item>
@@ -129,47 +129,45 @@
           <el-input 
             v-model="passwordForm.confirmPassword" 
             type="password" 
-            placeholder="请再次输入新密码"
+            :placeholder="t('confirm_password_ph')"
             show-password
           />
         </el-form-item>
       </el-form>
       
       <template #footer>
-        <el-button @click="resetPasswordDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="handleResetPassword" :loading="resetPasswordLoading">
-          确认重置
-        </el-button>
+        <el-button @click="resetPasswordDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" @click="handleResetPassword" :loading="resetPasswordLoading">{{ t('confirm_reset') }}</el-button>
       </template>
     </el-dialog>
 
     <!-- 声音复刻额度对话框 -->
     <el-dialog
       v-model="quotaDialogVisible"
-      :title="`声音复刻额度 - ${quotaUser.username || ''}`"
+      :title="t('voice_clone_quota_title', { name: quotaUser.username || '' })"
       width="900px"
       @close="resetQuotaDialog"
     >
-      <div class="quota-hint">按 TTS 配置分配复刻次数：-1 不限，0 禁止创建，正整数表示最大可复刻次数。</div>
+      <div class="quota-hint">{{ t('quota_hint') }}</div>
       <el-table :data="quotaRows" v-loading="quotaLoading" style="margin-top: 12px">
-        <el-table-column prop="tts_config_name" label="TTS配置名称" min-width="180" />
+        <el-table-column prop="tts_config_name" :label="t('tts_config_name_col')" min-width="180" />
         <el-table-column prop="tts_config_id" label="TTS Config ID" min-width="180" />
         <el-table-column prop="provider" label="Provider" width="120" />
-        <el-table-column label="已使用" width="100">
+        <el-table-column :label="t('used_count_col')" width="100">
           <template #default="{ row }">{{ row.used_count }}</template>
         </el-table-column>
-        <el-table-column label="剩余" width="100">
+        <el-table-column :label="t('remaining_count_col')" width="100">
           <template #default="{ row }">{{ row.remaining_count < 0 ? t('unlimited') : row.remaining_count }}</template>
         </el-table-column>
-        <el-table-column label="最大次数" width="180">
+        <el-table-column :label="t('max_count_col')" width="180">
           <template #default="{ row }">
             <el-input-number v-model="row.max_count" :min="-1" :step="1" :precision="0" controls-position="right" style="width: 140px" />
           </template>
         </el-table-column>
       </el-table>
       <template #footer>
-        <el-button @click="quotaDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="quotaSaving" @click="saveQuotaSettings">保存额度</el-button>
+        <el-button @click="quotaDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="quotaSaving" @click="saveQuotaSettings">{{ t('save_quota') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -348,7 +346,7 @@ const handleUserSubmit = async () => {
 const handleDeleteUser = async (user) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除用户 "${user.username}" 吗？`,
+      t('confirm_delete_user', { name: user.username }),
       t('delete_confirm'),
       {
         confirmButtonText: t('confirm'),
@@ -462,7 +460,7 @@ const handleResetPassword = async () => {
     await passwordFormRef.value.validate()
     
     await ElMessageBox.confirm(
-      `确定要重置用户 "${currentUser.value.username}" 的密码吗？`,
+      t('confirm_reset_password', { name: currentUser.value.username }),
       t('reset_password_confirm'),
       {
         confirmButtonText: t('confirm'),

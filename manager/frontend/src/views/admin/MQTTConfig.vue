@@ -13,7 +13,7 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Connection</p>
-                <h3>{{ t('connection_params') }}连接参数</h3>
+                <h3>{{ t('connection_params') }}</h3>
                 <p class="card-description">{{ t('broker_setup_hint') }}</p>
               </div>
               <el-tag :type="isCoreFieldsComplete ? 'success' : 'warning'" effect="plain" round>
@@ -24,14 +24,14 @@
 
           <div class="field-grid">
             <el-form-item :label="t('config_name')" prop="name">
-              <el-input v-model="form.name" placeholder="例如：默认 MQTT 连接" />
+              <el-input v-model="form.name" :placeholder="t('mqtt_name_ph')" />
             </el-form-item>
 
-            <el-form-item label="Broker 地址" prop="broker">
-              <el-input v-model="form.broker" placeholder="例如：mqtt://127.0.0.1 或 broker.example.com" />
+            <el-form-item :label="t('broker_address')" prop="broker">
+              <el-input v-model="form.broker" :placeholder="t('broker_address_ph')" />
             </el-form-item>
 
-            <el-form-item label="连接类型" prop="type">
+            <el-form-item :label="t('connection_type')" prop="type">
               <el-select v-model="form.type" :placeholder="t('select_connection_type')" style="width: 100%">
                 <el-option
                   v-for="option in connectionTypeOptions"
@@ -52,13 +52,13 @@
               />
             </el-form-item>
 
-            <el-form-item label="客户端 ID" prop="client_id" class="field-span-full">
+            <el-form-item :label="t('client_id_label')" prop="client_id" class="field-span-full">
               <el-input
                 v-model="form.client_id"
-                placeholder="请输入主程序连接 Broker 时使用的 Client ID"
+                :placeholder="t('client_id_ph')"
               />
               <div class="field-help">
-                建议使用稳定且可识别的 Client ID，便于在 Broker 侧定位连接来源。
+                {{ t('client_id_help') }}
               </div>
             </el-form-item>
           </div>
@@ -69,8 +69,8 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Authentication</p>
-                <h3>认证信息</h3>
-                <p class="card-description">如果 Broker 开启账号密码认证，请填写具有订阅权限的凭证。</p>
+                <h3>{{ t('auth_info') }}</h3>
+                <p class="card-description">{{ t('auth_info_desc') }}</p>
               </div>
               <el-tag :type="hasCredentials ? 'success' : 'info'" effect="plain" round>
                 {{ hasCredentials ? t('credentials_filled') : t('can_be_empty') }}
@@ -80,14 +80,14 @@
 
           <div class="field-stack">
             <el-form-item :label="t('username')" prop="username">
-              <el-input v-model="form.username" placeholder="未启用鉴权可留空" />
+              <el-input v-model="form.username" :placeholder="t('username_no_auth')" />
             </el-form-item>
 
             <el-form-item :label="t('password')" prop="password">
               <el-input
                 v-model="form.password"
                 type="password"
-                placeholder="未启用鉴权可留空"
+                :placeholder="t('username_no_auth')"
                 show-password
               />
             </el-form-item>
@@ -95,12 +95,12 @@
 
           <div class="helper-panel">
             <div class="helper-item">
-              <span>鉴权说明</span>
-              <p>如果只填写了用户名或密码，也会一并保存；建议按 Broker 的实际策略成对维护。</p>
+              <span>{{ t('auth_note') }}</span>
+              <p>{{ t('auth_note_text') }}</p>
             </div>
             <div class="helper-item">
-              <span>协议提醒</span>
-              <p>常见组合是 TCP/1883、SSL/TLS/8883、WebSocket/8083，最终以你的 Broker 设置为准。</p>
+              <span>{{ t('protocol_reminder') }}</span>
+              <p>{{ t('protocol_reminder_text') }}</p>
             </div>
           </div>
         </el-card>
@@ -108,11 +108,11 @@
 
       <div class="footer-bar">
         <p class="footer-note">
-          保存后会更新默认 MQTT Client 配置，供主程序后续连接 Broker 使用。
+          {{ t('mqtt_save_hint') }}
         </p>
         <div class="footer-actions">
-          <el-button plain :loading="loading" @click="loadConfig">重置为当前配置</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">保存配置</el-button>
+          <el-button plain :loading="loading" @click="loadConfig">{{ t('reset_to_current') }}</el-button>
+          <el-button type="primary" :loading="saving" @click="handleSave">{{ t('save_config') }}</el-button>
         </div>
       </div>
     </el-form>

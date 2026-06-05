@@ -16,31 +16,29 @@
     <el-card class="table-card" shadow="never">
       <el-table :data="tokens" v-loading="loading" empty-text="暂无 Token，请先创建">
         <el-table-column prop="name" :label="t('name')" min-width="180" />
-        <el-table-column prop="token_prefix" label="前缀" min-width="140" />
-        <el-table-column label="状态" width="100">
+        <el-table-column prop="token_prefix" :label="t('prefix_col')" min-width="140" />
+        <el-table-column :label="t('status')" width="100">
           <template #default="{ row }">
             <el-tag :type="row.is_active ? 'success' : 'info'">{{ row.is_active ? t('available') : t('revoked') }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="最后使用" min-width="170">
+        <el-table-column :label="t('last_used_col')" min-width="170">
           <template #default="{ row }">{{ formatTime(row.last_used_at) }}</template>
         </el-table-column>
-        <el-table-column label="过期时间" min-width="170">
+        <el-table-column :label="t('expire_time_col')" min-width="170">
           <template #default="{ row }">{{ formatTime(row.expires_at) }}</template>
         </el-table-column>
-        <el-table-column label="创建时间" min-width="170">
+        <el-table-column :label="t('created_at')" min-width="170">
           <template #default="{ row }">{{ formatTime(row.created_at) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="120" fixed="right">
+        <el-table-column :label="t('actions')" width="120" fixed="right">
           <template #default="{ row }">
             <el-button
               link
               type="danger"
               :disabled="!row.is_active"
               @click="handleRevoke(row)"
-            >
-              吊销
-            </el-button>
+            >{{ t('revoke') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -57,8 +55,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="showCreate = false">取消</el-button>
-        <el-button type="primary" :loading="creating" @click="handleCreate">创建</el-button>
+        <el-button @click="showCreate = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="creating" @click="handleCreate">{{ t('create') }}</el-button>
       </template>
     </el-dialog>
 
@@ -68,7 +66,7 @@
       </el-alert>
       <el-input class="token-input" v-model="latestToken" type="textarea" :rows="3" readonly />
       <template #footer>
-        <el-button @click="showPlainToken = false">关闭</el-button>
+        <el-button @click="showPlainToken = false">{{ t('close') }}</el-button>
         <el-button type="primary" @click="copyToken">复制 Token</el-button>
       </template>
     </el-dialog>

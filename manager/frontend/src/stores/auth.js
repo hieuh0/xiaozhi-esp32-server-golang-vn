@@ -1,6 +1,15 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '../utils/api'
+import { useLocaleStore } from './locale'
+import zh from '../locales/zh.js'
+import vi from '../locales/vi.js'
+import en from '../locales/en.js'
+
+const _lm = { zh, vi, en }
+function _tl(key) {
+  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'))
@@ -25,7 +34,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       return { 
         success: false, 
-        message: error.response?.data?.error || '登录失败' 
+        message: error.response?.data?.error || _tl('login_failed')
       }
     }
   }
@@ -37,7 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       return { 
         success: false, 
-        message: error.response?.data?.error || '注册失败' 
+        message: error.response?.data?.error || _tl('register_failed')
       }
     }
   }

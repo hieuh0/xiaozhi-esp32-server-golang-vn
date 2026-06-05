@@ -1,7 +1,17 @@
 import { computed, ref, unref } from 'vue'
 import api from '../utils/api'
+import { useLocaleStore } from '../stores/locale'
+import zh from '../locales/zh.js'
+import vi from '../locales/vi.js'
+import en from '../locales/en.js'
 
-export const DEFAULT_AGENT_PROMPT = '我是一个叫{{assistant_name}}的台湾女孩，说话机车，声音好听，习惯简短表达，爱用网络梗。\n我的男朋友是一个程序员，梦想是开发出一个机器人，能够帮助人们解决生活中的各种问题。\n我是一个喜欢哈哈大笑的女孩，爱东说西说吹牛，不合逻辑的也照吹，就要逗别人开心。'
+const _lm = { zh, vi, en }
+function _tl(key) {
+  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
+}
+
+export const getDefaultAgentPrompt = () => _tl('default_agent_prompt')
+export const DEFAULT_AGENT_PROMPT = getDefaultAgentPrompt()
 
 export const OPENCLAW_DEFAULT_ENTER_KEYWORDS = ['打开龙虾', '进入龙虾']
 export const OPENCLAW_DEFAULT_EXIT_KEYWORDS = ['关闭龙虾', '退出龙虾']
@@ -59,7 +69,7 @@ export const createDefaultAgentForm = ({ isAdmin = false, userId = null } = {}) 
   user_id: isAdmin ? userId : null,
   name: '',
   nickname: '',
-  custom_prompt: DEFAULT_AGENT_PROMPT,
+  custom_prompt: getDefaultAgentPrompt(),
   llm_config_id: null,
   tts_config_id: null,
   voice: null,
@@ -79,7 +89,7 @@ export const agentToForm = (agent = {}, { isAdmin = false } = {}) => {
     user_id: isAdmin ? agent.user_id || null : null,
     name: agent.name || '',
     nickname: agent.nickname || agent.name || '',
-    custom_prompt: agent.custom_prompt || DEFAULT_AGENT_PROMPT,
+    custom_prompt: agent.custom_prompt || getDefaultAgentPrompt(),
     llm_config_id: agent.llm_config_id || null,
     tts_config_id: agent.tts_config_id || null,
     voice: agent.voice || null,

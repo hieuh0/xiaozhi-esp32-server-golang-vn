@@ -10,7 +10,15 @@ export function useLocale() {
   const store = useLocaleStore()
   // Pinia setup stores unwrap refs — store.lang is already a string, not a ref
   // Fallback chain: currentLang → zh → key itself
-  const t = (key) => maps[store.lang]?.[key] ?? maps.zh[key] ?? key
+  const t = (key, params) => {
+    let str = maps[store.lang]?.[key] ?? maps.zh[key] ?? key
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        str = str.replaceAll(`{${k}}`, v)
+      })
+    }
+    return str
+  }
   return {
     t,
     lang: computed(() => store.lang),

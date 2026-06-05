@@ -35,10 +35,10 @@
           </div>
         </div>
         <van-cell-group inset>
-          <van-cell title="更多功能" is-link @click="handleGoMore" />
+          <van-cell :title="t('more_features')" is-link @click="handleGoMore" />
           <van-cell v-if="!authStore.isAdmin" title="API Token" is-link @click="handleGoApiTokens" />
           <van-cell v-if="authStore.isAdmin" :title="t('config_wizard')" is-link @click="handleGoConfigWizard" />
-          <van-cell title="退出登录" is-link @click="handleLogout" />
+          <van-cell :title="t('logout')" is-link @click="handleLogout" />
         </van-cell-group>
       </div>
     </van-popup>

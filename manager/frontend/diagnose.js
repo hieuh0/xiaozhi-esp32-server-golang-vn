@@ -40,3 +40,4 @@ window.diagnose = () => {
   // 重新执行诊断
   location.reload()
 }
+

@@ -17,7 +17,7 @@
           <span class="metric-icon devices">
             <el-icon><Monitor /></el-icon>
           </span>
-          <span class="metric-trend">在线 {{ stats.onlineDevices }}</span>
+          <span class="metric-trend">{{ t('online_count', { count: stats.onlineDevices }) }}</span>
         </div>
         <strong>{{ stats.totalDevices }}</strong>
         <p>{{ authStore.isAdmin ? t('total_devices') : t('my_devices') }}</p>
@@ -28,7 +28,7 @@
           <span class="metric-icon agents">
             <el-icon><Cpu /></el-icon>
           </span>
-          <span class="metric-trend">{{ t('active') }}活跃中</span>
+          <span class="metric-trend">{{ t('active') }}</span>
         </div>
         <strong>{{ stats.totalAgents }}</strong>
         <p>{{ authStore.isAdmin ? t('agent_count') : t('my_agents') }}</p>
@@ -39,10 +39,10 @@
           <span class="metric-icon status">
             <el-icon><Connection /></el-icon>
           </span>
-          <span class="metric-trend">{{ t('realtime_monitoring') }}实时监测</span>
+          <span class="metric-trend">{{ t('realtime_monitoring') }}</span>
         </div>
         <strong>{{ stats.onlineDevices }}</strong>
-        <p>{{ t('online_devices') }}在线设备</p>
+        <p>{{ t('online_devices') }}</p>
       </article>
     </section>
 
@@ -53,7 +53,7 @@
             <div class="card-header">
               <div>
                 <p class="card-eyebrow">SERVICE ADDRESS</p>
-                <h3>{{ t('service_address') }}服务地址</h3>
+                <h3>{{ t('service_address') }}</h3>
               </div>
               <el-button type="warning" size="small" :loading="otaTestLoading" @click="runOtaTest">
                 {{ t('ota_test') }}</el-button>
@@ -86,12 +86,12 @@
               </div>
 
               <div v-if="otaTestResult !== null" class="ota-test-block">
-                <span class="apple-chip is-primary">OTA 返回</span>
+                <span class="apple-chip is-primary">{{ t('ota_return_chip') }}</span>
                 <pre class="ota-test-pre">{{ otaTestResult }}</pre>
               </div>
             </template>
 
-            <div v-else-if="!addressLoading" class="empty-inline">暂无 OTA 配置</div>
+            <div v-else-if="!addressLoading" class="empty-inline">{{ t('no_ota_config') }}</div>
           </div>
         </el-card>
 
@@ -100,7 +100,7 @@
             <div class="card-header">
               <div>
                 <p class="card-eyebrow">CONFIGURATION</p>
-                <h3>配置管理</h3>
+                <h3>{{ t('config_management') }}</h3>
               </div>
             </div>
           </template>
@@ -109,24 +109,24 @@
             <button class="action-card action-primary" type="button" @click="$router.push('/admin/config-wizard')">
               <span class="action-icon"><el-icon><Guide /></el-icon></span>
               <span class="action-copy">
-                <strong>配置向导</strong>
-                <small>从统一流程完成首次或增量配置</small>
+                <strong>{{ t('config_wizard') }}</strong>
+                <small>{{ t('from_wizard_desc') }}</small>
               </span>
             </button>
 
             <button class="action-card" type="button" @click="exportConfig">
               <span class="action-icon"><el-icon><Download /></el-icon></span>
               <span class="action-copy">
-                <strong>导出配置</strong>
-                <small>下载当前有效配置作为备份</small>
+                <strong>{{ t('export_config_title') }}</strong>
+                <small>{{ t('export_config_desc') }}</small>
               </span>
             </button>
 
             <button class="action-card" type="button" @click="importConfig">
               <span class="action-icon"><el-icon><Upload /></el-icon></span>
               <span class="action-copy">
-                <strong>导入配置</strong>
-                <small>支持 YAML / JSON 的快速导入</small>
+                <strong>{{ t('import_config_title') }}</strong>
+                <small>{{ t('import_config_desc') }}</small>
               </span>
             </button>
           </div>
@@ -147,26 +147,26 @@
             <div class="card-header">
               <div>
                 <p class="card-eyebrow">SYSTEM</p>
-                <h3>系统信息</h3>
+                <h3>{{ t('system_info') }}</h3>
               </div>
             </div>
           </template>
 
           <div class="info-list">
             <div class="info-row">
-              <span>系统版本</span>
+              <span>{{ t('system_version') }}</span>
               <strong>v1.0.0</strong>
             </div>
             <div class="info-row">
-              <span>程序启动时间</span>
+              <span>{{ t('program_start_time') }}</span>
               <strong>{{ programStartedAt }}</strong>
             </div>
             <div class="info-row">
-              <span>当前用户</span>
+              <span>{{ t('current_user_label') }}</span>
               <strong>{{ authStore.user?.username || '—' }}</strong>
             </div>
             <div class="info-row">
-              <span>用户角色</span>
+              <span>{{ t('user_role_label') }}</span>
               <el-tag :type="authStore.isAdmin ? 'danger' : 'primary'" effect="light">
                 {{ authStore.isAdmin ? t('admin') : t('normal_user') }}
               </el-tag>
@@ -179,7 +179,7 @@
             <div class="card-header">
               <div>
                 <p class="card-eyebrow">SHORTCUTS</p>
-                <h3>快速操作</h3>
+                <h3>{{ t('quick_actions') }}</h3>
               </div>
             </div>
           </template>
@@ -189,22 +189,22 @@
               <button class="quick-action" type="button" @click="$router.push('/admin/users')">
                 <span class="quick-action-icon"><el-icon><User /></el-icon></span>
                 <span>
-                  <strong>用户管理</strong>
-                  <small>查看账户、权限和状态</small>
+                  <strong>{{ t('user_management') }}</strong>
+                  <small>{{ t('view_account_desc') }}</small>
                 </span>
               </button>
               <button class="quick-action" type="button" @click="$router.push('/admin/llm-config')">
                 <span class="quick-action-icon"><el-icon><Setting /></el-icon></span>
                 <span>
-                  <strong>LLM 配置</strong>
-                  <small>调整模型接入、超参与策略</small>
+                  <strong>{{ t('llm_config') }}</strong>
+                  <small>{{ t('llm_config_desc') }}</small>
                 </span>
               </button>
               <button class="quick-action" type="button" @click="$router.push('/admin/vad-config')">
                 <span class="quick-action-icon"><el-icon><Cpu /></el-icon></span>
                 <span>
-                  <strong>VAD 配置</strong>
-                  <small>管理语音活动检测与实时性</small>
+                  <strong>{{ t('vad_config') }}</strong>
+                  <small>{{ t('vad_config_desc') }}</small>
                 </span>
               </button>
             </template>
@@ -213,11 +213,11 @@
               <button class="quick-action" type="button" @click="$router.push('/agents')">
                 <span class="quick-action-icon"><el-icon><Monitor /></el-icon></span>
                 <span>
-                  <strong>智能体管理</strong>
-                  <small>维护角色设定、绑定设备与测试能力</small>
+                  <strong>{{ t('agent_management') }}</strong>
+                  <small>{{ t('agent_mgmt_desc') }}</small>
                 </span>
               </button>
-              <div class="empty-inline">普通用户的高频操作主要集中在智能体和设备工作台。</div>
+              <div class="empty-inline">{{ t('normal_user_quick_hint') }}</div>
             </template>
           </div>
         </el-card>
@@ -363,7 +363,7 @@ async function runOtaTest() {
         }
 
         if (value.ota_response !== undefined && value.ota_response !== '') {
-          displayText += `\n--- OTA 响应 ---\n${formatOtaResponseDisplay(value.ota_response)}`
+          displayText += `\n--- ${t('ota_return_label')} ---\n${formatOtaResponseDisplay(value.ota_response)}`
         }
 
         otaTestResult.value = displayText.trim() || t('detail_not_available')

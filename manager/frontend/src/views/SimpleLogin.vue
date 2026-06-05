@@ -2,26 +2,26 @@
   <div class="simple-login-page">
     <div class="simple-login-card">
       <div class="simple-login-header">
-        <h1>{{ t('simple_login_test') }}简单登录测试</h1>
+        <h1>{{ t('simple_login_test') }}</h1>
         <p>{{ t('auth_test_hint') }}</p>
       </div>
 
       <div class="simple-login-form">
-        <label class="simple-login-label" for="simple-login-username">{{ t('username') }}用户名</label>
+        <label class="simple-login-label" for="simple-login-username">{{ t('username') }}</label>
         <input id="simple-login-username" v-model="username" type="text" class="simple-login-input" />
 
-        <label class="simple-login-label" for="simple-login-password">{{ t('password') }}密码</label>
+        <label class="simple-login-label" for="simple-login-password">{{ t('password') }}</label>
         <input id="simple-login-password" v-model="password" type="password" class="simple-login-input" />
 
         <button @click="login" class="simple-login-button">
-          {{ t('login') }}  登录
+          {{ t('login') }}
         </button>
       </div>
 
       <div class="debug-info">
-        <h3>{{ t('debug_info') }}调试信息</h3>
-        <p>认证状态: {{ authStore.isAuthenticated }}</p>
-        <p>用户信息: {{ JSON.stringify(authStore.user) }}</p>
+        <h3>{{ t('debug_info') }}</h3>
+        <p>{{ t('auth_status_label') }}{{ authStore.isAuthenticated }}</p>
+        <p>{{ t('user_info_label') }}{{ JSON.stringify(authStore.user) }}</p>
       </div>
     </div>
   </div>
@@ -55,10 +55,10 @@ const login = async () => {
         router.push('/agents')
       }
     } else {
-      alert('登录失败: ' + result.message)
+      alert(t('login_failed_prefix') + result.message)
     }
   } catch (error) {
-    alert('登录错误: ' + error.message)
+    alert(t('login_error_prefix') + error.message)
   }
 }
 </script>

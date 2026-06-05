@@ -18,7 +18,7 @@
         <template #default="{ row }">{{ row.nickname || row.name }}</template>
       </el-table-column>
       <el-table-column :label="t('owner_user')" width="150">
-        <template #default="{ row }">{{ row.username || `用户 ${row.user_id}` }}</template>
+        <template #default="{ row }">{{ row.username || t('user_id_fallback', { id: row.user_id }) }}</template>
       </el-table-column>
       <el-table-column :label="t('role_description')" min-width="220" show-overflow-tooltip>
         <template #default="{ row }">{{ row.custom_prompt || t('not_set') }}</template>
@@ -26,10 +26,10 @@
       <el-table-column :label="t('language_model')" width="150">
         <template #default="{ row }">{{ row.llm_config?.name || t('not_set') }}</template>
       </el-table-column>
-      <el-table-column label="TTS / 音色" width="190" show-overflow-tooltip>
+      <el-table-column :label="t('tts_voice_col')" width="190" show-overflow-tooltip>
         <template #default="{ row }">{{ getVoiceText(row) }}</template>
       </el-table-column>
-      <el-table-column label="知识库" width="90">
+      <el-table-column :label="t('knowledge_base_label')" width="90">
         <template #default="{ row }">{{ row.knowledge_base_ids?.length || 0 }}</template>
       </el-table-column>
       <el-table-column :label="t('device')" width="90">
@@ -40,19 +40,19 @@
           <el-tag :type="getASRSpeedType(row.asr_speed)">{{ getASRSpeedText(row.asr_speed) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="记忆" width="100">
+      <el-table-column :label="t('memory_col')" width="100">
         <template #default="{ row }">
           <el-tag :type="getMemoryModeType(row.memory_mode)">{{ getMemoryModeText(row.memory_mode) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="声纹聊天" width="150">
+      <el-table-column :label="t('voiceprint_chat')" width="150">
         <template #default="{ row }">
           <el-tag :type="getSpeakerChatModeType(row.speaker_chat_mode)">{{ getSpeakerChatModeText(row.speaker_chat_mode) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="330" fixed="right">
+      <el-table-column :label="t('actions')" width="330" fixed="right">
         <template #default="{ row }">
-          <el-button size="small" @click="editAgent(row)">编辑</el-button>
+          <el-button size="small" @click="editAgent(row)">{{ t('edit') }}</el-button>
           <el-button size="small" type="primary" @click="openDiagnostics(row, 'mcp')">MCP</el-button>
           <el-button size="small" type="success" @click="openDiagnostics(row, 'openclaw')">OpenClaw</el-button>
           <el-button size="small" type="danger" @click="deleteAgent(row)">{{ t('delete') }}</el-button>
@@ -122,7 +122,7 @@ const showDiagnosticsDialog = ref(false)
 const diagnosticAgent = ref(null)
 const diagnosticPanel = ref('mcp')
 const diagnosticsTitle = computed(() => {
-  const name = diagnosticAgent.value?.name || `智能体 ${diagnosticAgent.value?.id || ''}`
+  const name = diagnosticAgent.value?.name || t('agent_name_fallback', { id: diagnosticAgent.value?.id || '' })
   return diagnosticPanel.value === 'openclaw' ? `${name} - OpenClaw` : `${name} - MCP`
 })
 
@@ -176,7 +176,7 @@ const saveAgent = async () => {
 
 const deleteAgent = async (agent) => {
   try {
-    await ElMessageBox.confirm(`确定要删除智能体 "${agent.name}" 吗？`, t('confirm_delete'), {
+    await ElMessageBox.confirm(t('confirm_delete_agent_msg', { name: agent.name }), t('confirm_delete'), {
       confirmButtonText: t('confirm'),
       cancelButtonText: t('cancel'),
       type: 'warning'

@@ -12,7 +12,7 @@
           <div class="card-head">
             <div>
               <p class="card-kicker">OTA Base</p>
-              <h3>{{ t('signature_constraints') }}签名与基础约束</h3>
+              <h3>{{ t('signature_constraints') }}</h3>
               <p class="card-description">{{ t('ota_mqtt_password_hint') }}OTA 下发的 MQTT 用户密码会基于签名密钥生成，请确保与 MQTT Server 配置保持一致。</p>
             </div>
           </div>
@@ -34,43 +34,43 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Test</p>
-                <h3>测试环境下发</h3>
-                <p class="card-description">用于测试版终端或内网环境验证，推荐先确保地址可达，再决定是否同时下发 MQTT 端点。</p>
+                <h3>{{ t('test_env_delivery') }}</h3>
+                <p class="card-description">{{ t('test_env_desc') }}</p>
               </div>
               <div class="card-actions">
-                <el-tag type="warning" effect="plain" round>测试环境</el-tag>
-                <el-button size="small" :loading="otaTestingTest" @click="testOtaEnv('test')">测试环境</el-button>
+                <el-tag type="warning" effect="plain" round>{{ t('test_env_tag') }}</el-tag>
+                <el-button size="small" :loading="otaTestingTest" @click="testOtaEnv('test')">{{ t('test_env_tag') }}</el-button>
               </div>
             </div>
           </template>
 
           <div class="section-stack">
             <section class="config-section">
-              <div class="section-title">WebSocket 下发</div>
+              <div class="section-title">{{ t('ws_delivery') }}</div>
               <el-form-item label="WebSocket URL" prop="test.websocket.url">
                 <el-input v-model="form.test.websocket.url" placeholder="例如：ws://host:port/xiaozhi/v1/" />
               </el-form-item>
             </section>
 
             <section class="config-section">
-              <div class="section-title">MQTT 下发</div>
-              <el-form-item label="MQTT 启用状态">
+              <div class="section-title">{{ t('mqtt_delivery') }}</div>
+              <el-form-item :label="t('mqtt_enabled_status')">
                 <div class="switch-field">
                   <div>
-                    <div class="switch-title">优先下发 MQTT 端点</div>
-                    <div class="field-help">固件默认优先使用 MQTT；关闭后仍会保留你填写过的端点值，方便再次启用。</div>
+                    <div class="switch-title">{{ t('priority_mqtt') }}</div>
+                    <div class="field-help">{{ t('priority_mqtt_help') }}</div>
                   </div>
                   <el-switch v-model="form.test.mqtt.enable" />
                 </div>
               </el-form-item>
 
-              <el-form-item label="MQTT 端点" prop="test.mqtt.endpoint">
+              <el-form-item :label="t('mqtt_endpoint')" prop="test.mqtt.endpoint">
                 <el-input
                   v-model="form.test.mqtt.endpoint"
                   :disabled="!form.test.mqtt.enable"
                   placeholder="例如：127.0.0.1:1883"
                 />
-                <div class="field-help">需要先确认 MQTT Server 与 UDP Server 都已启用，终端才能优先走 MQTT。</div>
+                <div class="field-help">{{ t('mqtt_udp_note') }}</div>
               </el-form-item>
             </section>
           </div>
@@ -81,37 +81,37 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">External</p>
-                <h3>外部环境下发</h3>
-                <p class="card-description">用于生产或公网环境，建议填写真实可访问的 WebSocket 与 MQTT 地址，不要直接复用内网地址。</p>
+                <h3>{{ t('external_env_delivery') }}</h3>
+                <p class="card-description">{{ t('external_env_desc') }}</p>
               </div>
               <div class="card-actions">
-                <el-tag type="success" effect="plain" round>生产环境</el-tag>
-                <el-button size="small" :loading="otaTestingExternal" @click="testOtaEnv('external')">测试环境</el-button>
+                <el-tag type="success" effect="plain" round>{{ t('prod_env_tag') }}</el-tag>
+                <el-button size="small" :loading="otaTestingExternal" @click="testOtaEnv('external')">{{ t('test_env_tag') }}</el-button>
               </div>
             </div>
           </template>
 
           <div class="section-stack">
             <section class="config-section">
-              <div class="section-title">WebSocket 下发</div>
+              <div class="section-title">{{ t('ws_delivery') }}</div>
               <el-form-item label="WebSocket URL" prop="external.websocket.url">
                 <el-input v-model="form.external.websocket.url" placeholder="例如：wss://example.com/xiaozhi/v1/" />
               </el-form-item>
             </section>
 
             <section class="config-section">
-              <div class="section-title">MQTT 下发</div>
-              <el-form-item label="MQTT 启用状态">
+              <div class="section-title">{{ t('mqtt_delivery') }}</div>
+              <el-form-item :label="t('mqtt_enabled_status')">
                 <div class="switch-field">
                   <div>
-                    <div class="switch-title">在生产环境下发 MQTT</div>
-                    <div class="field-help">如果生产环境更依赖 WebSocket，也可以关闭 MQTT，仅保留端点值作为备用。</div>
+                    <div class="switch-title">{{ t('production_mqtt') }}</div>
+                    <div class="field-help">{{ t('production_mqtt_help') }}</div>
                   </div>
                   <el-switch v-model="form.external.mqtt.enable" />
                 </div>
               </el-form-item>
 
-              <el-form-item label="MQTT 端点" prop="external.mqtt.endpoint">
+              <el-form-item :label="t('mqtt_endpoint')" prop="external.mqtt.endpoint">
                 <el-input
                   v-model="form.external.mqtt.endpoint"
                   :disabled="!form.external.mqtt.enable"
@@ -125,11 +125,11 @@
 
       <div class="footer-bar">
         <p class="footer-note">
-          保存后会更新默认 OTA 下发配置；测试环境和外部环境可以分别验证 WebSocket 与 MQTT UDP 的可达性。
+          {{ t('ota_save_hint') }}
         </p>
         <div class="footer-actions">
-          <el-button plain :loading="loading" @click="loadConfig">重置为当前配置</el-button>
-          <el-button type="primary" :loading="saving" @click="saveConfig">保存配置</el-button>
+          <el-button plain :loading="loading" @click="loadConfig">{{ t('reset_to_current') }}</el-button>
+          <el-button type="primary" :loading="saving" @click="saveConfig">{{ t('save_config') }}</el-button>
         </div>
       </div>
     </el-form>
@@ -341,7 +341,7 @@ const testOtaEnv = async (env) => {
     const label = env === 'test' ? t('test_env') : t('external_env')
 
     if (!otaResult) {
-      ElMessage.error(`${label}：未返回测试结果`)
+      ElMessage.error(t('label_no_result', { label }))
       return
     }
 

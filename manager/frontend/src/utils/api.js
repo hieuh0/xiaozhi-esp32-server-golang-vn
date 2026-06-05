@@ -1,5 +1,14 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
+import { useLocaleStore } from '../stores/locale'
+import zh from '../locales/zh.js'
+import vi from '../locales/vi.js'
+import en from '../locales/en.js'
+
+const _lm = { zh, vi, en }
+function _tl(key) {
+  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
+}
 
 const api = axios.create({
   baseURL: '/api',
@@ -32,7 +41,7 @@ api.interceptors.response.use(
       localStorage.removeItem('user')
       window.location.href = '/login'
     } else if (!silentError) {
-      ElMessage.error(error.response?.data?.error || '请求失败')
+      ElMessage.error(error.response?.data?.error || _tl('request_failed'))
     }
     return Promise.reject(error)
   }

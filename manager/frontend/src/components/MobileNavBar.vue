@@ -1,6 +1,6 @@
 <template>
   <van-nav-bar
-    :title="title"
+    :title="title || t('xiaozhi_management_system')"
     :left-arrow="showBack"
     :left-text="leftText"
     :right-text="rightText"
@@ -25,7 +25,7 @@ const { t } = useLocale()
 const props = defineProps({
   title: {
     type: String,
-    default: '小智管理系统' /* static: cannot use t() inside defineProps */
+    default: ''
   },
   showBack: {
     type: Boolean,

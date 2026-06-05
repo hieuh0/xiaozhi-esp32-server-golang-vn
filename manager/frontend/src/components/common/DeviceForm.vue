@@ -29,7 +29,7 @@
         <el-option
           v-for="agent in displayAgents"
           :key="agent.id"
-          :label="agent.name || `智能体 #${agent.id}`"
+          :label="agent.name || t('agent_id_fallback', { id: agent.id })"
           :value="agent.id"
         />
       </el-select>
@@ -174,13 +174,13 @@ const displayAgents = computed(() => {
 })
 
 const agentLabel = (agent) => {
-  if (!props.isAdmin) return agent.name || `智能体 #${agent.id}`
+  if (!props.isAdmin) return agent.name || t('agent_id_fallback', { id: agent.id })
   const username = agent.username ? ` · ${agent.username}` : ''
-  return `${agent.name || `智能体 #${agent.id}`} (用户${agent.user_id}${username})`
+  return `${agent.name || t('agent_id_fallback', { id: agent.id })} ${t('agent_user_suffix', { user_id: agent.user_id, username })}`
 }
 
 const userLabel = (user) => {
-  const name = user?.username || user?.name || `用户 #${user?.id}`
+  const name = user?.username || user?.name || t('user_id_fallback', { id: user?.id })
   return `${name} (ID: ${user?.id})`
 }
 

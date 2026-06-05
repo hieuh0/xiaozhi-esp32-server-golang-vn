@@ -3,7 +3,7 @@
     <div class="page-actions">
       <el-button type="primary" @click="handleAddConfig">
         <el-icon><Plus /></el-icon>
-        {{ t('add_config') }}  添加配置
+        {{ t('add_config') }}
       </el-button>
     </div>
 
@@ -26,7 +26,7 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="is_default" label="默认配置" width="80" align="center">
+      <el-table-column prop="is_default" :label="t('default_config')" width="80" align="center">
         <template #default="scope">
           <el-switch 
             v-model="scope.row.is_default" 
@@ -34,14 +34,14 @@
           />
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="创建时间" width="180">
+      <el-table-column prop="created_at" :label="t('created_at')" width="180">
         <template #default="scope">
           {{ formatDate(scope.row.created_at) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="180">
+      <el-table-column :label="t('actions')" width="180">
         <template #default="scope">
-          <el-button size="small" @click="editConfig(scope.row)">编辑</el-button>
+          <el-button size="small" @click="editConfig(scope.row)">{{ t('edit') }}</el-button>
           <el-button
             size="small"
             type="danger"
@@ -58,8 +58,8 @@
           <el-icon size="64" color="#C0C4CC" class="empty-icon">
             <Box />
           </el-icon>
-          <div class="empty-text">暂无Memory配置</div>
-          <div class="empty-description">点击上方"添加配置"按钮创建您的第一个Memory配置</div>
+          <div class="empty-text">{{ t('no_memory_config') }}</div>
+          <div class="empty-description">{{ t('no_memory_config_desc') }}</div>
           <el-button type="primary" @click="handleAddConfig" class="empty-action">
             <el-icon><Plus /></el-icon>
             {{ t('add_config') }}
@@ -100,22 +100,22 @@
         <!-- Memobase配置字段 -->
         <template v-if="form.provider === 'memobase'">
           <el-form-item :label="t('api_key')" prop="api_key">
-            <el-input v-model="form.api_key" type="password" placeholder="请输入Memobase API密钥" show-password />
+            <el-input v-model="form.api_key" type="password" :placeholder="t('memobase_api_key_ph')" show-password />
           </el-form-item>
           
           <el-form-item :label="t('base_url')" prop="base_url">
-            <el-input v-model="form.base_url" placeholder="请输入Memobase基础URL" />
+            <el-input v-model="form.base_url" :placeholder="t('memobase_base_url_ph')" />
           </el-form-item>
           
-          <el-form-item label="启用搜索" prop="enable_search">
+          <el-form-item :label="t('enable_search')" prop="enable_search">
             <el-switch v-model="form.enable_search" />
           </el-form-item>
           
-          <el-form-item label="搜索阈值" prop="search_threshold">
+          <el-form-item :label="t('search_threshold')" prop="search_threshold">
             <el-input-number v-model="form.search_threshold" :min="0" :max="1" :step="0.1" :precision="1" style="width: 100%" />
           </el-form-item>
           
-          <el-form-item label="搜索TopK" prop="search_top_k">
+          <el-form-item :label="t('search_top_k')" prop="search_top_k">
             <el-input-number v-model="form.search_top_k" :min="1" :step="1" style="width: 100%" />
           </el-form-item>
         </template>
@@ -132,22 +132,22 @@
 
           
 
-          <el-form-item label="启用搜索" prop="enable_search">
+          <el-form-item :label="t('enable_search')" prop="enable_search">
             <el-switch v-model="form.enable_search" />
           </el-form-item>
           
-          <el-form-item label="搜索阈值" prop="search_threshold">
+          <el-form-item :label="t('search_threshold')" prop="search_threshold">
             <el-input-number v-model="form.search_threshold" :min="0" :max="1" :step="0.1" :precision="1" style="width: 100%" />
           </el-form-item>
           
-          <el-form-item label="搜索TopK" prop="search_top_k">
+          <el-form-item :label="t('search_top_k')" prop="search_top_k">
             <el-input-number v-model="form.search_top_k" :min="1" :step="1" style="width: 100%" />
           </el-form-item>
         </template>
       </el-form>
       
       <template #footer>
-        <el-button @click="handleDialogClose">取消</el-button>
+        <el-button @click="handleDialogClose">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
           {{ t('save') }}
         </el-button>
@@ -293,7 +293,7 @@ const loadConfigs = async () => {
     console.log('Loaded configs:', configs.value)
   } catch (error) {
     console.error(t('load_config_failed_colon'), error)
-    ElMessage.error('加载配置失败: ' + (error.message || t('unknown_error')))
+    ElMessage.error(t('load_config_failed_prefix') + (error.message || t('unknown_error')))
     // Ensure configs is always an array to prevent render errors
     configs.value = []
   } finally {
@@ -349,7 +349,7 @@ const handleSave = async () => {
     showDialog.value = false
     await loadConfigs()
   } catch (error) {
-    ElMessage.error('保存失败: ' + error.message)
+    ElMessage.error(t('save_failed_colon') + error.message)
   } finally {
     saving.value = false
   }
@@ -382,7 +382,7 @@ const deleteConfig = async (id) => {
     await loadConfigs()
   } catch (error) {
     if (error !== 'cancel') {
-      ElMessage.error('删除失败: ' + error.message)
+      ElMessage.error(t('delete_failed_prefix') + error.message)
     }
   }
 }
@@ -396,7 +396,7 @@ const toggleEnable = async (config) => {
     ElMessage.success(config.enabled ? t('enabled') : t('disabled_done'))
   } catch (error) {
     config.enabled = !config.enabled
-    ElMessage.error('操作失败: ' + error.message)
+    ElMessage.error(t('op_failed_prefix') + error.message)
   }
 }
 
@@ -420,7 +420,7 @@ const toggleDefault = async (config) => {
     }
   } catch (error) {
     config.is_default = !config.is_default
-    ElMessage.error('操作失败: ' + error.message)
+    ElMessage.error(t('op_failed_prefix') + error.message)
   }
 }
 

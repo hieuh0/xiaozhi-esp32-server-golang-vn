@@ -47,7 +47,7 @@
             <el-dropdown-menu>
               <el-dropdown-item command="vi" :class="{ 'is-active': lang === 'vi' }">🇻🇳 Tiếng Việt</el-dropdown-item>
               <el-dropdown-item command="en" :class="{ 'is-active': lang === 'en' }">🇬🇧 English</el-dropdown-item>
-              <el-dropdown-item command="zh" :class="{ 'is-active': lang === 'zh' }">🇨🇳 中文</el-dropdown-item>
+              <el-dropdown-item command="zh" :class="{ 'is-active': lang === 'zh' }">🇨🇳 Chinese</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>

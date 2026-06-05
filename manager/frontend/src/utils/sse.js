@@ -1,3 +1,18 @@
+import { useLocaleStore } from '../stores/locale'
+import zh from '../locales/zh.js'
+import vi from '../locales/vi.js'
+import en from '../locales/en.js'
+
+const _lm = { zh, vi, en }
+function _tl(key, params) {
+  try {
+    const s = useLocaleStore()
+    let str = _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key
+    if (params) Object.entries(params).forEach(([k, v]) => { str = str.replaceAll(`{${k}}`, v) })
+    return str
+  } catch { return _lm.zh[key] ?? key }
+}
+
 const parseJSONSafe = (text) => {
   if (typeof text !== 'string' || text.trim() === '') {
     return null
@@ -13,7 +28,7 @@ const buildResponseError = (status, payload) => {
   const message =
     (payload && typeof payload === 'object' && payload.error) ||
     (payload && typeof payload === 'object' && payload.message) ||
-    `请求失败 (${status})`
+    _tl('request_failed_status', { status })
   return new Error(String(message))
 }
 
@@ -28,7 +43,7 @@ const normalizeSSEDataLine = (line) => {
 const readSSE = async (response, onEvent) => {
   const reader = response.body?.getReader()
   if (!reader) {
-    throw new Error('浏览器不支持流式读取')
+    throw new Error(_tl('browser_no_stream'))
   }
 
   const decoder = new TextDecoder('utf-8')
@@ -117,7 +132,7 @@ export const postJSONWithSSE = async ({
   onEvent
 }) => {
   if (!url) {
-    throw new Error('请求地址不能为空')
+    throw new Error(_tl('request_url_empty'))
   }
 
   const controller = new AbortController()
@@ -148,7 +163,7 @@ export const postJSONWithSSE = async ({
     if (contentType.includes('text/event-stream')) {
       const streamResult = await readSSE(response, onEvent)
       if (!response.ok) {
-        throw new Error(`请求失败 (${response.status})`)
+        throw new Error(_tl('request_failed_status', { status: response.status }))
       }
       return {
         mode: 'sse',
@@ -170,7 +185,7 @@ export const postJSONWithSSE = async ({
     }
   } catch (error) {
     if (error && error.name === 'AbortError') {
-      throw new Error('请求超时')
+      throw new Error(_tl('request_timeout'))
     }
     throw error
   } finally {

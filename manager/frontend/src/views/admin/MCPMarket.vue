@@ -3,7 +3,7 @@
     <el-tabs v-model="activeTab" class="market-tabs">
       <el-tab-pane name="discover">
         <template #label>
-          <span>{{ t('market_discovery') }}市场发现</span>
+          <span>{{ t('market_discovery') }}</span>
         </template>
 
         <el-row :gutter="16">
@@ -11,9 +11,9 @@
             <el-card shadow="never" class="panel-card">
               <template #header>
                 <div class="panel-header">
-                  <span>MCP市场</span>
+                  <span>{{ t('mcp_market_title') }}</span>
                   <div>
-                    <el-button type="primary" size="small" @click="openCreateDialog">新增连接</el-button>
+                    <el-button type="primary" size="small" @click="openCreateDialog">{{ t('add_connection') }}</el-button>
                     <el-button size="small" @click="loadMarkets">
                       <el-icon><Refresh /></el-icon>
                     </el-button>
@@ -28,22 +28,22 @@
                     <el-tag size="small">{{ row.provider_id || 'generic' }}</el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column prop="catalog_url" label="目录URL" min-width="220" show-overflow-tooltip />
-                <el-table-column label="鉴权" width="120">
+                <el-table-column prop="catalog_url" :label="t('catalog_url')" min-width="220" show-overflow-tooltip />
+                <el-table-column :label="t('auth')" width="120">
                   <template #default="{ row }">
                     <el-tag size="small" :type="row.has_token ? 'success' : 'info'">
                       {{ row.auth_type || 'none' }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="状态" width="90">
+                <el-table-column :label="t('status')" width="90">
                   <template #default="{ row }">
                     <el-tag size="small" :type="row.enabled ? 'success' : 'info'">
                       {{ row.enabled ? t('enabled') : t('disable') }}
                     </el-tag>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" width="96" fixed="right">
+                <el-table-column :label="t('actions')" width="96" fixed="right">
                   <template #default="{ row }">
                     <el-dropdown trigger="click" @command="(cmd) => handleMarketAction(cmd, row)">
                       <el-button link type="primary" class="market-action-btn">
@@ -51,9 +51,9 @@
                       </el-button>
                       <template #dropdown>
                         <el-dropdown-menu>
-                          <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                          <el-dropdown-item command="test">测试</el-dropdown-item>
-                          <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                          <el-dropdown-item command="edit">{{ t('edit') }}</el-dropdown-item>
+                          <el-dropdown-item command="test">{{ t('test') }}</el-dropdown-item>
+                          <el-dropdown-item command="delete" divided>{{ t('delete') }}</el-dropdown-item>
                         </el-dropdown-menu>
                       </template>
                     </el-dropdown>
@@ -67,11 +67,11 @@
             <el-card shadow="never" class="panel-card">
               <template #header>
                 <div class="panel-header">
-                  <span>聚合服务列表</span>
+                  <span>{{ t('aggregate_service_list') }}</span>
                   <div class="search-actions">
                     <el-input
                       v-model="serviceQuery"
-                      placeholder="搜索服务名/描述/ID"
+                      :placeholder="t('search_placeholder_mcp')"
                       clearable
                       size="small"
                       style="width: 240px"
@@ -91,12 +91,12 @@
               </template>
 
               <el-table :data="services" stripe v-loading="servicesLoading" height="500">
-                <el-table-column prop="name" label="服务" min-width="180" show-overflow-tooltip />
-                <el-table-column prop="market_name" label="来源市场" min-width="120" show-overflow-tooltip />
+                <el-table-column prop="name" :label="t('service')" min-width="180" show-overflow-tooltip />
+                <el-table-column prop="market_name" :label="t('source_market')" min-width="120" show-overflow-tooltip />
                 <el-table-column prop="service_id" label="Service ID" min-width="180" show-overflow-tooltip />
-                <el-table-column label="操作" width="90" fixed="right">
+                <el-table-column :label="t('actions')" width="90" fixed="right">
                   <template #default="{ row }">
-                    <el-button link type="primary" @click.stop="loadServiceDetail(row)">详情</el-button>
+                    <el-button link type="primary" @click.stop="loadServiceDetail(row)">{{ t('detail_btn') }}</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -115,7 +115,7 @@
                 v-if="serviceWarnings.length > 0"
                 type="warning"
                 :closable="false"
-                title="部分市场拉取失败"
+                :title="t('partial_market_failed_title')"
                 class="warning-alert"
               >
                 <template #default>
@@ -130,7 +130,7 @@
       <el-tab-pane name="imported">
         <template #label>
           <div class="tab-label-with-badge">
-            <span>已导入服务</span>
+            <span>{{ t('mcp_market_imported') }}</span>
             <el-badge :value="importedTotal" :max="999" class="tab-badge" />
           </div>
         </template>
@@ -138,11 +138,11 @@
         <el-card shadow="never" class="panel-card">
           <template #header>
             <div class="panel-header">
-              <span>已导入服务</span>
+              <span>{{ t('mcp_market_imported') }}</span>
               <div class="search-actions">
                 <el-input
                   v-model="importedQuery"
-                  placeholder="搜索名称 / service_id / URL"
+                  :placeholder="t('search_name_id_url')"
                   clearable
                   size="small"
                   style="width: 320px"
@@ -157,20 +157,20 @@
                 <el-button size="small" @click="loadImportedItems(importedPage)">
                   <el-icon><Refresh /></el-icon>
                 </el-button>
-                <el-button type="primary" size="small" @click="openCreateImportedDialog">新增服务</el-button>
+                <el-button type="primary" size="small" @click="openCreateImportedDialog">{{ t('new_service') }}</el-button>
               </div>
             </div>
           </template>
 
           <el-table :data="importedItems" stripe v-loading="importedLoading" height="560">
             <el-table-column prop="name" :label="t('name')" min-width="160" show-overflow-tooltip />
-            <el-table-column prop="transport" label="传输" width="140" />
+            <el-table-column prop="transport" :label="t('transport')" width="140" />
             <el-table-column prop="url" label="URL" min-width="320" show-overflow-tooltip />
             <el-table-column prop="service_id" label="Service ID" min-width="180" show-overflow-tooltip />
-            <el-table-column label="工具" width="120">
+            <el-table-column :label="t('tool')" width="120">
               <template #default="{ row }">
                 <el-tag size="small" :type="row.allowed_tools?.length ? 'warning' : 'info'">
-                  {{ row.allowed_tools?.length ? `${row.allowed_tools.length}个已选` : t('all_tools') }}
+                  {{ row.allowed_tools?.length ? t('selected_count_items', { count: row.allowed_tools.length }) : t('all_tools') }}
                 </el-tag>
               </template>
             </el-table-column>
@@ -186,15 +186,15 @@
                 </el-tag>
               </template>
             </el-table-column>
-            <el-table-column prop="updated_at" label="更新时间" width="180" />
-            <el-table-column label="操作" width="280" fixed="right">
+            <el-table-column prop="updated_at" :label="t('search_update_time')" width="180" />
+            <el-table-column :label="t('actions')" width="280" fixed="right">
               <template #default="{ row }">
-                <el-button link type="primary" @click="openEditImportedDialog(row)">编辑</el-button>
-                <el-button link type="primary" @click="openImportedToolsDialog(row)">工具选择</el-button>
+                <el-button link type="primary" @click="openEditImportedDialog(row)">{{ t('edit') }}</el-button>
+                <el-button link type="primary" @click="openImportedToolsDialog(row)">{{ t('tool_selection') }}</el-button>
                 <el-button link :type="row.enabled ? 'warning' : 'success'" @click="toggleImportedEnabled(row)">
                   {{ row.enabled ? t('disable') : t('enabled') }}
                 </el-button>
-                <el-button link type="danger" @click="deleteImportedItem(row)">删除</el-button>
+                <el-button link type="danger" @click="deleteImportedItem(row)">{{ t('delete') }}</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -212,27 +212,27 @@
       </el-tab-pane>
     </el-tabs>
 
-    <el-dialog v-model="detailDialogVisible" title="服务详情" width="900px">
+    <el-dialog v-model="detailDialogVisible" :title="t('service_detail_title')" width="900px">
       <div v-loading="detailLoading">
         <el-empty v-if="!serviceDetail && !detailLoading" :description="t('no_service_detail')" />
         <template v-else-if="serviceDetail">
           <div class="detail-grid">
-            <div><strong>服务：</strong>{{ serviceDetail.name || '-' }}</div>
-            <div><strong>来源市场：</strong>{{ serviceDetail.market_name || '-' }}</div>
+            <div><strong>{{ t('service_label') }}</strong>{{ serviceDetail.name || '-' }}</div>
+            <div><strong>{{ t('source_market_label') }}</strong>{{ serviceDetail.market_name || '-' }}</div>
             <div><strong>Service ID：</strong>{{ serviceDetail.service_id || '-' }}</div>
           </div>
           <div v-if="serviceDetail.description" class="detail-desc">{{ serviceDetail.description }}</div>
           <el-table :data="serviceDetail.endpoints || []" size="small" stripe>
-            <el-table-column prop="name" label="资源名" min-width="120" show-overflow-tooltip />
-            <el-table-column prop="transport" label="传输" width="140" />
+            <el-table-column prop="name" :label="t('resource_name_col')" min-width="120" show-overflow-tooltip />
+            <el-table-column prop="transport" :label="t('transport')" width="140" />
             <el-table-column prop="url" label="URL" min-width="360" show-overflow-tooltip />
           </el-table>
         </template>
       </div>
       <template #footer>
-        <el-button @click="detailDialogVisible = false">关闭</el-button>
+        <el-button @click="detailDialogVisible = false">{{ t('close') }}</el-button>
         <el-button type="primary" :loading="detailImporting" :disabled="!serviceDetail" @click="importFromDetail">
-          导入服务配置并热更新
+          {{ t('import_apply_hot') }}
         </el-button>
       </template>
     </el-dialog>
@@ -240,12 +240,12 @@
     <el-dialog v-model="importedDialogVisible" :title="editingImported ? t('edit_import_service') : t('add_import_service')" width="700px">
       <el-form ref="importedFormRef" :model="importedForm" :rules="importedRules" label-width="120px">
         <el-form-item :label="t('name')" prop="name">
-          <el-input v-model="importedForm.name" placeholder="服务展示名称" />
+          <el-input v-model="importedForm.name" :placeholder="t('service_display_name_ph')" />
         </el-form-item>
         <el-form-item :label="t('enabled')">
           <el-switch v-model="importedForm.enabled" />
         </el-form-item>
-        <el-form-item label="传输" prop="transport">
+        <el-form-item :label="t('transport')" prop="transport">
           <el-select v-model="importedForm.transport" style="width: 100%">
             <el-option label="SSE" value="sse" />
             <el-option label="StreamableHTTP" value="streamablehttp" />
@@ -254,33 +254,33 @@
         <el-form-item label="URL" prop="url">
           <el-input v-model="importedForm.url" placeholder="https://example.com/mcp" />
         </el-form-item>
-        <el-form-item label="来源市场">
-          <el-select v-model="importedForm.market_id" clearable filterable style="width: 100%" placeholder="可选">
+        <el-form-item :label="t('source_market')">
+          <el-select v-model="importedForm.market_id" clearable filterable style="width: 100%" :placeholder="t('optional_label')">
             <el-option v-for="item in markets" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </el-form-item>
         <el-form-item :label="t('provider')">
-          <el-input v-model="importedForm.provider_id" placeholder="例如：modelscope" />
+          <el-input v-model="importedForm.provider_id" :placeholder="t('provider_id_ph')" />
         </el-form-item>
         <el-form-item label="Service ID">
-          <el-input v-model="importedForm.service_id" placeholder="上游服务ID（可选）" />
+          <el-input v-model="importedForm.service_id" :placeholder="t('service_id_upstream_ph')" />
         </el-form-item>
-        <el-form-item label="服务名称">
-          <el-input v-model="importedForm.service_name" placeholder="上游服务名（可选）" />
+        <el-form-item :label="t('service_name_label')">
+          <el-input v-model="importedForm.service_name" :placeholder="t('service_name_upstream_ph')" />
         </el-form-item>
         <el-form-item label="Headers(JSON)">
           <el-input
             v-model="importedHeadersText"
             type="textarea"
             :rows="4"
-            placeholder='例如：{"Authorization":"Bearer xxx"}'
+            :placeholder="t('headers_json_ph')"
           />
         </el-form-item>
       </el-form>
 
       <template #footer>
-        <el-button @click="importedDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="importedSaving" @click="saveImportedItem">保存</el-button>
+        <el-button @click="importedDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="importedSaving" @click="saveImportedItem">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
 
@@ -288,27 +288,25 @@
       <div class="tool-selector-card">
         <div class="tool-selector-header">
           <div class="tool-selector-meta">
-            <span class="tool-selector-title">工具访问策略</span>
-            <span class="tool-selector-tip">空列表表示允许该服务全部工具。</span>
+            <span class="tool-selector-title">{{ t('tool_access_policy') }}</span>
+            <span class="tool-selector-tip">{{ t('empty_tools_allowed') }}</span>
           </div>
           <div class="tool-selector-actions">
             <el-tag size="small" :type="importedToolMode === 'all' ? 'info' : 'warning'">
-              {{ importedToolMode === 'all' ? t('all_tools') : `已选 ${importedSelectedTools.length} 项` }}
+              {{ importedToolMode === 'all' ? t('all_tools') : t('selected_count_items', { count: importedSelectedTools.length }) }}
             </el-tag>
-            <el-button size="small" :loading="importedToolsLoading" @click="refreshImportedTools">
-              探测工具
-            </el-button>
+            <el-button size="small" :loading="importedToolsLoading" @click="refreshImportedTools">{{ t('probe_tools') }}</el-button>
           </div>
         </div>
 
         <el-radio-group v-model="importedToolMode" size="small" class="tool-mode-group" @change="handleImportedToolModeChange">
-          <el-radio-button label="all">全部工具</el-radio-button>
-          <el-radio-button label="selected">指定工具</el-radio-button>
+          <el-radio-button label="all">{{ t('all_tools') }}</el-radio-button>
+          <el-radio-button label="selected">{{ t('specify_tool_option') }}</el-radio-button>
         </el-radio-group>
 
         <template v-if="importedToolMode === 'selected'">
           <div class="tool-picker-search">
-            <el-input v-model="importedToolQuery" clearable placeholder="搜索工具名或描述">
+            <el-input v-model="importedToolQuery" clearable :placeholder="t('search_tool_ph')">
               <template #prefix>
                 <el-icon><Search /></el-icon>
               </template>
@@ -316,7 +314,7 @@
           </div>
 
           <div v-if="filteredImportedToolOptions.length === 0" class="tool-picker-empty">
-            {{ importedToolOptions.length === 0 ? '还没有探测到工具，请先点击“探测工具”。' : t('no_matching_tools') }}
+            {{ importedToolOptions.length === 0 ? t('no_tools_probed') : t('no_matching_tools') }}
           </div>
           <el-checkbox-group v-else v-model="importedSelectedTools" class="tool-grid">
             <el-checkbox
@@ -336,8 +334,8 @@
       </div>
 
       <template #footer>
-        <el-button @click="importedToolsDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="importedSaving" @click="saveImportedToolSelection">保存</el-button>
+        <el-button @click="importedToolsDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="importedSaving" @click="saveImportedToolSelection">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
 
@@ -350,23 +348,23 @@
           <div v-if="currentProvider?.description" class="provider-desc">{{ currentProvider.description }}</div>
         </el-form-item>
         <el-form-item :label="t('name')" prop="name">
-          <el-input v-model="marketForm.name" placeholder="例如：魔搭MCP市场" />
+          <el-input v-model="marketForm.name" :placeholder="t('mcp_market_name_ph')" />
         </el-form-item>
-        <el-form-item label="目录URL" prop="catalog_url">
+        <el-form-item :label="t('catalog_url')" prop="catalog_url">
           <el-input v-model="marketForm.catalog_url" placeholder="https://example.com/api/services" />
         </el-form-item>
-        <el-form-item label="详情URL模板" prop="detail_url_template">
-          <el-input v-model="marketForm.detail_url_template" placeholder="https://example.com/api/services/{id}（可选）" />
+        <el-form-item :label="t('detail_url_template_label')" prop="detail_url_template">
+          <el-input v-model="marketForm.detail_url_template" :placeholder="t('detail_url_template_ph')" />
         </el-form-item>
         <el-form-item :label="t('enabled')">
           <el-switch v-model="marketForm.enabled" />
         </el-form-item>
 
-        <el-divider>鉴权配置</el-divider>
+        <el-divider>{{ t('auth_config_divider') }}</el-divider>
         <el-form-item label="Token">
           <el-input
             v-model="marketForm.auth.token"
-            :placeholder="editingMarket ? `留空则保持原值（当前：${editingMarket.token_mask || t('not_set')}）` : t('enter_modao_token')"
+            :placeholder="editingMarket ? t('token_keep_current', { current: editingMarket.token_mask || t('not_set') }) : t('enter_modao_token')"
             show-password
             clearable
           />
@@ -374,8 +372,8 @@
       </el-form>
 
       <template #footer>
-        <el-button @click="marketDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="marketSaving" @click="saveMarket">保存</el-button>
+        <el-button @click="marketDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="marketSaving" @click="saveMarket">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -475,7 +473,7 @@ const importedRules = {
 }
 
 const toolDialogTitle = computed(() => {
-  return importedToolTarget.value ? `工具选择 · ${importedToolTarget.value.name}` : t('tool_selection')
+  return importedToolTarget.value ? t('tool_selection_title', { name: importedToolTarget.value.name }) : t('tool_selection')
 })
 
 const filteredImportedToolOptions = computed(() => {
@@ -636,7 +634,7 @@ const saveMarket = async () => {
 
 const deleteMarket = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除MCP市场「${row.name}」？`, t('hint'), {
+    await ElMessageBox.confirm(t('confirm_delete_mcp_market', { name: row.name }), t('hint'), {
       type: 'warning',
       confirmButtonText: t('delete'),
       cancelButtonText: t('cancel')
@@ -656,7 +654,7 @@ const testMarket = async (row) => {
   try {
     const resp = await api.post(`/admin/mcp-markets/${row.id}/test`)
     const count = resp.data?.data?.service_count ?? 0
-    ElMessage.success(`连接成功，可发现 ${count} 个服务`)
+    ElMessage.success(t('connection_success_count', { count }))
   } catch (error) {
     ElMessage.error(error.response?.data?.error || t('connection_test_failed'))
   }
@@ -714,7 +712,7 @@ const importFromDetail = async () => {
     }
     const resp = await api.post('/admin/mcp-market/import', payload)
     const result = resp.data.data || {}
-    ElMessage.success(`导入成功：${result.imported_count || 0} 个服务已应用`)
+    ElMessage.success(t('import_success_count', { count: result.imported_count || 0 }))
     await loadServices(servicePage.value)
     await loadImportedItems(1)
     detailDialogVisible.value = false
@@ -910,7 +908,7 @@ const saveImportedItem = async () => {
 const saveImportedToolSelection = async () => {
   if (!importedToolTarget.value) return
   if (importedToolMode.value === 'selected' && importedSelectedTools.value.length === 0) {
-    ElMessage.warning('请至少选择一个工具，或切换为“全部工具”')
+    ElMessage.warning(t('select_at_least_one_tool'))
     return
   }
 
@@ -967,7 +965,7 @@ const toggleImportedEnabled = async (row) => {
 
 const deleteImportedItem = async (row) => {
   try {
-    await ElMessageBox.confirm(`确认删除导入服务「${row.name}」？`, t('hint'), {
+    await ElMessageBox.confirm(t('confirm_delete_imported_service', { name: row.name }), t('hint'), {
       type: 'warning',
       confirmButtonText: t('delete'),
       cancelButtonText: t('cancel')

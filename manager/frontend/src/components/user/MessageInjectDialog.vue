@@ -35,9 +35,9 @@
                   {{ isDeviceOnline(device.last_active_at) ? t('online') : t('offline') }}
                 </el-tag>
               </div>
-              <div class="device-code">设备ID: {{ getDeviceIdText(device) }}</div>
-              <div v-if="device.device_code" class="device-code">激活码: {{ device.device_code }}</div>
-              <div class="device-agent">智能体: {{ device.agent_name || t('not_bound') }}</div>
+              <div class="device-code">{{ t('device_id_display', { id: getDeviceIdText(device) }) }}</div>
+              <div v-if="device.device_code" class="device-code">{{ t('activation_code_display', { code: device.device_code }) }}</div>
+              <div class="device-agent">{{ t('agent_name_display', { name: device.agent_name || t('not_bound') }) }}</div>
             </div>
           </el-option>
         </el-select>
@@ -178,7 +178,7 @@ const isDeviceOnline = (lastActiveAt) => {
 const getDeviceNickName = (device) => {
   const nickName = String(device?.nick_name || '').trim()
   if (nickName) return nickName
-  return String(device?.device_name || '').trim() || '未命名设备'
+  return String(device?.device_name || '').trim() || t('unnamed_device')
 }
 
 const getDeviceIdText = (device) => String(device?.device_name || '').trim() || '-'

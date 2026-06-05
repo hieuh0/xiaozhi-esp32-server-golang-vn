@@ -4,7 +4,7 @@
     <el-card class="base-config-card" style="margin-bottom: 20px;">
       <template #header>
         <div class="card-header">
-          <span>{{ t('basic_config') }}基础配置</span>
+          <span>{{ t('basic_config') }}</span>
         </div>
       </template>
       
@@ -15,24 +15,22 @@
         label-width="120px"
         style="max-width: 600px;"
       >
-        <el-form-item label="启用认证" prop="enable_auth">
+        <el-form-item :label="t('enable_auth')" prop="enable_auth">
           <el-switch v-model="baseForm.enable_auth" />
-          <div class="form-tip">是否启用视觉识别接口的鉴权</div>
+          <div class="form-tip">{{ t('vision_auth_hint') }}</div>
         </el-form-item>
         
         <el-form-item label="Vision URL" prop="vision_url">
           <el-input 
             v-model="baseForm.vision_url" 
-            placeholder="请输入Vision API地址"
+            :placeholder="t('vision_url_ph')"
             style="width: 100%;"
           />
-          <div class="form-tip">返回给客户端用于图片识别的HTTP请求地址</div>
+          <div class="form-tip">{{ t('vision_url_hint') }}</div>
         </el-form-item>
         
         <el-form-item>
-          <el-button type="primary" @click="saveBaseConfig" :loading="baseSaving">
-            保存基础配置
-          </el-button>
+          <el-button type="primary" @click="saveBaseConfig" :loading="baseSaving">{{ t('save_basic_config') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -41,7 +39,7 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>模型配置列表</span>
+          <span>{{ t('model_config_list') }}</span>
           <el-button type="primary" @click="showDialog = true">
             <el-icon><Plus /></el-icon>
             {{ t('add_config') }}
@@ -61,7 +59,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="is_default" label="默认配置" width="80" align="center">
+        <el-table-column prop="is_default" :label="t('default_config')" width="80" align="center">
           <template #default="scope">
             <el-switch 
               v-model="scope.row.is_default" 
@@ -70,14 +68,14 @@
             />
           </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" width="180">
+        <el-table-column prop="created_at" :label="t('created_at')" width="180">
           <template #default="scope">
             {{ formatDate(scope.row.created_at) }}
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="180">
+        <el-table-column :label="t('actions')" width="180">
           <template #default="scope">
-            <el-button size="small" @click="editConfig(scope.row)">编辑</el-button>
+            <el-button size="small" @click="editConfig(scope.row)">{{ t('edit') }}</el-button>
             <el-button
               size="small"
               type="danger"
@@ -105,8 +103,8 @@
       >
         <el-form-item :label="t('provider')" prop="provider">
           <el-select v-model="form.provider" :placeholder="t('select_provider')" style="width: 100%">
-            <el-option label="阿里云视觉" value="aliyun_vision" />
-            <el-option label="豆包视觉" value="doubao_vision" />
+            <el-option :label="t('aliyun_vision')" value="aliyun_vision" />
+            <el-option :label="t('doubao_vision')" value="doubao_vision" />
           </el-select>
         </el-form-item>
         
@@ -118,7 +116,7 @@
           <el-input v-model="form.type" :placeholder="t('enter_type')" />
         </el-form-item>
         
-        <el-form-item label="模型名称" prop="model_name">
+        <el-form-item :label="t('model_name_label')" prop="model_name">
           <el-input v-model="form.model_name" :placeholder="t('enter_model_name')" />
         </el-form-item>
         
@@ -130,16 +128,16 @@
           <el-input v-model="form.base_url" :placeholder="t('enter_base_url')" />
         </el-form-item>
         
-        <el-form-item label="最大令牌数" prop="max_tokens">
+        <el-form-item :label="t('max_tokens_label')" prop="max_tokens">
           <el-input-number v-model="form.max_tokens" :min="1" :max="100000" :placeholder="t('enter_max_tokens')" style="width: 100%" />
         </el-form-item>
         
         <el-form-item :label="t('temperature')" prop="temperature">
-          <el-input-number v-model="form.temperature" :min="0" :max="2" :step="0.1" placeholder="请输入温度" style="width: 100%" />
+          <el-input-number v-model="form.temperature" :min="0" :max="2" :step="0.1" :placeholder="t('enter_temperature')" style="width: 100%" />
         </el-form-item>
         
         <el-form-item label="Top P" prop="top_p">
-          <el-input-number v-model="form.top_p" :min="0" :max="1" :step="0.1" placeholder="请输入Top P" style="width: 100%" />
+          <el-input-number v-model="form.top_p" :min="0" :max="1" :step="0.1" :placeholder="t('enter_top_p')" style="width: 100%" />
         </el-form-item>
         
         <el-form-item :label="t('timeout_seconds')" prop="timeout">
@@ -148,7 +146,7 @@
       </el-form>
       
       <template #footer>
-        <el-button @click="handleDialogClose">取消</el-button>
+        <el-button @click="handleDialogClose">{{ t('cancel') }}</el-button>
         <el-button type="primary" @click="handleSave" :loading="saving">
           {{ t('save') }}
         </el-button>
@@ -361,7 +359,7 @@ const handleSave = async () => {
 const toggleEnable = async (config) => {
   try {
     await api.post(`/admin/configs/${config.id}/toggle`)
-    ElMessage.success(`${config.enabled ? t('enabled') : t('disable')}成功`)
+    ElMessage.success(config.enabled ? t('enabled_success') : t('disable_success'))
   } catch (error) {
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))

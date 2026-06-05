@@ -19,12 +19,12 @@
           <el-tag size="small" effect="plain">{{ formatProviderText(scope.row.sync_provider) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="文档数" width="72" align="center">
+      <el-table-column :label="t('doc_count_col')" width="72" align="center">
         <template #default="scope">
           <el-tag size="small" type="info">{{ formatDocCount(scope.row.doc_count) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="同步状态" width="132">
+      <el-table-column :label="t('sync_status')" width="132">
         <template #default="scope">
           <div class="kb-sync-status-cell">
             <el-tag :type="getSyncStatusTagType(scope.row.sync_status)" size="small">{{ getSyncStatusText(scope.row.sync_status) }}</el-tag>
@@ -37,12 +37,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="最近同步" width="168" show-overflow-tooltip>
+      <el-table-column :label="t('last_sync_col')" width="168" show-overflow-tooltip>
         <template #default="scope">
           <span>{{ formatDateTimeCell(scope.row.last_synced_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="92" align="center">
+      <el-table-column :label="t('status')" width="92" align="center">
         <template #default="scope">
           <el-switch
             :model-value="String(scope.row.status || '').trim() === 'active'"
@@ -54,18 +54,18 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="176">
+      <el-table-column :label="t('actions')" width="176">
         <template #default="scope">
           <div class="action-buttons">
             <el-button size="small" type="primary" plain @click="openDocuments(scope.row)">文档</el-button>
-            <el-button size="small" type="success" plain @click="openSearchTestDialog(scope.row)">测试</el-button>
+            <el-button size="small" type="success" plain @click="openSearchTestDialog(scope.row)">{{ t('test') }}</el-button>
             <el-dropdown trigger="click" @command="(cmd) => handleKnowledgeBaseAction(cmd, scope.row)">
-              <el-button size="small">更多</el-button>
+              <el-button size="small">{{ t('more') }}</el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item command="edit">编辑</el-dropdown-item>
-                  <el-dropdown-item command="sync">重试同步</el-dropdown-item>
-                  <el-dropdown-item command="delete" divided>删除</el-dropdown-item>
+                  <el-dropdown-item command="edit">{{ t('edit') }}</el-dropdown-item>
+                  <el-dropdown-item command="sync">{{ t('retry_sync') }}</el-dropdown-item>
+                  <el-dropdown-item command="delete" divided>{{ t('delete') }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -95,7 +95,7 @@
             默认填充提供商全局阈值。当前提供商：{{ form.threshold_provider || '-' }}，全局阈值：{{ formatKnowledgeThreshold(form.global_threshold) }}。
           </div>
         </el-form-item>
-        <el-form-item label="状态">
+        <el-form-item :label="t('status')">
           <el-select v-model="form.status" style="width: 100%">
             <el-option value="active" label="active" />
             <el-option value="inactive" label="inactive" />
@@ -103,8 +103,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submit">保存</el-button>
+        <el-button @click="dialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" @click="submit">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
 
@@ -120,9 +120,9 @@
             :accept="uploadAcceptByProvider"
             :disabled="!isUploadProviderSupported"
           >
-            <el-button type="success" plain>上传文件</el-button>
+            <el-button type="success" plain>{{ t('upload_file') }}</el-button>
           </el-upload>
-          <el-button type="primary" @click="openDocumentDialog()">新增文档</el-button>
+          <el-button type="primary" @click="openDocumentDialog()">{{ t('add_document') }}</el-button>
         </div>
       </div>
       <div class="kb-helper-text is-bottom">
@@ -130,25 +130,25 @@
       </div>
       <el-table :data="documentItems" v-loading="documentsLoading" style="width: 100%">
         <el-table-column prop="id" label="ID" width="80" />
-        <el-table-column prop="name" label="文档名" width="180" />
+        <el-table-column prop="name" :label="t('document_name')" width="180" />
         <el-table-column prop="external_doc_id" label="Document ID" width="220" />
         <el-table-column label="内容预览">
           <template #default="scope">
             {{ getDocumentPreview(scope.row) }}
           </template>
         </el-table-column>
-        <el-table-column label="同步状态" width="110">
+        <el-table-column :label="t('sync_status')" width="110">
           <template #default="scope">
             <el-tag :type="getSyncStatusTagType(scope.row.sync_status)">{{ getSyncStatusText(scope.row.sync_status) }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="last_synced_at" label="最近同步时间" width="170" />
-        <el-table-column label="操作" width="250">
+        <el-table-column :label="t('actions')" width="250">
           <template #default="scope">
             <div class="action-buttons">
-              <el-button size="small" :disabled="isUploadedFileDocument(scope.row)" @click="openDocumentDialog(scope.row)">编辑</el-button>
-              <el-button size="small" type="primary" plain @click="syncDocument(scope.row.id)">重试同步</el-button>
-              <el-button size="small" type="danger" @click="removeDocument(scope.row.id)">删除</el-button>
+              <el-button size="small" :disabled="isUploadedFileDocument(scope.row)" @click="openDocumentDialog(scope.row)">{{ t('edit') }}</el-button>
+              <el-button size="small" type="primary" plain @click="syncDocument(scope.row.id)">{{ t('retry_sync') }}</el-button>
+              <el-button size="small" type="danger" @click="removeDocument(scope.row.id)">{{ t('delete') }}</el-button>
             </div>
           </template>
         </el-table-column>
@@ -157,7 +157,7 @@
 
     <el-dialog v-model="documentDialogVisible" :title="documentEditing ? t('edit_document') : t('add_document')" width="700px">
       <el-form :model="documentForm" label-width="90px">
-        <el-form-item label="文档名">
+        <el-form-item :label="t('document_name')">
           <el-input v-model="documentForm.name" maxlength="200" show-word-limit />
         </el-form-item>
         <el-form-item label="内容">
@@ -165,8 +165,8 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="documentDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitDocument">保存</el-button>
+        <el-button @click="documentDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" @click="submitDocument">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
 
@@ -190,7 +190,7 @@
             <el-option v-for="k in topKOptions" :key="k" :value="k" :label="String(k)" />
           </el-select>
           <el-tooltip content="仅本次召回测试生效；为空则使用知识库当前阈值（或全局阈值）" placement="top">
-            <span style="display:inline-flex;align-items:center;color:#909399;font-size:12px;white-space:nowrap;">阈值</span>
+            <span style="display:inline-flex;align-items:center;color:#909399;font-size:12px;white-space:nowrap;">{{ t('threshold') }}</span>
           </el-tooltip>
           <el-input
             v-model="searchTestForm.threshold_text"
@@ -209,7 +209,7 @@
       </div>
       <el-table :data="searchTestResult.hits" v-loading="searchTestLoading" style="width: 100%" max-height="420">
         <el-table-column type="index" label="#" width="60" />
-        <el-table-column prop="title" label="来源" width="200" />
+        <el-table-column prop="title" :label="t('source_label')" width="200" />
         <el-table-column label="分数" width="110">
           <template #default="scope">
             {{ formatHitScore(scope.row.score) }}

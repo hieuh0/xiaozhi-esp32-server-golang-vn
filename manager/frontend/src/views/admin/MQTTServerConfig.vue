@@ -14,7 +14,7 @@
               <div>
                 <p class="card-kicker">MQTT Server</p>
                 <h3>{{ t('listen_and_access') }}</h3>
-                <p class="card-description">{{ t('mqtt_server_config_desc') }}配置内置 MQTT Server 的监听地址和启用状态，供设备与主程序接入。</p>
+                <p class="card-description">{{ t('mqtt_server_config_desc') }}</p>
               </div>
               <el-tag :type="serverReady ? 'success' : 'warning'" effect="plain" round>
                 {{ serverReady ? t('service_params_complete') : t('pending_fill') }}
@@ -26,18 +26,18 @@
             <el-form-item :label="t('enabled_status')" prop="enable">
               <div class="switch-field">
                 <div>
-                  <div class="switch-title">启用内置 MQTT Server</div>
-                  <div class="field-help">关闭后将不再监听设备侧 MQTT 连接。</div>
+                  <div class="switch-title">{{ t('enable_mqtt_server') }}</div>
+                  <div class="field-help">{{ t('enable_mqtt_server_help') }}</div>
                 </div>
                 <el-switch v-model="form.enable" />
               </div>
             </el-form-item>
 
-            <el-form-item label="监听主机" prop="listen_host">
-              <el-input v-model="form.listen_host" placeholder="例如：0.0.0.0" />
+            <el-form-item :label="t('listen_host')" prop="listen_host">
+              <el-input v-model="form.listen_host" :placeholder="t('enter_listen_host_eg')" />
             </el-form-item>
 
-            <el-form-item label="监听端口" prop="listen_port">
+            <el-form-item :label="t('listen_port')" prop="listen_port">
               <el-input-number v-model="form.listen_port" :min="1" :max="65535" controls-position="right" style="width: 100%" />
             </el-form-item>
           </div>
@@ -49,8 +49,8 @@
               <div class="card-head">
                 <div>
                   <p class="card-kicker">Authentication</p>
-                  <h3>认证与签名</h3>
-                  <p class="card-description">如果启用鉴权，请填写主程序连接 MQTT Server 使用的管理员账号，并保持签名密钥与 OTA 一致。</p>
+                  <h3>{{ t('auth_and_signing') }}</h3>
+                  <p class="card-description">{{ t('auth_signing_desc') }}</p>
                 </div>
                 <el-tag :type="form.enable_auth ? 'warning' : 'info'" effect="plain" round>
                   {{ form.enable_auth ? t('auth_enabled') : t('anonymous_access') }}
@@ -59,27 +59,27 @@
             </template>
 
             <div class="field-stack">
-              <el-form-item label="启用认证" prop="enable_auth">
+              <el-form-item :label="t('enable_auth')" prop="enable_auth">
                 <div class="switch-field">
                   <div>
-                    <div class="switch-title">校验 MQTT 用户名密码</div>
-                    <div class="field-help">启用后会在客户端连接时校验用户名和密码。</div>
+                    <div class="switch-title">{{ t('verify_mqtt_auth') }}</div>
+                    <div class="field-help">{{ t('verify_mqtt_auth_help') }}</div>
                   </div>
                   <el-switch v-model="form.enable_auth" />
                 </div>
               </el-form-item>
 
-              <el-form-item label="管理员用户" prop="username">
-                <el-input v-model="form.username" placeholder="未启用鉴权可暂时留空" />
+              <el-form-item :label="t('admin_user')" prop="username">
+                <el-input v-model="form.username" :placeholder="t('username_no_auth_temp')" />
               </el-form-item>
 
               <el-form-item :label="t('admin_password')" prop="password">
-                <el-input v-model="form.password" type="password" placeholder="未启用鉴权可暂时留空" show-password />
+                <el-input v-model="form.password" type="password" :placeholder="t('username_no_auth_temp')" show-password />
               </el-form-item>
 
               <el-form-item :label="t('signature_key')" prop="signature_key">
-                <el-input v-model="form.signature_key" placeholder="请输入与 OTA 保持一致的签名密钥" />
-                <div class="field-help">该密钥需要和 OTA 配置页的签名密钥保持一致。</div>
+                <el-input v-model="form.signature_key" :placeholder="t('signature_key_ph')" />
+                <div class="field-help">{{ t('signature_key_note_ota') }}</div>
               </el-form-item>
             </div>
           </el-card>
@@ -89,8 +89,8 @@
               <div class="card-head">
                 <div>
                   <p class="card-kicker">MQTTS</p>
-                  <h3>TLS 配置</h3>
-                  <p class="card-description">需要设备通过 MQTTS 连接时，再启用 TLS 并补齐证书文件路径。</p>
+                  <h3>{{ t('tls_config') }}</h3>
+                  <p class="card-description">{{ t('tls_config_desc') }}</p>
                 </div>
                 <el-tag :type="form.tls.enable ? 'success' : 'info'" effect="plain" round>
                   {{ form.tls.enable ? t('tls_enabled') : t('tls_not_enabled') }}
@@ -99,26 +99,26 @@
             </template>
 
             <div class="field-stack">
-              <el-form-item label="启用 TLS" prop="tls.enable">
+              <el-form-item :label="t('enable_tls')" prop="tls.enable">
                 <div class="switch-field">
                   <div>
-                    <div class="switch-title">允许设备通过 MQTTS 连接</div>
-                    <div class="field-help">启用后请同时填写 TLS 端口、证书文件和密钥文件。</div>
+                    <div class="switch-title">{{ t('allow_devices_mqtts') }}</div>
+                    <div class="field-help">{{ t('allow_devices_mqtts_help') }}</div>
                   </div>
                   <el-switch v-model="form.tls.enable" />
                 </div>
               </el-form-item>
 
-              <el-form-item label="TLS 端口" prop="tls.port">
+              <el-form-item :label="t('tls_port')" prop="tls.port">
                 <el-input-number v-model="form.tls.port" :min="1" :max="65535" controls-position="right" style="width: 100%" />
               </el-form-item>
 
-              <el-form-item label="证书文件" prop="tls.pem">
-                <el-input v-model="form.tls.pem" placeholder="例如：certs/server.pem" />
+              <el-form-item :label="t('cert_file')" prop="tls.pem">
+                <el-input v-model="form.tls.pem" :placeholder="t('cert_file_ph')" />
               </el-form-item>
 
-              <el-form-item label="密钥文件" prop="tls.key">
-                <el-input v-model="form.tls.key" placeholder="例如：certs/server.key" />
+              <el-form-item :label="t('key_file')" prop="tls.key">
+                <el-input v-model="form.tls.key" :placeholder="t('key_file_ph')" />
               </el-form-item>
             </div>
           </el-card>
@@ -127,11 +127,11 @@
 
       <div class="footer-bar">
         <p class="footer-note">
-          保存后会更新默认 MQTT Server 配置；如果同时启用 OTA 的 MQTT 下发，请确认签名密钥保持一致。
+          {{ t('mqtt_server_save_hint') }}
         </p>
         <div class="footer-actions">
-          <el-button plain :loading="loading" @click="loadConfig">重置为当前配置</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">保存配置</el-button>
+          <el-button plain :loading="loading" @click="loadConfig">{{ t('reset_to_current') }}</el-button>
+          <el-button type="primary" :loading="saving" @click="handleSave">{{ t('save_config') }}</el-button>
         </div>
       </div>
     </el-form>

@@ -13,8 +13,8 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">UDP Server</p>
-                <h3>{{ t('service_listen') }}服务监听</h3>
-                <p class="card-description">{{ t('udp_server_config_desc') }}配置主程序内置 UDP Server 的监听地址，供设备侧发现并建立连接。</p>
+                <h3>{{ t('service_listen') }}</h3>
+                <p class="card-description">{{ t('udp_server_config_desc') }}</p>
               </div>
               <el-tag :type="listenReady ? 'success' : 'warning'" effect="plain" round>
                 {{ listenReady ? t('listen_params_complete') : t('pending_fill') }}
@@ -24,14 +24,14 @@
 
           <div class="field-grid">
             <el-form-item :label="t('config_name')" prop="name">
-              <el-input v-model="form.name" placeholder="例如：默认 UDP 配置" />
+              <el-input v-model="form.name" :placeholder="t('udp_name_ph')" />
             </el-form-item>
 
-            <el-form-item label="监听主机" prop="listen_host">
-              <el-input v-model="form.listen_host" placeholder="例如：0.0.0.0" />
+            <el-form-item :label="t('listen_host')" prop="listen_host">
+              <el-input v-model="form.listen_host" :placeholder="t('enter_listen_host_eg')" />
             </el-form-item>
 
-            <el-form-item label="监听端口" prop="listen_port">
+            <el-form-item :label="t('listen_port')" prop="listen_port">
               <el-input-number v-model="form.listen_port" :min="1" :max="65535" controls-position="right" style="width: 100%" />
             </el-form-item>
           </div>
@@ -42,8 +42,8 @@
             <div class="card-head">
               <div>
                 <p class="card-kicker">Announce Address</p>
-                <h3>终端下发地址</h3>
-                <p class="card-description">这里填写会通过 hello 协议下发给终端的可访问地址，需要设备真实可达。</p>
+                <h3>{{ t('terminal_publish_addr') }}</h3>
+                <p class="card-description">{{ t('terminal_publish_desc') }}</p>
               </div>
               <el-tag :type="externalReady ? 'success' : 'warning'" effect="plain" round>
                 {{ externalReady ? t('address_complete') : t('pending_fill') }}
@@ -52,14 +52,14 @@
           </template>
 
           <div class="field-stack">
-            <el-form-item label="外部主机" prop="external_host">
-              <el-input v-model="form.external_host" placeholder="例如：公网 IP 或域名" />
+            <el-form-item :label="t('external_host')" prop="external_host">
+              <el-input v-model="form.external_host" :placeholder="t('external_host_ph')" />
             </el-form-item>
 
-            <el-form-item label="外部端口" prop="external_port">
+            <el-form-item :label="t('external_port')" prop="external_port">
               <el-input-number v-model="form.external_port" :min="1" :max="65535" controls-position="right" style="width: 100%" />
               <div class="field-help">
-                终端拿到的是这里的主机和端口，而不是监听主机本身。
+                {{ t('terminal_addr_note') }}
               </div>
             </el-form-item>
           </div>
@@ -68,11 +68,11 @@
 
       <div class="footer-bar">
         <p class="footer-note">
-          保存后会更新默认 UDP 配置，供终端发现流程和后续连接使用。
+          {{ t('udp_save_hint') }}
         </p>
         <div class="footer-actions">
-          <el-button plain :loading="loading" @click="loadConfig">重置为当前配置</el-button>
-          <el-button type="primary" :loading="saving" @click="handleSave">保存配置</el-button>
+          <el-button plain :loading="loading" @click="loadConfig">{{ t('reset_to_current') }}</el-button>
+          <el-button type="primary" :loading="saving" @click="handleSave">{{ t('save_config') }}</el-button>
         </div>
       </div>
     </el-form>

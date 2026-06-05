@@ -30,7 +30,7 @@
         <el-form-item :label="t('sentence_end_silence_threshold')" prop="chat.chat_max_silence_duration">
           <el-input-number v-model="form.chat.chat_max_silence_duration" :min="0" :step="10" style="width: 100%;" />
           <div class="form-help">
-            用于判定一句话结束：从“有声”转为“静音”持续达到该阈值后，认为句子结束并触发后续处理。默认 400ms。阈值越小响应越快但更易截断，阈值越大更稳但响应更慢，建议 300~600ms。
+            {{ t('chat_silence_hint') }}
           </div>
         </el-form-item>
         <el-form-item :label="t('realtime_interrupt_mode')" prop="chat.realtime_mode">

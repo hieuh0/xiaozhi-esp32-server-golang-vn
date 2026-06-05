@@ -70,7 +70,7 @@
               <el-menu-item index="/admin/udp-config">{{ t('udp_config') }}</el-menu-item>
               <el-sub-menu index="/admin/mcp-config-group" class="menu-sub-child">
                 <template #title>{{ t('mcp_config') }}</template>
-                <el-menu-item class="menu-grandchild" index="/admin/mcp-config">配置</el-menu-item>
+                <el-menu-item class="menu-grandchild" index="/admin/mcp-config">{{ t('config') }}</el-menu-item>
                 <el-menu-item class="menu-grandchild" index="/admin/mcp-market">{{ t('mcp_market') }}</el-menu-item>
               </el-sub-menu>
               <el-menu-item index="/admin/speaker-config">{{ t('voiceprint_recognition_config') }}</el-menu-item>

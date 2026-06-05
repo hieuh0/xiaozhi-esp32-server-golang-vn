@@ -12,7 +12,7 @@
         <div class="diagnostic-section" v-loading="mcpLoading">
           <div class="status-row">
             <div>
-              <div class="field-label">智能体 WebSocket</div>
+              <div class="field-label">{{ t('agent_websocket') }}</div>
               <div class="status-inline">
                 <el-tag :type="mcpStatusTagType">{{ mcpStatusText }}</el-tag>
                 <span>{{ mcpStatusDetailText }}</span>
@@ -20,28 +20,22 @@
             </div>
             <div class="action-row">
               <el-button size="small" @click="refreshMcpDebugInfo" :loading="mcpLoading">
-                <el-icon><Refresh /></el-icon>
-                刷新数据
-              </el-button>
-              <el-button size="small" type="primary" @click="copyMcpEndpoint" :disabled="!mcpEndpointData.endpoint">
-                复制 URL
-              </el-button>
+                <el-icon><Refresh /></el-icon>{{ t('refresh_data') }}</el-button>
+              <el-button size="small" type="primary" @click="copyMcpEndpoint" :disabled="!mcpEndpointData.endpoint">{{ t('copy_url') }}</el-button>
             </div>
           </div>
 
           <div class="result-block">
-            <div class="field-label">MCP 接入点 URL</div>
+            <div class="field-label">{{ t('mcp_endpoint_url') }}</div>
             <pre class="code-box">{{ mcpEndpointData.endpoint || t('no_endpoints_save') }}</pre>
           </div>
 
           <div class="tool-header">
-            <div class="field-label">MCP 工具列表</div>
+            <div class="field-label">{{ t('mcp_tool_list') }}</div>
             <el-button size="small" type="primary" @click="refreshMcpTools" :loading="toolsLoading">
-              <el-icon><Refresh /></el-icon>
-              刷新工具列表
-            </el-button>
+              <el-icon><Refresh /></el-icon>{{ t('refresh_tool_list') }}</el-button>
           </div>
-          <div v-if="mcpTools.length === 0" class="empty-box">暂无工具数据</div>
+          <div v-if="mcpTools.length === 0" class="empty-box">{{ t('no_tool_data') }}</div>
           <div v-else class="tool-list">
             <el-tag
               v-for="tool in mcpTools"
@@ -54,7 +48,7 @@
           </div>
 
           <el-form label-position="top" class="diagnostic-form">
-            <el-form-item label="工具">
+            <el-form-item :label="t('tool')">
               <el-select
                 v-model="mcpCallForm.tool_name"
                 :placeholder="t('select_tool')"
@@ -65,11 +59,11 @@
                 <el-option v-for="tool in mcpTools" :key="tool.name" :label="tool.name" :value="tool.name" />
               </el-select>
             </el-form-item>
-            <el-form-item label="参数 JSON">
-              <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" placeholder='例如: {"query":"hello"}' />
+            <el-form-item :label="t('args_json_label')">
+              <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" :placeholder="t('mcp_args_placeholder')" />
             </el-form-item>
           </el-form>
-          <el-button type="primary" @click="callAgentMcpTool" :loading="callingTool">调用工具</el-button>
+          <el-button type="primary" @click="callAgentMcpTool" :loading="callingTool">{{ t('call_tool') }}</el-button>
           <pre class="code-box result-box">{{ mcpCallResult || t('no_call_results') }}</pre>
         </div>
       </el-collapse-item>
@@ -85,27 +79,25 @@
         <div class="diagnostic-section">
           <div class="status-row">
             <div>
-              <div class="field-label">连接状态</div>
+              <div class="field-label">{{ t('connection_status') }}</div>
               <div class="status-inline">
                 <el-tag :type="openClawStatusTagType">{{ openClawStatusText }}</el-tag>
                 <span>{{ openClawEndpointData.status_message || t('role_command_realtime') }}</span>
               </div>
             </div>
             <div class="action-row">
-              <el-link :href="openClawDocURL" target="_blank" type="primary" :underline="false">查看文档</el-link>
-              <el-button size="small" @click="fetchOpenClawEndpoint" :loading="openClawEndpointLoading">刷新状态</el-button>
-              <el-button size="small" type="primary" @click="copyOpenClawCommands" :disabled="!openClawCommandData.ready">
-                复制命令
-              </el-button>
+              <el-link :href="openClawDocURL" target="_blank" type="primary" :underline="false">{{ t('view_docs') }}</el-link>
+              <el-button size="small" @click="fetchOpenClawEndpoint" :loading="openClawEndpointLoading">{{ t('refresh_status') }}</el-button>
+              <el-button size="small" type="primary" @click="copyOpenClawCommands" :disabled="!openClawCommandData.ready">{{ t('copy_command') }}</el-button>
             </div>
           </div>
 
           <div class="result-block" v-loading="openClawEndpointLoading">
-            <div class="field-label">OpenClaw 角色配置命令</div>
-            <div v-if="openClawCommandData.ready" class="command-hint">在 OpenClaw 控制台角色配置中依次执行以下命令：</div>
+            <div class="field-label">{{ t('openclaw_role_config_cmd') }}</div>
+            <div v-if="openClawCommandData.ready" class="command-hint">{{ t('openclaw_execute_hint') }}</div>
             <div v-if="openClawCommandData.ready" class="command-steps">
               <div v-for="(step, index) in openClawCommandData.steps" :key="`${step.title}-${index}`" class="command-step">
-                <div class="command-step-title">第 {{ index + 1 }} 行：{{ step.title }}</div>
+                <div class="command-step-title">{{ t('step_line_label', { num: index + 1, title: step.title }) }}</div>
                 <pre class="code-box">{{ step.command }}</pre>
               </div>
             </div>
@@ -113,18 +105,18 @@
           </div>
 
           <div class="result-block">
-            <div class="field-label">OpenClaw 对话测试</div>
+            <div class="field-label">{{ t('openclaw_chat_test') }}</div>
             <el-form label-position="top" class="diagnostic-form">
-              <el-form-item label="测试消息">
+              <el-form-item :label="t('test_message_label')">
                 <el-input
                   v-model="openClawChatTestForm.message"
                   type="textarea"
                   :rows="3"
-                  placeholder="输入要发送到 OpenClaw 的文本"
+                  :placeholder="t('openclaw_input_ph')"
                 />
               </el-form-item>
             </el-form>
-            <el-button type="primary" @click="testOpenClawChat" :loading="openClawChatTesting">发送测试</el-button>
+            <el-button type="primary" @click="testOpenClawChat" :loading="openClawChatTesting">{{ t('send_test_btn') }}</el-button>
             <pre class="code-box result-box">{{ openClawChatTestResult || t('no_test_results') }}</pre>
           </div>
         </div>
@@ -213,14 +205,14 @@ const mcpStatusTagType = computed(() => {
 
 const mcpStatusDetailText = computed(() => {
   const count = Number(mcpEndpointData.value.client_count || 0)
-  if (count > 0) return `当前 ${count} 个客户端在线`
+  if (count > 0) return t('clients_online_count', { count })
   return mcpEndpointData.value.status_message || t('no_online_clients')
 })
 
 const mcpSummaryText = computed(() => {
   if (!mcpEndpointLoaded.value) return t('expand_load_endpoints')
-  if (!mcpLoaded.value) return `${mcpStatusText.value}，展开后加载工具`
-  return `${mcpStatusText.value}，${mcpTools.value.length} 个工具`
+  if (!mcpLoaded.value) return t('expand_load_tools', { status: mcpStatusText.value })
+  return t('tools_count_short', { status: mcpStatusText.value, count: mcpTools.value.length })
 })
 
 const openClawStatusText = computed(() => {
@@ -495,8 +487,8 @@ const copyOpenClawCommands = async () => {
 }
 
 const formatOpenClawChatResult = (reply, latency) => {
-  const lines = [`回复: ${String(reply || '') || '(空)'}`]
-  if (Number.isFinite(latency)) lines.push(`耗时: ${latency}ms`)
+  const lines = [t('reply_prefix', { text: String(reply || '') || t('empty_parens') })]
+  if (Number.isFinite(latency)) lines.push(t('elapsed_prefix', { ms: latency }))
   return lines.join('\n')
 }
 
@@ -535,7 +527,7 @@ const testOpenClawChat = async () => {
           if (chunk) chunks.push(chunk)
           const reply = String(data.reply || chunks.join(''))
           const latency = Number(data.latency_ms)
-          openClawChatTestResult.value = `流式回复中...\n${formatOpenClawChatResult(reply, latency)}`
+          openClawChatTestResult.value = `${t('stream_reply')}\n${formatOpenClawChatResult(reply, latency)}`
           return
         }
         if (event === 'result') {
@@ -551,8 +543,8 @@ const testOpenClawChat = async () => {
           const partialReply = String(data.reply || chunks.join(''))
           streamError = messageText
           openClawChatTestResult.value = partialReply
-            ? `错误: ${messageText}\n已接收: ${partialReply}`
-            : `错误: ${messageText}`
+            ? t('error_received_msg', { msg: messageText, text: partialReply })
+            : t('error_prefix', { msg: messageText })
           return
         }
         if (event === 'done') {
@@ -584,7 +576,7 @@ const testOpenClawChat = async () => {
     ElMessage.success(t('openclaw_chat_test_success'))
   } catch (error) {
     const msg = error.response?.data?.error || error.message || t('openclaw_test_failed')
-    openClawChatTestResult.value = `错误: ${msg}`
+    openClawChatTestResult.value = t('error_prefix', { msg })
     ElMessage.error(msg)
   } finally {
     openClawChatTesting.value = false

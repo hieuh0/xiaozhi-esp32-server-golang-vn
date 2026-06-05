@@ -60,7 +60,7 @@
         <el-option
           v-for="kb in knowledgeBases"
           :key="kb.id"
-          :label="kb.name || `知识库 #${kb.id}`"
+          :label="kb.name || t('kb_default_label', { id: kb.id })"
           :value="kb.id"
         />
       </el-select>
@@ -79,7 +79,7 @@
           <el-option
             v-for="config in llmConfigs"
             :key="config.config_id"
-            :label="config.is_default ? `${config.name} (默认)` : config.name"
+            :label="config.is_default ? t('tts_default_label', { name: config.name }) : config.name"
             :value="config.config_id"
           >
             <div class="config-option">
@@ -102,7 +102,7 @@
           <el-option
             v-for="config in ttsConfigs"
             :key="config.config_id"
-            :label="config.is_default ? `${config.name} (默认)` : config.name"
+            :label="config.is_default ? t('tts_default_label', { name: config.name }) : config.name"
             :value="config.config_id"
           >
             <div class="config-option">
@@ -343,7 +343,7 @@ const selectedMcpServices = computed({
 })
 
 const userLabel = (user) => {
-  const name = user?.username || user?.name || `用户 #${user?.id}`
+  const name = user?.username || user?.name || t('user_id_fallback', { id: user?.id })
   return `${name} (ID: ${user?.id})`
 }
 

@@ -28,7 +28,7 @@
       <el-table-column :label="t('link_agent')" width="150">
         <template #default="{ row }">
           <span v-if="row.agent_id > 0">
-            {{ row.agent_name || `智能体 ${row.agent_id}` }}
+            {{ row.agent_name || t('agent_id_fallback', { id: row.agent_id }) }}
           </span>
           <el-tag v-else type="info" size="small">{{ t('no_agent_linked') }}</el-tag>
         </template>
@@ -74,7 +74,7 @@
 
     <!-- 添加/编辑设备对话框 -->
 
-    <el-dialog v-model="showMcpDialog" title="设备MCP工具" width="760px">
+    <el-dialog v-model="showMcpDialog" :title="t('device_mcp_tools')" width="760px">
       <div v-loading="mcpLoading">
         <div class="mcp-tools-header">
           <el-button size="small" type="primary" @click="refreshDeviceMcpTools" :loading="toolsLoading">{{ t('refresh') }}</el-button>
@@ -94,7 +94,7 @@
             </el-select>
           </el-form-item>
           <el-form-item :label="t('params_json_format_error').replace(t('format_error'), '')">
-            <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" placeholder='例如: {"query":"hello"}' />
+            <el-input v-model="mcpCallForm.argumentsText" type="textarea" :rows="6" :placeholder="t('mcp_args_placeholder')" />
           </el-form-item>
         </el-form>
 
@@ -170,7 +170,7 @@ const loadDevices = async () => {
 const getDeviceDisplayName = (device) => {
   const nickName = String(device?.nick_name || '').trim()
   if (nickName) return nickName
-  return String(device?.device_name || '').trim() || '未命名设备'
+  return String(device?.device_name || '').trim() || t('unnamed_device')
 }
 
 const openAddDialog = () => {
@@ -218,7 +218,7 @@ const saveDevice = async () => {
 const deleteDevice = async (device) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除设备 "${getDeviceDisplayName(device)}" 吗？`,
+      t('confirm_delete_device_msg', { name: getDeviceDisplayName(device) }),
       t('confirm'),
       {
         confirmButtonText: t('confirm'),

@@ -177,7 +177,7 @@
       />
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="showAddDeviceDialog = false">取消</el-button>
+          <el-button @click="showAddDeviceDialog = false">{{ t('cancel') }}</el-button>
           <el-button type="primary" :loading="addingDevice" @click="handleAddDevice">
             {{ addingDevice ? t('binding') : t('bind_device') }}
           </el-button>

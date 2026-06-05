@@ -3,11 +3,11 @@
     <el-card>
       <template #header>
         <div class="card-header">
-          <span>{{ t('resource_pool_stats') }}资源池统计</span>
+          <span>{{ t('resource_pool_stats') }}</span>
           <div class="header-actions">
             <el-button type="primary" size="small" @click="refreshStats">
               <el-icon><Refresh /></el-icon>
-              {{ t('refresh') }}  刷新
+              {{ t('refresh') }}
             </el-button>
             <el-select v-model="viewType" size="small" style="width: 120px; margin-left: 10px;" disabled>
               <el-option :label="t('latest_data')" value="latest" />
@@ -19,23 +19,23 @@
       <!-- 统计摘要 -->
       <el-row :gutter="20" style="margin-bottom: 20px;">
         <el-col :span="6">
-          <el-statistic title="总记录数" :value="summary.total_records || 0" />
+          <el-statistic :title="t('total_records')" :value="summary.total_records || 0" />
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">存储方式</div>
-            <div class="stat-value">仅最新数据</div>
+            <div class="stat-title">{{ t('storage_mode') }}</div>
+            <div class="stat-value">{{ t('latest_only') }}</div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">最早时间</div>
+            <div class="stat-title">{{ t('earliest_time') }}</div>
             <div class="stat-value">{{ formatTime(summary.oldest_timestamp) }}</div>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="stat-item">
-            <div class="stat-title">最新时间</div>
+            <div class="stat-title">{{ t('latest_time') }}</div>
             <div class="stat-value">{{ formatTime(summary.newest_timestamp) }}</div>
           </div>
         </el-col>
@@ -43,16 +43,16 @@
 
       <!-- 最新统计数据 -->
       <div v-if="viewType === 'latest' && latestStats">
-        <el-divider>最新统计数据（{{ formatTime(latestStats.timestamp) }}）</el-divider>
+        <el-divider>{{ t('latest_stats_title', { time: formatTime(latestStats.timestamp) }) }}</el-divider>
         <el-table :data="formatStatsData(latestStats.stats)" border stripe style="width: 100%" v-if="latestStats.stats">
-          <el-table-column prop="poolKey" label="资源池" width="200" />
-          <el-table-column prop="total" label="总资源数" width="120" />
-          <el-table-column prop="available" label="可用资源" width="120" />
-          <el-table-column prop="inUse" label="使用中" width="120" />
-          <el-table-column prop="maxSize" label="最大容量" width="120" />
-          <el-table-column prop="minSize" label="最小容量" width="120" />
-          <el-table-column prop="maxIdle" label="最大空闲" width="120" />
-          <el-table-column prop="isClosed" label="状态" width="100">
+          <el-table-column prop="poolKey" :label="t('pool_key_col')" width="200" />
+          <el-table-column prop="total" :label="t('total_resources')" width="120" />
+          <el-table-column prop="available" :label="t('available_resources')" width="120" />
+          <el-table-column prop="inUse" :label="t('in_use')" width="120" />
+          <el-table-column prop="maxSize" :label="t('max_capacity')" width="120" />
+          <el-table-column prop="minSize" :label="t('min_capacity')" width="120" />
+          <el-table-column prop="maxIdle" :label="t('max_idle')" width="120" />
+          <el-table-column prop="isClosed" :label="t('status')" width="100">
             <template #default="{ row }">
               <el-tag :type="row.isClosed ? 'danger' : 'success'">
                 {{ row.isClosed ? t('closed') : t('running') }}

@@ -9,9 +9,9 @@
           size="large"
         />
         <div class="header-context">
-          <span class="context-label">{{ t('current_agent') }}当前智能体</span>
+          <span class="context-label">{{ t('current_agent') }}</span>
           <strong class="context-value">{{ agentName || t('unnamed_agent') }}</strong>
-          <p class="context-meta" v-if="total > 0">共 {{ total }} 条消息</p>
+          <p class="context-meta" v-if="total > 0">{{ t('messages_total_count', { count: total }) }}</p>
         </div>
       </div>
       <div class="header-right">
@@ -65,8 +65,8 @@
           />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">{{ t('query') }}查询</el-button>
-          <el-button @click="handleReset">{{ t('reset') }}重置</el-button>
+          <el-button type="primary" @click="handleSearch">{{ t('query') }}</el-button>
+          <el-button @click="handleReset">{{ t('reset') }}</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -118,7 +118,7 @@
                         <el-icon class="message-more"><MoreFilled /></el-icon>
                         <template #dropdown>
                           <el-dropdown-menu>
-                            <el-dropdown-item :command="{action: 'delete', id: message.id}">{{ t('delete') }}删除</el-dropdown-item>
+                            <el-dropdown-item :command="{action: 'delete', id: message.id}">{{ t('delete') }}</el-dropdown-item>
                           </el-dropdown-menu>
                         </template>
                       </el-dropdown>
@@ -154,7 +154,7 @@
                         <el-icon class="message-more"><MoreFilled /></el-icon>
                         <template #dropdown>
                           <el-dropdown-menu>
-                            <el-dropdown-item :command="{action: 'delete', id: message.id}">删除</el-dropdown-item>
+                            <el-dropdown-item :command="{action: 'delete', id: message.id}">{{ t('delete') }}</el-dropdown-item>
                           </el-dropdown-menu>
                         </template>
                       </el-dropdown>
@@ -288,7 +288,7 @@ const loadMessages = async () => {
     await nextTick()
     scrollToBottom()
   } catch (error) {
-    ElMessage.error('加载消息列表失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('load_messages_failed_prefix') + (error.response?.data?.error || error.message))
     console.error(t('load_message_list_failed'), error)
     messages.value = []
     total.value = 0
@@ -416,22 +416,16 @@ const formatTimeShort = (dateString) => {
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
   if (msgDate.getTime() === yesterday.getTime()) {
-    return '昨天 ' + date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    return t('yesterday_prefix', { time: date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) })
   }
   
   // 如果是今年，显示月日和时间
   if (date.getFullYear() === now.getFullYear()) {
-    return `${date.getMonth() + 1}月${date.getDate()}日 ${date.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })}`
+    return date.toLocaleString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
-  
+
   // 其他情况显示完整日期和时间
-  return date.toLocaleString('zh-CN', {
+  return date.toLocaleString(undefined, {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

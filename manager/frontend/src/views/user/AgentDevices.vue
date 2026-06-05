@@ -112,15 +112,15 @@
           
           <div class="device-meta">
             <div class="meta-row">
-              <span class="meta-label">关联智能体</span>
+              <span class="meta-label">{{ t('link_agent') }}</span>
               <span class="meta-value">{{ getDeviceAgentName(device) }}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">设备类型</span>
+              <span class="meta-label">{{ t('device_type_label') }}</span>
               <span class="meta-value">ESP32设备</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">激活状态</span>
+              <span class="meta-label">{{ t('activation_status') }}</span>
               <span class="meta-value">
                 <el-tag :type="device.activated ? 'success' : 'warning'" size="small">
                   {{ device.activated ? t('activated') : t('not_activated') }}
@@ -128,11 +128,11 @@
               </span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">最后活跃</span>
+              <span class="meta-label">{{ t('last_active') }}</span>
               <span class="meta-value">{{ formatDate(device.last_active_at) }}</span>
             </div>
             <div class="meta-row">
-              <span class="meta-label">创建时间</span>
+              <span class="meta-label">{{ t('created_at') }}</span>
               <span class="meta-value">{{ formatDate(device.created_at) }}</span>
             </div>
           </div>
@@ -147,9 +147,7 @@
               MCP
             </el-button>
             <el-button class="device-action-button device-action-button-voice" size="small" @click="handleVoicePush(device)">
-              <el-icon><ChatDotRound /></el-icon>
-              语音通知
-            </el-button>
+              <el-icon><ChatDotRound /></el-icon>{{ t('voice_notify') }}</el-button>
             <el-button
               class="device-action-button device-action-button-danger"
               size="small"
@@ -179,7 +177,7 @@
       />
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="showAddDeviceDialog = false">取消</el-button>
+          <el-button @click="showAddDeviceDialog = false">{{ t('cancel') }}</el-button>
           <el-button type="primary" :loading="addingDevice" @click="handleAddDevice">
             {{ addingDevice ? t('binding') : t('bind_device') }}
           </el-button>
@@ -204,17 +202,17 @@
     >
       <div v-loading="mcpLoading">
         <div class="mcp-tools-header">
-          <el-button size="small" type="primary" @click="refreshDeviceMcpTools" :loading="toolsLoading">刷新工具列表</el-button>
+          <el-button size="small" type="primary" @click="refreshDeviceMcpTools" :loading="toolsLoading">{{ t('refresh_tool_list') }}</el-button>
         </div>
 
-        <div v-if="mcpTools.length === 0" class="tools-empty">暂无工具数据</div>
+        <div v-if="mcpTools.length === 0" class="tools-empty">{{ t('no_tool_data') }}</div>
         <div v-else class="tools-tags">
           <el-tag v-for="tool in mcpTools" :key="tool.name" class="tool-tag">{{ tool.name }}</el-tag>
         </div>
 
         <el-divider />
         <el-form :model="mcpCallForm" label-width="90px">
-          <el-form-item label="工具">
+          <el-form-item :label="t('tool')">
             <el-select v-model="mcpCallForm.tool_name" :placeholder="t('select_tool')" style="width:100%" @change="handleMcpToolChange">
               <el-option v-for="tool in mcpTools" :key="tool.name" :label="tool.name" :value="tool.name" />
             </el-select>
@@ -224,7 +222,7 @@
           </el-form-item>
         </el-form>
 
-        <el-button type="primary" @click="callDeviceMcpTool" :loading="callingTool">调用工具</el-button>
+        <el-button type="primary" @click="callDeviceMcpTool" :loading="callingTool">{{ t('call_tool') }}</el-button>
 
         <el-divider />
         <div class="mcp-result-box">{{ mcpCallResult || t('no_call_results') }}</div>
@@ -279,7 +277,7 @@
                   <div class="role-option-item">
                     <div class="role-option-main">
                       <span>{{ role.name }}</span>
-                      <el-tag v-if="role.role_type === 'global'" size="small" type="success">全局</el-tag>
+                      <el-tag v-if="role.role_type === 'global'" size="small" type="success">{{ t('global') }}</el-tag>
                     </div>
                     <el-tag size="small" type="info">LLM: {{ role.llm_config_id || t('default') }}</el-tag>
                   </div>
@@ -311,7 +309,7 @@
       </div>
 
       <template #footer>
-        <el-button @click="handleCloseRoleConfig">取消</el-button>
+        <el-button @click="handleCloseRoleConfig">{{ t('cancel') }}</el-button>
         <el-button
           type="primary"
           @click="handleApplyRole"

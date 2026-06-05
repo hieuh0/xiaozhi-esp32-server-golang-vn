@@ -80,38 +80,38 @@
 
       <!-- 完成页：展示 OTA 地址与 WebSocket 地址 -->
       <template v-if="currentStep === 5">
-        <div class="step-title">配置完成</div>
-        <p class="step-hint">以下是根据您在 OTA 步骤填写的域名/IP 生成的地址，请下发至设备或固件使用。</p>
+        <div class="step-title">{{ t('config_done_title') }}</div>
+        <p class="step-hint">{{ t('config_done_hint') }}</p>
         <div class="result-box">
           <div class="result-item">
-            <span class="result-label">OTA 地址（API 根地址）：</span>
+            <span class="result-label">{{ t('ota_addr_label') }}</span>
             <el-input :model-value="finalOtaUrl" readonly>
               <template #append>
-                <el-button @click="copyToClipboard(finalOtaUrl)" :icon="CopyDocument">复制</el-button>
+                <el-button @click="copyToClipboard(finalOtaUrl)" :icon="CopyDocument">{{ t('copy') }}</el-button>
               </template>
             </el-input>
           </div>
           <div class="result-item">
-            <span class="result-label">WebSocket 地址：</span>
+            <span class="result-label">{{ t('ws_addr_label') }}</span>
             <el-input :model-value="finalWsUrl" readonly>
               <template #append>
-                <el-button @click="copyToClipboard(finalWsUrl)" :icon="CopyDocument">复制</el-button>
+                <el-button @click="copyToClipboard(finalWsUrl)" :icon="CopyDocument">{{ t('copy') }}</el-button>
               </template>
             </el-input>
           </div>
           <div v-if="otaForm.enableMqttUdp && finalMqttEndpoint" class="result-item">
-            <span class="result-label">MQTT 端点（供终端连接）：</span>
+            <span class="result-label">{{ t('mqtt_endpoint_label') }}</span>
             <el-input :model-value="finalMqttEndpoint" readonly>
               <template #append>
-                <el-button @click="copyToClipboard(finalMqttEndpoint)" :icon="CopyDocument">复制</el-button>
+                <el-button @click="copyToClipboard(finalMqttEndpoint)" :icon="CopyDocument">{{ t('copy') }}</el-button>
               </template>
             </el-input>
           </div>
           <div v-if="otaForm.enableMqttUdp && finalUdpEndpoint" class="result-item">
-            <span class="result-label">UDP 信息（供终端连接）：</span>
+            <span class="result-label">{{ t('udp_info_label') }}</span>
             <el-input :model-value="finalUdpEndpoint" readonly>
               <template #append>
-                <el-button @click="copyToClipboard(finalUdpEndpoint)" :icon="CopyDocument">复制</el-button>
+                <el-button @click="copyToClipboard(finalUdpEndpoint)" :icon="CopyDocument">{{ t('copy') }}</el-button>
               </template>
             </el-input>
           </div>
@@ -121,15 +121,15 @@
             {{ t('ota_test') }}
           </el-button>
           <div v-if="otaTestResult !== null" class="ota-test-result">
-            <span class="result-label">OTA 接口返回：</span>
+            <span class="result-label">{{ t('ota_return_label') }}</span>
             <pre class="ota-test-json">{{ otaTestResult }}</pre>
           </div>
         </div>
       </template>
 
       <div class="step-actions">
-        <el-button v-if="currentStep > 0 && currentStep < 5" @click="prevStep">上一步</el-button>
-        <el-button v-if="currentStep < 5" type="info" plain @click="skipStep">跳过</el-button>
+        <el-button v-if="currentStep > 0 && currentStep < 5" @click="prevStep">{{ t('prev_step') }}</el-button>
+        <el-button v-if="currentStep < 5" type="info" plain @click="skipStep">{{ t('skip_step') }}</el-button>
         <el-button
           v-if="currentStep >= 1 && currentStep <= 4"
           type="warning"
@@ -137,7 +137,7 @@
           :loading="testingStep"
           @click="testCurrentStepConfig"
         >
-          测试当前配置
+          {{ t('test_current_config') }}
         </el-button>
         <template v-if="currentStep < 5">
           <el-button type="primary" :loading="saving" @click="saveAndNext">
@@ -145,8 +145,8 @@
           </el-button>
         </template>
         <template v-else>
-          <el-button type="primary" @click="$router.push('/dashboard')">返回首页</el-button>
-          <el-button @click="currentStep = 0">重新配置</el-button>
+          <el-button type="primary" @click="$router.push('/dashboard')">{{ t('back_to_home') }}</el-button>
+          <el-button @click="currentStep = 0">{{ t('reconfigure') }}</el-button>
         </template>
       </div>
     </el-card>
@@ -737,7 +737,7 @@ async function saveOta() {
       await saveMqttConfig()
       await saveUdpConfig()
     } catch (e) {
-      ElMessage.error('MQTT/UDP 配置保存失败: ' + (e.response?.data?.message || e.message))
+      ElMessage.error(t('save_failed_mqtt_udp') + (e.response?.data?.message || e.message))
       return false
     }
   }
@@ -770,7 +770,7 @@ async function saveOta() {
     ElMessage.success(otaForm.enableMqttUdp ? t('ota_mqtt_udp_saved') : t('ota_config_saved'))
     return true
   } catch (e) {
-    ElMessage.error('OTA 保存失败: ' + (e.response?.data?.message || e.message))
+    ElMessage.error(t('save_failed_ota') + (e.response?.data?.message || e.message))
     return false
   }
 }
@@ -800,7 +800,7 @@ async function saveVad() {
     ElMessage.success(t('vad_config_saved'))
     return true
   } catch (e) {
-    ElMessage.error('VAD 保存失败: ' + (e.response?.data?.message || e.message))
+    ElMessage.error(t('save_failed_vad') + (e.response?.data?.message || e.message))
     return false
   }
 }
@@ -830,7 +830,7 @@ async function saveAsr() {
     ElMessage.success(t('asr_config_saved'))
     return true
   } catch (e) {
-    ElMessage.error('ASR 保存失败: ' + (e.response?.data?.message || e.message))
+    ElMessage.error(t('save_failed_asr') + (e.response?.data?.message || e.message))
     return false
   }
 }
@@ -860,7 +860,7 @@ async function saveLlm() {
     ElMessage.success(t('llm_config_saved'))
     return true
   } catch (e) {
-    ElMessage.error('LLM 保存失败: ' + (e.response?.data?.message || e.message))
+    ElMessage.error(t('save_failed_llm') + (e.response?.data?.message || e.message))
     return false
   }
 }
@@ -890,7 +890,7 @@ async function saveTts() {
     ElMessage.success(t('tts_config_saved'))
     return true
   } catch (e) {
-    ElMessage.error('TTS 保存失败: ' + (e.response?.data?.message || e.message))
+    ElMessage.error(t('save_failed_tts') + (e.response?.data?.message || e.message))
     return false
   }
 }
@@ -1224,7 +1224,7 @@ async function runOtaTest() {
 
         // OTA 响应内容（如果有）
         if (v.ota_response !== undefined && v.ota_response !== '') {
-          displayText += `\n--- OTA 响应 ---\n${formatOtaResponseDisplay(v.ota_response)}`
+          displayText += `\n--- ${t('ota_return_label')} ---\n${formatOtaResponseDisplay(v.ota_response)}`
         }
 
         otaTestResult.value = displayText.trim() || t('detail_not_available')

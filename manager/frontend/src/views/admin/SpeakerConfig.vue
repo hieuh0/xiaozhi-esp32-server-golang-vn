@@ -9,7 +9,7 @@
         style="margin-bottom: 20px;"
       >
         <template #default>
-          如果是docker-compose环境部署会读取环境变量中的api地址，无需进行配置
+          {{ t('docker_env_hint') }}
         </template>
       </el-alert>
       
@@ -22,16 +22,16 @@
         <el-form-item :label="t('service_address')" prop="base_url">
           <el-input 
             v-model="form.base_url" 
-            placeholder="请输入HTTP服务地址，如：http://192.168.208.214:8080"
+            :placeholder="t('http_service_address_ph')"
             style="width: 100%"
           />
           <div class="form-tip">
             <el-icon><InfoFilled /></el-icon>
-            请输入HTTP地址，系统会自动转换为WebSocket地址
+            {{ t('http_to_ws_hint') }}
           </div>
         </el-form-item>
         
-        <el-form-item label="识别阈值" prop="threshold">
+        <el-form-item :label="t('recognition_threshold')" prop="threshold">
           <el-input-number 
             v-model="form.threshold" 
             :min="0" 
@@ -43,7 +43,7 @@
           />
           <div class="form-tip">
             <el-icon><InfoFilled /></el-icon>
-            声纹识别阈值，范围 0.0-1.0，默认 0.4。值越大识别越严格
+            {{ t('recognition_threshold_hint') }}
           </div>
         </el-form-item>
         
@@ -177,7 +177,7 @@ const handleSave = async () => {
         // 重新加载配置
         await loadConfig()
       } catch (error) {
-        ElMessage.error('保存失败: ' + (error.response?.data?.message || error.message))
+        ElMessage.error(t('save_failed_colon') + (error.response?.data?.message || error.message))
       } finally {
         saving.value = false
       }

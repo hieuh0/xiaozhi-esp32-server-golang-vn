@@ -10,8 +10,8 @@
       <el-table-column :label="t('tts_config_label')" min-width="180" show-overflow-tooltip>
         <template #default="{ row }">{{ `${row.tts_config_name || '-'} (${row.tts_config_id || '-'})` }}</template>
       </el-table-column>
-      <el-table-column prop="provider_voice_id" label="复刻音色ID" min-width="160" show-overflow-tooltip />
-      <el-table-column v-if="authStore.isAdmin" label="共享给所有人" width="140" align="center">
+      <el-table-column prop="provider_voice_id" :label="t('clone_voice_id')" min-width="160" show-overflow-tooltip />
+      <el-table-column v-if="authStore.isAdmin" :label="t('share_to_all_col')" width="140" align="center">
         <template #default="{ row }">
           <el-switch
             :model-value="!!row.shared_to_all"
@@ -20,20 +20,20 @@
           />
         </template>
       </el-table-column>
-      <el-table-column label="任务状态" width="100">
+      <el-table-column :label="t('task_status')" width="100">
         <template #default="{ row }">
           <el-tag :type="getCloneStatusTagType(row)" size="small">{{ formatCloneStatus(row) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="失败原因" min-width="140" show-overflow-tooltip>
+      <el-table-column :label="t('failure_reason')" min-width="140" show-overflow-tooltip>
         <template #default="{ row }">
           <span>{{ getCloneLastError(row) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="创建时间" width="160" show-overflow-tooltip>
+      <el-table-column :label="t('created_at')" width="160" show-overflow-tooltip>
         <template #default="{ row }">{{ formatDate(row.created_at) }}</template>
       </el-table-column>
-      <el-table-column label="操作" width="460">
+      <el-table-column :label="t('actions')" width="460">
         <template #default="{ row }">
           <div class="action-buttons">
             <el-button
@@ -54,7 +54,7 @@
             >
               {{ t('preview_clone') }}
             </el-button>
-            <el-button size="small" type="primary" plain @click="openEditDialog(row)">编辑</el-button>
+            <el-button size="small" type="primary" plain @click="openEditDialog(row)">{{ t('edit') }}</el-button>
             <el-button
               v-if="canRetryClone(row)"
               size="small"
@@ -99,7 +99,7 @@
 
     <el-dialog v-model="createDialogVisible" :title="t('create_clone_voice')" width="680px">
       <el-form label-width="140px">
-        <el-form-item label="复刻名称">
+        <el-form-item :label="t('clone_name_label')">
           <el-input v-model="form.name" placeholder="可选，不填则自动使用文件名" />
         </el-form-item>
         <el-form-item :label="t('tts_config_label')" required>
@@ -153,19 +153,19 @@
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="createDialogVisible = false">取消</el-button>
+        <el-button @click="createDialogVisible = false">{{ t('cancel') }}</el-button>
         <el-button type="primary" :loading="submitting" @click="submitClone">提交复刻</el-button>
       </template>
     </el-dialog>
 
     <el-dialog v-model="audioDialogVisible" :title="t('clone_original_audio')" width="720px">
       <el-table :data="currentAudios" stripe>
-        <el-table-column prop="source_type" label="来源" width="90" />
-        <el-table-column prop="file_name" label="文件名" min-width="220" />
+        <el-table-column prop="source_type" :label="t('source_label')" width="90" />
+        <el-table-column prop="file_name" :label="t('filename_label')" min-width="220" />
         <el-table-column prop="transcript" label="对应文字" min-width="240" show-overflow-tooltip />
         <el-table-column :label="t('play')" width="120">
           <template #default="{ row }">
-            <el-button link type="primary" @click="playAudio(row)">播放</el-button>
+            <el-button link type="primary" @click="playAudio(row)">{{ t('play') }}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -182,22 +182,22 @@
         <el-form-item :label="t('tts_config_label')">
           <el-input v-model="editForm.ttsConfigDisplay" readonly class="readonly-field" />
         </el-form-item>
-        <el-form-item label="复刻音色ID">
+        <el-form-item :label="t('clone_voice_id')">
           <el-input v-model="editForm.providerVoiceID" readonly class="readonly-field" />
         </el-form-item>
-        <el-form-item label="任务状态">
+        <el-form-item :label="t('task_status')">
           <el-input v-model="editForm.statusText" readonly class="readonly-field" />
         </el-form-item>
-        <el-form-item label="创建时间">
+        <el-form-item :label="t('created_at')">
           <el-input v-model="editForm.createdAtText" readonly class="readonly-field" />
         </el-form-item>
-        <el-form-item v-if="editForm.lastError" label="失败原因">
+        <el-form-item v-if="editForm.lastError" :label="t('failure_reason')">
           <el-input v-model="editForm.lastError" type="textarea" :rows="3" readonly class="readonly-field" />
         </el-form-item>
       </el-form>
       <template #footer>
-        <el-button @click="editDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="editSubmitting" @click="submitEditClone">保存</el-button>
+        <el-button @click="editDialogVisible = false">{{ t('cancel') }}</el-button>
+        <el-button type="primary" :loading="editSubmitting" @click="submitEditClone">{{ t('save') }}</el-button>
       </template>
     </el-dialog>
 
