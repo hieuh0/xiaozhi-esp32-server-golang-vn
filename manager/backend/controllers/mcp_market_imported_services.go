@@ -72,14 +72,14 @@ func (ac *AdminController) GetMCPMarketImportedServices(c *gin.Context) {
 
 	var total int64
 	if err := db.Count(&total).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询导入服务总数失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query imported service count"})
 		return
 	}
 
 	var rows []models.MCPMarketService
 	offset := (page - 1) * pageSize
 	if err := db.Order("updated_at DESC, id DESC").Limit(pageSize).Offset(offset).Find(&rows).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询导入服务列表失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query imported service list"})
 		return
 	}
 
@@ -111,15 +111,15 @@ func (ac *AdminController) CreateMCPMarketImportedService(c *gin.Context) {
 
 	var existing models.MCPMarketService
 	if err := ac.DB.Where("url_hash = ?", model.URLHash).First(&existing).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "已存在相同 URL 的导入服务"})
+		c.JSON(http.StatusConflict, gin.H{"error": "an imported service with the same URL already exists"})
 		return
 	} else if err != nil && err != gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query imported service"})
 		return
 	}
 
 	if err := ac.DB.Create(&model).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create imported service"})
 		return
 	}
 
@@ -132,7 +132,7 @@ func (ac *AdminController) UpdateMCPMarketImportedService(c *gin.Context) {
 
 	var existing models.MCPMarketService
 	if err := ac.DB.First(&existing, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "导入服务不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "imported service not found"})
 		return
 	}
 
@@ -150,10 +150,10 @@ func (ac *AdminController) UpdateMCPMarketImportedService(c *gin.Context) {
 
 	var dup models.MCPMarketService
 	if err := ac.DB.Where("id != ? AND url_hash = ?", existing.ID, updated.URLHash).First(&dup).Error; err == nil {
-		c.JSON(http.StatusConflict, gin.H{"error": "已存在相同 URL 的导入服务"})
+		c.JSON(http.StatusConflict, gin.H{"error": "an imported service with the same URL already exists"})
 		return
 	} else if err != nil && err != gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query imported service"})
 		return
 	}
 
@@ -171,12 +171,12 @@ func (ac *AdminController) UpdateMCPMarketImportedService(c *gin.Context) {
 		"service_name":       updated.ServiceName,
 	}
 	if err := ac.DB.Model(&existing).Updates(updateMap).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update imported service"})
 		return
 	}
 
 	if err := ac.DB.First(&existing, id).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "读取更新后的导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read updated imported service"})
 		return
 	}
 
@@ -188,17 +188,17 @@ func (ac *AdminController) DeleteMCPMarketImportedService(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var existing models.MCPMarketService
 	if err := ac.DB.First(&existing, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "导入服务不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "imported service not found"})
 		return
 	}
 
 	if err := ac.DB.Delete(&existing).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除导入服务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete imported service"})
 		return
 	}
 
 	ac.notifySystemConfigChanged()
-	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+	c.JSON(http.StatusOK, gin.H{"message": "deleted successfully"})
 }
 
 func (ac *AdminController) GetMCPMarketImportedServiceTools(c *gin.Context) {
@@ -206,7 +206,7 @@ func (ac *AdminController) GetMCPMarketImportedServiceTools(c *gin.Context) {
 
 	var existing models.MCPMarketService
 	if err := ac.DB.First(&existing, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "导入服务不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "imported service not found"})
 		return
 	}
 
@@ -244,7 +244,7 @@ func mergeManualAndMarketServers(manualMCP map[string]interface{}, marketService
 
 	manualServers, err := decodeMCPServers(global["servers"])
 	if err != nil {
-		return nil, nil, fmt.Errorf("解析人工MCP服务失败: %w", err)
+		return nil, nil, fmt.Errorf("failed to parse manual MCP servers: %w", err)
 	}
 
 	existingURLSet := make(map[string]struct{})
@@ -268,7 +268,7 @@ func mergeManualAndMarketServers(manualMCP map[string]interface{}, marketService
 		}
 
 		if _, exists := existingURLSet[normURL]; exists {
-			warnings = append(warnings, fmt.Sprintf("市场服务 %s 因 URL 与人工配置冲突被跳过", service.Name))
+			warnings = append(warnings, fmt.Sprintf("market service %s skipped due to URL conflict with manual config", service.Name))
 			continue
 		}
 
@@ -549,7 +549,7 @@ func buildImportedServiceModelFromRequest(req upsertMCPMarketImportedServiceRequ
 	}
 	transport = normalizeImportedTransport(transport)
 	if transport != mcpmarket.TransportSSE && transport != mcpmarket.TransportStreamableHTTP {
-		return models.MCPMarketService{}, fmt.Errorf("transport 仅支持 sse/streamablehttp")
+		return models.MCPMarketService{}, fmt.Errorf("transport only supports sse/streamablehttp")
 	}
 
 	rawURL := strings.TrimSpace(req.URL)
@@ -557,14 +557,14 @@ func buildImportedServiceModelFromRequest(req upsertMCPMarketImportedServiceRequ
 		rawURL = existing.URL
 	}
 	if rawURL == "" {
-		return models.MCPMarketService{}, fmt.Errorf("url 不能为空")
+		return models.MCPMarketService{}, fmt.Errorf("url cannot be empty")
 	}
 	if normalizeImportedServiceURL(rawURL) == "" {
-		return models.MCPMarketService{}, fmt.Errorf("url 格式不正确")
+		return models.MCPMarketService{}, fmt.Errorf("url format is invalid")
 	}
 	urlHash := normalizedURLHash(rawURL)
 	if urlHash == "" {
-		return models.MCPMarketService{}, fmt.Errorf("url 不能为空")
+		return models.MCPMarketService{}, fmt.Errorf("url cannot be empty")
 	}
 
 	row.Transport = transport
@@ -606,7 +606,7 @@ func toMCPMarketImportedServiceView(row models.MCPMarketService) mcpMarketImport
 func listImportedServiceTools(ctx context.Context, service models.MCPMarketService) ([]mcpMarketImportedToolView, error) {
 	transportType := normalizeImportedTransport(service.Transport)
 	if transportType != mcpmarket.TransportSSE && transportType != mcpmarket.TransportStreamableHTTP {
-		return nil, fmt.Errorf("transport 仅支持 sse/streamablehttp")
+		return nil, fmt.Errorf("transport only supports sse/streamablehttp")
 	}
 
 	headers := decodeHeadersJSON(service.HeadersJSON)
@@ -619,7 +619,7 @@ func listImportedServiceTools(ctx context.Context, service models.MCPMarketServi
 	defer mcpClient.Close()
 
 	if err := mcpClient.Start(ctx); err != nil {
-		return nil, fmt.Errorf("启动MCP客户端失败: %v", err)
+		return nil, fmt.Errorf("failed to start MCP client: %v", err)
 	}
 
 	initRequest := mcp.InitializeRequest{
@@ -635,12 +635,12 @@ func listImportedServiceTools(ctx context.Context, service models.MCPMarketServi
 		},
 	}
 	if _, err := mcpClient.Initialize(ctx, initRequest); err != nil {
-		return nil, fmt.Errorf("初始化MCP服务失败: %v", err)
+		return nil, fmt.Errorf("failed to initialize MCP service: %v", err)
 	}
 
 	toolsResult, err := mcpClient.ListTools(ctx, mcp.ListToolsRequest{})
 	if err != nil {
-		return nil, fmt.Errorf("获取工具列表失败: %v", err)
+		return nil, fmt.Errorf("failed to get tool list: %v", err)
 	}
 
 	tools := make([]mcpMarketImportedToolView, 0, len(toolsResult.Tools))
@@ -662,7 +662,7 @@ func listImportedServiceTools(ctx context.Context, service models.MCPMarketServi
 
 func buildImportedServiceTransport(transportType, endpoint string, headers map[string]string) (transport.Interface, error) {
 	if strings.TrimSpace(endpoint) == "" {
-		return nil, fmt.Errorf("url 不能为空")
+		return nil, fmt.Errorf("url cannot be empty")
 	}
 
 	switch transportType {
@@ -673,7 +673,7 @@ func buildImportedServiceTransport(transportType, endpoint string, headers map[s
 		}
 		sseTransport, err := transport.NewSSE(endpoint, opts...)
 		if err != nil {
-			return nil, fmt.Errorf("创建SSE传输失败: %v", err)
+			return nil, fmt.Errorf("failed to create SSE transport: %v", err)
 		}
 		return sseTransport, nil
 	case mcpmarket.TransportStreamableHTTP:
@@ -683,10 +683,10 @@ func buildImportedServiceTransport(transportType, endpoint string, headers map[s
 		}
 		httpTransport, err := transport.NewStreamableHTTP(endpoint, opts...)
 		if err != nil {
-			return nil, fmt.Errorf("创建StreamableHTTP传输失败: %v", err)
+			return nil, fmt.Errorf("failed to create StreamableHTTP transport: %v", err)
 		}
 		return httpTransport, nil
 	default:
-		return nil, fmt.Errorf("不支持的 transport: %s", transportType)
+		return nil, fmt.Errorf("unsupported transport: %s", transportType)
 	}
 }

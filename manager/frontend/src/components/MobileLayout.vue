@@ -64,7 +64,8 @@ const showUserMenu = ref(false)
 
 // 页面标题
 const pageTitle = computed(() => {
-  return route.meta?.title || t('xiaozhi_management_system')
+  const key = route.meta?.title
+  return key ? t(key) : t('xiaozhi_management_system')
 })
 
 // 是否显示返回按钮（非首页且不在标签栏页面时显示）

@@ -88,7 +88,7 @@
 
               <div class="field-grid server-grid">
                 <el-form-item :label="t('server_name')" :prop="`mcp.global.servers.${index}.name`">
-                  <el-input v-model="server.name" placeholder="例如：Amap MCP" />
+                  <el-input v-model="server.name" :placeholder="t('mcp_server_name_ph')" />
                 </el-form-item>
 
                 <el-form-item :label="t('server_type')" :prop="`mcp.global.servers.${index}.type`">
@@ -99,7 +99,7 @@
                 </el-form-item>
 
                 <el-form-item :label="t('server_url')" :prop="`mcp.global.servers.${index}.url`" class="field-span-full">
-                  <el-input v-model="server.url" placeholder="例如：https://example.com/mcp" />
+                  <el-input v-model="server.url" :placeholder="t('mcp_server_url_ph')" />
                 </el-form-item>
 
                 <el-form-item :label="t('enabled_status')" :prop="`mcp.global.servers.${index}.enabled`">

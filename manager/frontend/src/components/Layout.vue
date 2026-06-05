@@ -178,7 +178,10 @@ const authStore = useAuthStore()
 
 const isMobileDevice = computed(() => isMobile())
 
-const currentPageTitle = computed(() => route.meta?.title || (authStore.isAdmin ? t('dashboard') : t('my_agents')))
+const currentPageTitle = computed(() => {
+  const key = route.meta?.title
+  return key ? t(key) : (authStore.isAdmin ? t('dashboard') : t('my_agents'))
+})
 const isFormHeavyRoute = computed(() => ['AgentEdit', 'UserAgentEdit'].includes(String(route.name || '')))
 
 const usernameInitial = computed(() => {

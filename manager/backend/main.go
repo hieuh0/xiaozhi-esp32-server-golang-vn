@@ -11,34 +11,34 @@ import (
 )
 
 func main() {
-	// 定义命令行参数
+	// Define command-line flags
 	var configFile string
-	flag.StringVar(&configFile, "config", "config/config.json", "配置文件路径")
-	flag.StringVar(&configFile, "c", "config/config.json", "配置文件路径 (简写)")
+	flag.StringVar(&configFile, "config", "config/config.json", "path to config file")
+	flag.StringVar(&configFile, "c", "config/config.json", "path to config file (shorthand)")
 	flag.Parse()
 
-	// 加载配置
+	// Load configuration
 	cfg := config.LoadWithPath(configFile)
 
-	// 初始化数据库
+	// Initialize database
 	db := database.Init(cfg.Database)
 	if db == nil {
-		log.Fatal("数据库初始化失败，服务退出")
+		log.Fatal("database initialization failed, exiting")
 	}
 	defer database.Close(db)
 
-	// 设置Gin模式
+	// Set Gin mode
 	if cfg.Server.Mode == "release" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// 初始化路由
+	// Initialize router
 	r := router.Setup(db, cfg)
 
-	// 启动服务器
-	log.Printf("使用配置文件: %s", configFile)
-	log.Printf("服务器启动在端口: %s", cfg.Server.Port)
+	// Start server
+	log.Printf("using config file: %s", configFile)
+	log.Printf("server listening on port: %s", cfg.Server.Port)
 	if err := r.Run(":" + cfg.Server.Port); err != nil {
-		log.Fatal("服务器启动失败:", err)
+		log.Fatal("server failed to start:", err)
 	}
 }

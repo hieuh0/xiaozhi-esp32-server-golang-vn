@@ -6,18 +6,18 @@ import (
 	"xiaozhi/manager/backend/config"
 )
 
-// Config SQLite配置
+// Config SQLite configuration
 type Config struct {
-	// FilePath 数据库文件路径（如：./data/xiaozhi.db 或 /path/to/xiaozhi.db）
+	// FilePath database file path (e.g. ./data/xiaozhi.db or /path/to/xiaozhi.db)
 	FilePath string `json:"file_path"`
 
-	// 连接池配置（SQLite 通常单连接足够）
+	// connection pool config (SQLite typically works fine with a single connection)
 	MaxIdleConns    int `json:"max_idle_conns"`
 	MaxOpenConns    int `json:"max_open_conns"`
 	ConnMaxLifetime int `json:"conn_max_lifetime"`
 }
 
-// NewConfigFromDatabase 从数据库配置创建SQLite配置
+// NewConfigFromDatabase creates a SQLite config from a database config
 func NewConfigFromDatabase(cfg *config.SQLiteConfig) *Config {
 	filePath := cfg.FilePath
 	if filePath == "" {
@@ -25,26 +25,26 @@ func NewConfigFromDatabase(cfg *config.SQLiteConfig) *Config {
 	}
 
 	return &Config{
-		FilePath:       filePath,
-		MaxIdleConns:   1,
-		MaxOpenConns:   1,
+		FilePath:        filePath,
+		MaxIdleConns:    1,
+		MaxOpenConns:    1,
 		ConnMaxLifetime: 3600,
 	}
 }
 
-// DSN 生成数据源名称（GORM SQLite 格式）
+// DSN generates the data source name (GORM SQLite format)
 func (c *Config) DSN() string {
-	// 确保使用 file: 前缀以支持更多选项
+	// use file: prefix to support extended options
 	return "file:" + c.FilePath + "?_foreign_keys=on&_journal_mode=WAL"
 }
 
-// Validate 验证配置
+// Validate validates the configuration
 func (c *Config) Validate() error {
 	if c.FilePath == "" {
 		return fmt.Errorf("SQLite file path is required")
 	}
 
-	// 检查文件扩展名
+	// check file extension
 	ext := filepath.Ext(c.FilePath)
 	if ext != ".db" && ext != ".sqlite" && ext != ".sqlite3" {
 		return fmt.Errorf("SQLite file must have .db, .sqlite or .sqlite3 extension")
@@ -53,7 +53,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// ValidateConfig 验证SQLite配置
+// ValidateConfig validates a SQLite config
 func ValidateConfig(cfg *config.SQLiteConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("SQLite config is required")
@@ -62,7 +62,7 @@ func ValidateConfig(cfg *config.SQLiteConfig) error {
 		return fmt.Errorf("SQLite file path is required")
 	}
 
-	// 检查文件扩展名
+	// check file extension
 	ext := filepath.Ext(cfg.FilePath)
 	if ext != ".db" && ext != ".sqlite" && ext != ".sqlite3" {
 		return fmt.Errorf("SQLite file must have .db, .sqlite or .sqlite3 extension")

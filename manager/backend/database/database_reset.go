@@ -11,7 +11,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// InitWithReset 初始化数据库并重置所有表（仅用于开发环境）
+// InitWithReset initializes the database and drops all tables (development use only)
 func InitWithReset(cfg config.DatabaseConfig) *gorm.DB {
 	storageType := cfg.GetStorageType()
 	var db *gorm.DB
@@ -19,12 +19,12 @@ func InitWithReset(cfg config.DatabaseConfig) *gorm.DB {
 
 	if storageType == "sqlite" {
 		if cfg.SQLite == nil {
-			log.Fatal("SQLite配置为空")
+			log.Fatal("SQLite config is empty")
 		}
 		db, err = gorm.Open(sqlite.Open(cfg.SQLite.FilePath), &gorm.Config{})
 	} else {
 		if cfg.MySQL == nil {
-			log.Fatal("MySQL配置为空")
+			log.Fatal("MySQL config is empty")
 		}
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			cfg.MySQL.Username, cfg.MySQL.Password, cfg.MySQL.Host, cfg.MySQL.Port, cfg.MySQL.Database)
@@ -32,12 +32,12 @@ func InitWithReset(cfg config.DatabaseConfig) *gorm.DB {
 	}
 
 	if err != nil {
-		log.Fatal("数据库连接失败:", err)
+		log.Fatal("database connection failed:", err)
 	}
 
-	log.Println("警告：正在重置数据库表，所有数据将被删除！")
+	log.Println("warning: resetting all database tables — all data will be deleted!")
 
-	// 删除所有表
+	// drop all tables
 	err = db.Migrator().DropTable(
 		&models.User{},
 		&models.Device{},
@@ -52,9 +52,9 @@ func InitWithReset(cfg config.DatabaseConfig) *gorm.DB {
 		&models.VoiceCloneAudio{},
 	)
 	if err != nil {
-		log.Printf("删除表时出现错误（可能表不存在）: %v", err)
+		log.Printf("error while dropping tables (tables may not exist): %v", err)
 	}
 
-	log.Println("数据库表删除完成！")
+	log.Println("database tables dropped!")
 	return db
 }

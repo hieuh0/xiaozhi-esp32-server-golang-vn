@@ -6,19 +6,19 @@ import (
 	"xiaozhi/manager/backend/models"
 )
 
-// GormConfigStorage 通用GORM配置存储实现
+// GormConfigStorage generic GORM config storage implementation
 type GormConfigStorage struct {
 	db *gorm.DB
 }
 
-// NewGormConfigStorage 创建GORM配置存储实例
+// NewGormConfigStorage creates a GORM config storage instance
 func NewGormConfigStorage(db *gorm.DB) *GormConfigStorage {
 	return &GormConfigStorage{
 		db: db,
 	}
 }
 
-// 通用配置操作方法
+// general config operation methods
 func (s *GormConfigStorage) CreateConfig(ctx context.Context, config *models.Config) error {
 	return s.db.WithContext(ctx).Create(config).Error
 }
@@ -69,18 +69,18 @@ func (s *GormConfigStorage) DeleteConfig(ctx context.Context, id uint) error {
 }
 
 func (s *GormConfigStorage) SetDefaultConfig(ctx context.Context, configType string, id uint) error {
-	// 开启事务
+	// use transaction
 	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
-		// 先将该类型的所有配置设为非默认
+		// clear default flag for all configs of this type
 		if err := tx.Model(&models.Config{}).Where("type = ?", configType).Update("is_default", false).Error; err != nil {
 			return err
 		}
-		// 再将指定配置设为默认
+		// set the specified config as default
 		return tx.Model(&models.Config{}).Where("id = ?", id).Update("is_default", true).Error
 	})
 }
 
-// 全局角色配置相关方法
+// global role config methods
 func (s *GormConfigStorage) CreateGlobalRole(ctx context.Context, role *models.GlobalRole) error {
 	return s.db.WithContext(ctx).Create(role).Error
 }

@@ -5,7 +5,7 @@ import (
 	"xiaozhi/manager/backend/models"
 )
 
-// StorageAdapter 存储适配器，用于桥接接口差异
+// StorageAdapter storage adapter, bridges interface differences
 type StorageAdapter struct {
 	*GormBaseStorage
 	userStorage   *GormUserStorage
@@ -14,7 +14,7 @@ type StorageAdapter struct {
 	configAdapter *ConfigAdapter
 }
 
-// NewStorageAdapter 创建存储适配器
+// NewStorageAdapter creates a storage adapter
 func NewStorageAdapter(base *GormBaseStorage) *StorageAdapter {
 	configStorage := NewGormConfigStorage(base.DB)
 	return &StorageAdapter{
@@ -26,123 +26,123 @@ func NewStorageAdapter(base *GormBaseStorage) *StorageAdapter {
 	}
 }
 
-// Connect 连接数据库（适配器方法）
+// Connect connects to the database (adapter method)
 func (a *StorageAdapter) Connect(ctx context.Context) error {
-	// 基类已经连接，这里只是接口适配
+	// base already connected, this is just interface adaptation
 	return nil
 }
 
-// Ping 检查数据库连接（适配器方法）
+// Ping checks the database connection (adapter method)
 func (a *StorageAdapter) Ping(ctx context.Context) error {
 	return a.GormBaseStorage.Ping()
 }
 
-// UserStorage 返回用户存储接口
+// UserStorage returns the user storage interface
 func (a *StorageAdapter) UserStorage() UserStorage {
 	return a.userStorage
 }
 
-// CreateUser 创建用户
+// CreateUser creates a user
 func (a *StorageAdapter) CreateUser(ctx context.Context, user *models.User) error {
 	return a.userStorage.CreateUser(ctx, user)
 }
 
-// GetUsers 获取所有用户
+// GetUsers retrieves all users
 func (a *StorageAdapter) GetUsers(ctx context.Context, offset, limit int) ([]*models.User, int64, error) {
 	return a.userStorage.GetUsers(ctx, offset, limit)
 }
 
-// GetUserByID 根据ID获取用户
+// GetUserByID retrieves a user by ID
 func (a *StorageAdapter) GetUserByID(ctx context.Context, id uint) (*models.User, error) {
 	return a.userStorage.GetUserByID(ctx, id)
 }
 
-// GetUserByUsername 根据用户名获取用户
+// GetUserByUsername retrieves a user by username
 func (a *StorageAdapter) GetUserByUsername(ctx context.Context, username string) (*models.User, error) {
 	return a.userStorage.GetUserByUsername(ctx, username)
 }
 
-// GetUserByEmail 根据邮箱获取用户
+// GetUserByEmail retrieves a user by email
 func (a *StorageAdapter) GetUserByEmail(ctx context.Context, email string) (*models.User, error) {
 	return a.userStorage.GetUserByEmail(ctx, email)
 }
 
-// UpdateUser 更新用户
+// UpdateUser updates a user
 func (a *StorageAdapter) UpdateUser(ctx context.Context, id uint, updates map[string]interface{}) error {
 	return a.userStorage.UpdateUser(ctx, id, updates)
 }
 
-// DeleteUser 删除用户
+// DeleteUser deletes a user
 func (a *StorageAdapter) DeleteUser(ctx context.Context, id uint) error {
 	return a.userStorage.DeleteUser(ctx, id)
 }
 
-// DeviceStorage 返回设备存储接口
+// DeviceStorage returns the device storage interface
 func (a *StorageAdapter) DeviceStorage() DeviceStorage {
 	return a.deviceStorage
 }
 
-// CreateDevice 创建设备
+// CreateDevice creates a device
 func (a *StorageAdapter) CreateDevice(ctx context.Context, device *models.Device) error {
 	return a.deviceStorage.CreateDevice(ctx, device)
 }
 
-// GetDeviceByID 根据ID获取设备
+// GetDeviceByID retrieves a device by ID
 func (a *StorageAdapter) GetDeviceByID(ctx context.Context, id uint) (*models.Device, error) {
 	return a.deviceStorage.GetDeviceByID(ctx, id)
 }
 
-// GetDeviceByCode 根据设备代码获取设备
+// GetDeviceByCode retrieves a device by device code
 func (a *StorageAdapter) GetDeviceByCode(ctx context.Context, deviceCode string) (*models.Device, error) {
 	return a.deviceStorage.GetDeviceByCode(ctx, deviceCode)
 }
 
-// GetDevicesByUserID 根据用户ID获取设备列表
+// GetDevicesByUserID retrieves a paginated list of devices by user ID
 func (a *StorageAdapter) GetDevicesByUserID(ctx context.Context, userID uint, offset, limit int) ([]*models.Device, int64, error) {
 	return a.deviceStorage.GetDevicesByUserID(ctx, userID, offset, limit)
 }
 
-// UpdateDevice 更新设备
+// UpdateDevice updates a device
 func (a *StorageAdapter) UpdateDevice(ctx context.Context, id uint, updates map[string]interface{}) error {
 	return a.deviceStorage.UpdateDevice(ctx, id, updates)
 }
 
-// DeleteDevice 删除设备
+// DeleteDevice deletes a device
 func (a *StorageAdapter) DeleteDevice(ctx context.Context, id uint) error {
 	return a.deviceStorage.DeleteDevice(ctx, id)
 }
 
-// AgentStorage 返回智能体存储接口
+// AgentStorage returns the agent storage interface
 func (a *StorageAdapter) AgentStorage() AgentStorage {
 	return a.agentStorage
 }
 
-// CreateAgent 创建智能体
+// CreateAgent creates an agent
 func (a *StorageAdapter) CreateAgent(ctx context.Context, agent *models.Agent) error {
 	return a.agentStorage.CreateAgent(ctx, agent)
 }
 
-// GetAgentByID 根据ID获取智能体
+// GetAgentByID retrieves an agent by ID
 func (a *StorageAdapter) GetAgentByID(ctx context.Context, id uint) (*models.Agent, error) {
 	return a.agentStorage.GetAgentByID(ctx, id)
 }
 
-// GetAgentsByUserID 根据用户ID获取智能体列表
+// GetAgentsByUserID retrieves a paginated list of agents by user ID
 func (a *StorageAdapter) GetAgentsByUserID(ctx context.Context, userID uint, offset, limit int) ([]*models.Agent, int64, error) {
 	return a.agentStorage.GetAgentsByUserID(ctx, userID, offset, limit)
 }
 
-// UpdateAgent 更新智能体
+// UpdateAgent updates an agent
 func (a *StorageAdapter) UpdateAgent(ctx context.Context, id uint, updates map[string]interface{}) error {
 	return a.agentStorage.UpdateAgent(ctx, id, updates)
 }
 
-// DeleteAgent 删除智能体
+// DeleteAgent deletes an agent
 func (a *StorageAdapter) DeleteAgent(ctx context.Context, id uint) error {
 	return a.agentStorage.DeleteAgent(ctx, id)
 }
 
-// ConfigStorage 返回配置存储接口
+// ConfigStorage returns the config storage interface
 func (a *StorageAdapter) ConfigStorage() ConfigStorage {
 	return a.configAdapter
 }

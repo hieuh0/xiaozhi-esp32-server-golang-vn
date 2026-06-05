@@ -5,16 +5,16 @@ import (
 	"time"
 )
 
-// PoolStatsData 资源池统计数据
+// PoolStatsData resource pool statistics data
 type PoolStatsData struct {
 	Timestamp time.Time              `json:"timestamp"`
 	Stats     map[string]interface{} `json:"stats"`
 }
 
-// PoolStatsStorage 资源池统计存储（内存存储，只保存最新数据）
+// PoolStatsStorage resource pool statistics storage (in-memory, keeps only latest data)
 type PoolStatsStorage struct {
-	mu       sync.RWMutex
-	latest   *PoolStatsData // 只保存最新的统计数据
+	mu     sync.RWMutex
+	latest *PoolStatsData // only stores the latest statistics entry
 }
 
 var (
@@ -22,7 +22,7 @@ var (
 	once                   sync.Once
 )
 
-// GetPoolStatsStorage 获取全局资源池统计存储（单例）
+// GetPoolStatsStorage returns the global pool statistics storage singleton
 func GetPoolStatsStorage() *PoolStatsStorage {
 	once.Do(func() {
 		globalPoolStatsStorage = &PoolStatsStorage{
@@ -32,19 +32,19 @@ func GetPoolStatsStorage() *PoolStatsStorage {
 	return globalPoolStatsStorage
 }
 
-// AddStats 添加统计数据（只保存最新的，覆盖旧数据）
+// AddStats adds statistics data (only keeps the latest, overwrites previous)
 func (s *PoolStatsStorage) AddStats(stats map[string]interface{}) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// 直接覆盖最新数据
+	// overwrite with latest data directly
 	s.latest = &PoolStatsData{
 		Timestamp: time.Now(),
 		Stats:     stats,
 	}
 }
 
-// GetLatestStats 获取最新的统计数据
+// GetLatestStats returns the latest statistics data
 func (s *PoolStatsStorage) GetLatestStats() *PoolStatsData {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -53,12 +53,12 @@ func (s *PoolStatsStorage) GetLatestStats() *PoolStatsData {
 		return nil
 	}
 
-	// 返回最新数据的副本
+	// return a copy of the latest data
 	latest := *s.latest
 	return &latest
 }
 
-// GetAllStats 获取所有统计数据（只返回最新的一条）
+// GetAllStats returns all statistics data (only the latest entry)
 func (s *PoolStatsStorage) GetAllStats() []PoolStatsData {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -67,11 +67,11 @@ func (s *PoolStatsStorage) GetAllStats() []PoolStatsData {
 		return []PoolStatsData{}
 	}
 
-	// 只返回最新的一条数据
+	// return only the latest entry
 	return []PoolStatsData{*s.latest}
 }
 
-// GetStatsByTimeRange 根据时间范围获取统计数据（只返回最新数据，如果时间范围内）
+// GetStatsByTimeRange returns statistics within the given time range (latest only, if within range)
 func (s *PoolStatsStorage) GetStatsByTimeRange(start, end time.Time) []PoolStatsData {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -80,7 +80,7 @@ func (s *PoolStatsStorage) GetStatsByTimeRange(start, end time.Time) []PoolStats
 		return []PoolStatsData{}
 	}
 
-	// 检查最新数据是否在时间范围内
+	// check if the latest data falls within the time range
 	if s.latest.Timestamp.After(start) && s.latest.Timestamp.Before(end) {
 		return []PoolStatsData{*s.latest}
 	}
@@ -88,7 +88,7 @@ func (s *PoolStatsStorage) GetStatsByTimeRange(start, end time.Time) []PoolStats
 	return []PoolStatsData{}
 }
 
-// GetStatsCount 获取当前存储的数据条数（只保存最新数据，所以返回0或1）
+// GetStatsCount returns the number of stored entries (0 or 1 since only latest is kept)
 func (s *PoolStatsStorage) GetStatsCount() int {
 	s.mu.RLock()
 	defer s.mu.RUnlock()

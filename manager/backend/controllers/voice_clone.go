@@ -114,7 +114,7 @@ const (
 	indexTTSTTSEndpoint    = "/audio/speech"
 	indexTTSVoicesEndpoint = "/audio/voices"
 	minimaxTTSWSEndpoint   = "wss://api.minimaxi.com/ws/v1/t2a_v2"
-	voiceClonePreviewText  = "我是一个有趣的人，一个脱离低级趣味的人"
+	voiceClonePreviewText  = "I am an interesting person, a person who has risen above low-level interests"
 
 	voiceCloneStatusQueued     = "queued"
 	voiceCloneStatusProcessing = "processing"
@@ -149,7 +149,7 @@ func NewVoiceCloneController(db *gorm.DB, cfg *config.Config) *VoiceCloneControl
 func (vcc *VoiceCloneController) CreateVoiceClone(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
@@ -160,47 +160,47 @@ func (vcc *VoiceCloneController) CreateVoiceClone(c *gin.Context) {
 	transcriptLang := strings.TrimSpace(c.DefaultPostForm("transcript_lang", "zh-CN"))
 	sourceType := strings.TrimSpace(c.DefaultPostForm("source_type", "upload"))
 	if ttsConfigID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "tts_config_id不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "tts_config_id is required"})
 		return
 	}
 	if sourceType != "upload" && sourceType != "record" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "source_type仅支持upload或record"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source_type must be upload or record"})
 		return
 	}
 
 	var ttsCfg models.Config
 	if err := vcc.DB.Where("type = ? AND config_id = ?", "tts", ttsConfigID).First(&ttsCfg).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "TTS配置不存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "TTS config not found"})
 		return
 	}
 	rawProvider := strings.TrimSpace(ttsCfg.Provider)
 	provider := normalizeCloneProvider(rawProvider)
 	if provider != "doubao" && provider != "minimax" && provider != "cosyvoice" && provider != "aliyun_qwen" && provider != "indextts_vllm" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "当前仅支持 豆包/Minimax/CosyVoice/千问/IndexTTS 提供商的声音复刻"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "voice cloning only supports Doubao/Minimax/CosyVoice/Qwen/IndexTTS providers"})
 		return
 	}
 
 	capability := GetCloneProviderCapability(provider)
 	if !capability.Enabled {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "该提供商暂未开启声音复刻"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "voice cloning is not enabled for this provider"})
 		return
 	}
 	if capability.RequiresTranscript {
 		if transcript == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "该提供商复刻要求必须填写音频对应文字"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "this provider requires a transcript for voice cloning"})
 			return
 		}
 		if len([]rune(transcript)) < capability.MinTextLen {
-			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("音频对应文字长度不能少于%d个字符", capability.MinTextLen)})
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("transcript must be at least %d characters", capability.MinTextLen)})
 			return
 		}
 	}
 	if capability.MaxTextLen > 0 && len([]rune(transcript)) > capability.MaxTextLen {
-		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("音频对应文字长度不能超过%d个字符", capability.MaxTextLen)})
+		c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("transcript must not exceed %d characters", capability.MaxTextLen)})
 		return
 	}
 	if len(capability.SupportedLangs) > 0 && !capability.SupportedLangs[transcriptLang] {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "transcript_lang不受该提供商支持"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "transcript_lang is not supported by this provider"})
 		return
 	}
 
@@ -230,7 +230,7 @@ func (vcc *VoiceCloneController) CreateVoiceClone(c *gin.Context) {
 	audioUUID := uuid.New().String()
 	filePath, size, err := vcc.AudioStorage.SaveVoiceCloneAudioFile(userID, audioUUID, header.Filename, file)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存复刻音频失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save clone audio: " + err.Error()})
 		return
 	}
 	if err = validateCloneAudioForProvider(provider, filePath); err != nil {
@@ -300,10 +300,10 @@ func (vcc *VoiceCloneController) CreateVoiceClone(c *gin.Context) {
 	if err != nil {
 		_ = vcc.AudioStorage.DeleteAudioFile(filePath)
 		if errors.Is(err, errVoiceCloneQuotaExceeded) {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "该 TTS 配置的声音复刻次数已用完，请联系管理员分配额度"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "voice clone quota for this TTS config is exhausted, please contact the admin to allocate quota"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建复刻任务失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create clone task: " + err.Error()})
 		return
 	}
 
@@ -319,7 +319,7 @@ func (vcc *VoiceCloneController) CreateVoiceClone(c *gin.Context) {
 func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
@@ -332,7 +332,7 @@ func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 
 	var clones []models.VoiceClone
 	if err := query.Order("created_at DESC").Find(&clones).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 	if len(clones) == 0 {
@@ -351,7 +351,7 @@ func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 
 	var tasks []models.VoiceCloneTask
 	if err := vcc.DB.Where("user_id = ? AND voice_clone_id IN ?", userID, cloneIDs).Order("created_at DESC").Find(&tasks).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻任务失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query clone tasks"})
 		return
 	}
 	latestTaskByCloneID := make(map[uint]models.VoiceCloneTask, len(clones))
@@ -418,14 +418,14 @@ func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
 
 	cloneID := strings.TrimSpace(c.Param("id"))
 	if cloneID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is required"})
 		return
 	}
 
@@ -434,17 +434,17 @@ func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {
 		SharedToAll *bool   `json:"shared_to_all"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数格式错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters"})
 		return
 	}
 
 	var clone models.VoiceClone
 	if err := vcc.DB.Where("id = ? AND user_id = ? AND status != ?", cloneID, userID, "deleted").First(&clone).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "复刻音色不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "cloned voice not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 
@@ -452,11 +452,11 @@ func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {
 	if req.Name != nil {
 		name := strings.TrimSpace(*req.Name)
 		if name == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "名称不能为空"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
 			return
 		}
 		if len([]rune(name)) > 100 {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "名称长度不能超过100个字符"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "name must not exceed 100 characters"})
 			return
 		}
 		updateData["name"] = name
@@ -466,23 +466,23 @@ func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {
 		roleVal, hasRole := c.Get("role")
 		isAdmin := hasRole && strings.TrimSpace(fmt.Sprint(roleVal)) == "admin"
 		if !isAdmin {
-			c.JSON(http.StatusForbidden, gin.H{"error": "仅管理员可设置共享状态"})
+			c.JSON(http.StatusForbidden, gin.H{"error": "only admins can set shared status"})
 			return
 		}
 		if normalizeCloneStatusValue(clone.Status) != voiceCloneStatusActive {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "仅成功状态的复刻音色允许设置共享状态"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "shared status can only be set for successfully cloned voices"})
 			return
 		}
 		updateData["shared_to_all"] = *req.SharedToAll
 		clone.SharedToAll = *req.SharedToAll
 	}
 	if len(updateData) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "没有可更新的字段"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "no fields to update"})
 		return
 	}
 
 	if err := vcc.DB.Model(&clone).Updates(updateData).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "update failed"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": clone})
@@ -491,24 +491,24 @@ func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {
 func (vcc *VoiceCloneController) DeleteVoiceClone(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
 
 	cloneID := strings.TrimSpace(c.Param("id"))
 	if cloneID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is required"})
 		return
 	}
 
 	var clone models.VoiceClone
 	if err := vcc.DB.Where("id = ? AND user_id = ? AND status != ?", cloneID, userID, "deleted").First(&clone).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "复刻音色不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "cloned voice not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 
@@ -523,24 +523,24 @@ func (vcc *VoiceCloneController) DeleteVoiceClone(c *gin.Context) {
 			"shared_to_all": false,
 			"meta_json":     cloneMetaJSON,
 		}).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "deletion failed"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+	c.JSON(http.StatusOK, gin.H{"message": "deleted successfully"})
 }
 
 func (vcc *VoiceCloneController) RetryVoiceClone(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
 
 	cloneID := strings.TrimSpace(c.Param("id"))
 	if cloneID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is required"})
 		return
 	}
 
@@ -557,7 +557,7 @@ func (vcc *VoiceCloneController) RetryVoiceClone(c *gin.Context) {
 			return err
 		}
 		if strings.TrimSpace(strings.ToLower(task.Status)) != voiceCloneTaskStatusFailed {
-			return fmt.Errorf("当前任务状态为 %s，仅失败任务允许重新复刻", task.Status)
+			return fmt.Errorf("current task status is %s, only failed tasks can be retried", task.Status)
 		}
 
 		cloneMetaJSON := mergeJSONMeta(clone.MetaJSON, map[string]any{
@@ -588,13 +588,13 @@ func (vcc *VoiceCloneController) RetryVoiceClone(c *gin.Context) {
 			return updateTask.Error
 		}
 		if updateTask.RowsAffected == 0 {
-			return errors.New("任务状态已变更，请刷新后重试")
+			return errors.New("task status has changed, please refresh and try again")
 		}
 		return nil
 	})
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "复刻任务不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "clone task not found"})
 			return
 		}
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -614,38 +614,38 @@ func (vcc *VoiceCloneController) RetryVoiceClone(c *gin.Context) {
 func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
 
 	cloneID := strings.TrimSpace(c.Param("id"))
 	if cloneID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is required"})
 		return
 	}
 
 	var clone models.VoiceClone
 	if err := vcc.DB.Where("id = ? AND user_id = ? AND status != ?", cloneID, userID, "deleted").First(&clone).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "复刻音色不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "cloned voice not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 	if normalizeCloneProvider(clone.Provider) != "indextts_vllm" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "仅 indextts_vllm 支持追加参考音频"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "only indextts_vllm supports appending reference audio"})
 		return
 	}
 	if normalizeCloneStatusValue(clone.Status) != voiceCloneStatusActive {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "仅已成功的复刻音色允许追加参考音频"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "reference audio can only be appended to successfully cloned voices"})
 		return
 	}
 
 	sourceType := strings.TrimSpace(c.DefaultPostForm("source_type", "upload"))
 	if sourceType != "upload" && sourceType != "record" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "source_type仅支持upload或record"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "source_type must be upload or record"})
 		return
 	}
 	transcript := strings.TrimSpace(c.PostForm("transcript"))
@@ -661,7 +661,7 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 	audioUUID := uuid.New().String()
 	filePath, size, err := vcc.AudioStorage.SaveVoiceCloneAudioFile(userID, audioUUID, header.Filename, file)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存追加音频失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save appended audio: " + err.Error()})
 		return
 	}
 	if err = validateCloneAudioForProvider("indextts_vllm", filePath); err != nil {
@@ -673,7 +673,7 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 	var ttsCfg models.Config
 	if err := vcc.DB.Where("type = ? AND config_id = ?", "tts", clone.TTSConfigID).First(&ttsCfg).Error; err != nil {
 		_ = vcc.AudioStorage.DeleteAudioFile(filePath)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "关联TTS配置不存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "associated TTS config not found"})
 		return
 	}
 
@@ -682,7 +682,7 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 	result, err := vcc.cloneWithIndexTTSVLLMByVoice(ctx, ttsCfg, filePath, header.Filename, clone.ProviderVoiceID)
 	if err != nil {
 		_ = vcc.AudioStorage.DeleteAudioFile(filePath)
-		c.JSON(http.StatusBadGateway, gin.H{"error": "追加参考音频失败: " + err.Error()})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to append reference audio: " + err.Error()})
 		return
 	}
 
@@ -699,7 +699,7 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 	}
 	if err := vcc.DB.Create(&audio).Error; err != nil {
 		_ = vcc.AudioStorage.DeleteAudioFile(filePath)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存追加音频记录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save appended audio record"})
 		return
 	}
 
@@ -709,7 +709,7 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 		"last_append_http_code": result.ResponseCode,
 	})
 	if err := vcc.DB.Model(&models.VoiceClone{}).Where("id = ? AND user_id = ?", clone.ID, userID).Update("meta_json", metaJSON).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新复刻元数据失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update clone metadata"})
 		return
 	}
 
@@ -717,46 +717,46 @@ func (vcc *VoiceCloneController) AppendVoiceCloneAudio(c *gin.Context) {
 		"id":                clone.ID,
 		"provider_voice_id": clone.ProviderVoiceID,
 		"audio_id":          audio.ID,
-		"message":           "追加参考音频成功",
+		"message":           "reference audio appended successfully",
 	}})
 }
 
 func (vcc *VoiceCloneController) PreviewClonedVoice(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
 
 	cloneID := strings.TrimSpace(c.Param("id"))
 	if cloneID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is required"})
 		return
 	}
 
 	var clone models.VoiceClone
 	if err := vcc.DB.Where("id = ? AND user_id = ? AND status != ?", cloneID, userID, "deleted").First(&clone).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			c.JSON(http.StatusNotFound, gin.H{"error": "复刻音色不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "cloned voice not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音色失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 	if normalizeCloneStatusValue(clone.Status) != voiceCloneStatusActive {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "仅已成功的复刻音色允许试听"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "preview is only available for successfully cloned voices"})
 		return
 	}
 	voiceID := strings.TrimSpace(clone.ProviderVoiceID)
 	if voiceID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "复刻音色ID为空，无法试听"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "clone voice id is empty, cannot preview"})
 		return
 	}
 
 	var ttsCfg models.Config
 	if err := vcc.DB.Where("type = ? AND config_id = ?", "tts", clone.TTSConfigID).First(&ttsCfg).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "关联TTS配置不存在"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "associated TTS config not found"})
 		return
 	}
 	provider := normalizeCloneProvider(ttsCfg.Provider)
@@ -764,7 +764,7 @@ func (vcc *VoiceCloneController) PreviewClonedVoice(c *gin.Context) {
 	cfgMap := make(map[string]any)
 	if strings.TrimSpace(ttsCfg.JsonData) != "" {
 		if err := json.Unmarshal([]byte(ttsCfg.JsonData), &cfgMap); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "解析TTS配置失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to parse TTS config"})
 			return
 		}
 	}
@@ -789,15 +789,15 @@ func (vcc *VoiceCloneController) PreviewClonedVoice(c *gin.Context) {
 	case "indextts_vllm":
 		audioBytes, contentType, err = vcc.previewIndexTTSClonedVoice(ctx, cfgMap, voiceID, voiceClonePreviewText)
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "当前提供商不支持复刻试听"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "preview is not supported for this provider"})
 		return
 	}
 	if err != nil {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "生成试听音频失败: " + err.Error()})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to generate preview audio: " + err.Error()})
 		return
 	}
 	if len(audioBytes) == 0 {
-		c.JSON(http.StatusBadGateway, gin.H{"error": "生成试听音频失败: 返回音频为空"})
+		c.JSON(http.StatusBadGateway, gin.H{"error": "failed to generate preview audio: empty response"})
 		return
 	}
 	if strings.TrimSpace(contentType) == "" {
@@ -811,7 +811,7 @@ func (vcc *VoiceCloneController) PreviewClonedVoice(c *gin.Context) {
 func (vcc *VoiceCloneController) GetVoiceCloneAudios(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
@@ -819,13 +819,13 @@ func (vcc *VoiceCloneController) GetVoiceCloneAudios(c *gin.Context) {
 	cloneID := strings.TrimSpace(c.Param("id"))
 	var clone models.VoiceClone
 	if err := vcc.DB.Where("id = ? AND user_id = ?", cloneID, userID).First(&clone).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "复刻音色不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "cloned voice not found"})
 		return
 	}
 
 	var audios []models.VoiceCloneAudio
 	if err := vcc.DB.Where("voice_clone_id = ? AND user_id = ?", clone.ID, userID).Order("created_at DESC").Find(&audios).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询复刻音频失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query clone audio"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": audios})
@@ -834,7 +834,7 @@ func (vcc *VoiceCloneController) GetVoiceCloneAudios(c *gin.Context) {
 func (vcc *VoiceCloneController) GetVoiceCloneAudioFile(c *gin.Context) {
 	userIDAny, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication info missing"})
 		return
 	}
 	userID := userIDAny.(uint)
@@ -842,11 +842,11 @@ func (vcc *VoiceCloneController) GetVoiceCloneAudioFile(c *gin.Context) {
 	audioID := strings.TrimSpace(c.Param("audio_id"))
 	var audio models.VoiceCloneAudio
 	if err := vcc.DB.Where("id = ? AND user_id = ?", audioID, userID).First(&audio).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "复刻音频不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "clone audio not found"})
 		return
 	}
 	if !vcc.AudioStorage.FileExists(audio.FilePath) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "音频文件不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "audio file not found"})
 		return
 	}
 
@@ -862,7 +862,7 @@ func (vcc *VoiceCloneController) GetVoiceCloneAudioFile(c *gin.Context) {
 func (vcc *VoiceCloneController) GetCloneProviderCapabilities(c *gin.Context) {
 	provider := strings.TrimSpace(c.Query("provider"))
 	if provider == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "provider参数必填"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "provider parameter is required"})
 		return
 	}
 	capability := GetCloneProviderCapability(provider)
@@ -885,7 +885,7 @@ func (vcc *VoiceCloneController) pickAudioFile(c *gin.Context) (multipart.File, 
 			return file, header, nil
 		}
 	}
-	return nil, nil, fmt.Errorf("请上传音频文件（audio_file 或 audio_blob）")
+	return nil, nil, fmt.Errorf("please upload an audio file (audio_file or audio_blob)")
 }
 
 func GetCloneProviderCapability(provider string) CloneProviderCapability {
@@ -907,7 +907,7 @@ func normalizeCloneProvider(provider string) string {
 }
 
 func BuildVoiceOptionForClone(clone models.VoiceClone) VoiceOption {
-	label := fmt.Sprintf("[我的复刻] %s (%s)", clone.Name, clone.ProviderVoiceID)
+	label := fmt.Sprintf("[My Clone] %s (%s)", clone.Name, clone.ProviderVoiceID)
 	return VoiceOption{Value: clone.ProviderVoiceID, Label: label}
 }
 
@@ -951,7 +951,7 @@ func (vcc *VoiceCloneController) consumeVoiceCloneQuota(tx *gorm.DB, userID uint
 	err := tx.Where("user_id = ? AND tts_config_id = ?", userID, ttsConfigID).First(&quota).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			// 未配置额度记录时默认禁止复刻，需管理员先分配额度
+			// No quota record configured; cloning is denied by default until admin allocates quota.
 			return errVoiceCloneQuotaExceeded
 		}
 		return err
@@ -1031,11 +1031,11 @@ func (vcc *VoiceCloneController) previewIndexTTSClonedVoice(ctx context.Context,
 	}
 	bodyBytes, err := json.Marshal(bodyMap)
 	if err != nil {
-		return nil, "", fmt.Errorf("构建IndexTTS试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to build IndexTTS preview request: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+indexTTSTTSEndpoint, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, "", fmt.Errorf("创建IndexTTS试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to create IndexTTS preview request: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "audio/wav,application/octet-stream,*/*")
@@ -1045,18 +1045,18 @@ func (vcc *VoiceCloneController) previewIndexTTSClonedVoice(ctx context.Context,
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, "", fmt.Errorf("调用IndexTTS试听失败: %w", err)
+		return nil, "", fmt.Errorf("IndexTTS preview request failed: %w", err)
 	}
 	defer resp.Body.Close()
 	audioBytes, err := io.ReadAll(io.LimitReader(resp.Body, 30*1024*1024))
 	if err != nil {
-		return nil, "", fmt.Errorf("读取IndexTTS试听响应失败: %w", err)
+		return nil, "", fmt.Errorf("failed to read IndexTTS preview response: %w", err)
 	}
 	if resp.StatusCode >= 400 {
-		return nil, "", fmt.Errorf("IndexTTS试听HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(audioBytes)), 512))
+		return nil, "", fmt.Errorf("IndexTTS preview HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(audioBytes)), 512))
 	}
 	if len(audioBytes) == 0 {
-		return nil, "", errors.New("IndexTTS试听返回音频为空")
+		return nil, "", errors.New("IndexTTS preview returned empty audio")
 	}
 	contentType := strings.TrimSpace(resp.Header.Get("Content-Type"))
 	if contentType == "" {
@@ -1069,7 +1069,7 @@ func (vcc *VoiceCloneController) cloneWithIndexTTSVLLMByVoice(ctx context.Contex
 	cfgMap := make(map[string]any)
 	if ttsCfg.JsonData != "" {
 		if err := json.Unmarshal([]byte(ttsCfg.JsonData), &cfgMap); err != nil {
-			return nil, fmt.Errorf("解析TTS配置失败: %w", err)
+			return nil, fmt.Errorf("failed to parse TTS config: %w", err)
 		}
 	}
 	baseURL := normalizeIndexTTSBaseURL(getStringAny(cfgMap, "api_url"))
@@ -1077,7 +1077,7 @@ func (vcc *VoiceCloneController) cloneWithIndexTTSVLLMByVoice(ctx context.Contex
 
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("读取音频文件失败: %w", err)
+		return nil, fmt.Errorf("failed to read audio file: %w", err)
 	}
 	defer f.Close()
 
@@ -1086,18 +1086,18 @@ func (vcc *VoiceCloneController) cloneWithIndexTTSVLLMByVoice(ctx context.Contex
 	_ = writer.WriteField("voice", voiceName)
 	part, err := writer.CreateFormFile("audio", fileName)
 	if err != nil {
-		return nil, fmt.Errorf("创建IndexTTS上传表单失败: %w", err)
+		return nil, fmt.Errorf("failed to create IndexTTS upload form: %w", err)
 	}
 	if _, err = io.Copy(part, f); err != nil {
-		return nil, fmt.Errorf("写入IndexTTS上传文件失败: %w", err)
+		return nil, fmt.Errorf("failed to write IndexTTS upload file: %w", err)
 	}
 	if err = writer.Close(); err != nil {
-		return nil, fmt.Errorf("构建IndexTTS上传请求失败: %w", err)
+		return nil, fmt.Errorf("failed to build IndexTTS upload request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, baseURL+indexTTSCloneEndpoint, &body)
 	if err != nil {
-		return nil, fmt.Errorf("创建IndexTTS克隆请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create IndexTTS clone request: %w", err)
 	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("Accept", "application/json")
@@ -1107,26 +1107,26 @@ func (vcc *VoiceCloneController) cloneWithIndexTTSVLLMByVoice(ctx context.Contex
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用IndexTTS克隆接口失败: %w", err)
+		return nil, fmt.Errorf("IndexTTS clone request failed: %w", err)
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, fmt.Errorf("读取IndexTTS克隆响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read IndexTTS clone response: %w", err)
 	}
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("IndexTTS克隆HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 512))
+		return nil, fmt.Errorf("IndexTTS clone HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 512))
 	}
 	parsed, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, fmt.Errorf("解析IndexTTS克隆响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse IndexTTS clone response: %w", err)
 	}
 	voiceID := strings.TrimSpace(getStringAny(parsed, "voice"))
 	if voiceID == "" {
 		voiceID = voiceName
 	}
 	if voiceID == "" {
-		return nil, fmt.Errorf("IndexTTS克隆响应缺少 voice: %s", strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("IndexTTS clone response missing voice: %s", strings.TrimSpace(string(respBody)))
 	}
 	return &minimaxVoiceCloneResult{
 		VoiceID:      voiceID,
@@ -1143,7 +1143,7 @@ func (vcc *VoiceCloneController) cloneWithIndexTTSVLLM(ctx context.Context, ttsC
 func (vcc *VoiceCloneController) previewMinimaxClonedVoice(ctx context.Context, cfgMap map[string]any, voiceID, text string) ([]byte, string, error) {
 	apiKey := normalizeMinimaxAPIKey(getStringAny(cfgMap, "api_key"))
 	if apiKey == "" {
-		return nil, "", errors.New("minimax api_key 未配置")
+		return nil, "", errors.New("minimax api_key is not configured")
 	}
 	model := strings.TrimSpace(getStringAny(cfgMap, "model"))
 	if model == "" {
@@ -1174,7 +1174,7 @@ func (vcc *VoiceCloneController) previewMinimaxClonedVoice(ctx context.Context, 
 	}
 	conn, _, err := dialer.DialContext(ctx, minimaxTTSWSEndpoint, header)
 	if err != nil {
-		return nil, "", fmt.Errorf("连接Minimax语音接口失败: %w", err)
+		return nil, "", fmt.Errorf("failed to connect to Minimax voice interface: %w", err)
 	}
 	defer conn.Close()
 
@@ -1197,13 +1197,13 @@ func (vcc *VoiceCloneController) previewMinimaxClonedVoice(ctx context.Context, 
 		ContinuousSound: false,
 	}
 	if err = conn.WriteJSON(startMessage); err != nil {
-		return nil, "", fmt.Errorf("发送Minimax task_start失败: %w", err)
+		return nil, "", fmt.Errorf("failed to send Minimax task_start: %w", err)
 	}
 	if err = conn.WriteJSON(minimaxTTSWSMessage{Event: "task_continue", Text: text}); err != nil {
-		return nil, "", fmt.Errorf("发送Minimax task_continue失败: %w", err)
+		return nil, "", fmt.Errorf("failed to send Minimax task_continue: %w", err)
 	}
 	if err = conn.WriteJSON(minimaxTTSWSMessage{Event: "task_finish"}); err != nil {
-		return nil, "", fmt.Errorf("发送Minimax task_finish失败: %w", err)
+		return nil, "", fmt.Errorf("failed to send Minimax task_finish: %w", err)
 	}
 
 	var mergedAudio []byte
@@ -1213,20 +1213,20 @@ func (vcc *VoiceCloneController) previewMinimaxClonedVoice(ctx context.Context, 
 			if len(mergedAudio) > 0 {
 				break
 			}
-			return nil, "", fmt.Errorf("读取Minimax响应失败: %w", readErr)
+			return nil, "", fmt.Errorf("failed to read Minimax response: %w", readErr)
 		}
 		var resp minimaxTTSWSResponse
 		if err = json.Unmarshal(messageBytes, &resp); err != nil {
 			continue
 		}
 		if resp.BaseResp != nil && resp.BaseResp.StatusCode != 0 {
-			return nil, "", fmt.Errorf("Minimax返回错误(code=%d, msg=%s)", resp.BaseResp.StatusCode, resp.BaseResp.StatusMsg)
+			return nil, "", fmt.Errorf("Minimax returned error (code=%d, msg=%s)", resp.BaseResp.StatusCode, resp.BaseResp.StatusMsg)
 		}
 		audioHex := strings.TrimSpace(resp.Data.Audio)
 		if audioHex != "" {
 			chunk, decodeErr := hex.DecodeString(audioHex)
 			if decodeErr != nil {
-				return nil, "", fmt.Errorf("解析Minimax音频数据失败: %w", decodeErr)
+				return nil, "", fmt.Errorf("failed to decode Minimax audio data: %w", decodeErr)
 			}
 			mergedAudio = append(mergedAudio, chunk...)
 		}
@@ -1235,7 +1235,7 @@ func (vcc *VoiceCloneController) previewMinimaxClonedVoice(ctx context.Context, 
 		}
 	}
 	if len(mergedAudio) == 0 {
-		return nil, "", errors.New("Minimax返回音频为空")
+		return nil, "", errors.New("Minimax returned empty audio")
 	}
 	return mergedAudio, "audio/mpeg", nil
 }
@@ -1259,25 +1259,25 @@ func (vcc *VoiceCloneController) previewCosyVoiceClonedVoice(ctx context.Context
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, requestURL, nil)
 	if err != nil {
-		return nil, "", fmt.Errorf("创建CosyVoice试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to create CosyVoice preview request: %w", err)
 	}
 	req.Header.Set("Accept", "audio/mpeg,application/octet-stream,*/*")
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, "", fmt.Errorf("调用CosyVoice试听失败: %w", err)
+		return nil, "", fmt.Errorf("CosyVoice preview request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	audioBytes, err := io.ReadAll(io.LimitReader(resp.Body, 20*1024*1024))
 	if err != nil {
-		return nil, "", fmt.Errorf("读取CosyVoice试听响应失败: %w", err)
+		return nil, "", fmt.Errorf("failed to read CosyVoice preview response: %w", err)
 	}
 	if resp.StatusCode >= 400 {
-		return nil, "", fmt.Errorf("CosyVoice试听HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(audioBytes)))
+		return nil, "", fmt.Errorf("CosyVoice preview HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(audioBytes)))
 	}
 	if len(audioBytes) == 0 {
-		return nil, "", errors.New("CosyVoice返回音频为空")
+		return nil, "", errors.New("CosyVoice returned empty audio")
 	}
 	contentType := strings.TrimSpace(resp.Header.Get("Content-Type"))
 	if contentType == "" || strings.Contains(strings.ToLower(contentType), "application/json") {
@@ -1289,7 +1289,7 @@ func (vcc *VoiceCloneController) previewCosyVoiceClonedVoice(ctx context.Context
 func (vcc *VoiceCloneController) previewAliyunQwenClonedVoice(ctx context.Context, cfgMap map[string]any, voiceID, text string) ([]byte, string, error) {
 	apiKey := strings.TrimSpace(getStringAny(cfgMap, "api_key"))
 	if apiKey == "" {
-		return nil, "", errors.New("aliyun_qwen api_key 未配置")
+		return nil, "", errors.New("aliyun_qwen api_key is not configured")
 	}
 	endpoint := resolveAliyunQwenTTSEndpoint(cfgMap)
 	languageType := strings.TrimSpace(getStringAny(cfgMap, "language_type"))
@@ -1306,12 +1306,12 @@ func (vcc *VoiceCloneController) previewAliyunQwenClonedVoice(ctx context.Contex
 	}
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, "", fmt.Errorf("构建千问试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to build Qwen preview request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, "", fmt.Errorf("创建千问试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to create Qwen preview request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
@@ -1319,60 +1319,60 @@ func (vcc *VoiceCloneController) previewAliyunQwenClonedVoice(ctx context.Contex
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, "", fmt.Errorf("调用千问试听失败: %w", err)
+		return nil, "", fmt.Errorf("Qwen preview request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	ttsRespBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, "", fmt.Errorf("读取千问试听响应失败: %w", err)
+		return nil, "", fmt.Errorf("failed to read Qwen preview response: %w", err)
 	}
 	if resp.StatusCode >= 400 {
-		return nil, "", fmt.Errorf("千问试听HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(ttsRespBody)))
+		return nil, "", fmt.Errorf("Qwen preview HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(ttsRespBody)))
 	}
 
 	parsed, err := unmarshalJSONMap(ttsRespBody)
 	if err != nil {
-		return nil, "", fmt.Errorf("解析千问试听响应失败: %w", err)
+		return nil, "", fmt.Errorf("failed to parse Qwen preview response: %w", err)
 	}
 	if code := strings.TrimSpace(getStringAny(parsed, "code")); code != "" {
-		return nil, "", fmt.Errorf("千问试听失败(code=%s, msg=%s)", code, strings.TrimSpace(getStringAny(parsed, "message")))
+		return nil, "", fmt.Errorf("Qwen preview failed (code=%s, msg=%s)", code, strings.TrimSpace(getStringAny(parsed, "message")))
 	}
 	if statusCode, ok := getIntAny(parsed, "status_code"); ok && statusCode != 200 {
-		return nil, "", fmt.Errorf("千问试听失败(status_code=%d)", statusCode)
+		return nil, "", fmt.Errorf("Qwen preview failed (status_code=%d)", statusCode)
 	}
 
 	output, ok := parsed["output"].(map[string]any)
 	if !ok {
-		return nil, "", errors.New("千问试听响应缺少 output")
+		return nil, "", errors.New("Qwen preview response missing output")
 	}
 	audioOutput, ok := output["audio"].(map[string]any)
 	if !ok {
-		return nil, "", errors.New("千问试听响应缺少 output.audio")
+		return nil, "", errors.New("Qwen preview response missing output.audio")
 	}
 	audioURL := strings.TrimSpace(getStringAny(audioOutput, "url"))
 	if audioURL == "" {
-		return nil, "", errors.New("千问试听响应缺少 output.audio.url")
+		return nil, "", errors.New("Qwen preview response missing output.audio.url")
 	}
 
 	audioReq, err := http.NewRequestWithContext(ctx, http.MethodGet, audioURL, nil)
 	if err != nil {
-		return nil, "", fmt.Errorf("创建千问音频下载请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to create Qwen audio download request: %w", err)
 	}
 	audioResp, err := vcc.HTTPClient.Do(audioReq)
 	if err != nil {
-		return nil, "", fmt.Errorf("下载千问试听音频失败: %w", err)
+		return nil, "", fmt.Errorf("failed to download Qwen preview audio: %w", err)
 	}
 	defer audioResp.Body.Close()
 	audioBytes, err := io.ReadAll(io.LimitReader(audioResp.Body, 20*1024*1024))
 	if err != nil {
-		return nil, "", fmt.Errorf("读取千问试听音频失败: %w", err)
+		return nil, "", fmt.Errorf("failed to read Qwen preview audio: %w", err)
 	}
 	if audioResp.StatusCode >= 400 {
-		return nil, "", fmt.Errorf("下载千问试听音频HTTP %d: %s", audioResp.StatusCode, strings.TrimSpace(string(audioBytes)))
+		return nil, "", fmt.Errorf("Qwen preview audio download HTTP %d: %s", audioResp.StatusCode, strings.TrimSpace(string(audioBytes)))
 	}
 	if len(audioBytes) == 0 {
-		return nil, "", errors.New("千问试听返回音频为空")
+		return nil, "", errors.New("Qwen preview returned empty audio")
 	}
 	contentType := strings.TrimSpace(audioResp.Header.Get("Content-Type"))
 	if contentType == "" {
@@ -1385,12 +1385,12 @@ func (vcc *VoiceCloneController) cloneWithMinimax(ctx context.Context, ttsCfg mo
 	cfgMap := make(map[string]any)
 	if ttsCfg.JsonData != "" {
 		if err := json.Unmarshal([]byte(ttsCfg.JsonData), &cfgMap); err != nil {
-			return nil, fmt.Errorf("解析TTS配置失败: %w", err)
+			return nil, fmt.Errorf("failed to parse TTS config: %w", err)
 		}
 	}
 	apiKey := normalizeMinimaxAPIKey(getStringAny(cfgMap, "api_key"))
 	if apiKey == "" {
-		return nil, errors.New("minimax api_key 未配置")
+		return nil, errors.New("minimax api_key is not configured")
 	}
 	endpoint := strings.TrimSpace(getStringAny(cfgMap, "voice_clone_endpoint", "clone_endpoint"))
 	if endpoint == "" {
@@ -1441,7 +1441,7 @@ func (vcc *VoiceCloneController) cloneWithMinimaxEndpoints(ctx context.Context, 
 
 	bodyBytes, err := json.Marshal(bodyMap)
 	if err != nil {
-		return nil, fmt.Errorf("构建Minimax复刻请求失败: %w", err)
+		return nil, fmt.Errorf("failed to build Minimax clone request: %w", err)
 	}
 	log.Printf("[voice_clone][minimax] clone request: endpoint=%s file_id_type=%T body=%s group_id=%q api_key=%s",
 		cloneEndpoint,
@@ -1453,7 +1453,7 @@ func (vcc *VoiceCloneController) cloneWithMinimaxEndpoints(ctx context.Context, 
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cloneEndpoint, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
@@ -1465,13 +1465,13 @@ func (vcc *VoiceCloneController) cloneWithMinimaxEndpoints(ctx context.Context, 
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("请求失败: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, fmt.Errorf("读取响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 	log.Printf("[voice_clone][minimax] clone response: status=%d body=%s",
 		resp.StatusCode,
@@ -1483,15 +1483,15 @@ func (vcc *VoiceCloneController) cloneWithMinimaxEndpoints(ctx context.Context, 
 
 	parsed, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, fmt.Errorf("解析响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 	if statusCode, statusMsg, ok := parseMinimaxStatus(parsed); ok && statusCode != 0 {
-		return nil, fmt.Errorf("Minimax返回错误(code=%d, msg=%s): %s", statusCode, statusMsg, strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("Minimax returned error (code=%d, msg=%s): %s", statusCode, statusMsg, strings.TrimSpace(string(respBody)))
 	}
 
 	resolvedVoiceID := strings.TrimSpace(voiceID)
 	if resolvedVoiceID == "" {
-		return nil, errors.New("请求 voice_id 为空")
+		return nil, errors.New("request voice_id is empty")
 	}
 	if payloadVoiceID := pickVoiceID(parsed); payloadVoiceID != "" && payloadVoiceID != resolvedVoiceID {
 		log.Printf("[voice_clone][minimax] clone response voice_id=%q ignored, using requested voice_id=%q", payloadVoiceID, resolvedVoiceID)
@@ -1510,7 +1510,7 @@ func (vcc *VoiceCloneController) cloneWithMinimaxEndpoints(ctx context.Context, 
 func (vcc *VoiceCloneController) cloneWithCosyVoice(ctx context.Context, filePath, fileName, transcript string) (*minimaxVoiceCloneResult, error) {
 	cloneURL, err := url.Parse(cosyvoiceCloneEndpoint)
 	if err != nil {
-		return nil, fmt.Errorf("解析CosyVoice克隆地址失败: %w", err)
+		return nil, fmt.Errorf("failed to parse CosyVoice clone URL: %w", err)
 	}
 	query := cloneURL.Query()
 	query.Set("key", cosyvoiceFixedKey)
@@ -1518,7 +1518,7 @@ func (vcc *VoiceCloneController) cloneWithCosyVoice(ctx context.Context, filePat
 
 	f, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("读取音频文件失败: %w", err)
+		return nil, fmt.Errorf("failed to read audio file: %w", err)
 	}
 	defer f.Close()
 
@@ -1528,7 +1528,7 @@ func (vcc *VoiceCloneController) cloneWithCosyVoice(ctx context.Context, filePat
 	}
 	transcript = strings.TrimSpace(transcript)
 	if transcript == "" {
-		return nil, errors.New("CosyVoice 复刻要求必须填写音频对应文字(train_text)")
+		return nil, errors.New("CosyVoice cloning requires a transcript (train_text)")
 	}
 	log.Printf("[voice_clone][cosyvoice] prepare request: endpoint=%s file_name=%q file_ext=%q file_size=%d transcript_len=%d fixed_key=%q",
 		cloneURL.String(),
@@ -1542,55 +1542,55 @@ func (vcc *VoiceCloneController) cloneWithCosyVoice(ctx context.Context, filePat
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	if err = writer.WriteField("train_text", transcript); err != nil {
-		return nil, fmt.Errorf("构建CosyVoice请求参数失败: %w", err)
+		return nil, fmt.Errorf("failed to build CosyVoice request parameters: %w", err)
 	}
 	formFile, err := writer.CreateFormFile("train_wav_file", fileName)
 	if err != nil {
-		return nil, fmt.Errorf("创建CosyVoice音频上传表单失败: %w", err)
+		return nil, fmt.Errorf("failed to create CosyVoice audio upload form: %w", err)
 	}
 	if _, err = io.Copy(formFile, f); err != nil {
-		return nil, fmt.Errorf("写入CosyVoice上传文件失败: %w", err)
+		return nil, fmt.Errorf("failed to write CosyVoice upload file: %w", err)
 	}
 	if err = writer.Close(); err != nil {
-		return nil, fmt.Errorf("构建CosyVoice上传请求失败: %w", err)
+		return nil, fmt.Errorf("failed to build CosyVoice upload request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, cloneURL.String(), &body)
 	if err != nil {
-		return nil, fmt.Errorf("创建CosyVoice请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create CosyVoice request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用CosyVoice克隆接口失败: %w", err)
+		return nil, fmt.Errorf("CosyVoice clone request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, fmt.Errorf("读取CosyVoice响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read CosyVoice response: %w", err)
 	}
 	log.Printf("[voice_clone][cosyvoice] clone response: status=%d body=%s",
 		resp.StatusCode,
 		truncateForLog(strings.TrimSpace(string(respBody)), 4096),
 	)
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("CosyVoice克隆HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("CosyVoice clone HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
 	}
 
 	parsed, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, fmt.Errorf("解析CosyVoice响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse CosyVoice response: %w", err)
 	}
 	status := strings.TrimSpace(getStringAny(parsed, "status"))
 	if status != "成功" {
-		return nil, fmt.Errorf("CosyVoice克隆失败(status=%s): %s", status, strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("CosyVoice clone failed (status=%s): %s", status, strings.TrimSpace(string(respBody)))
 	}
 	sid := strings.TrimSpace(getStringAny(parsed, "sid"))
 	if sid == "" {
-		return nil, fmt.Errorf("CosyVoice响应缺少 sid: %s", strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("CosyVoice response missing sid: %s", strings.TrimSpace(string(respBody)))
 	}
 	return &minimaxVoiceCloneResult{
 		VoiceID:      sid,
@@ -1604,13 +1604,13 @@ func (vcc *VoiceCloneController) cloneWithAliyunQwen(ctx context.Context, ttsCfg
 	cfgMap := make(map[string]any)
 	if ttsCfg.JsonData != "" {
 		if err := json.Unmarshal([]byte(ttsCfg.JsonData), &cfgMap); err != nil {
-			return nil, fmt.Errorf("解析TTS配置失败: %w", err)
+			return nil, fmt.Errorf("failed to parse TTS config: %w", err)
 		}
 	}
 
 	apiKey := strings.TrimSpace(getStringAny(cfgMap, "api_key"))
 	if apiKey == "" {
-		return nil, errors.New("aliyun_qwen api_key 未配置")
+		return nil, errors.New("aliyun_qwen api_key is not configured")
 	}
 	endpoint := resolveAliyunQwenCloneEndpoint(cfgMap)
 	targetModel := resolveAliyunQwenTargetModel()
@@ -1656,12 +1656,12 @@ func (vcc *VoiceCloneController) cloneWithAliyunQwen(ctx context.Context, ttsCfg
 	}
 	bodyBytes, err := json.Marshal(bodyMap)
 	if err != nil {
-		return nil, fmt.Errorf("构建千问复刻请求失败: %w", err)
+		return nil, fmt.Errorf("failed to build Qwen clone request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, fmt.Errorf("创建千问复刻请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create Qwen clone request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	req.Header.Set("Content-Type", "application/json")
@@ -1669,38 +1669,38 @@ func (vcc *VoiceCloneController) cloneWithAliyunQwen(ctx context.Context, ttsCfg
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用千问复刻接口失败: %w", err)
+		return nil, fmt.Errorf("Qwen clone request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, fmt.Errorf("读取千问复刻响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read Qwen clone response: %w", err)
 	}
 	log.Printf("[voice_clone][aliyun_qwen] clone response: status=%d body=%s",
 		resp.StatusCode,
 		truncateForLog(strings.TrimSpace(string(respBody)), 4096),
 	)
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("千问复刻HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("Qwen clone HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
 	}
 
 	parsed, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, fmt.Errorf("解析千问复刻响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse Qwen clone response: %w", err)
 	}
 	if code := strings.TrimSpace(getStringAny(parsed, "code")); code != "" {
 		msg := strings.TrimSpace(getStringAny(parsed, "message"))
-		return nil, fmt.Errorf("千问复刻失败(code=%s, msg=%s): %s", code, msg, strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("Qwen clone failed (code=%s, msg=%s): %s", code, msg, strings.TrimSpace(string(respBody)))
 	}
 
 	output, ok := parsed["output"].(map[string]any)
 	if !ok {
-		return nil, fmt.Errorf("千问复刻响应缺少 output: %s", strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("Qwen clone response missing output: %s", strings.TrimSpace(string(respBody)))
 	}
 	voiceID := strings.TrimSpace(getStringAny(output, "voice"))
 	if voiceID == "" {
-		return nil, fmt.Errorf("千问复刻响应缺少 output.voice: %s", strings.TrimSpace(string(respBody)))
+		return nil, fmt.Errorf("Qwen clone response missing output.voice: %s", strings.TrimSpace(string(respBody)))
 	}
 
 	return &minimaxVoiceCloneResult{
@@ -1715,7 +1715,7 @@ func (vcc *VoiceCloneController) cloneWithAliyunQwen(ctx context.Context, ttsCfg
 func (vcc *VoiceCloneController) uploadMinimaxVoiceCloneFile(ctx context.Context, apiKey, uploadEndpoint, groupID, filePath, fileName string) (string, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return "", fmt.Errorf("读取音频文件失败: %w", err)
+		return "", fmt.Errorf("failed to read audio file: %w", err)
 	}
 	defer f.Close()
 	fileSize := int64(-1)
@@ -1747,22 +1747,22 @@ func (vcc *VoiceCloneController) uploadMinimaxVoiceCloneFile(ctx context.Context
 	var body bytes.Buffer
 	writer := multipart.NewWriter(&body)
 	if err = writer.WriteField("purpose", "voice_clone"); err != nil {
-		return "", fmt.Errorf("构建上传参数失败: %w", err)
+		return "", fmt.Errorf("failed to build upload parameters: %w", err)
 	}
 	formFile, err := writer.CreateFormFile("file", fileName)
 	if err != nil {
-		return "", fmt.Errorf("创建上传文件表单失败: %w", err)
+		return "", fmt.Errorf("failed to create upload file form: %w", err)
 	}
 	if _, err = io.Copy(formFile, f); err != nil {
-		return "", fmt.Errorf("写入上传文件失败: %w", err)
+		return "", fmt.Errorf("failed to write upload file: %w", err)
 	}
 	if err = writer.Close(); err != nil {
-		return "", fmt.Errorf("构建上传请求失败: %w", err)
+		return "", fmt.Errorf("failed to build upload request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadEndpoint, &body)
 	if err != nil {
-		return "", fmt.Errorf("创建上传请求失败: %w", err)
+		return "", fmt.Errorf("failed to create upload request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", apiKey))
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -1774,37 +1774,37 @@ func (vcc *VoiceCloneController) uploadMinimaxVoiceCloneFile(ctx context.Context
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("上传复刻音频失败: %w", err)
+		return "", fmt.Errorf("failed to upload clone audio: %w", err)
 	}
 	defer resp.Body.Close()
 
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return "", fmt.Errorf("读取上传响应失败: %w", err)
+		return "", fmt.Errorf("failed to read upload response: %w", err)
 	}
 	log.Printf("[voice_clone][minimax] upload response: status=%d body=%s",
 		resp.StatusCode,
 		truncateForLog(strings.TrimSpace(string(respBody)), 4096),
 	)
 	if resp.StatusCode >= 400 {
-		return "", fmt.Errorf("上传复刻音频HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+		return "", fmt.Errorf("clone audio upload HTTP %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
 	}
 
 	parsed, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return "", fmt.Errorf("解析上传响应失败: %w", err)
+		return "", fmt.Errorf("failed to parse upload response: %w", err)
 	}
 	if statusCode, statusMsg, ok := parseMinimaxStatus(parsed); ok && statusCode != 0 {
-		return "", fmt.Errorf("上传复刻音频被Minimax拒绝(code=%d, msg=%s): %s", statusCode, statusMsg, strings.TrimSpace(string(respBody)))
+		return "", fmt.Errorf("clone audio upload rejected by Minimax (code=%d, msg=%s): %s", statusCode, statusMsg, strings.TrimSpace(string(respBody)))
 	}
 
 	fileMap, ok := parsed["file"].(map[string]any)
 	if !ok {
-		return "", fmt.Errorf("上传响应中未返回 file 对象: %s", strings.TrimSpace(string(respBody)))
+		return "", fmt.Errorf("upload response missing file object: %s", strings.TrimSpace(string(respBody)))
 	}
 	fileID := getStringOrNumberAny(fileMap, "file_id", "fileId", "id")
 	if fileID == "" {
-		return "", fmt.Errorf("上传响应中未返回 file_id: %s", strings.TrimSpace(string(respBody)))
+		return "", fmt.Errorf("upload response missing file_id: %s", strings.TrimSpace(string(respBody)))
 	}
 	return fileID, nil
 }
@@ -1864,7 +1864,7 @@ func maskSecret(secret string) string {
 func getMinimaxCloneAudioDurationSeconds(filePath string) (float64, error) {
 	ext := strings.ToLower(strings.TrimSpace(filepath.Ext(filePath)))
 	if ext != ".wav" {
-		return 0, fmt.Errorf("当前仅支持 WAV 音频，检测到扩展名: %s", ext)
+		return 0, fmt.Errorf("only WAV audio is supported, detected extension: %s", ext)
 	}
 	return getWAVDurationSeconds(filePath)
 }
@@ -1876,50 +1876,50 @@ func validateCloneAudioForProvider(provider, filePath string) error {
 	switch provider {
 	case "minimax":
 		if ext != ".wav" {
-			return fmt.Errorf("Minimax 仅支持 WAV 音频，检测到扩展名: %s", ext)
+			return fmt.Errorf("Minimax only supports WAV audio, detected extension: %s", ext)
 		}
 		audioSeconds, err := getMinimaxCloneAudioDurationSeconds(filePath)
 		if err != nil {
-			return fmt.Errorf("音频格式校验失败: %w", err)
+			return fmt.Errorf("audio format validation failed: %w", err)
 		}
 		log.Printf("[voice_clone][minimax] local duration check: file=%q duration=%.3fs min=%.1fs", filePath, audioSeconds, minMinimaxCloneAudioSeconds)
 		if audioSeconds < minMinimaxCloneAudioSeconds {
-			return fmt.Errorf("Minimax 声音复刻要求音频时长至少 %.0f 秒，当前 %.2f 秒", minMinimaxCloneAudioSeconds, audioSeconds)
+			return fmt.Errorf("Minimax voice cloning requires audio of at least %.0f seconds, current is %.2f seconds", minMinimaxCloneAudioSeconds, audioSeconds)
 		}
 		return nil
 	case "cosyvoice":
 		if ext != ".wav" {
-			return fmt.Errorf("CosyVoice 仅支持 WAV 音频，检测到扩展名: %s", ext)
+			return fmt.Errorf("CosyVoice only supports WAV audio, detected extension: %s", ext)
 		}
 		audioSeconds, err := getWAVDurationSeconds(filePath)
 		if err != nil {
-			return fmt.Errorf("音频格式校验失败: %w", err)
+			return fmt.Errorf("audio format validation failed: %w", err)
 		}
 		log.Printf("[voice_clone][cosyvoice] local wav check: file=%q duration=%.3fs", filePath, audioSeconds)
 		return nil
 	case "aliyun_qwen":
 		mimeType, supported := aliyunQwenCloneAudioMimeTypeByExt(ext)
 		if !supported {
-			return fmt.Errorf("千问声音复刻仅支持 WAV/MP3/M4A，检测到扩展名: %s", ext)
+			return fmt.Errorf("Qwen voice cloning only supports WAV/MP3/M4A, detected extension: %s", ext)
 		}
 		stat, err := os.Stat(filePath)
 		if err != nil {
-			return fmt.Errorf("读取音频文件信息失败: %w", err)
+			return fmt.Errorf("failed to read audio file info: %w", err)
 		}
 		if stat.Size() <= 0 {
-			return errors.New("音频文件不能为空")
+			return errors.New("audio file must not be empty")
 		}
 		if stat.Size() > maxAliyunQwenCloneAudioBytes {
-			return fmt.Errorf("千问声音复刻音频大小不能超过%dMB，当前%.2fMB", maxAliyunQwenCloneAudioBytes/1024/1024, float64(stat.Size())/1024.0/1024.0)
+			return fmt.Errorf("Qwen voice cloning audio must not exceed %dMB, current is %.2fMB", maxAliyunQwenCloneAudioBytes/1024/1024, float64(stat.Size())/1024.0/1024.0)
 		}
 		if ext == ".wav" {
 			audioSeconds, err := getWAVDurationSeconds(filePath)
 			if err != nil {
-				return fmt.Errorf("音频格式校验失败: %w", err)
+				return fmt.Errorf("audio format validation failed: %w", err)
 			}
 			log.Printf("[voice_clone][aliyun_qwen] local wav check: file=%q duration=%.3fs max=%.1fs", filePath, audioSeconds, maxAliyunQwenCloneAudioSeconds)
 			if audioSeconds > maxAliyunQwenCloneAudioSeconds {
-				return fmt.Errorf("千问声音复刻音频时长不能超过 %.0f 秒，当前 %.2f 秒", maxAliyunQwenCloneAudioSeconds, audioSeconds)
+				return fmt.Errorf("Qwen voice cloning audio must not exceed %.0f seconds, current is %.2f seconds", maxAliyunQwenCloneAudioSeconds, audioSeconds)
 			}
 		} else {
 			log.Printf("[voice_clone][aliyun_qwen] local audio check: file=%q ext=%q size=%d mime=%q", filePath, ext, stat.Size(), mimeType)
@@ -1927,18 +1927,18 @@ func validateCloneAudioForProvider(provider, filePath string) error {
 		return nil
 	case "indextts_vllm":
 		if ext != ".wav" && ext != ".mp3" && ext != ".flac" && ext != ".m4a" && ext != ".ogg" {
-			return fmt.Errorf("IndexTTS 声音复刻仅支持 WAV/MP3/FLAC/M4A/OGG，检测到扩展名: %s", ext)
+			return fmt.Errorf("IndexTTS voice cloning only supports WAV/MP3/FLAC/M4A/OGG, detected extension: %s", ext)
 		}
 		stat, err := os.Stat(filePath)
 		if err != nil {
-			return fmt.Errorf("读取音频文件信息失败: %w", err)
+			return fmt.Errorf("failed to read audio file info: %w", err)
 		}
 		if stat.Size() <= 0 {
-			return errors.New("音频文件不能为空")
+			return errors.New("audio file must not be empty")
 		}
 		return nil
 	default:
-		return fmt.Errorf("暂不支持提供商 %s 的音频校验", provider)
+		return fmt.Errorf("audio validation not supported for provider %s", provider)
 	}
 }
 
@@ -1977,7 +1977,8 @@ func resolveAliyunQwenTTSEndpoint(cfgMap map[string]any) string {
 }
 
 func resolveAliyunQwenTargetModel() string {
-	// 按接入规范固定使用 VC-Realtime 目标模型，避免受到普通 TTS 配置 model 干扰。
+	// Use the VC-Realtime target model as specified by the integration spec,
+	// to avoid interference from ordinary TTS config model settings.
 	return defaultAliyunQwenCloneTargetModel
 }
 
@@ -2037,17 +2038,17 @@ func buildAliyunQwenAudioDataURI(filePath string) (string, string, int64, error)
 	ext := strings.ToLower(strings.TrimSpace(filepath.Ext(filePath)))
 	mimeType, supported := aliyunQwenCloneAudioMimeTypeByExt(ext)
 	if !supported {
-		return "", "", 0, fmt.Errorf("千问声音复刻仅支持 WAV/MP3/M4A，检测到扩展名: %s", ext)
+		return "", "", 0, fmt.Errorf("Qwen voice cloning only supports WAV/MP3/M4A, detected extension: %s", ext)
 	}
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		return "", "", 0, fmt.Errorf("读取音频文件失败: %w", err)
+		return "", "", 0, fmt.Errorf("failed to read audio file: %w", err)
 	}
 	if len(data) == 0 {
-		return "", "", 0, errors.New("音频文件不能为空")
+		return "", "", 0, errors.New("audio file must not be empty")
 	}
 	if len(data) > maxAliyunQwenCloneAudioBytes {
-		return "", "", 0, fmt.Errorf("千问声音复刻音频大小不能超过%dMB，当前%.2fMB", maxAliyunQwenCloneAudioBytes/1024/1024, float64(len(data))/1024.0/1024.0)
+		return "", "", 0, fmt.Errorf("Qwen voice cloning audio must not exceed %dMB, current is %.2fMB", maxAliyunQwenCloneAudioBytes/1024/1024, float64(len(data))/1024.0/1024.0)
 	}
 	encoded := base64.StdEncoding.EncodeToString(data)
 	return fmt.Sprintf("data:%s;base64,%s", mimeType, encoded), mimeType, int64(len(data)), nil
@@ -2056,16 +2057,16 @@ func buildAliyunQwenAudioDataURI(filePath string) (string, string, int64, error)
 func getWAVDurationSeconds(filePath string) (float64, error) {
 	f, err := os.Open(filePath)
 	if err != nil {
-		return 0, fmt.Errorf("打开音频文件失败: %w", err)
+		return 0, fmt.Errorf("failed to open audio file: %w", err)
 	}
 	defer f.Close()
 
 	header := make([]byte, 12)
 	if _, err = io.ReadFull(f, header); err != nil {
-		return 0, fmt.Errorf("读取WAV头失败: %w", err)
+		return 0, fmt.Errorf("failed to read WAV header: %w", err)
 	}
 	if string(header[0:4]) != "RIFF" || string(header[8:12]) != "WAVE" {
-		return 0, errors.New("不是有效的 WAV 文件")
+		return 0, errors.New("not a valid WAV file")
 	}
 
 	var sampleRate uint32
@@ -2083,7 +2084,7 @@ func getWAVDurationSeconds(filePath string) (float64, error) {
 			if errors.Is(err, io.ErrUnexpectedEOF) {
 				break
 			}
-			return 0, fmt.Errorf("读取WAV分块头失败: %w", err)
+			return 0, fmt.Errorf("failed to read WAV chunk header: %w", err)
 		}
 		chunkID := string(chunkHeader[0:4])
 		chunkSize := binary.LittleEndian.Uint32(chunkHeader[4:8])
@@ -2092,15 +2093,15 @@ func getWAVDurationSeconds(filePath string) (float64, error) {
 		switch chunkID {
 		case "fmt ":
 			if chunkSize < 16 {
-				return 0, fmt.Errorf("WAV fmt 分块长度无效: %d", chunkSize)
+				return 0, fmt.Errorf("WAV fmt chunk length invalid: %d", chunkSize)
 			}
 			fmtData := make([]byte, chunkSize)
 			if _, err = io.ReadFull(f, fmtData); err != nil {
-				return 0, fmt.Errorf("读取WAV fmt分块失败: %w", err)
+				return 0, fmt.Errorf("failed to read WAV fmt chunk: %w", err)
 			}
 			audioFormat := binary.LittleEndian.Uint16(fmtData[0:2])
 			if audioFormat != 1 && audioFormat != 3 {
-				return 0, fmt.Errorf("不支持的 WAV 编码格式: %d", audioFormat)
+				return 0, fmt.Errorf("unsupported WAV audio format: %d", audioFormat)
 			}
 			channels = binary.LittleEndian.Uint16(fmtData[2:4])
 			sampleRate = binary.LittleEndian.Uint32(fmtData[4:8])
@@ -2108,28 +2109,28 @@ func getWAVDurationSeconds(filePath string) (float64, error) {
 		case "data":
 			dataBytes = uint64(chunkSize)
 			if _, err = f.Seek(chunkSizeInt, io.SeekCurrent); err != nil {
-				return 0, fmt.Errorf("跳过WAV data分块失败: %w", err)
+				return 0, fmt.Errorf("failed to seek past WAV data chunk: %w", err)
 			}
 		default:
 			if _, err = f.Seek(chunkSizeInt, io.SeekCurrent); err != nil {
-				return 0, fmt.Errorf("跳过WAV分块失败: %w", err)
+				return 0, fmt.Errorf("failed to seek past WAV chunk: %w", err)
 			}
 		}
 
-		// WAV chunk 数据按 2 字节对齐，奇数长度需补 1 字节。
+		// WAV chunk data is 2-byte aligned; odd-sized chunks are padded by 1 byte.
 		if chunkSize%2 == 1 {
 			if _, err = f.Seek(1, io.SeekCurrent); err != nil {
-				return 0, fmt.Errorf("跳过WAV对齐字节失败: %w", err)
+				return 0, fmt.Errorf("failed to seek past WAV alignment byte: %w", err)
 			}
 		}
 	}
 
 	if sampleRate == 0 || channels == 0 || bitsPerSample == 0 || dataBytes == 0 {
-		return 0, fmt.Errorf("WAV信息不完整(sample_rate=%d channels=%d bits=%d data_bytes=%d)", sampleRate, channels, bitsPerSample, dataBytes)
+		return 0, fmt.Errorf("incomplete WAV info (sample_rate=%d channels=%d bits=%d data_bytes=%d)", sampleRate, channels, bitsPerSample, dataBytes)
 	}
 	bytesPerSecond := (float64(sampleRate) * float64(channels) * float64(bitsPerSample)) / 8.0
 	if bytesPerSecond <= 0 {
-		return 0, errors.New("WAV每秒字节数无效")
+		return 0, errors.New("WAV bytes-per-second value is invalid")
 	}
 	return float64(dataBytes) / bytesPerSecond, nil
 }

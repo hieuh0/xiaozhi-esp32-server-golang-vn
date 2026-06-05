@@ -25,16 +25,16 @@ import (
 	"gorm.io/gorm"
 )
 
-// SpeakerGroupController 声纹组控制器
+// SpeakerGroupController handles speaker group operations.
 type SpeakerGroupController struct {
 	DB            *gorm.DB
 	ServiceURL    string
 	HTTPClient    *http.Client
 	AudioStorage  *storage.AudioStorage
-	HistoryConfig *config.HistoryConfig // 历史聊天记录配置
+	HistoryConfig *config.HistoryConfig // chat history configuration
 }
 
-// NewSpeakerGroupController 创建声纹组控制器
+// NewSpeakerGroupController creates a new SpeakerGroupController.
 func NewSpeakerGroupController(db *gorm.DB, cfg *config.Config) *SpeakerGroupController {
 	httpClient := &http.Client{
 		Timeout: 30 * time.Second,
@@ -54,11 +54,11 @@ func NewSpeakerGroupController(db *gorm.DB, cfg *config.Config) *SpeakerGroupCon
 	}
 }
 
-// CreateSpeakerGroup 创建声纹组
+// CreateSpeakerGroup creates a new speaker group.
 func (sgc *SpeakerGroupController) CreateSpeakerGroup(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
@@ -72,32 +72,32 @@ func (sgc *SpeakerGroupController) CreateSpeakerGroup(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 
-	// 验证智能体是否存在且属于当前用户
+	// Verify the agent exists and belongs to the current user.
 	var agent models.Agent
 	if err := sgc.DB.Where("id = ? AND user_id = ?", req.AgentID, userID).First(&agent).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "智能体不存在或无权限访问"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "agent not found or access denied"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询智能体失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query agent"})
 		return
 	}
 
-	// 检查同一用户下是否已存在相同名称的声纹组
+	// Check whether a speaker group with the same name already exists for this user.
 	var existingGroup models.SpeakerGroup
 	if err := sgc.DB.Where("user_id = ? AND name = ?", userID, req.Name).First(&existingGroup).Error; err == nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "该声纹组名称已存在，请使用其他名称"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "speaker group name already exists, please use a different name"})
 		return
 	} else if err != gorm.ErrRecordNotFound {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 创建声纹组
+	// Create the speaker group.
 	speakerGroup := models.SpeakerGroup{
 		UserID:      userID.(uint),
 		AgentID:     req.AgentID,
@@ -111,7 +111,7 @@ func (sgc *SpeakerGroupController) CreateSpeakerGroup(c *gin.Context) {
 	}
 
 	if err := sgc.DB.Create(&speakerGroup).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "创建声纹组失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create speaker group: " + err.Error()})
 		return
 	}
 
@@ -129,15 +129,15 @@ func (sgc *SpeakerGroupController) CreateSpeakerGroup(c *gin.Context) {
 	})
 }
 
-// GetSpeakerGroups 获取声纹组列表
+// GetSpeakerGroups returns a paginated list of speaker groups.
 func (sgc *SpeakerGroupController) GetSpeakerGroups(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
-	// 获取查询参数
+	// Read query parameters.
 	agentIDStr := c.Query("agent_id")
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
 	pageSize, _ := strconv.Atoi(c.DefaultQuery("page_size", "10"))
@@ -151,10 +151,10 @@ func (sgc *SpeakerGroupController) GetSpeakerGroups(c *gin.Context) {
 
 	offset := (page - 1) * pageSize
 
-	// 构建查询
+	// Build query.
 	query := sgc.DB.Model(&models.SpeakerGroup{}).Where("user_id = ?", userID)
 
-	// 按智能体过滤
+	// Filter by agent.
 	if agentIDStr != "" {
 		agentID, err := strconv.ParseUint(agentIDStr, 10, 32)
 		if err == nil {
@@ -162,18 +162,18 @@ func (sgc *SpeakerGroupController) GetSpeakerGroups(c *gin.Context) {
 		}
 	}
 
-	// 获取总数
+	// Get total count.
 	var total int64
 	query.Count(&total)
 
-	// 获取数据
+	// Fetch records.
 	var speakerGroups []models.SpeakerGroup
 	if err := query.Offset(offset).Limit(pageSize).Order("created_at DESC").Find(&speakerGroups).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 获取智能体信息（用于显示智能体名称）
+	// Fetch agent info (for displaying agent names).
 	agentIDs := make([]uint, 0)
 	for _, sg := range speakerGroups {
 		agentIDs = append(agentIDs, sg.AgentID)
@@ -189,7 +189,7 @@ func (sgc *SpeakerGroupController) GetSpeakerGroups(c *gin.Context) {
 		agentMap[agent.ID] = agent.Name
 	}
 
-	// 构建响应
+	// Build response.
 	result := make([]gin.H, 0)
 	for _, sg := range speakerGroups {
 		result = append(result, gin.H{
@@ -213,41 +213,41 @@ func (sgc *SpeakerGroupController) GetSpeakerGroups(c *gin.Context) {
 	})
 }
 
-// GetSpeakerGroup 获取声纹组详情（包含样本列表）
+// GetSpeakerGroup returns the details of a speaker group including its sample list.
 func (sgc *SpeakerGroupController) GetSpeakerGroup(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
 	id := c.Param("id")
 	speakerGroupID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
-	// 查询声纹组
+	// Query the speaker group.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", speakerGroupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 查询智能体信息
+	// Query agent info.
 	var agent models.Agent
 	sgc.DB.Where("id = ?", speakerGroup.AgentID).First(&agent)
 
-	// 查询样本列表
+	// Query sample list.
 	var samples []models.SpeakerSample
 	sgc.DB.Where("speaker_group_id = ?", speakerGroupID).Order("created_at DESC").Find(&samples)
 
-	// 构建样本响应
+	// Build sample response.
 	sampleList := make([]gin.H, 0)
 	for _, sample := range samples {
 		sampleList = append(sampleList, gin.H{
@@ -278,18 +278,18 @@ func (sgc *SpeakerGroupController) GetSpeakerGroup(c *gin.Context) {
 	})
 }
 
-// UpdateSpeakerGroup 更新声纹组
+// UpdateSpeakerGroup updates a speaker group.
 func (sgc *SpeakerGroupController) UpdateSpeakerGroup(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
 	id := c.Param("id")
 	speakerGroupID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
@@ -303,44 +303,44 @@ func (sgc *SpeakerGroupController) UpdateSpeakerGroup(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 
-	// 查询声纹组
+	// Query the speaker group.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", speakerGroupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 如果更新了智能体ID，需要验证新智能体是否存在
+	// If the agent ID was changed, validate the new agent.
 	if req.AgentID != nil && *req.AgentID != speakerGroup.AgentID {
 		var agent models.Agent
 		if err := sgc.DB.Where("id = ? AND user_id = ?", *req.AgentID, userID).First(&agent).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				c.JSON(http.StatusBadRequest, gin.H{"error": "智能体不存在或无权限访问"})
+				c.JSON(http.StatusBadRequest, gin.H{"error": "agent not found or access denied"})
 				return
 			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询智能体失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query agent"})
 			return
 		}
 		speakerGroup.AgentID = *req.AgentID
 	}
 
-	// 更新字段
+	// Update fields.
 	if req.Name != "" && req.Name != speakerGroup.Name {
-		// 检查同一用户下是否已存在相同名称的声纹组（排除当前声纹组）
+		// Check for duplicate name within the same user (excluding the current group).
 		var existingGroup models.SpeakerGroup
 		if err := sgc.DB.Where("user_id = ? AND name = ? AND id != ?", userID, req.Name, speakerGroupID).First(&existingGroup).Error; err == nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "该声纹组名称已存在，请使用其他名称"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "speaker group name already exists, please use a different name"})
 			return
 		} else if err != gorm.ErrRecordNotFound {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 			return
 		}
 		speakerGroup.Name = req.Name
@@ -348,12 +348,12 @@ func (sgc *SpeakerGroupController) UpdateSpeakerGroup(c *gin.Context) {
 	if req.Prompt != "" {
 		speakerGroup.Prompt = req.Prompt
 	}
-	speakerGroup.Description = req.Description // 允许清空描述
+	speakerGroup.Description = req.Description // allow clearing description
 	speakerGroup.TTSConfigID = req.TTSConfigID
 	speakerGroup.Voice = req.Voice
 
 	if err := sgc.DB.Save(&speakerGroup).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "更新声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update speaker group"})
 		return
 	}
 
@@ -363,87 +363,87 @@ func (sgc *SpeakerGroupController) UpdateSpeakerGroup(c *gin.Context) {
 	})
 }
 
-// DeleteSpeakerGroup 删除声纹组
+// DeleteSpeakerGroup deletes a speaker group.
 func (sgc *SpeakerGroupController) DeleteSpeakerGroup(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
 	id := c.Param("id")
 	speakerGroupID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
-	// 查询声纹组
+	// Query the speaker group.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", speakerGroupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 查询所有样本（用于删除本地文件和数据库记录）
+	// Query all samples (for deleting local files and database records).
 	var samples []models.SpeakerSample
 	sgc.DB.Where("speaker_group_id = ?", speakerGroupID).Find(&samples)
 
-	// 调用 asr_server 删除接口（通过 speaker_id，即声纹组的主键 ID，一次性删除所有样本）
+	// Call the asr_server delete API (using speaker_id, i.e. the speaker group's primary key, to delete all samples at once).
 	err = sgc.callDeleteAPI(fmt.Sprintf("%d", speakerGroup.ID), speakerGroup.AgentID, userID)
 	if err != nil {
-		log.Printf("asr_server 删除声纹组失败 (speaker_id: %d): %v", speakerGroup.ID, err)
-		// 继续执行本地删除，不中断流程
+		log.Printf("asr_server failed to delete speaker group (speaker_id: %d): %v", speakerGroup.ID, err)
+		// Continue with local deletion — do not interrupt the flow.
 	}
 
-	// 删除所有样本的本地文件和数据库记录
+	// Delete local files and database records for all samples.
 	for _, sample := range samples {
-		// 删除本地文件
+		// Delete local file.
 		sgc.AudioStorage.DeleteAudioFile(sample.FilePath)
 
-		// 删除数据库记录
+		// Delete database record.
 		sgc.DB.Delete(&sample)
 	}
 
-	// 删除声纹组
+	// Delete the speaker group.
 	if err := sgc.DB.Delete(&speakerGroup).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete speaker group"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "声纹组删除成功",
+		"message": "speaker group deleted successfully",
 	})
 }
 
-// AddSample 添加声纹样本
+// AddSample adds a speaker sample to a group.
 func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
-	groupIDStr := c.Param("id") // 改为使用 :id 参数
+	groupIDStr := c.Param("id") // use :id parameter
 	groupID, err := strconv.ParseUint(groupIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
-	// 验证声纹组是否存在且属于当前用户
+	// Verify the speaker group exists and belongs to the current user.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", groupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
@@ -451,27 +451,27 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 	var header *multipart.FileHeader
 	var fileName string
 
-	// 检查是否从历史聊天记录中获取音频
+	// Check if audio should be fetched from chat history.
 	messageID := c.PostForm("message_id")
 	if messageID != "" {
-		// 从历史聊天记录中获取音频
+		// Fetch audio from chat history.
 		var chatMessage models.ChatMessage
 		if err := sgc.DB.Where("message_id = ? AND user_id = ? AND role = ? AND is_deleted = ?",
 			messageID, userID, "user", false).First(&chatMessage).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {
-				c.JSON(http.StatusNotFound, gin.H{"error": "历史聊天记录不存在或不是用户消息"})
+				c.JSON(http.StatusNotFound, gin.H{"error": "chat history record not found or not a user message"})
 				return
 			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "查询历史聊天记录失败"})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query chat history"})
 			return
 		}
 
 		if chatMessage.AudioPath == "" {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "该消息没有音频数据"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "this message has no audio data"})
 			return
 		}
 
-		// 读取音频文件
+		// Read the audio file.
 		audioBasePath := sgc.HistoryConfig.AudioBasePath
 		if audioBasePath == "" {
 			audioBasePath = "./storage/chat_history/audio"
@@ -481,29 +481,29 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 		audioData, err := os.ReadFile(fullPath)
 		if err != nil {
 			if os.IsNotExist(err) {
-				c.JSON(http.StatusNotFound, gin.H{"error": "音频文件不存在"})
+				c.JSON(http.StatusNotFound, gin.H{"error": "audio file not found"})
 				return
 			}
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "读取音频文件失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read audio file: " + err.Error()})
 			return
 		}
 
-		// 创建临时文件用于 multipart
+		// Create a temporary file for multipart.
 		tempFile, err := os.CreateTemp("", "audio_*.wav")
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "创建临时文件失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create temp file: " + err.Error()})
 			return
 		}
-		defer os.Remove(tempFile.Name()) // 清理临时文件
+		defer os.Remove(tempFile.Name()) // clean up temp file
 		defer tempFile.Close()
 
 		if _, err := tempFile.Write(audioData); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "写入临时文件失败: " + err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to write temp file: " + err.Error()})
 			return
 		}
 		tempFile.Seek(0, 0)
 
-		// 创建 multipart.File 和 FileHeader
+		// Create multipart.File and FileHeader.
 		file = tempFile
 		fileInfo, _ := tempFile.Stat()
 		header = &multipart.FileHeader{
@@ -512,20 +512,20 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 		}
 		fileName = header.Filename
 	} else {
-		// 从上传的文件中获取音频
+		// Fetch audio from uploaded file.
 		file, header, err = c.Request.FormFile("audio")
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "音频文件缺失: " + err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "audio file missing: " + err.Error()})
 			return
 		}
 		defer file.Close()
 		fileName = header.Filename
 	}
 
-	// 生成 UUID
+	// Generate UUID.
 	sampleUUID := uuid.New().String()
 
-	// 保存音频文件到本地
+	// Save audio file locally.
 	filePath, savedFileSize, err := sgc.AudioStorage.SaveAudioFile(
 		userID.(uint),
 		uint(groupID),
@@ -534,15 +534,15 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 		file,
 	)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存音频文件失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save audio file: " + err.Error()})
 		return
 	}
 
-	// 调用 asr_server 注册接口
-	file.Seek(0, 0) // 重置文件指针
+	// Call the asr_server register API.
+	file.Seek(0, 0) // reset file pointer
 	err = sgc.callRegisterAPI(
-		fmt.Sprintf("%d", speakerGroup.ID), // speaker_id 使用声纹组的主键 ID
-		speakerGroup.Name,                  // speaker_name 使用组名称
+		fmt.Sprintf("%d", speakerGroup.ID), // speaker_id uses the speaker group's primary key
+		speakerGroup.Name,                  // speaker_name uses the group name
 		sampleUUID,
 		speakerGroup.AgentID, // agent_id
 		file,
@@ -550,13 +550,13 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 		userID,
 	)
 	if err != nil {
-		// 如果注册失败，删除已保存的文件
+		// If registration fails, delete the saved file.
 		sgc.AudioStorage.DeleteAudioFile(filePath)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "注册声纹失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to register speaker: " + err.Error()})
 		return
 	}
 
-	// 创建样本记录
+	// Create sample record.
 	sample := models.SpeakerSample{
 		SpeakerGroupID: uint(groupID),
 		UserID:         userID.(uint),
@@ -568,14 +568,14 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 	}
 
 	if err := sgc.DB.Create(&sample).Error; err != nil {
-		// 如果数据库保存失败，删除文件和 asr_server 中的记录
+		// If database save fails, delete the file and the asr_server record.
 		sgc.AudioStorage.DeleteAudioFile(filePath)
 		sgc.callDeleteAPI(sampleUUID, speakerGroup.AgentID, userID, sampleUUID)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "保存样本记录失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to save sample record"})
 		return
 	}
 
-	// 更新声纹组的样本数量
+	// Update speaker group sample count.
 	sgc.DB.Model(&speakerGroup).Update("sample_count", gorm.Expr("sample_count + 1"))
 
 	c.JSON(http.StatusCreated, gin.H{
@@ -591,40 +591,40 @@ func (sgc *SpeakerGroupController) AddSample(c *gin.Context) {
 	})
 }
 
-// GetSamples 获取声纹组下的所有样本
+// GetSamples returns all samples in a speaker group.
 func (sgc *SpeakerGroupController) GetSamples(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
-	groupIDStr := c.Param("id") // 改为使用 :id 参数
+	groupIDStr := c.Param("id") // use :id parameter
 	groupID, err := strconv.ParseUint(groupIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
-	// 验证声纹组是否存在且属于当前用户
+	// Verify the speaker group exists and belongs to the current user.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", groupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 查询样本列表
+	// Query sample list.
 	var samples []models.SpeakerSample
 	if err := sgc.DB.Where("speaker_group_id = ?", groupID).Order("created_at DESC").Find(&samples).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询样本失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query samples"})
 		return
 	}
 
-	// 构建响应
+	// Build response.
 	result := make([]gin.H, 0)
 	for _, sample := range samples {
 		result = append(result, gin.H{
@@ -644,106 +644,106 @@ func (sgc *SpeakerGroupController) GetSamples(c *gin.Context) {
 	})
 }
 
-// DeleteSample 删除声纹样本
+// DeleteSample deletes a speaker sample.
 func (sgc *SpeakerGroupController) DeleteSample(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
-	groupIDStr := c.Param("id") // 改为使用 :id 参数
+	groupIDStr := c.Param("id") // use :id parameter
 	sampleIDStr := c.Param("sample_id")
 
 	groupID, err := strconv.ParseUint(groupIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
 	sampleID, err := strconv.ParseUint(sampleIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的样本ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid sample ID"})
 		return
 	}
 
-	// 验证样本是否存在且属于当前用户
+	// Verify the sample exists and belongs to the current user.
 	var sample models.SpeakerSample
 	if err := sgc.DB.Where("id = ? AND speaker_group_id = ? AND user_id = ?", sampleID, groupID, userID).First(&sample).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "样本不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "sample not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询样本失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query sample"})
 		return
 	}
 
-	// 查询声纹组以获取 AgentID
+	// Query the speaker group to get AgentID.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ?", groupID).First(&speakerGroup).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 调用 asr_server 删除接口（通过 UUID）
+	// Call the asr_server delete API (via UUID).
 	sgc.callDeleteAPI(sample.UUID, speakerGroup.AgentID, userID, sample.UUID)
 
-	// 删除本地文件
+	// Delete local file.
 	sgc.AudioStorage.DeleteAudioFile(sample.FilePath)
 
-	// 删除数据库记录
+	// Delete database record.
 	if err := sgc.DB.Delete(&sample).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "删除样本失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to delete sample"})
 		return
 	}
 
-	// 更新声纹组的样本数量
+	// Update speaker group sample count.
 	sgc.DB.Model(&models.SpeakerGroup{}).Where("id = ?", groupID).Update("sample_count", gorm.Expr("sample_count - 1"))
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "样本删除成功",
+		"message": "sample deleted successfully",
 	})
 }
 
-// VerifySpeakerGroup 验证声纹组
+// VerifySpeakerGroup verifies a speaker group against an audio sample.
 func (sgc *SpeakerGroupController) VerifySpeakerGroup(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
 	id := c.Param("id")
 	speakerGroupID, err := strconv.ParseUint(id, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
-	// 验证声纹组是否存在且属于当前用户
+	// Verify the speaker group exists and belongs to the current user.
 	var speakerGroup models.SpeakerGroup
 	if err := sgc.DB.Where("id = ? AND user_id = ?", speakerGroupID, userID).First(&speakerGroup).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "声纹组不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "speaker group not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询声纹组失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query speaker group"})
 		return
 	}
 
-	// 获取上传的音频文件
+	// Get the uploaded audio file.
 	file, header, err := c.Request.FormFile("audio")
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "音频文件缺失: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "audio file missing: " + err.Error()})
 		return
 	}
 	defer file.Close()
 
-	// 调用 asr_server 验证接口
+	// Call the asr_server verify API.
 	result, err := sgc.callVerifyAPI(fmt.Sprintf("%d", speakerGroup.ID), speakerGroup.AgentID, file, header, userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "验证失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "verification failed: " + err.Error()})
 		return
 	}
 
@@ -760,15 +760,15 @@ func (sgc *SpeakerGroupController) VerifySpeakerGroup(c *gin.Context) {
 	})
 }
 
-// getVerifyMessage 生成验证结果提示信息
+// getVerifyMessage generates a human-readable verification result message.
 func (sgc *SpeakerGroupController) getVerifyMessage(verified bool, confidence float32) string {
 	if verified {
-		return fmt.Sprintf("验证通过，相似度: %.1f%%", confidence*100)
+		return fmt.Sprintf("verification passed, similarity: %.1f%%", confidence*100)
 	}
-	return fmt.Sprintf("验证未通过，相似度: %.1f%%", confidence*100)
+	return fmt.Sprintf("verification failed, similarity: %.1f%%", confidence*100)
 }
 
-// VerifyResult 验证结果
+// VerifyResult holds the result of a speaker verification call.
 type VerifyResult struct {
 	SpeakerID   string  `json:"speaker_id"`
 	SpeakerName string  `json:"speaker_name"`
@@ -777,73 +777,73 @@ type VerifyResult struct {
 	Threshold   float32 `json:"threshold"`
 }
 
-// callVerifyAPI 调用 asr_server 验证接口
+// callVerifyAPI calls the asr_server verify endpoint.
 func (sgc *SpeakerGroupController) callVerifyAPI(speakerID string, agentID uint, file multipart.File, header *multipart.FileHeader, userID interface{}) (*VerifyResult, error) {
-	// 准备 multipart form data
+	// Prepare multipart form data.
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
 
-	// 添加文件
+	// Add file field.
 	part, err := writer.CreateFormFile("audio", header.Filename)
 	if err != nil {
 		writer.Close()
-		return nil, fmt.Errorf("创建文件字段失败: %v", err)
+		return nil, fmt.Errorf("failed to create file field: %v", err)
 	}
 
-	// 重置文件指针
+	// Reset file pointer.
 	file.Seek(0, 0)
 	if _, err := io.Copy(part, file); err != nil {
 		writer.Close()
-		return nil, fmt.Errorf("复制文件内容失败: %v", err)
+		return nil, fmt.Errorf("failed to copy file content: %v", err)
 	}
 
 	writer.Close()
 
-	// 创建请求
+	// Build request.
 	apiURL := fmt.Sprintf("%s/api/v1/speaker/verify/%s", sgc.ServiceURL, url.PathEscape(speakerID))
 	req, err := http.NewRequest("POST", apiURL, &requestBody)
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %v", err)
+		return nil, fmt.Errorf("failed to create request: %v", err)
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("X-User-ID", fmt.Sprintf("%v", userID))
-	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID)) // 新增 agent_id 请求头
+	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID))
 
-	// 发送请求
+	// Send request.
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	resp, err := sgc.HTTPClient.Do(req.WithContext(ctx))
 	if err != nil {
-		return nil, fmt.Errorf("发送请求失败: %v", err)
+		return nil, fmt.Errorf("failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
-	// 读取响应
+	// Read response.
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("读取响应失败: %v", err)
+		return nil, fmt.Errorf("failed to read response: %v", err)
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("asr_server 返回错误 (状态码: %d): %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("asr_server returned error (status: %d): %s", resp.StatusCode, string(body))
 	}
 
-	// 解析响应
+	// Parse response.
 	var result VerifyResult
 	if err := json.Unmarshal(body, &result); err != nil {
-		return nil, fmt.Errorf("解析响应失败: %v", err)
+		return nil, fmt.Errorf("failed to parse response: %v", err)
 	}
 
 	return &result, nil
 }
 
-// GetSampleFile 获取样本音频文件
+// GetSampleFile returns the audio file for a speaker sample.
 func (sgc *SpeakerGroupController) GetSampleFile(c *gin.Context) {
 	userID, exists := c.Get("user_id")
 	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "认证信息缺失"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "missing authentication info"})
 		return
 	}
 
@@ -852,124 +852,124 @@ func (sgc *SpeakerGroupController) GetSampleFile(c *gin.Context) {
 
 	groupID, err := strconv.ParseUint(groupIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的声纹组ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid speaker group ID"})
 		return
 	}
 
 	sampleID, err := strconv.ParseUint(sampleIDStr, 10, 32)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "无效的样本ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid sample ID"})
 		return
 	}
 
-	// 验证样本是否存在且属于当前用户
+	// Verify the sample exists and belongs to the current user.
 	var sample models.SpeakerSample
 	if err := sgc.DB.Where("id = ? AND speaker_group_id = ? AND user_id = ?", sampleID, groupID, userID).First(&sample).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "样本不存在"})
+			c.JSON(http.StatusNotFound, gin.H{"error": "sample not found"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "查询样本失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to query sample"})
 		return
 	}
 
-	// 检查文件是否存在
+	// Check whether the file exists.
 	if !sgc.AudioStorage.FileExists(sample.FilePath) {
-		c.JSON(http.StatusNotFound, gin.H{"error": "音频文件不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "audio file not found"})
 		return
 	}
 
-	// 打开文件
+	// Open the file.
 	file, err := sgc.AudioStorage.GetAudioFile(sample.FilePath)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "读取文件失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to read file"})
 		return
 	}
 	defer file.Close()
 
-	// 获取文件信息
+	// Get file info.
 	fileInfo, err := file.Stat()
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取文件信息失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get file info"})
 		return
 	}
 
-	// 设置响应头
+	// Set response headers.
 	c.Header("Content-Type", "audio/wav")
 	c.Header("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", sample.FileName))
 	c.Header("Content-Length", fmt.Sprintf("%d", fileInfo.Size()))
 
-	// 返回文件内容
+	// Return file content.
 	c.File(sample.FilePath)
 }
 
-// callRegisterAPI 调用 asr_server 注册接口
+// callRegisterAPI calls the asr_server register endpoint.
 func (sgc *SpeakerGroupController) callRegisterAPI(speakerID, speakerName, uuid string, agentID uint, file multipart.File, header *multipart.FileHeader, userID interface{}) error {
-	// 准备 multipart form data
+	// Prepare multipart form data.
 	var requestBody bytes.Buffer
 	writer := multipart.NewWriter(&requestBody)
 
-	// 添加字段
+	// Add form fields.
 	writer.WriteField("speaker_id", speakerID)
 	writer.WriteField("speaker_name", speakerName)
 	writer.WriteField("uuid", uuid)
-	writer.WriteField("agent_id", fmt.Sprintf("%d", agentID)) // 新增 agent_id 字段
+	writer.WriteField("agent_id", fmt.Sprintf("%d", agentID))
 	writer.WriteField("uid", fmt.Sprintf("%v", userID))
 
-	// 添加文件
+	// Add file field.
 	part, err := writer.CreateFormFile("audio", header.Filename)
 	if err != nil {
 		writer.Close()
-		return fmt.Errorf("创建文件字段失败: %v", err)
+		return fmt.Errorf("failed to create file field: %v", err)
 	}
 
-	// 重置文件指针
+	// Reset file pointer.
 	file.Seek(0, 0)
 	if _, err := io.Copy(part, file); err != nil {
 		writer.Close()
-		return fmt.Errorf("复制文件内容失败: %v", err)
+		return fmt.Errorf("failed to copy file content: %v", err)
 	}
 
 	writer.Close()
 
-	// 创建请求
+	// Build request.
 	url := fmt.Sprintf("%s/api/v1/speaker/register", sgc.ServiceURL)
 	req, err := http.NewRequest("POST", url, &requestBody)
 	if err != nil {
-		return fmt.Errorf("创建请求失败: %v", err)
+		return fmt.Errorf("failed to create request: %v", err)
 	}
 
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	req.Header.Set("X-User-ID", fmt.Sprintf("%v", userID))
-	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID)) // 新增 agent_id 请求头
+	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID))
 
-	// 发送请求
+	// Send request.
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
 	resp, err := sgc.HTTPClient.Do(req.WithContext(ctx))
 	if err != nil {
-		return fmt.Errorf("发送请求失败: %v", err)
+		return fmt.Errorf("failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("asr_server 返回错误: %s", string(body))
+		return fmt.Errorf("asr_server returned error: %s", string(body))
 	}
 
 	return nil
 }
 
-// callDeleteAPI 调用 asr_server 删除接口
-// speakerID: 作为路径参数（speaker_id 或 uuid）
-// agentID: Agent ID
-// uuid: 可选，如果提供则作为查询参数（用于删除单个样本）
+// callDeleteAPI calls the asr_server delete endpoint.
+// speakerID: used as the path parameter (speaker_id or uuid).
+// agentID: the Agent ID.
+// uuid: optional; if provided, it is passed as a query parameter (for deleting a single sample).
 func (sgc *SpeakerGroupController) callDeleteAPI(speakerID string, agentID uint, userID interface{}, uuid ...string) error {
-	// 构建 URL：路径参数使用 speakerID
+	// Build URL with speakerID as path parameter.
 	apiURL := fmt.Sprintf("%s/api/v1/speaker/%s", sgc.ServiceURL, url.PathEscape(speakerID))
 
-	// 构建查询参数
+	// Build query parameters.
 	queryParams := make([]string, 0)
 	if len(uuid) > 0 && uuid[0] != "" {
 		queryParams = append(queryParams, fmt.Sprintf("uuid=%s", url.QueryEscape(uuid[0])))
@@ -982,32 +982,32 @@ func (sgc *SpeakerGroupController) callDeleteAPI(speakerID string, agentID uint,
 
 	req, err := http.NewRequest("DELETE", apiURL, nil)
 	if err != nil {
-		return fmt.Errorf("创建请求失败: %v", err)
+		return fmt.Errorf("failed to create request: %v", err)
 	}
 
 	req.Header.Set("X-User-ID", fmt.Sprintf("%v", userID))
-	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID)) // 新增 agent_id 请求头
+	req.Header.Set("X-Agent-ID", fmt.Sprintf("%d", agentID))
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	resp, err := sgc.HTTPClient.Do(req.WithContext(ctx))
 	if err != nil {
-		return fmt.Errorf("发送请求失败: %v", err)
+		return fmt.Errorf("failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
 		if len(uuid) > 0 && uuid[0] != "" {
-			log.Printf("asr_server 删除失败 (speaker_id: %s, uuid: %s): %s", speakerID, uuid[0], string(body))
+			log.Printf("asr_server deletion failed (speaker_id: %s, uuid: %s): %s", speakerID, uuid[0], string(body))
 		} else {
-			log.Printf("asr_server 删除失败 (speaker_id: %s): %s", speakerID, string(body))
+			log.Printf("asr_server deletion failed (speaker_id: %s): %s", speakerID, string(body))
 		}
-		// 如果提供了 uuid，不返回错误（可能已经删除或不存在）
-		// 如果是通过 speaker_id 删除，返回错误
+		// If uuid is provided, do not return an error (record may already be deleted or not exist).
+		// If deleting by speaker_id, return an error.
 		if len(uuid) == 0 || uuid[0] == "" {
-			return fmt.Errorf("asr_server 返回错误: %s", string(body))
+			return fmt.Errorf("asr_server returned error: %s", string(body))
 		}
 	}
 

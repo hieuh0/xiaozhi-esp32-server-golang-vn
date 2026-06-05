@@ -7,20 +7,20 @@ import (
 	"gorm.io/gorm"
 )
 
-// GormBaseStorage 通用GORM存储基类
-// 包含所有基于GORM的存储操作的通用实现
+// GormBaseStorage generic GORM storage base
+// contains common implementation for all GORM-based storage operations
 type GormBaseStorage struct {
-	DB *gorm.DB // 导出字段，允许子类访问
+	DB *gorm.DB // exported field, accessible by subtypes
 }
 
-// NewGormBaseStorage 创建GORM基础存储实例
+// NewGormBaseStorage creates a GORM base storage instance
 func NewGormBaseStorage(db *gorm.DB) *GormBaseStorage {
 	return &GormBaseStorage{
 		DB: db,
 	}
 }
 
-// Ping 检查数据库连接
+// Ping checks the database connection
 func (s *GormBaseStorage) Ping() error {
 	sqlDB, err := s.DB.DB()
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *GormBaseStorage) Ping() error {
 	return sqlDB.Ping()
 }
 
-// Close 关闭数据库连接
+// Close closes the database connection
 func (s *GormBaseStorage) Close() error {
 	sqlDB, err := s.DB.DB()
 	if err != nil {
@@ -38,7 +38,7 @@ func (s *GormBaseStorage) Close() error {
 	return sqlDB.Close()
 }
 
-// BeginTx 开始事务
+// BeginTx begins a transaction
 func (s *GormBaseStorage) BeginTx(ctx context.Context) (Transaction, error) {
 	tx := s.DB.WithContext(ctx).Begin()
 	if tx.Error != nil {
@@ -52,7 +52,7 @@ func (s *GormBaseStorage) BeginTx(ctx context.Context) (Transaction, error) {
 	return transaction, nil
 }
 
-// GormTransaction 通用GORM事务实现
+// GormTransaction generic GORM transaction implementation
 type GormTransaction struct {
 	DB *gorm.DB
 	*GormUserStorage
@@ -61,7 +61,7 @@ type GormTransaction struct {
 	*GormConfigStorage
 }
 
-// init 初始化事务中的存储组件
+// init initializes storage components within the transaction
 func (t *GormTransaction) init() {
 	t.GormUserStorage = &GormUserStorage{db: t.DB}
 	t.GormDeviceStorage = &GormDeviceStorage{db: t.DB}
@@ -69,7 +69,7 @@ func (t *GormTransaction) init() {
 	t.GormConfigStorage = &GormConfigStorage{db: t.DB}
 }
 
-// Commit 提交事务
+// Commit commits the transaction
 func (t *GormTransaction) Commit() error {
 	if err := t.DB.Commit().Error; err != nil {
 		return fmt.Errorf("failed to commit transaction: %w", err)
@@ -77,7 +77,7 @@ func (t *GormTransaction) Commit() error {
 	return nil
 }
 
-// Rollback 回滚事务
+// Rollback rolls back the transaction
 func (t *GormTransaction) Rollback() error {
 	if err := t.DB.Rollback().Error; err != nil {
 		return fmt.Errorf("failed to rollback transaction: %w", err)

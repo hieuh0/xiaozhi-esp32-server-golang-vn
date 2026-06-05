@@ -16,7 +16,7 @@ const marketSecretEnv = "MCP_MARKET_SECRET_KEY"
 func loadSecretKey() ([]byte, error) {
 	raw := strings.TrimSpace(os.Getenv(marketSecretEnv))
 	if raw == "" {
-		return nil, fmt.Errorf("环境变量 %s 未设置", marketSecretEnv)
+		return nil, fmt.Errorf("environment variable %s is not set", marketSecretEnv)
 	}
 
 	if decoded, err := base64.StdEncoding.DecodeString(raw); err == nil {
@@ -28,7 +28,7 @@ func loadSecretKey() ([]byte, error) {
 
 	rawKey := []byte(raw)
 	if len(rawKey) != 32 {
-		return nil, fmt.Errorf("%s 必须是32字节原文或Base64(32字节)密钥", marketSecretEnv)
+		return nil, fmt.Errorf("%s must be a 32-byte plaintext or Base64(32-byte) key", marketSecretEnv)
 	}
 
 	return rawKey, nil
@@ -46,16 +46,16 @@ func EncryptText(plain string) (ciphertextB64, nonceB64 string, err error) {
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", "", fmt.Errorf("创建AES失败: %w", err)
+		return "", "", fmt.Errorf("failed to create AES cipher: %w", err)
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", "", fmt.Errorf("创建GCM失败: %w", err)
+		return "", "", fmt.Errorf("failed to create GCM: %w", err)
 	}
 
 	nonce := make([]byte, gcm.NonceSize())
 	if _, err := io.ReadFull(rand.Reader, nonce); err != nil {
-		return "", "", fmt.Errorf("生成随机nonce失败: %w", err)
+		return "", "", fmt.Errorf("failed to generate random nonce: %w", err)
 	}
 
 	ciphertext := gcm.Seal(nil, nonce, []byte(plain), nil)
@@ -74,25 +74,25 @@ func DecryptText(ciphertextB64, nonceB64 string) (string, error) {
 
 	ciphertext, err := base64.StdEncoding.DecodeString(ciphertextB64)
 	if err != nil {
-		return "", fmt.Errorf("解码密文失败: %w", err)
+		return "", fmt.Errorf("failed to decode ciphertext: %w", err)
 	}
 	nonce, err := base64.StdEncoding.DecodeString(nonceB64)
 	if err != nil {
-		return "", fmt.Errorf("解码nonce失败: %w", err)
+		return "", fmt.Errorf("failed to decode nonce: %w", err)
 	}
 
 	block, err := aes.NewCipher(key)
 	if err != nil {
-		return "", fmt.Errorf("创建AES失败: %w", err)
+		return "", fmt.Errorf("failed to create AES cipher: %w", err)
 	}
 	gcm, err := cipher.NewGCM(block)
 	if err != nil {
-		return "", fmt.Errorf("创建GCM失败: %w", err)
+		return "", fmt.Errorf("failed to create GCM: %w", err)
 	}
 
 	plain, err := gcm.Open(nil, nonce, ciphertext, nil)
 	if err != nil {
-		return "", fmt.Errorf("解密失败: %w", err)
+		return "", fmt.Errorf("decryption failed: %w", err)
 	}
 
 	return string(plain), nil

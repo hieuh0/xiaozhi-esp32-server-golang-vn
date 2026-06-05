@@ -76,7 +76,7 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 	if opts.JSONBody != nil {
 		bodyBytes, err := json.Marshal(opts.JSONBody)
 		if err != nil {
-			return nil, fmt.Errorf("序列化请求体失败: %w", err)
+			return nil, fmt.Errorf("failed to serialize request body: %w", err)
 		}
 		bodyReader = bytes.NewReader(bodyBytes)
 	}
@@ -85,7 +85,7 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 	if len(opts.Query) > 0 {
 		u, err := url.Parse(endpointURL)
 		if err != nil {
-			return nil, fmt.Errorf("解析请求URL失败: %w", err)
+			return nil, fmt.Errorf("failed to parse request URL: %w", err)
 		}
 		q := u.Query()
 		for k, v := range opts.Query {
@@ -102,7 +102,7 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 	client := &http.Client{Timeout: opts.Timeout}
 	req, err := http.NewRequestWithContext(ctx, method, endpointURL, bodyReader)
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	if opts.JSONBody != nil {
@@ -121,20 +121,20 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("请求失败: %w", err)
+		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("读取响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read response: %w", err)
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		msg := strings.TrimSpace(string(body))
 		if msg == "" {
 			msg = resp.Status
 		}
-		return nil, fmt.Errorf("请求失败(%d): %s", resp.StatusCode, msg)
+		return nil, fmt.Errorf("request failed (%d): %s", resp.StatusCode, msg)
 	}
 
 	if len(body) == 0 {
@@ -143,7 +143,7 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 
 	var data interface{}
 	if err := json.Unmarshal(body, &data); err != nil {
-		return nil, fmt.Errorf("解析JSON失败: %w", err)
+		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 	return data, nil
 }
@@ -151,7 +151,7 @@ func FetchJSON(ctx context.Context, endpoint string, headers map[string]string, 
 func BuildDetailURL(catalogURL, detailURLTemplate, serviceID string) (string, error) {
 	serviceID = strings.TrimSpace(serviceID)
 	if serviceID == "" {
-		return "", fmt.Errorf("service_id 不能为空")
+		return "", fmt.Errorf("service_id must not be empty")
 	}
 
 	template := strings.TrimSpace(detailURLTemplate)
@@ -164,7 +164,7 @@ func BuildDetailURL(catalogURL, detailURLTemplate, serviceID string) (string, er
 
 	base, err := url.Parse(strings.TrimSpace(catalogURL))
 	if err != nil {
-		return "", fmt.Errorf("catalog_url 非法: %w", err)
+		return "", fmt.Errorf("catalog_url is invalid: %w", err)
 	}
 
 	base.Path = path.Join(base.Path, url.PathEscape(serviceID))

@@ -1,7 +1,7 @@
 <template>
   <div class="voice-clones-page">
     <div class="page-actions">
-      <el-button type="primary" @click="openCreateDialog">{{ t('create_clone_voice') }}创建复刻音色</el-button>
+      <el-button type="primary" @click="openCreateDialog">{{ t('create_clone_voice') }}</el-button>
     </div>
 
     <el-table :data="voiceClones" v-loading="loading" stripe style="width: 100%" table-layout="fixed">
@@ -63,7 +63,7 @@
               :loading="retrySubmittingID === row.id"
               @click="retryClone(row)"
             >
-              重新复刻
+              {{ t('re_clone') }}
             </el-button>
             <el-button
               v-if="canAppendRefAudio(row)"
@@ -73,7 +73,7 @@
               :loading="appendAudioSubmittingID === row.id"
               @click="openAppendAudioDialog(row)"
             >
-              追加参考音频
+              {{ t('append_reference_audio') }}
             </el-button>
             <el-button
               size="small"
@@ -100,13 +100,13 @@
     <el-dialog v-model="createDialogVisible" :title="t('create_clone_voice')" width="680px">
       <el-form label-width="140px">
         <el-form-item :label="t('clone_name_label')">
-          <el-input v-model="form.name" placeholder="可选，不填则自动使用文件名" />
+          <el-input v-model="form.name" :placeholder="t('clone_name_optional_ph')" />
         </el-form-item>
         <el-form-item :label="t('tts_config_label')" required>
-          <el-select v-model="form.tts_config_id" placeholder="请选择可复刻的TTS配置" style="width: 100%" @change="onConfigChange">
+          <el-select v-model="form.tts_config_id" :placeholder="t('select_cloneable_tts_ph')" style="width: 100%" @change="onConfigChange">
             <el-option v-for="cfg in cloneEnabledConfigs" :key="cfg.config_id" :label="`${cfg.name} (${cfg.config_id})`" :value="cfg.config_id" />
           </el-select>
-          <div v-if="isAliyunQwenProvider" class="help">提示：选择该复刻音色后，运行时会自动切换为模型 {{ qwenCloneRuntimeModel }}</div>
+          <div v-if="isAliyunQwenProvider" class="help">{{ t('qwen_clone_hint', { model: qwenCloneRuntimeModel }) }}</div>
           <el-alert
             v-if="createChargeNotice.message"
             class="clone-charge-alert"
@@ -116,21 +116,21 @@
             show-icon
           />
         </el-form-item>
-        <el-form-item label="音频来源">
+        <el-form-item :label="t('audio_source')">
           <el-radio-group v-model="form.source_type">
-            <el-radio label="upload">上传音频</el-radio>
-            <el-radio label="record">浏览器录音</el-radio>
+            <el-radio label="upload">{{ t('upload_audio') }}</el-radio>
+            <el-radio label="record">{{ t('browser_record') }}</el-radio>
           </el-radio-group>
         </el-form-item>
 
-        <el-form-item v-if="form.source_type === 'upload'" label="音频文件" required>
+        <el-form-item v-if="form.source_type === 'upload'" :label="t('audio_file_label')" required>
           <input type="file" :accept="uploadAcceptTypes" @change="handleFileChange" />
           <div class="help">{{ audioRequirementText }}</div>
         </el-form-item>
 
-        <el-form-item v-else label="浏览器录音" required>
-          <el-button :disabled="isRecording" @click="startRecording">开始录音</el-button>
-          <el-button :disabled="!isRecording" type="warning" @click="stopRecording">停止录音</el-button>
+        <el-form-item v-else :label="t('browser_record')" required>
+          <el-button :disabled="isRecording" @click="startRecording">{{ t('start_recording') }}</el-button>
+          <el-button :disabled="!isRecording" type="warning" @click="stopRecording">{{ t('stop_recording_btn') }}</el-button>
           <audio v-if="recordPreviewUrl" :src="recordPreviewUrl" controls style="display:block;width:100%;margin-top:10px" />
           <div class="help">{{ audioRequirementText }}</div>
         </el-form-item>
@@ -142,19 +142,19 @@
             :rows="4"
             :placeholder="capability.requires_transcript ? t('provider_requires_audio_text') : t('optional_submit')"
           />
-          <div class="help">要求：{{ capability.min_text_len || 0 }} - {{ capability.max_text_len || 4000 }} 字符</div>
+          <div class="help">{{ t('text_char_require', { min: capability.min_text_len || 0, max: capability.max_text_len || 4000 }) }}</div>
         </el-form-item>
 
-        <el-form-item label="文字语言">
+        <el-form-item :label="t('text_language')">
           <el-select v-model="form.transcript_lang" style="width: 220px">
-            <el-option label="中文 (zh-CN)" value="zh-CN" />
-            <el-option label="英文 (en-US)" value="en-US" />
+            <el-option :label="t('chinese_lang_option')" value="zh-CN" />
+            <el-option :label="t('english_lang_option')" value="en-US" />
           </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="createDialogVisible = false">{{ t('cancel') }}</el-button>
-        <el-button type="primary" :loading="submitting" @click="submitClone">提交复刻</el-button>
+        <el-button type="primary" :loading="submitting" @click="submitClone">{{ t('submit_clone') }}</el-button>
       </template>
     </el-dialog>
 
@@ -162,7 +162,7 @@
       <el-table :data="currentAudios" stripe>
         <el-table-column prop="source_type" :label="t('source_label')" width="90" />
         <el-table-column prop="file_name" :label="t('filename_label')" min-width="220" />
-        <el-table-column prop="transcript" label="对应文字" min-width="240" show-overflow-tooltip />
+        <el-table-column prop="transcript" :label="t('corresponded_text')" min-width="240" show-overflow-tooltip />
         <el-table-column :label="t('play')" width="120">
           <template #default="{ row }">
             <el-button link type="primary" @click="playAudio(row)">{{ t('play') }}</el-button>
@@ -171,7 +171,7 @@
       </el-table>
     </el-dialog>
 
-    <el-dialog v-model="editDialogVisible" title="编辑复刻音色" width="620px" @close="resetEditForm">
+    <el-dialog v-model="editDialogVisible" :title="t('edit_clone_voice')" width="620px" @close="resetEditForm">
       <el-form label-width="120px">
         <el-form-item :label="t('name')">
           <el-input v-model="editForm.name" maxlength="100" show-word-limit />
@@ -201,7 +201,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="previewPlayerVisible" title="音频试听" width="560px" @close="closePreviewPlayerDialog">
+    <el-dialog v-model="previewPlayerVisible" :title="t('audio_preview_title')" width="560px" @close="closePreviewPlayerDialog">
       <div class="preview-player">
         <div class="preview-player-meta">
           <el-tag size="small" effect="plain">{{ previewPlayerSourceLabel || '-' }}</el-tag>
@@ -223,7 +223,7 @@
           <el-button type="primary" :disabled="!previewPlayerURL" @click="togglePreviewPlayback">
             {{ previewPlayerPlaying ? t('pause') : t('play') }}
           </el-button>
-          <el-button :disabled="!previewPlayerURL" @click="stopPreviewPlayback">停止</el-button>
+          <el-button :disabled="!previewPlayerURL" @click="stopPreviewPlayback">{{ t('stop_btn') }}</el-button>
           <span class="preview-player-time">{{ formatPlayerTime(previewPlayerCurrentTime) }} / {{ formatPlayerTime(previewPlayerDuration) }}</span>
         </div>
       </div>
@@ -340,7 +340,7 @@ const uploadAcceptTypes = computed(() => {
 })
 const audioRequirementText = computed(() => {
   if (requiresMinimaxDuration.value) {
-    return `要求：WAV 格式，时长不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒`
+    return t('wav_min_dur_require', { n: MIN_AUDIO_DURATION_SECONDS })
   }
   if (isAliyunQwenProvider.value) {
     return t('audio_duration_requirement')
@@ -623,7 +623,7 @@ const handleFileChange = async (event) => {
   try {
     const duration = await getAudioDurationSeconds(file)
     if (requiresMinimaxDuration.value && duration < MIN_AUDIO_DURATION_SECONDS) {
-      ElMessage.warning(`音频时长需不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒，当前约 ${duration.toFixed(2)} 秒`)
+      ElMessage.warning(t('audio_min_dur_warning', { min: MIN_AUDIO_DURATION_SECONDS, cur: duration.toFixed(2) }))
       form.value.audioFile = null
       form.value.audioDurationSec = 0
       event.target.value = ''
@@ -709,7 +709,7 @@ const startRecording = async () => {
       const wavBlob = await convertToWav(blob)
       const duration = await getAudioDurationSeconds(wavBlob)
       if (requiresMinimaxDuration.value && duration < MIN_AUDIO_DURATION_SECONDS) {
-        ElMessage.warning(`录音时长需不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒，当前约 ${duration.toFixed(2)} 秒`)
+        ElMessage.warning(t('audio_min_dur_warning', { min: MIN_AUDIO_DURATION_SECONDS, cur: duration.toFixed(2) }))
         form.value.recordBlob = null
         form.value.audioDurationSec = 0
         if (recordPreviewUrl.value) {
@@ -786,7 +786,7 @@ const submitClone = async () => {
       }
     }
     if (requiresMinimaxDuration.value && duration < MIN_AUDIO_DURATION_SECONDS) {
-      ElMessage.warning(`音频时长需不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒，当前约 ${duration.toFixed(2)} 秒`)
+      ElMessage.warning(t('audio_min_dur_warning', { min: MIN_AUDIO_DURATION_SECONDS, cur: duration.toFixed(2) }))
       return
     }
     fd.append('audio_file', form.value.audioFile)
@@ -805,7 +805,7 @@ const submitClone = async () => {
       }
     }
     if (requiresMinimaxDuration.value && duration < MIN_AUDIO_DURATION_SECONDS) {
-      ElMessage.warning(`录音时长需不少于 ${MIN_AUDIO_DURATION_SECONDS} 秒，当前约 ${duration.toFixed(2)} 秒`)
+      ElMessage.warning(t('audio_min_dur_warning', { min: MIN_AUDIO_DURATION_SECONDS, cur: duration.toFixed(2) }))
       return
     }
     fd.append('audio_blob', form.value.recordBlob, `recording_${Date.now()}.wav`)
@@ -916,7 +916,7 @@ const deleteClone = async (clone) => {
   if (!clone?.id || deleteSubmittingID.value) return
   try {
     await ElMessageBox.confirm(
-      `确认删除复刻音色“${clone.name || clone.provider_voice_id || clone.id}”吗？删除后将不再出现在列表和可选音色中。`,
+      t('confirm_delete_clone_voice', { name: clone.name || clone.provider_voice_id || clone.id }),
       t('delete_cloned_voice'),
       {
         type: 'warning',

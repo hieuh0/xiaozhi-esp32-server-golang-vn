@@ -1,20 +1,18 @@
 <template>
   <div class="api-tokens-page">
     <div class="page-actions">
-      <router-link class="doc-link" to="/openapi-docs">{{ t('view_public_openapi') }}查看公开 OpenAPI 接口说明</router-link>
+      <router-link class="doc-link" to="/openapi-docs">{{ t('view_public_openapi') }}</router-link>
       <el-button type="primary" @click="openCreateDialog">
         <el-icon><Plus /></el-icon>
         {{ t('create_token') }}</el-button>
     </div>
 
     <el-alert type="info" :closable="false" show-icon>
-      <template #title>
-        支持两种调用方式：Authorization: Bearer &lt;token&gt; 或 X-API-Token: &lt;token&gt;
-      </template>
+      <template #title>{{ t('call_method_hint') }}</template>
     </el-alert>
 
     <el-card class="table-card" shadow="never">
-      <el-table :data="tokens" v-loading="loading" empty-text="暂无 Token，请先创建">
+      <el-table :data="tokens" v-loading="loading" :empty-text="t('no_tokens')">
         <el-table-column prop="name" :label="t('name')" min-width="180" />
         <el-table-column prop="token_prefix" :label="t('prefix_col')" min-width="140" />
         <el-table-column :label="t('status')" width="100">
@@ -44,14 +42,14 @@
       </el-table>
     </el-card>
 
-    <el-dialog v-model="showCreate" title="创建 API Token" width="480px">
+    <el-dialog v-model="showCreate" :title="t('create_api_token_title')" width="480px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="Token 名称" prop="name">
-          <el-input v-model="form.name" maxlength="100" placeholder="例如：生产环境调用" />
+        <el-form-item :label="t('token_name_label')" prop="name">
+          <el-input v-model="form.name" maxlength="100" :placeholder="t('token_name_ph')" />
         </el-form-item>
-        <el-form-item label="有效天数">
+        <el-form-item :label="t('valid_days_label')">
           <el-input-number v-model="form.expires_in_days" :min="0" :max="3650" />
-          <div class="form-tip">0 表示永不过期</div>
+          <div class="form-tip">{{ t('valid_forever_hint') }}</div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -60,14 +58,14 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="showPlainToken" title="请立即保存 Token" width="640px">
+    <el-dialog v-model="showPlainToken" :title="t('save_token_now')" width="640px">
       <el-alert type="warning" :closable="false" show-icon>
-        明文 Token 后续无法再次查看，请立即复制并安全保存。
+        {{ t('plain_token_hint') }}
       </el-alert>
       <el-input class="token-input" v-model="latestToken" type="textarea" :rows="3" readonly />
       <template #footer>
         <el-button @click="showPlainToken = false">{{ t('close') }}</el-button>
-        <el-button type="primary" @click="copyToken">复制 Token</el-button>
+        <el-button type="primary" @click="copyToken">{{ t('copy_token') }}</el-button>
       </template>
     </el-dialog>
   </div>
@@ -137,7 +135,7 @@ const handleCreate = async () => {
 }
 
 const handleRevoke = async (row) => {
-  await ElMessageBox.confirm(`确定吊销 Token「${row.name}」吗？`, t('hint'), {
+  await ElMessageBox.confirm(t('confirm_revoke_token', { name: row.name }), t('hint'), {
     confirmButtonText: t('confirm'),
     cancelButtonText: t('cancel'),
     type: 'warning'

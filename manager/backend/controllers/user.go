@@ -33,7 +33,7 @@ type UserController struct {
 	}
 }
 
-// UserConfigResponse 普通用户可见的配置响应（不包含 json_data 等敏感字段）
+// UserConfigResponse is the config response visible to regular users (excludes sensitive json_data fields)
 type UserConfigResponse struct {
 	ID        uint      `json:"id"`
 	Type      string    `json:"type"`
@@ -83,7 +83,7 @@ func normalizeMemoryMode(mode string) string {
 	}
 }
 
-// 语音推送到设备
+// InjectMessage pushes a voice message to a device
 func (uc *UserController) InjectMessage(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 
@@ -95,16 +95,15 @@ func (uc *UserController) InjectMessage(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 
-	// 验证设备是否属于当前用户
 	var device models.Device
 
 	if err := uc.DB.Where("device_name = ? AND user_id = ?", req.DeviceID, userID).First(&device).Error; err != nil {
-		log.Printf("[InjectMessage] 设备查询失败: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "设备不存在或不属于当前用户"})
+		log.Printf("[InjectMessage] device query failed: %v", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "device not found or does not belong to current user"})
 		return
 	}
 
@@ -113,17 +112,16 @@ func (uc *UserController) InjectMessage(c *gin.Context) {
 		autoListen = *req.AutoListen
 	}
 
-	// 通过WebSocket发送语音推送请求到主服务器
 	ctx := context.Background()
 	err := uc.WebSocketController.InjectMessageToDevice(ctx, device.DeviceName, req.Message, req.SkipLlm, autoListen)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "语音推送失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "voice push failed: " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "语音推送请求已发送",
+		"message": "voice push request sent",
 		"data": gin.H{
 			"device_id":   req.DeviceID,
 			"message":     req.Message,
@@ -133,21 +131,21 @@ func (uc *UserController) InjectMessage(c *gin.Context) {
 	})
 }
 
-// 用户直接创建设备（无需验证码）
+// CreateDevice creates a device for the current user (no captcha required)
 func (uc *UserController) CreateDevice(c *gin.Context) {
 	var req DevicePayload
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 	device, err := NewDeviceService(uc.DB).Create(scopeFromContext(c), req)
 	if err != nil {
-		writeServiceError(c, err, "创建设备失败")
+		writeServiceError(c, err, "failed to create device")
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{
 		"success": true,
-		"message": "设备创建成功",
+		"message": "device created successfully",
 		"data": gin.H{
 			"device_code": device.DeviceCode,
 			"device":      device,
@@ -155,9 +153,8 @@ func (uc *UserController) CreateDevice(c *gin.Context) {
 	})
 }
 
-// 生成6位随机数字代码
+// generateRandomCode generates a 6-digit random numeric code
 func generateRandomCode() string {
-	// 生成6位随机数字
 	code := fmt.Sprintf("%06d", rand.Intn(1000000))
 	return code
 }
@@ -181,13 +178,13 @@ func normalizeDeviceNameCandidate(value string) string {
 func normalizeDeviceNickName(value string) (string, error) {
 	nickName := strings.TrimSpace(value)
 	if len([]rune(nickName)) > 50 {
-		return "", fmt.Errorf("设备昵称最多 50 个字符")
+		return "", fmt.Errorf("device nickname must be 50 characters or fewer")
 	}
 	return nickName, nil
 }
 
 func generateUniqueDeviceCode(db *gorm.DB) string {
-	for i := 0; i < 10; i++ { // 最多尝试10次
+	for i := 0; i < 10; i++ {
 		code := generateRandomCode()
 
 		var count int64
@@ -199,17 +196,17 @@ func generateUniqueDeviceCode(db *gorm.DB) string {
 	return fmt.Sprintf("%06d", time.Now().Unix()%1000000)
 }
 
-// 获取用户所有设备概览（只读）
+// GetMyDevices returns an overview of all devices for the current user (read-only)
 func (uc *UserController) GetMyDevices(c *gin.Context) {
 	result, err := NewDeviceService(uc.DB).List(scopeFromContext(c))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取设备列表失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list devices"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-// UpdateDevice 更新当前用户自己的设备昵称。device_name 是设备端标识，不在这里修改。
+// UpdateDevice updates the device nickname for the current user. device_name (the hardware identifier) is not modified here.
 func (uc *UserController) UpdateDevice(c *gin.Context) {
 	deviceID, ok := parseUintParam(c, "id")
 	if !ok {
@@ -217,35 +214,34 @@ func (uc *UserController) UpdateDevice(c *gin.Context) {
 	}
 	var req DevicePayload
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 	device, err := NewDeviceService(uc.DB).Update(scopeFromContext(c), deviceID, req)
 	if err != nil {
-		writeServiceError(c, err, "更新设备失败")
+		writeServiceError(c, err, "failed to update device")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"success": true, "data": device})
 }
 
-// DeleteDevice 从系统中删除当前用户自己的设备。删除后设备需要重新走激活流程才能再次进入系统。
+// DeleteDevice removes the current user's device from the system. The device must go through the activation flow again to rejoin.
 func (uc *UserController) DeleteDevice(c *gin.Context) {
 	deviceID, ok := parseUintParam(c, "id")
 	if !ok {
 		return
 	}
 	if err := NewDeviceService(uc.DB).Delete(scopeFromContext(c), deviceID); err != nil {
-		writeServiceError(c, err, "删除设备失败")
+		writeServiceError(c, err, "failed to delete device")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "设备已从系统删除，需要重新激活后才能再次使用"})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "device removed from system, reactivation required before next use"})
 }
 
-// 智能体管理
 func (uc *UserController) GetAgents(c *gin.Context) {
 	result, err := NewAgentService(uc.DB).List(scopeFromContext(c))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取智能体列表失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list agents"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result})
@@ -254,12 +250,12 @@ func (uc *UserController) GetAgents(c *gin.Context) {
 func (uc *UserController) CreateAgent(c *gin.Context) {
 	var req AgentPayload
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters"})
 		return
 	}
 	agent, err := NewAgentService(uc.DB).Create(scopeFromContext(c), req)
 	if err != nil {
-		writeServiceError(c, err, "创建智能体失败")
+		writeServiceError(c, err, "failed to create agent")
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": gin.H{"agent": agent, "knowledge_base_ids": agent.KnowledgeBaseIDs}})
@@ -272,7 +268,7 @@ func (uc *UserController) GetAgent(c *gin.Context) {
 	}
 	result, err := NewAgentService(uc.DB).Get(scopeFromContext(c), id)
 	if err != nil {
-		writeServiceError(c, err, "获取智能体失败")
+		writeServiceError(c, err, "failed to get agent")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result})
@@ -285,12 +281,12 @@ func (uc *UserController) UpdateAgent(c *gin.Context) {
 	}
 	var req AgentPayload
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters"})
 		return
 	}
 	agent, err := NewAgentService(uc.DB).Update(scopeFromContext(c), id, req)
 	if err != nil {
-		writeServiceError(c, err, "更新智能体失败")
+		writeServiceError(c, err, "failed to update agent")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": gin.H{"agent": agent, "knowledge_base_ids": agent.KnowledgeBaseIDs}})
@@ -302,13 +298,13 @@ func (uc *UserController) DeleteAgent(c *gin.Context) {
 		return
 	}
 	if err := NewAgentService(uc.DB).Delete(scopeFromContext(c), id); err != nil {
-		writeServiceError(c, err, "删除智能体失败")
+		writeServiceError(c, err, "failed to delete agent")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"message": "删除成功"})
+	c.JSON(http.StatusOK, gin.H{"message": "deleted successfully"})
 }
 
-// 获取智能体关联的设备
+// GetAgentDevices returns devices associated with an agent
 func (uc *UserController) GetAgentDevices(c *gin.Context) {
 	agentID, ok := parseUintParam(c, "id")
 	if !ok {
@@ -316,13 +312,13 @@ func (uc *UserController) GetAgentDevices(c *gin.Context) {
 	}
 	devices, err := NewDeviceService(uc.DB).ListByAgent(scopeFromContext(c), agentID)
 	if err != nil {
-		writeServiceError(c, err, "获取设备列表失败")
+		writeServiceError(c, err, "failed to list devices")
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": devices})
 }
 
-// 将设备添加到智能体
+// AddDeviceToAgent binds a device to an agent
 func (uc *UserController) AddDeviceToAgent(c *gin.Context) {
 	agentID, ok := parseUintParam(c, "id")
 	if !ok {
@@ -330,18 +326,18 @@ func (uc *UserController) AddDeviceToAgent(c *gin.Context) {
 	}
 	var req DevicePayload
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters"})
 		return
 	}
 	device, err := NewDeviceService(uc.DB).BindToAgent(scopeFromContext(c), agentID, req)
 	if err != nil {
-		writeServiceError(c, err, "设备绑定失败")
+		writeServiceError(c, err, "failed to bind device")
 		return
 	}
 	c.JSON(http.StatusCreated, gin.H{"success": true, "data": device})
 }
 
-// 从智能体移除设备
+// RemoveDeviceFromAgent unbinds a device from an agent
 func (uc *UserController) RemoveDeviceFromAgent(c *gin.Context) {
 	agentID, ok := parseUintParam(c, "id")
 	if !ok {
@@ -352,17 +348,17 @@ func (uc *UserController) RemoveDeviceFromAgent(c *gin.Context) {
 		return
 	}
 	if err := NewDeviceService(uc.DB).UnbindFromAgent(scopeFromContext(c), agentID, deviceID); err != nil {
-		writeServiceError(c, err, "移除设备失败")
+		writeServiceError(c, err, "failed to remove device")
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"success": true, "message": "设备移除成功"})
+	c.JSON(http.StatusOK, gin.H{"success": true, "message": "device removed successfully"})
 }
 
-// 获取角色模板
+// GetRoleTemplates returns available role templates
 func (uc *UserController) GetRoleTemplates(c *gin.Context) {
 	var roles []models.GlobalRole
 	if err := uc.DB.Find(&roles).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取角色模板失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get role templates"})
 		return
 	}
 
@@ -432,7 +428,7 @@ func (uc *UserController) fetchIndexTTSVoices(c *gin.Context, configID, override
 		return nil, err
 	}
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("IndexTTS 获取音色失败: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(body)))
+		return nil, fmt.Errorf("IndexTTS fetch voices failed: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 	voiceMap := map[string]any{}
 	if err = json.Unmarshal(body, &voiceMap); err != nil {
@@ -448,7 +444,7 @@ func (uc *UserController) fetchIndexTTSVoices(c *gin.Context, configID, override
 		if v == "" {
 			continue
 		}
-		// 过滤掉当前 IndexTTS 配置实例生成的内部前缀音色，避免和复刻音色重复展示。
+		// skip voices with this IndexTTS instance's prefix to avoid duplicates with cloned voices
 		if normalizedConfigPrefix != "" && strings.HasPrefix(strings.ToLower(v), normalizedConfigPrefix) {
 			continue
 		}
@@ -457,7 +453,7 @@ func (uc *UserController) fetchIndexTTSVoices(c *gin.Context, configID, override
 	return result, nil
 }
 
-// 获取音色选项
+// GetVoiceOptions returns available voice options
 func (uc *UserController) GetVoiceOptions(c *gin.Context) {
 	scope := scopeFromContext(c)
 	voices, err := getVoiceOptionsForUser(
@@ -480,31 +476,29 @@ func (uc *UserController) GetVoiceOptions(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": voices})
 }
 
-// 获取LLM配置列表
+// GetLLMConfigs returns the list of enabled LLM configs (default first)
 func (uc *UserController) GetLLMConfigs(c *gin.Context) {
 	var configs []models.Config
-	// 从全局配置中获取所有启用的LLM配置，默认配置排在前面
 	if err := uc.DB.Where("type = ? AND enabled = ?", "llm", true).Order("is_default DESC, name ASC").Find(&configs).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取LLM配置失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list LLM configs"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": toUserConfigResponseList(configs)})
 }
 
-// 获取TTS配置列表
+// GetTTSConfigs returns the list of enabled TTS configs (default first)
 func (uc *UserController) GetTTSConfigs(c *gin.Context) {
 	var configs []models.Config
-	// 从全局配置中获取所有启用的TTS配置，默认配置排在前面
 	if err := uc.DB.Where("type = ? AND enabled = ?", "tts", true).Order("is_default DESC, name ASC").Find(&configs).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "获取TTS配置失败"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list TTS configs"})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": toUserConfigResponseList(configs)})
 }
 
-// GetDeviceMcpTools 获取设备维度MCP工具列表（用户版本）
+// GetDeviceMcpTools returns the MCP tool list for a device (user version)
 func (uc *UserController) GetDeviceMcpTools(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	deviceID := c.Param("id")
@@ -515,7 +509,7 @@ func (uc *UserController) GetDeviceMcpTools(c *gin.Context) {
 
 	var device models.Device
 	if err := uc.DB.Where("id = ? AND user_id = ?", deviceID, userID).First(&device).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "设备不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "device not found or does not belong to current user"})
 		return
 	}
 
@@ -528,7 +522,7 @@ func (uc *UserController) GetDeviceMcpTools(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": gin.H{"tools": tools}})
 }
 
-// CallAgentMcpTool 调用智能体维度MCP工具（用户版本）
+// CallAgentMcpTool calls an MCP tool on an agent (user version)
 func (uc *UserController) CallAgentMcpTool(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	agentID := c.Param("id")
@@ -538,13 +532,13 @@ func (uc *UserController) CallAgentMcpTool(c *gin.Context) {
 		Arguments map[string]interface{} `json:"arguments"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 
 	var agent models.Agent
 	if err := uc.DB.Where("id = ? AND user_id = ?", agentID, userID).First(&agent).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "智能体不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found or does not belong to current user"})
 		return
 	}
 
@@ -555,7 +549,7 @@ func (uc *UserController) CallAgentMcpTool(c *gin.Context) {
 	}
 	result, err := uc.WebSocketController.CallMcpToolFromClient(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "调用MCP工具失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to call MCP tool: " + err.Error()})
 		return
 	}
 
@@ -568,13 +562,13 @@ func (uc *UserController) GetAgentMCPServiceOptions(c *gin.Context) {
 
 	var agent models.Agent
 	if err := uc.DB.Where("id = ? AND user_id = ?", id, userID).First(&agent).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "智能体不存在"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found"})
 		return
 	}
 
 	options, err := listEnabledGlobalMCPServiceNames(uc.DB)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("获取MCP服务选项失败: %v", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to list MCP service options: %v", err)})
 		return
 	}
 
@@ -589,7 +583,7 @@ func (uc *UserController) GetAgentMCPServiceOptions(c *gin.Context) {
 func (uc *UserController) GetMCPServiceOptions(c *gin.Context) {
 	options, err := listEnabledGlobalMCPServiceNames(uc.DB)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("获取MCP服务选项失败: %v", err)})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("failed to list MCP service options: %v", err)})
 		return
 	}
 
@@ -598,7 +592,7 @@ func (uc *UserController) GetMCPServiceOptions(c *gin.Context) {
 	}})
 }
 
-// CallDeviceMcpTool 调用设备维度MCP工具（用户版本）
+// CallDeviceMcpTool calls an MCP tool on a device (user version)
 func (uc *UserController) CallDeviceMcpTool(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	deviceID := c.Param("id")
@@ -608,13 +602,13 @@ func (uc *UserController) CallDeviceMcpTool(c *gin.Context) {
 		Arguments map[string]interface{} `json:"arguments"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 
 	var device models.Device
 	if err := uc.DB.Where("id = ? AND user_id = ?", deviceID, userID).First(&device).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "设备不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "device not found or does not belong to current user"})
 		return
 	}
 
@@ -625,14 +619,14 @@ func (uc *UserController) CallDeviceMcpTool(c *gin.Context) {
 	}
 	result, err := uc.WebSocketController.CallMcpToolFromClient(context.Background(), body)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "调用MCP工具失败: " + err.Error()})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to call MCP tool: " + err.Error()})
 		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-// GetAgentMCPEndpoint 获取智能体的MCP接入点URL（用户版本）
+// GetAgentMCPEndpoint returns the MCP endpoint URL for an agent (user version)
 func (uc *UserController) GetAgentMCPEndpoint(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	agentID := c.Param("id")
@@ -641,14 +635,12 @@ func (uc *UserController) GetAgentMCPEndpoint(c *gin.Context) {
 		return
 	}
 
-	// 验证智能体是否存在且属于当前用户
 	var agent models.Agent
 	if err := uc.DB.Where("id = ? AND user_id = ?", agentID, userID).First(&agent).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "智能体不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found or does not belong to current user"})
 		return
 	}
 
-	// 使用公共函数生成MCP接入点
 	endpoint, err := GenerateAgentMCPEndpoint(uc.DB, agentID, userID.(uint), uc.EndpointAuthToken)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -673,7 +665,7 @@ func (uc *UserController) GetAgentMCPEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// GetAgentOpenClawEndpoint 获取智能体的OpenClaw接入点URL（用户版本）
+// GetAgentOpenClawEndpoint returns the OpenClaw endpoint URL for an agent (user version)
 func (uc *UserController) GetAgentOpenClawEndpoint(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	agentID := c.Param("id")
@@ -684,7 +676,7 @@ func (uc *UserController) GetAgentOpenClawEndpoint(c *gin.Context) {
 
 	var agent models.Agent
 	if err := uc.DB.Where("id = ? AND user_id = ?", agentID, userID).First(&agent).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "智能体不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found or does not belong to current user"})
 		return
 	}
 
@@ -735,7 +727,7 @@ func (uc *UserController) GetAgentOpenClawEndpoint(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": data})
 }
 
-// CallAgentOpenClawChatTest 调用智能体 OpenClaw 对话测试（用户版本）
+// CallAgentOpenClawChatTest calls an OpenClaw chat test for an agent (user version)
 func (uc *UserController) CallAgentOpenClawChatTest(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	agentID := c.Param("id")
@@ -753,18 +745,18 @@ func (uc *UserController) CallAgentOpenClawChatTest(c *gin.Context) {
 		TimeoutMs int    `json:"timeout_ms"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "请求参数错误: " + err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request parameters: " + err.Error()})
 		return
 	}
 	req.Message = strings.TrimSpace(req.Message)
 	if req.Message == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "message 不能为空"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "message cannot be empty"})
 		return
 	}
 
 	var agent models.Agent
 	if err := uc.DB.Where("id = ? AND user_id = ?", agentID, userID).First(&agent).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "智能体不存在或不属于当前用户"})
+		c.JSON(http.StatusNotFound, gin.H{"error": "agent not found or does not belong to current user"})
 		return
 	}
 
@@ -836,16 +828,16 @@ func (uc *UserController) CallAgentOpenClawChatTest(c *gin.Context) {
 	if err != nil {
 		msg := err.Error()
 		switch {
-		case strings.Contains(strings.ToLower(msg), "not connected"), strings.Contains(msg, "未连接"):
+		case strings.Contains(strings.ToLower(msg), "not connected"), strings.Contains(msg, "not connected"):
 			c.JSON(http.StatusConflict, gin.H{"error": msg})
-		case strings.Contains(strings.ToLower(msg), "timeout"), strings.Contains(msg, "超时"):
+		case strings.Contains(strings.ToLower(msg), "timeout"), strings.Contains(msg, "timeout"):
 			c.JSON(http.StatusGatewayTimeout, gin.H{"error": msg})
-		case strings.Contains(strings.ToLower(msg), "missing"), strings.Contains(msg, "参数"):
+		case strings.Contains(strings.ToLower(msg), "missing"), strings.Contains(msg, "parameter"):
 			c.JSON(http.StatusBadRequest, gin.H{"error": msg})
-		case strings.Contains(msg, "没有连接的客户端"):
+		case strings.Contains(msg, "no connected clients"):
 			c.JSON(http.StatusServiceUnavailable, gin.H{"error": msg})
 		default:
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "调用OpenClaw对话测试失败: " + msg})
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "OpenClaw chat test failed: " + msg})
 		}
 		return
 	}
@@ -853,25 +845,23 @@ func (uc *UserController) CallAgentOpenClawChatTest(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": result})
 }
 
-// GetAgentMcpTools 获取智能体的MCP工具列表（用户版本）
+// GetAgentMcpTools returns the MCP tool list for an agent (user version)
 func (uc *UserController) GetAgentMcpTools(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	agentID := c.Param("id")
 
-	// 用户验证函数：验证智能体是否存在且属于当前用户
 	userAgentValidator := func(agentID string) error {
 		var agent models.Agent
 		if err := uc.DB.Where("id = ? AND user_id = ?", agentID, userID).First(&agent).Error; err != nil {
-			return fmt.Errorf("智能体不存在或不属于当前用户")
+			return fmt.Errorf("agent not found or does not belong to current user")
 		}
 		return nil
 	}
 
-	// 使用公共函数
 	GetAgentMcpToolsCommon(c, agentID, uc.WebSocketController, userAgentValidator)
 }
 
-// 获取仪表板统计数据
+// GetDashboardStats returns dashboard statistics
 func (uc *UserController) GetDashboardStats(c *gin.Context) {
 	userID, _ := c.Get("user_id")
 	userRole, _ := c.Get("role")
@@ -889,19 +879,15 @@ func (uc *UserController) GetDashboardStats(c *gin.Context) {
 	}
 
 	if userRole == "admin" {
-		// 管理员查看全部数据
 		uc.DB.Model(&models.User{}).Count(&stats.TotalUsers)
 		uc.DB.Model(&models.Device{}).Count(&stats.TotalDevices)
 		uc.DB.Model(&models.Agent{}).Count(&stats.TotalAgents)
-		// 在线设备：最近5分钟内活跃的设备
 		fiveMinutesAgo := time.Now().Add(-5 * time.Minute)
 		uc.DB.Model(&models.Device{}).Where("last_active_at > ?", fiveMinutesAgo).Count(&stats.OnlineDevices)
 	} else {
-		// 普通用户只查看自己的数据
-		stats.TotalUsers = 0 // 普通用户不显示用户数
+		stats.TotalUsers = 0
 		uc.DB.Model(&models.Device{}).Where("user_id = ?", userID).Count(&stats.TotalDevices)
 		uc.DB.Model(&models.Agent{}).Where("user_id = ?", userID).Count(&stats.TotalAgents)
-		// 在线设备：用户自己的最近5分钟内活跃的设备
 		fiveMinutesAgo := time.Now().Add(-5 * time.Minute)
 		uc.DB.Model(&models.Device{}).Where("user_id = ? AND last_active_at > ?", userID, fiveMinutesAgo).Count(&stats.OnlineDevices)
 	}

@@ -146,7 +146,7 @@
             v-model="groupForm.prompt"
             type="textarea"
             :rows="4"
-            placeholder="请输入角色提示词（可选）"
+            :placeholder="t('role_prompt_ph')"
           />
         </el-form-item>
         <el-form-item :label="t('description')" prop="description">
@@ -154,7 +154,7 @@
             v-model="groupForm.description"
             type="textarea"
             :rows="3"
-            placeholder="请输入描述信息（可选）"
+            :placeholder="t('desc_optional_ph')"
             :maxlength="200"
             show-word-limit
           />
@@ -186,7 +186,7 @@
             <el-option
               v-for="ttsConfig in ttsConfigs"
               :key="ttsConfig.config_id"
-              :label="ttsConfig.is_default ? `${ttsConfig.name} (默认)` : ttsConfig.name"
+              :label="ttsConfig.is_default ? t('tts_default_label', { name: ttsConfig.name }) : ttsConfig.name"
               :value="ttsConfig.config_id"
             >
               <div class="config-option">
@@ -216,9 +216,7 @@
               :value="voice.value"
             />
           </el-select>
-          <div class="form-help">
-            当前TTS配置: {{ getCurrentTtsConfigName() }}，可以搜索音色名称或值，也可以手动输入自定义音色值。
-          </div>
+          <div class="form-help">{{ t('current_tts_config_hint', { name: getCurrentTtsConfigName() }) }}</div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -232,7 +230,7 @@
     <!-- 样本管理弹层 -->
     <el-drawer
       v-model="showSampleDrawer"
-      title="样本管理"
+      :title="t('sample_management')"
       :size="800"
       :before-close="handleCloseSampleDrawer"
     >
@@ -246,7 +244,7 @@
               <p>{{ currentGroup.prompt }}</p>
             </div>
             <div v-if="currentGroup.description" class="description-section">
-              <strong>描述:</strong>
+              <strong>{{ t('desc_colon') }}</strong>
               <p>{{ currentGroup.description }}</p>
             </div>
           </div>
@@ -255,15 +253,15 @@
         <!-- 样本列表 -->
         <div class="samples-section">
           <div class="samples-header">
-            <h4>样本列表</h4>
+            <h4>{{ t('sample_list') }}</h4>
             <div class="samples-header-actions">
               <el-button type="success" @click="handleVerifyFromSamples">
                 <el-icon><VideoPlay /></el-icon>
-                验证声纹
+                {{ t('verify_voiceprint_btn') }}
               </el-button>
               <el-button type="primary" @click="handleAddSample">
                 <el-icon><Plus /></el-icon>
-                上传新样本
+                {{ t('upload_new_sample') }}
               </el-button>
             </div>
           </div>
@@ -285,12 +283,12 @@
               </template>
             </el-table-column>
             <el-table-column prop="file_name" :label="t('filename_label')" min-width="150" />
-            <el-table-column prop="file_size" label="文件大小" width="100">
+            <el-table-column prop="file_size" :label="t('file_size_col')" width="100">
               <template #default="{ row }">
                 {{ formatFileSize(row.file_size) }}
               </template>
             </el-table-column>
-            <el-table-column prop="duration" label="时长" width="80">
+            <el-table-column prop="duration" :label="t('duration_col')" width="80">
               <template #default="{ row }">
                 {{ row.duration ? row.duration + 's' : '-' }}
               </template>
@@ -318,7 +316,7 @@
                   @click="handleDownloadSample(row)"
                 >
                   <el-icon><Download /></el-icon>
-                  下载
+                  {{ t('download_btn') }}
                 </el-button>
                 <el-button
                   type="danger"
@@ -343,13 +341,13 @@
     <!-- 上传样本对话框 -->
     <el-dialog
       v-model="showUploadDialog"
-      title="添加声纹样本"
+      :title="t('add_voiceprint_sample')"
       width="600px"
       :before-close="handleCloseUploadDialog"
     >
       <el-tabs v-model="uploadMode" class="upload-tabs">
         <!-- 从历史记录选择 -->
-        <el-tab-pane label="从历史记录选择" name="history">
+        <el-tab-pane :label="t('select_from_history')" name="history">
           <div class="history-section">
             <el-form :model="historyForm" label-width="100px">
               <el-form-item :label="t('agent')">
@@ -383,7 +381,7 @@
                 max-height="400"
                 @row-click="handleSelectHistoryMessage"
               >
-                <el-table-column label="选择" width="80" align="center">
+                <el-table-column :label="t('select_col')" width="80" align="center">
                   <template #default="{ row }">
                     <el-radio
                       :model-value="historyForm.selected_message_id"
@@ -392,19 +390,19 @@
                     />
                   </template>
                 </el-table-column>
-                <el-table-column prop="content" label="消息内容" min-width="200">
+                <el-table-column prop="content" :label="t('message_content_col')" min-width="200">
                   <template #default="{ row }">
                     <div class="message-content">{{ truncateText(row.content, 50) }}</div>
                   </template>
                 </el-table-column>
-                <el-table-column prop="device_id" label="设备ID" width="150">
+                <el-table-column prop="device_id" :label="t('device_id_col')" width="150">
                   <template #default="{ row }">
                     <el-tooltip :content="row.device_id" placement="top">
                       <span>{{ truncateId(row.device_id) }}</span>
                     </el-tooltip>
                   </template>
                 </el-table-column>
-                <el-table-column prop="created_at" label="时间" width="180">
+                <el-table-column prop="created_at" :label="t('time_col')" width="180">
                   <template #default="{ row }">
                     {{ formatDate(row.created_at) }}
                   </template>
@@ -418,7 +416,7 @@
                       @click.stop="handlePreviewHistoryAudio(row)"
                     >
                       <el-icon><VideoPlay /></el-icon>
-                      试听
+                      {{ t('preview_btn') }}
                     </el-button>
                   </template>
                 </el-table-column>
@@ -447,13 +445,9 @@
                 class="audio-upload"
           >
                 <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-            <div class="el-upload__text">
-                  将 WAV 音频文件拖到此处，或<em>点击选择文件</em>
-            </div>
+            <div class="el-upload__text">{{ t('drag_wav_hint') }}</div>
             <template #tip>
-              <div class="el-upload__tip">
-                只能上传 WAV 格式的音频文件，建议时长 3-10 秒，文件大小不超过 10MB
-              </div>
+              <div class="el-upload__tip">{{ t('wav_format_hint') }}</div>
             </template>
           </el-upload>
               <div v-if="uploadForm.audioFile" class="file-info">
@@ -471,21 +465,21 @@
             <div class="record-status">
               <div v-if="!isRecording && !recordedBlob" class="record-ready">
                 <el-icon size="48" color="var(--apple-primary)"><Microphone /></el-icon>
-                <p>点击下方按钮开始录制</p>
-                <p class="record-tip">建议录制 3-10 秒的清晰音频</p>
+                <p>{{ t('click_start_record') }}</p>
+                <p class="record-tip">{{ t('record_tip') }}</p>
               </div>
               <div v-else-if="isRecording" class="record-recording">
                 <div class="recording-indicator">
                   <span class="recording-dot"></span>
-                  <span class="recording-text">正在录制中...</span>
+                  <span class="recording-text">{{ t('recording_in_progress') }}</span>
                 </div>
                 <div class="record-time">{{ formatRecordTime(recordTime) }}</div>
-                <p class="record-tip">点击停止按钮结束录制</p>
+                <p class="record-tip">{{ t('click_stop_record') }}</p>
               </div>
               <div v-else-if="recordedBlob" class="record-complete">
                 <el-icon size="48" color="var(--apple-success)"><CircleCheck /></el-icon>
                 <p>{{ t('recording_complete') }}</p>
-                <p class="record-tip">时长: {{ formatRecordTime(recordTime) }}</p>
+                <p class="record-tip">{{ t('record_duration', { time: formatRecordTime(recordTime) }) }}</p>
                 <audio :src="recordedBlobUrl" controls class="record-preview"></audio>
               </div>
             </div>
@@ -508,7 +502,7 @@
                 @click="stopRecording"
               >
                 <el-icon><VideoPause /></el-icon>
-                停止录制
+                {{ t('stop_record') }}
               </el-button>
               <el-button
                 v-if="recordedBlob"
@@ -518,7 +512,7 @@
                 :disabled="!canRecord"
               >
                 <el-icon><Refresh /></el-icon>
-                重新录制
+                {{ t('re_record') }}
           </el-button>
         </div>
           </div>
@@ -541,7 +535,7 @@
     <!-- 验证声纹组对话框 -->
     <el-dialog
       v-model="showVerifyDialog"
-      :title="`验证声纹组: ${currentVerifyGroup?.name || ''}`"
+      :title="t('verify_group_title', { name: currentVerifyGroup?.name || '' })"
       width="600px"
       :before-close="handleCloseVerifyDialog"
     >
@@ -567,13 +561,9 @@
                 :file-list="verifyFileList"
               >
                 <el-icon class="el-icon--upload"><UploadFilled /></el-icon>
-                <div class="el-upload__text">
-                  将 WAV 音频文件拖到此处，或<em>点击选择文件</em>
-                </div>
+                <div class="el-upload__text">{{ t('drag_wav_hint') }}</div>
                 <template #tip>
-                  <div class="el-upload__tip">
-                    只能上传 WAV 格式的音频文件，建议时长 3-10 秒，文件大小不超过 10MB
-                  </div>
+                  <div class="el-upload__tip">{{ t('wav_format_hint') }}</div>
                 </template>
               </el-upload>
               <div v-if="verifyForm.audioFile" class="file-info">
@@ -591,21 +581,21 @@
             <div class="record-status">
               <div v-if="!isVerifyRecording && !verifyRecordedBlob" class="record-ready">
                 <el-icon size="48" color="var(--apple-primary)"><Microphone /></el-icon>
-                <p>点击下方按钮开始录制</p>
-                <p class="record-tip">建议录制 3-10 秒的清晰音频</p>
+                <p>{{ t('click_start_record') }}</p>
+                <p class="record-tip">{{ t('record_tip') }}</p>
               </div>
               <div v-else-if="isVerifyRecording" class="record-recording">
                 <div class="recording-indicator">
                   <span class="recording-dot"></span>
-                  <span class="recording-text">正在录制中...</span>
+                  <span class="recording-text">{{ t('recording_in_progress') }}</span>
                 </div>
                 <div class="record-time">{{ formatRecordTime(verifyRecordTime) }}</div>
-                <p class="record-tip">点击停止按钮结束录制</p>
+                <p class="record-tip">{{ t('click_stop_record') }}</p>
               </div>
               <div v-else-if="verifyRecordedBlob" class="record-complete">
                 <el-icon size="48" color="var(--apple-success)"><CircleCheck /></el-icon>
                 <p>{{ t('recording_complete') }}</p>
-                <p class="record-tip">时长: {{ formatRecordTime(verifyRecordTime) }}</p>
+                <p class="record-tip">{{ t('record_duration', { time: formatRecordTime(verifyRecordTime) }) }}</p>
                 <audio :src="verifyRecordedBlobUrl" controls class="record-preview"></audio>
               </div>
             </div>
@@ -628,7 +618,7 @@
                 @click="stopVerifyRecording"
               >
                 <el-icon><VideoPause /></el-icon>
-                停止录制
+                {{ t('stop_record') }}
               </el-button>
               <el-button
                 v-if="verifyRecordedBlob"
@@ -638,7 +628,7 @@
                 :disabled="!canRecord"
               >
                 <el-icon><Refresh /></el-icon>
-                重新录制
+                {{ t('re_record') }}
               </el-button>
             </div>
           </div>
@@ -647,7 +637,7 @@
 
       <!-- 验证结果展示 -->
       <div v-if="verifyResult" class="verify-result">
-        <el-divider>验证结果</el-divider>
+        <el-divider>{{ t('verify_result_divider') }}</el-divider>
         <div :class="['result-content', verifyResult.verified ? 'result-success' : 'result-failed']">
           <div class="result-icon">
             <el-icon v-if="verifyResult.verified" size="48" color="var(--apple-success)"><CircleCheck /></el-icon>
@@ -658,8 +648,8 @@
               {{ verifyResult.verified ? t('verification_passed') : t('verify_not_passed') }}
             </div>
             <div class="result-details">
-              <div>置信度: <strong>{{ (verifyResult.confidence * 100).toFixed(1) }}%</strong></div>
-              <div>阈值: {{ (verifyResult.threshold * 100).toFixed(1) }}%</div>
+              <div>{{ t('confidence_label', { pct: (verifyResult.confidence * 100).toFixed(1) }) }}</div>
+              <div>{{ t('threshold_label_pct', { pct: (verifyResult.threshold * 100).toFixed(1) }) }}</div>
             </div>
             <div class="result-message">{{ verifyResult.message }}</div>
           </div>
@@ -1085,7 +1075,7 @@ const getCurrentTtsConfigInfo = () => {
   if (!groupForm.tts_config_id) return ''
   const config = ttsConfigs.value.find(c => c.config_id === groupForm.tts_config_id)
   if (!config) return ''
-  return `TTS提供商: ${config.provider || t('unknown')}`
+  return t('tts_provider_label', { provider: config.provider || t('unknown') })
 }
 
 // 加载声纹组列表
@@ -1100,7 +1090,7 @@ const loadSpeakerGroups = async () => {
     speakerGroups.value = response.data.data || []
   } catch (error) {
     console.error(t('load_voiceprint_group_failed'), error)
-    ElMessage.error('加载声纹组列表失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('load_voiceprint_group_failed') + ' ' + (error.response?.data?.error || error.message))
   } finally {
     loading.value = false
   }
@@ -1164,7 +1154,7 @@ const handleSubmitGroup = async () => {
       return
     }
     console.error(t('submit_failed'), error)
-    ElMessage.error('操作失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('operation_failed_colon') + ' ' + (error.response?.data?.error || error.message))
   } finally {
     submitting.value = false
   }
@@ -1380,7 +1370,7 @@ const startVerifyRecording = async () => {
     ElMessage.success(t('start_recording'))
   } catch (error) {
     console.error(t('recording_failed'), error)
-    ElMessage.error('录音失败: ' + error.message)
+    ElMessage.error(t('recording_failed') + ' ' + error.message)
     canRecord.value = false
   }
 }
@@ -1454,7 +1444,7 @@ const handleSubmitVerify = async () => {
       return
     }
     console.error(t('verify_failed_colon'), error)
-    ElMessage.error('验证失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('verify_failed_colon') + ' ' + (error.response?.data?.error || error.message))
   } finally {
     verifying.value = false
   }
@@ -1494,7 +1484,7 @@ const hasVerifyAudioFile = computed(() => {
 const handleDeleteGroup = async (group) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除声纹组"${group.name}"吗？此操作将删除该组下的所有样本，且不可恢复。`,
+      t('confirm_delete_group', { name: group.name }),
       t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
@@ -1510,7 +1500,7 @@ const handleDeleteGroup = async (group) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error(t('delete_failed_colon'), error)
-      ElMessage.error('删除失败: ' + (error.response?.data?.error || error.message))
+      ElMessage.error(t('delete_failed_colon') + ' ' + (error.response?.data?.error || error.message))
     }
   } finally {
     loading.value = false
@@ -1727,7 +1717,7 @@ const startRecording = async () => {
     ElMessage.success(t('start_recording'))
   } catch (error) {
     console.error(t('recording_failed'), error)
-    ElMessage.error('录音失败: ' + error.message)
+    ElMessage.error(t('recording_failed') + ' ' + error.message)
     canRecord.value = false
   }
 }
@@ -1850,7 +1840,7 @@ const loadHistoryMessages = async () => {
     historyMessages.value = (response.data.data || []).filter(msg => msg.audio_path)
   } catch (error) {
     console.error(t('load_chat_history_failed'), error)
-    ElMessage.error('加载历史聊天记录失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('load_chat_history_failed') + ' ' + (error.response?.data?.error || error.message))
     historyMessages.value = []
   } finally {
     loadingHistory.value = false
@@ -1883,7 +1873,7 @@ const handlePreviewHistoryAudio = async (message) => {
     }
   } catch (error) {
     console.error(t('preview_failed'), error)
-    ElMessage.error('试听失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('preview_failed') + ' ' + (error.response?.data?.error || error.message))
   }
 }
 
@@ -1908,7 +1898,7 @@ const handleSubmitSample = async () => {
       await loadSpeakerGroups() // 刷新列表以更新样本数量
     } catch (error) {
       console.error(t('add_failed'), error)
-      ElMessage.error('添加失败: ' + (error.response?.data?.error || error.message))
+      ElMessage.error(t('add_failed') + ' ' + (error.response?.data?.error || error.message))
     } finally {
       submitting.value = false
     }
@@ -1954,7 +1944,7 @@ const handleSubmitSample = async () => {
       return
     }
     console.error(t('upload_failed'), error)
-    ElMessage.error('上传失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('upload_failed') + ' ' + (error.response?.data?.error || error.message))
   } finally {
     submitting.value = false
   }
@@ -1988,7 +1978,7 @@ const handlePlaySample = async (sample) => {
     }
   } catch (error) {
     console.error(t('play_failed_colon'), error)
-    ElMessage.error('播放失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('play_failed_colon') + ' ' + (error.response?.data?.error || error.message))
   }
 }
 
@@ -2019,7 +2009,7 @@ const handleDownloadSample = async (sample) => {
     }, 100)
   } catch (error) {
     console.error(t('download_failed'), error)
-    ElMessage.error('下载失败: ' + (error.response?.data?.error || error.message))
+    ElMessage.error(t('download_failed') + ' ' + (error.response?.data?.error || error.message))
   }
 }
 
@@ -2027,7 +2017,7 @@ const handleDownloadSample = async (sample) => {
 const handleDeleteSample = async (sample) => {
   try {
     await ElMessageBox.confirm(
-      `确定要删除样本"${sample.file_name}"吗？此操作不可恢复。`,
+      t('confirm_delete_sample', { name: sample.file_name }),
       t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
@@ -2043,7 +2033,7 @@ const handleDeleteSample = async (sample) => {
   } catch (error) {
     if (error !== 'cancel') {
       console.error(t('delete_failed_colon'), error)
-      ElMessage.error('删除失败: ' + (error.response?.data?.error || error.message))
+      ElMessage.error(t('delete_failed_colon') + ' ' + (error.response?.data?.error || error.message))
     }
   }
 }

@@ -17,14 +17,14 @@ func hashToken(raw string) string {
 	return hex.EncodeToString(sum[:])
 }
 
-// OpenAPIAuth 支持 JWT 或 API Token 的鉴权。
-// API Token 支持两种请求头：
+// OpenAPIAuth supports authentication via JWT or API Token.
+// API Token accepts two request headers:
 // 1) Authorization: Bearer <token>
 // 2) X-API-Token: <token>
 func OpenAPIAuth(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if db == nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "数据库不可用，无法校验OpenAPI令牌"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "database unavailable, cannot validate OpenAPI token"})
 			c.Abort()
 			return
 		}
@@ -50,7 +50,7 @@ func OpenAPIAuth(db *gorm.DB) gin.HandlerFunc {
 		}
 
 		if rawToken == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "缺少认证信息（JWT或API Token）"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "missing credentials (JWT or API Token)"})
 			c.Abort()
 			return
 		}
@@ -63,14 +63,14 @@ func OpenAPIAuth(db *gorm.DB) gin.HandlerFunc {
 			Where("expires_at IS NULL OR expires_at > ?", now).
 			First(&apiToken).Error
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "无效或已过期的API Token"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid or expired API token"})
 			c.Abort()
 			return
 		}
 
 		var user models.User
 		if err := db.First(&user, apiToken.UserID).Error; err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "API Token所属用户不存在"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "user associated with API token not found"})
 			c.Abort()
 			return
 		}

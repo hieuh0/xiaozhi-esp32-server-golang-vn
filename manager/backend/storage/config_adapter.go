@@ -5,19 +5,19 @@ import (
 	"xiaozhi/manager/backend/models"
 )
 
-// ConfigAdapter 配置适配器
+// ConfigAdapter config adapter
 type ConfigAdapter struct {
 	GormConfigStorage ConfigStorage
 }
 
-// NewConfigAdapter 创建配置适配器
+// NewConfigAdapter creates a config adapter
 func NewConfigAdapter(configStorage ConfigStorage) *ConfigAdapter {
 	return &ConfigAdapter{
 		GormConfigStorage: configStorage,
 	}
 }
 
-// 通用配置适配器方法
+// general config adapter methods
 func (a *ConfigAdapter) CreateConfig(ctx context.Context, config *models.Config) error {
 	return a.GormConfigStorage.CreateConfig(ctx, config)
 }
@@ -50,7 +50,7 @@ func (a *ConfigAdapter) SetDefaultConfig(ctx context.Context, configType string,
 	return a.GormConfigStorage.SetDefaultConfig(ctx, configType, id)
 }
 
-// GlobalRole配置适配器方法
+// GlobalRole config adapter methods
 func (a *ConfigAdapter) CreateGlobalRole(ctx context.Context, role *models.GlobalRole) error {
 	return a.GormConfigStorage.CreateGlobalRole(ctx, role)
 }

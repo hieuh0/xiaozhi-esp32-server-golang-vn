@@ -7,17 +7,17 @@ import (
 	"path/filepath"
 )
 
-// AudioStorage 音频文件存储工具
+// AudioStorage audio file storage utility
 type AudioStorage struct {
 	BasePath string
 	MaxSize  int64
 }
 
-// NewAudioStorage 创建音频存储实例
+// NewAudioStorage creates an audio storage instance
 func NewAudioStorage(basePath string, maxSize int64) *AudioStorage {
-	// 确保基础目录存在
+	// ensure base directory exists
 	if err := os.MkdirAll(basePath, 0755); err != nil {
-		panic(fmt.Sprintf("无法创建音频存储目录: %v", err))
+		panic(fmt.Sprintf("failed to create audio storage directory: %v", err))
 	}
 
 	return &AudioStorage{
@@ -26,58 +26,58 @@ func NewAudioStorage(basePath string, maxSize int64) *AudioStorage {
 	}
 }
 
-// SaveAudioFile 保存音频文件
-// userID: 用户ID
-// groupID: 声纹组ID
-// uuid: UUID标识
-// fileName: 原始文件名
-// fileData: 文件数据
-// 返回: 文件保存路径, 文件大小, 错误
+// SaveAudioFile saves an audio file
+// userID: user ID
+// groupID: speaker group ID
+// uuid: UUID identifier
+// fileName: original file name
+// fileData: file data
+// returns: saved file path, file size, error
 func (s *AudioStorage) SaveAudioFile(userID uint, groupID uint, uuid, fileName string, fileData io.Reader) (string, int64, error) {
-	// 构建存储路径: storage/speakers/{user_id}/{group_id}/{uuid}.wav
+	// build storage path: storage/speakers/{user_id}/{group_id}/{uuid}.wav
 	dirPath := filepath.Join(s.BasePath, fmt.Sprintf("%d", userID), fmt.Sprintf("%d", groupID))
 
-	// 确保目录存在
+	// ensure directory exists
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		return "", 0, fmt.Errorf("创建目录失败: %v", err)
+		return "", 0, fmt.Errorf("failed to create directory: %v", err)
 	}
 
-	// 构建文件路径（使用UUID作为文件名，保留扩展名）
+	// build file path (use UUID as filename, preserve extension)
 	ext := filepath.Ext(fileName)
 	if ext == "" {
-		ext = ".wav" // 默认扩展名
+		ext = ".wav" // default extension
 	}
 	filePath := filepath.Join(dirPath, fmt.Sprintf("%s%s", uuid, ext))
 
-	// 创建文件
+	// create file
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", 0, fmt.Errorf("创建文件失败: %v", err)
+		return "", 0, fmt.Errorf("failed to create file: %v", err)
 	}
 	defer file.Close()
 
-	// 写入文件数据（限制大小）
+	// write file data (with size limit)
 	limitedReader := io.LimitReader(fileData, s.MaxSize)
 	written, err := io.Copy(file, limitedReader)
 	if err != nil {
-		os.Remove(filePath) // 删除部分写入的文件
-		return "", 0, fmt.Errorf("写入文件失败: %v", err)
+		os.Remove(filePath) // remove partially written file
+		return "", 0, fmt.Errorf("failed to write file: %v", err)
 	}
 
-	// 检查文件大小
+	// check file size
 	if written >= s.MaxSize {
 		os.Remove(filePath)
-		return "", 0, fmt.Errorf("文件大小超过限制: %d 字节", s.MaxSize)
+		return "", 0, fmt.Errorf("file size exceeds limit: %d bytes", s.MaxSize)
 	}
 
 	return filePath, written, nil
 }
 
-// SaveVoiceCloneAudioFile 保存复刻音频文件
+// SaveVoiceCloneAudioFile saves a voice clone audio file
 func (s *AudioStorage) SaveVoiceCloneAudioFile(userID uint, uuid, fileName string, fileData io.Reader) (string, int64, error) {
 	dirPath := filepath.Join(s.BasePath, "voice_clones", fmt.Sprintf("%d", userID))
 	if err := os.MkdirAll(dirPath, 0755); err != nil {
-		return "", 0, fmt.Errorf("创建目录失败: %v", err)
+		return "", 0, fmt.Errorf("failed to create directory: %v", err)
 	}
 
 	ext := filepath.Ext(fileName)
@@ -88,7 +88,7 @@ func (s *AudioStorage) SaveVoiceCloneAudioFile(userID uint, uuid, fileName strin
 
 	file, err := os.Create(filePath)
 	if err != nil {
-		return "", 0, fmt.Errorf("创建文件失败: %v", err)
+		return "", 0, fmt.Errorf("failed to create file: %v", err)
 	}
 	defer file.Close()
 
@@ -96,36 +96,36 @@ func (s *AudioStorage) SaveVoiceCloneAudioFile(userID uint, uuid, fileName strin
 	written, err := io.Copy(file, limitedReader)
 	if err != nil {
 		os.Remove(filePath)
-		return "", 0, fmt.Errorf("写入文件失败: %v", err)
+		return "", 0, fmt.Errorf("failed to write file: %v", err)
 	}
 	if written >= s.MaxSize {
 		os.Remove(filePath)
-		return "", 0, fmt.Errorf("文件大小超过限制: %d 字节", s.MaxSize)
+		return "", 0, fmt.Errorf("file size exceeds limit: %d bytes", s.MaxSize)
 	}
 
 	return filePath, written, nil
 }
 
-// DeleteAudioFile 删除音频文件
+// DeleteAudioFile deletes an audio file
 func (s *AudioStorage) DeleteAudioFile(filePath string) error {
 	if filePath == "" {
 		return nil
 	}
 
-	// 检查文件是否存在
+	// check if file exists
 	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return nil // 文件不存在，不需要删除
+		return nil // file does not exist, nothing to delete
 	}
 
 	return os.Remove(filePath)
 }
 
-// GetAudioFile 获取音频文件
+// GetAudioFile retrieves an audio file
 func (s *AudioStorage) GetAudioFile(filePath string) (*os.File, error) {
 	return os.Open(filePath)
 }
 
-// FileExists 检查文件是否存在
+// FileExists checks if a file exists
 func (s *AudioStorage) FileExists(filePath string) bool {
 	_, err := os.Stat(filePath)
 	return !os.IsNotExist(err)

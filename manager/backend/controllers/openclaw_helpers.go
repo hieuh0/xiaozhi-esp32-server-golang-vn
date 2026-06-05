@@ -14,8 +14,8 @@ type OpenClawConfigResponse struct {
 }
 
 var (
-	defaultOpenClawEnterKeywords = []string{"打开龙虾", "进入龙虾"}
-	defaultOpenClawExitKeywords  = []string{"关闭龙虾", "退出龙虾"}
+	defaultOpenClawEnterKeywords = []string{"open openclaw", "enter openclaw"}
+	defaultOpenClawExitKeywords  = []string{"close openclaw", "exit openclaw"}
 )
 
 func cloneOpenClawKeywords(keywords []string) []string {
@@ -86,7 +86,7 @@ func mustOpenClawConfigJSON(cfg OpenClawConfigResponse) string {
 	normalized := normalizeOpenClawConfig(cfg)
 	data, err := json.Marshal(normalized)
 	if err != nil {
-		return `{"allowed":false,"enter_keywords":["打开龙虾","进入龙虾"],"exit_keywords":["关闭龙虾","退出龙虾"]}`
+		return `{"allowed":false,"enter_keywords":["open openclaw","enter openclaw"],"exit_keywords":["close openclaw","exit openclaw"]}`
 	}
 	return string(data)
 }

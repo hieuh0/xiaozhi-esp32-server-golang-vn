@@ -52,10 +52,10 @@ func ensureKnowledgeSyncWorkersStarted() {
 
 func enqueueKnowledgeSyncUpsert(db *gorm.DB, knowledgeBaseID uint) error {
 	if db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	if knowledgeBaseID == 0 {
-		return fmt.Errorf("无效的知识库ID")
+		return fmt.Errorf("invalid knowledge base ID")
 	}
 	ensureKnowledgeSyncWorkersStarted()
 
@@ -70,13 +70,13 @@ func enqueueKnowledgeSyncUpsert(db *gorm.DB, knowledgeBaseID uint) error {
 		log.Printf("[KnowledgeSync][Async] enqueue type=%s kb_id=%d", job.jobType, job.knowledgeBaseID)
 		return nil
 	default:
-		return fmt.Errorf("知识库同步队列已满，请稍后重试")
+		return fmt.Errorf("knowledge base sync queue is full, please retry later")
 	}
 }
 
 func enqueueKnowledgeSyncDelete(db *gorm.DB, snapshot models.KnowledgeBase) error {
 	if db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	ensureKnowledgeSyncWorkersStarted()
 
@@ -93,16 +93,16 @@ func enqueueKnowledgeSyncDelete(db *gorm.DB, snapshot models.KnowledgeBase) erro
 		log.Printf("[KnowledgeSync][Async] enqueue type=%s kb_id=%d", job.jobType, job.knowledgeBaseID)
 		return nil
 	default:
-		return fmt.Errorf("知识库同步队列已满，请稍后重试")
+		return fmt.Errorf("knowledge base sync queue is full, please retry later")
 	}
 }
 
 func enqueueKnowledgeDocumentSyncUpsert(db *gorm.DB, knowledgeBaseID, documentID uint) error {
 	if db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	if knowledgeBaseID == 0 || documentID == 0 {
-		return fmt.Errorf("无效的知识库或文档ID")
+		return fmt.Errorf("invalid knowledge base or document ID")
 	}
 	ensureKnowledgeSyncWorkersStarted()
 
@@ -118,13 +118,13 @@ func enqueueKnowledgeDocumentSyncUpsert(db *gorm.DB, knowledgeBaseID, documentID
 		log.Printf("[KnowledgeSync][Async] enqueue type=%s kb_id=%d doc_id=%d", job.jobType, job.knowledgeBaseID, job.documentID)
 		return nil
 	default:
-		return fmt.Errorf("知识库同步队列已满，请稍后重试")
+		return fmt.Errorf("knowledge base sync queue is full, please retry later")
 	}
 }
 
 func enqueueKnowledgeDocumentSyncDelete(db *gorm.DB, kbSnapshot models.KnowledgeBase, docSnapshot models.KnowledgeBaseDocument) error {
 	if db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	ensureKnowledgeSyncWorkersStarted()
 
@@ -144,7 +144,7 @@ func enqueueKnowledgeDocumentSyncDelete(db *gorm.DB, kbSnapshot models.Knowledge
 		log.Printf("[KnowledgeSync][Async] enqueue type=%s kb_id=%d doc_id=%d", job.jobType, job.knowledgeBaseID, job.documentID)
 		return nil
 	default:
-		return fmt.Errorf("知识库同步队列已满，请稍后重试")
+		return fmt.Errorf("knowledge base sync queue is full, please retry later")
 	}
 }
 
@@ -189,41 +189,41 @@ func runKnowledgeSyncWorker(workerID int) {
 
 func processKnowledgeSyncUpsert(job knowledgeSyncJob) error {
 	if job.db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	var kb models.KnowledgeBase
 	if err := job.db.Where("id = ?", job.knowledgeBaseID).First(&kb).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}
-		return fmt.Errorf("加载知识库失败: %w", err)
+		return fmt.Errorf("failed to load knowledge base: %w", err)
 	}
 	return syncKnowledgeBaseBestEffort(job.db, &kb)
 }
 
 func processKnowledgeSyncDelete(job knowledgeSyncJob) error {
 	if job.db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	if job.knowledgeSnapshot == nil {
-		return fmt.Errorf("删除同步缺少知识库快照")
+		return fmt.Errorf("delete sync missing knowledge base snapshot")
 	}
 	return syncKnowledgeBaseDeleteBestEffort(job.db, job.knowledgeSnapshot)
 }
 
 func processKnowledgeDocumentSyncUpsert(job knowledgeSyncJob) error {
 	if job.db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	return syncKnowledgeDocumentBestEffort(job.db, job.knowledgeBaseID, job.documentID)
 }
 
 func processKnowledgeDocumentSyncDelete(job knowledgeSyncJob) error {
 	if job.db == nil {
-		return fmt.Errorf("数据库连接为空")
+		return fmt.Errorf("database connection is nil")
 	}
 	if job.knowledgeSnapshot == nil || job.documentSnapshot == nil {
-		return fmt.Errorf("文档删除同步缺少快照")
+		return fmt.Errorf("document delete sync missing snapshot")
 	}
 	return syncKnowledgeDocumentDeleteBestEffort(job.db, *job.knowledgeSnapshot, *job.documentSnapshot)
 }

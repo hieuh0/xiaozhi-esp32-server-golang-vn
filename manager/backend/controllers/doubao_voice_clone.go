@@ -69,14 +69,14 @@ func (vcc *VoiceCloneController) cloneWithDoubao(ctx context.Context, ttsCfg mod
 	cfgMap := make(map[string]any)
 	if strings.TrimSpace(ttsCfg.JsonData) != "" {
 		if err := json.Unmarshal([]byte(ttsCfg.JsonData), &cfgMap); err != nil {
-			return nil, fmt.Errorf("解析豆包TTS配置失败: %w", err)
+			return nil, fmt.Errorf("failed to parse Doubao TTS config: %w", err)
 		}
 	}
 
 	appID := strings.TrimSpace(getStringAny(cfgMap, "appid"))
 	accessToken := strings.TrimSpace(getStringAny(cfgMap, "access_token"))
 	if appID == "" || accessToken == "" {
-		return nil, fmt.Errorf("豆包复刻缺少 appid 或 access_token")
+		return nil, fmt.Errorf("Doubao clone missing appid or access_token")
 	}
 	modelType, targetModel := resolveDoubaoCloneTargetModel(getStringAny(cfgMap, "model"))
 	resourceID := resolveDoubaoModelSelection(targetModel, "").ResourceID
@@ -91,7 +91,7 @@ func (vcc *VoiceCloneController) cloneWithDoubao(ctx context.Context, ttsCfg mod
 
 	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, fmt.Errorf("读取豆包复刻音频失败: %w", err)
+		return nil, fmt.Errorf("failed to read Doubao clone audio file: %w", err)
 	}
 	defer file.Close()
 
@@ -105,18 +105,18 @@ func (vcc *VoiceCloneController) cloneWithDoubao(ctx context.Context, ttsCfg mod
 	}
 	part, err := writer.CreateFormFile("file", fileName)
 	if err != nil {
-		return nil, fmt.Errorf("创建豆包复刻上传表单失败: %w", err)
+		return nil, fmt.Errorf("failed to create Doubao clone upload form: %w", err)
 	}
 	if _, err = io.Copy(part, file); err != nil {
-		return nil, fmt.Errorf("写入豆包复刻音频失败: %w", err)
+		return nil, fmt.Errorf("failed to write Doubao clone audio: %w", err)
 	}
 	if err = writer.Close(); err != nil {
-		return nil, fmt.Errorf("构建豆包复刻请求失败: %w", err)
+		return nil, fmt.Errorf("failed to build Doubao clone request: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uploadURL, &body)
 	if err != nil {
-		return nil, fmt.Errorf("创建豆包复刻请求失败: %w", err)
+		return nil, fmt.Errorf("failed to create Doubao clone request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer;%s", accessToken))
 	req.Header.Set("X-Api-App-Id", appID)
@@ -126,29 +126,29 @@ func (vcc *VoiceCloneController) cloneWithDoubao(ctx context.Context, ttsCfg mod
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用豆包复刻上传接口失败: %w", err)
+		return nil, fmt.Errorf("failed to call Doubao clone upload endpoint: %w", err)
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, fmt.Errorf("读取豆包复刻上传响应失败: %w", err)
+		return nil, fmt.Errorf("failed to read Doubao clone upload response: %w", err)
 	}
 	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, fmt.Errorf("豆包复刻上传HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 1024))
+		return nil, fmt.Errorf("Doubao clone upload HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 1024))
 	}
 
 	uploadResp := doubaoCloneUploadResponse{}
 	_ = json.Unmarshal(respBody, &uploadResp)
 	uploadMap, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, fmt.Errorf("解析豆包复刻上传响应失败: %w", err)
+		return nil, fmt.Errorf("failed to parse Doubao clone upload response: %w", err)
 	}
 	if uploadResp.BaseResp.StatusCode != 0 {
-		return nil, fmt.Errorf("豆包复刻上传失败(code=%d,msg=%s)", uploadResp.BaseResp.StatusCode, uploadResp.BaseResp.StatusMsg)
+		return nil, fmt.Errorf("Doubao clone upload failed (code=%d,msg=%s)", uploadResp.BaseResp.StatusCode, uploadResp.BaseResp.StatusMsg)
 	}
 	speakerID := firstNonEmptyDoubaoVoiceID(uploadResp.ICLSpeakerID, uploadResp.SpeakerID, getStringAny(uploadMap, "icl_speaker_id"), getStringAny(uploadMap, "speaker_id"))
 	if speakerID == "" {
-		return nil, fmt.Errorf("豆包复刻上传成功但未返回 speaker_id")
+		return nil, fmt.Errorf("Doubao clone upload succeeded but no speaker_id returned")
 	}
 
 	statusResult, statusRaw, statusHTTPCode, err := vcc.pollDoubaoCloneStatus(ctx, statusURL, appID, accessToken, resourceID, speakerID)
@@ -185,14 +185,14 @@ func (vcc *VoiceCloneController) pollDoubaoCloneStatus(ctx context.Context, stat
 		if isDoubaoCloneFailed(statusResp) {
 			msg := statusResp.BaseResp.StatusMsg
 			if strings.TrimSpace(msg) == "" {
-				msg = firstNonEmptyDoubaoVoiceID(getStringAny(raw, "message"), getStringAny(raw, "error"), "豆包复刻训练失败")
+				msg = firstNonEmptyDoubaoVoiceID(getStringAny(raw, "message"), getStringAny(raw, "error"), "Doubao clone training failed")
 			}
 			return nil, nil, httpCode, fmt.Errorf("%s", msg)
 		}
 
 		select {
 		case <-ctx.Done():
-			return nil, nil, httpCode, fmt.Errorf("等待豆包复刻结果超时: %w", ctx.Err())
+			return nil, nil, httpCode, fmt.Errorf("timed out waiting for Doubao clone result: %w", ctx.Err())
 		case <-ticker.C:
 		}
 	}
@@ -205,11 +205,11 @@ func (vcc *VoiceCloneController) fetchDoubaoCloneStatus(ctx context.Context, sta
 	}
 	bodyBytes, err := json.Marshal(payload)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("序列化豆包复刻状态请求失败: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to serialize Doubao clone status request: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, statusURL, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("创建豆包复刻状态请求失败: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to create Doubao clone status request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer;%s", accessToken))
 	req.Header.Set("X-Api-App-Id", appID)
@@ -219,25 +219,25 @@ func (vcc *VoiceCloneController) fetchDoubaoCloneStatus(ctx context.Context, sta
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, nil, 0, fmt.Errorf("调用豆包复刻状态接口失败: %w", err)
+		return nil, nil, 0, fmt.Errorf("failed to call Doubao clone status endpoint: %w", err)
 	}
 	defer resp.Body.Close()
 	respBody, err := io.ReadAll(io.LimitReader(resp.Body, 2*1024*1024))
 	if err != nil {
-		return nil, nil, resp.StatusCode, fmt.Errorf("读取豆包复刻状态响应失败: %w", err)
+		return nil, nil, resp.StatusCode, fmt.Errorf("failed to read Doubao clone status response: %w", err)
 	}
 	if resp.StatusCode >= http.StatusBadRequest {
-		return nil, nil, resp.StatusCode, fmt.Errorf("豆包复刻状态HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 1024))
+		return nil, nil, resp.StatusCode, fmt.Errorf("Doubao clone status HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(respBody)), 1024))
 	}
 
 	statusResp := &doubaoCloneStatusResponse{}
 	_ = json.Unmarshal(respBody, statusResp)
 	raw, err := unmarshalJSONMap(respBody)
 	if err != nil {
-		return nil, nil, resp.StatusCode, fmt.Errorf("解析豆包复刻状态响应失败: %w", err)
+		return nil, nil, resp.StatusCode, fmt.Errorf("failed to parse Doubao clone status response: %w", err)
 	}
 	if statusResp.BaseResp.StatusCode != 0 {
-		return nil, nil, resp.StatusCode, fmt.Errorf("豆包复刻状态查询失败(code=%d,msg=%s)", statusResp.BaseResp.StatusCode, statusResp.BaseResp.StatusMsg)
+		return nil, nil, resp.StatusCode, fmt.Errorf("Doubao clone status query failed (code=%d,msg=%s)", statusResp.BaseResp.StatusCode, statusResp.BaseResp.StatusMsg)
 	}
 	return statusResp, raw, resp.StatusCode, nil
 }
@@ -246,7 +246,7 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 	appID := strings.TrimSpace(getStringAny(cfgMap, "appid"))
 	accessToken := strings.TrimSpace(getStringAny(cfgMap, "access_token"))
 	if appID == "" || accessToken == "" {
-		return nil, "", fmt.Errorf("豆包TTS缺少 appid 或 access_token")
+		return nil, "", fmt.Errorf("Doubao TTS missing appid or access_token")
 	}
 	selection := resolveDoubaoModelSelection(getStringAny(cfgMap, "model"), voiceID)
 	endpoint := strings.TrimSpace(getStringAny(cfgMap, "api_url"))
@@ -264,11 +264,11 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 
 	payload, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, "", fmt.Errorf("序列化豆包试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to serialize Doubao preview request: %w", err)
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(payload))
 	if err != nil {
-		return nil, "", fmt.Errorf("创建豆包试听请求失败: %w", err)
+		return nil, "", fmt.Errorf("failed to create Doubao preview request: %w", err)
 	}
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer;%s", accessToken))
 	req.Header.Set("X-Api-App-Id", appID)
@@ -279,12 +279,12 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 
 	resp, err := vcc.HTTPClient.Do(req)
 	if err != nil {
-		return nil, "", fmt.Errorf("调用豆包试听失败: %w", err)
+		return nil, "", fmt.Errorf("failed to call Doubao preview: %w", err)
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode >= http.StatusBadRequest {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-		return nil, "", fmt.Errorf("豆包试听HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(body)), 512))
+		return nil, "", fmt.Errorf("Doubao preview HTTP %d: %s", resp.StatusCode, truncateForLog(strings.TrimSpace(string(body)), 512))
 	}
 
 	reader := bufio.NewReader(resp.Body)
@@ -292,7 +292,7 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 	for {
 		line, err := reader.ReadString('\n')
 		if err != nil && err != io.EOF {
-			return nil, "", fmt.Errorf("读取豆包试听流失败: %w", err)
+			return nil, "", fmt.Errorf("failed to read Doubao preview stream: %w", err)
 		}
 		line = strings.TrimSpace(line)
 		if line != "" && !strings.HasPrefix(line, "event:") {
@@ -302,15 +302,15 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 			if line != "" && line != "[DONE]" {
 				var event doubaoPreviewEvent
 				if unmarshalErr := json.Unmarshal([]byte(line), &event); unmarshalErr != nil {
-					return nil, "", fmt.Errorf("解析豆包试听事件失败: %w", unmarshalErr)
+					return nil, "", fmt.Errorf("failed to parse Doubao preview event: %w", unmarshalErr)
 				}
 				if event.Code != 0 {
-					return nil, "", fmt.Errorf("豆包试听失败(code=%d,msg=%s)", event.Code, event.Message)
+					return nil, "", fmt.Errorf("Doubao preview failed (code=%d,msg=%s)", event.Code, event.Message)
 				}
 				if event.Data != nil && strings.TrimSpace(*event.Data) != "" {
 					chunk, decodeErr := base64.StdEncoding.DecodeString(strings.TrimSpace(*event.Data))
 					if decodeErr != nil {
-						return nil, "", fmt.Errorf("解码豆包试听音频失败: %w", decodeErr)
+						return nil, "", fmt.Errorf("failed to decode Doubao preview audio: %w", decodeErr)
 					}
 					merged = append(merged, chunk...)
 				}
@@ -321,7 +321,7 @@ func (vcc *VoiceCloneController) previewDoubaoClonedVoice(ctx context.Context, c
 		}
 	}
 	if len(merged) == 0 {
-		return nil, "", fmt.Errorf("豆包试听返回音频为空")
+		return nil, "", fmt.Errorf("Doubao preview returned empty audio")
 	}
 	return merged, "audio/mpeg", nil
 }

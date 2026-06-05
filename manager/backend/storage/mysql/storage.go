@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-// Storage MySQL存储实现
+// Storage MySQL storage implementation
 type Storage struct {
 	DB     *gorm.DB
 	config *Config
 }
 
-// NewStorage 创建MySQL存储实例
+// NewStorage creates a MySQL storage instance
 func NewStorage(config *Config) (*Storage, error) {
 	if err := config.Validate(); err != nil {
 		return nil, fmt.Errorf("invalid config: %w", err)
@@ -40,7 +40,7 @@ func NewStorage(config *Config) (*Storage, error) {
 	return s, nil
 }
 
-// Connect 连接数据库
+// Connect connects to the database
 func (s *Storage) Connect() error {
 	dsn := s.config.DSN()
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
@@ -53,17 +53,17 @@ func (s *Storage) Connect() error {
 	return nil
 }
 
-// configureConnectionPool 配置连接池
+// configureConnectionPool configures the connection pool
 func (s *Storage) configureConnectionPool() {
 	if s.DB == nil {
 		return
 	}
-	
+
 	sqlDB, err := s.DB.DB()
 	if err != nil {
 		return
 	}
-	
+
 	sqlDB.SetMaxIdleConns(s.config.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(s.config.MaxOpenConns)
 	sqlDB.SetConnMaxLifetime(time.Duration(s.config.ConnMaxLifetime) * time.Second)

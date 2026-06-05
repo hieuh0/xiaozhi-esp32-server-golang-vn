@@ -70,7 +70,7 @@ func validateMCPServiceNamesCSV(raw string, allowed map[string]struct{}) (string
 		}
 	}
 	if len(invalid) > 0 {
-		return "", fmt.Errorf("包含未启用或不存在的MCP服务: %s", strings.Join(invalid, ","))
+		return "", fmt.Errorf("contains disabled or non-existent MCP services: %s", strings.Join(invalid, ","))
 	}
 	return normalized, nil
 }
@@ -99,7 +99,7 @@ func loadManualMCPMapForAgentSettings(db *gorm.DB) (map[string]interface{}, erro
 	if len(configs) > 0 {
 		payload, err := parseJSONMap(configs[0].JsonData)
 		if err != nil {
-			return nil, fmt.Errorf("解析MCP配置失败: %w", err)
+			return nil, fmt.Errorf("failed to parse MCP config: %w", err)
 		}
 		if v, ok := payload["mcp"]; ok {
 			if mv := asMap(v); mv != nil {

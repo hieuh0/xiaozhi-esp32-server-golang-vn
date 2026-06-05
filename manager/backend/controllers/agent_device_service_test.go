@@ -111,7 +111,7 @@ func TestAgentServicePermissionVoiceAndKnowledgeLinks(t *testing.T) {
 		Name:             "agent-a",
 		Nickname:         strPtr("assistant-a"),
 		KnowledgeBaseIDs: &crossUserKBIDs,
-	}); err == nil || !strings.Contains(err.Error(), "知识库") {
+	}); err == nil || !strings.Contains(err.Error(), "knowledge base") {
 		t.Fatalf("cross-user knowledge update error = %v, want knowledge ownership rejection", err)
 	}
 
@@ -127,7 +127,7 @@ func TestAgentServicePermissionVoiceAndKnowledgeLinks(t *testing.T) {
 		Name:             "admin-cross-kb",
 		Nickname:         strPtr("admin-cross-kb"),
 		KnowledgeBaseIDs: &crossUserKBIDs,
-	}); err == nil || !strings.Contains(err.Error(), "知识库") {
+	}); err == nil || !strings.Contains(err.Error(), "knowledge base") {
 		t.Fatalf("admin cross-user knowledge create error = %v, want rejection", err)
 	}
 }
@@ -178,7 +178,7 @@ func TestDeviceServiceBindingEnrichmentAndCrossUserRejection(t *testing.T) {
 		UserID:   userB.ID,
 		NickName: "cross",
 		AgentID:  agentA.ID,
-	}); err == nil || !strings.Contains(err.Error(), "智能体") {
+	}); err == nil || !strings.Contains(err.Error(), "agent") {
 		t.Fatalf("admin cross-user device-agent update error = %v, want rejection", err)
 	}
 

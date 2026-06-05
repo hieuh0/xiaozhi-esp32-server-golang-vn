@@ -5,7 +5,7 @@ import (
 	"xiaozhi/manager/backend/config"
 )
 
-// Config MySQL配置
+// Config MySQL configuration
 type Config struct {
 	Host            string `json:"host"`
 	Port            int    `json:"port"`
@@ -17,7 +17,7 @@ type Config struct {
 	ConnMaxLifetime int    `json:"conn_max_lifetime"`
 }
 
-// NewConfigFromDatabase 从数据库配置创建MySQL配置
+// NewConfigFromDatabase creates a MySQL config from a database config
 func NewConfigFromDatabase(cfg *config.MySQLConfig) *Config {
 	return &Config{
 		Host:            cfg.Host,
@@ -31,13 +31,13 @@ func NewConfigFromDatabase(cfg *config.MySQLConfig) *Config {
 	}
 }
 
-// DSN 生成数据源名称
+// DSN generates the data source name
 func (c *Config) DSN() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 		c.Username, c.Password, c.Host, c.Port, c.Database)
 }
 
-// Validate 验证配置
+// Validate validates the configuration
 func (c *Config) Validate() error {
 	if c.Host == "" {
 		return fmt.Errorf("MySQL host is required")
@@ -54,7 +54,7 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-// ValidateConfig 验证MySQL配置
+// ValidateConfig validates a MySQL config
 func ValidateConfig(cfg *config.MySQLConfig) error {
 	if cfg == nil {
 		return fmt.Errorf("MySQL config is required")

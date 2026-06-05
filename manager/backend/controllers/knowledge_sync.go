@@ -112,13 +112,13 @@ func loadKnowledgeProviderConfigByProvider(db *gorm.DB, provider string) (*model
 
 func parseKnowledgeProviderConfigPayload(cfg *models.Config) (*models.Config, map[string]interface{}, error) {
 	if cfg == nil {
-		return nil, nil, fmt.Errorf("知识库provider配置为空")
+		return nil, nil, fmt.Errorf("knowledge base provider config is empty")
 	}
 
 	providerData := map[string]interface{}{}
 	if strings.TrimSpace(cfg.JsonData) != "" {
 		if err := json.Unmarshal([]byte(cfg.JsonData), &providerData); err != nil {
-			return nil, nil, fmt.Errorf("解析knowledge_search配置失败: %w", err)
+			return nil, nil, fmt.Errorf("failed to parse knowledge_search config: %w", err)
 		}
 	}
 	return cfg, providerData, nil
@@ -138,7 +138,7 @@ func resolveDefaultKnowledgeProviderName(db *gorm.DB) string {
 
 func resolveKnowledgeProviderForKB(db *gorm.DB, kb *models.KnowledgeBase) (string, *models.Config, map[string]interface{}, error) {
 	if kb == nil {
-		return "", nil, nil, fmt.Errorf("知识库数据为空")
+		return "", nil, nil, fmt.Errorf("knowledge base data is empty")
 	}
 	provider := strings.ToLower(strings.TrimSpace(kb.SyncProvider))
 
@@ -146,11 +146,11 @@ func resolveKnowledgeProviderForKB(db *gorm.DB, kb *models.KnowledgeBase) (strin
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			if provider == "" {
-				return "", nil, nil, fmt.Errorf("未找到已启用的知识库provider配置")
+				return "", nil, nil, fmt.Errorf("no enabled knowledge base provider config found")
 			}
-			return "", nil, nil, fmt.Errorf("未找到已启用的知识库provider配置: %s", provider)
+			return "", nil, nil, fmt.Errorf("no enabled knowledge base provider config found: %s", provider)
 		}
-		return "", nil, nil, fmt.Errorf("获取知识库provider配置失败: %w", err)
+		return "", nil, nil, fmt.Errorf("failed to get knowledge base provider config: %w", err)
 	}
 
 	resolvedProvider := strings.ToLower(strings.TrimSpace(cfg.Provider))
@@ -169,9 +169,9 @@ func syncKnowledgeBaseBestEffort(db *gorm.DB, kb *models.KnowledgeBase) error {
 	persistErr := persistKnowledgeSyncState(db, kb, result, syncErr)
 	if persistErr != nil {
 		if syncErr != nil {
-			return fmt.Errorf("%v; 保存同步状态失败: %w", syncErr, persistErr)
+			return fmt.Errorf("%v; failed to save sync status: %w", syncErr, persistErr)
 		}
-		return fmt.Errorf("保存同步状态失败: %w", persistErr)
+		return fmt.Errorf("failed to save sync status: %w", persistErr)
 	}
 	return syncErr
 }
@@ -202,7 +202,7 @@ func syncKnowledgeBaseDeleteBestEffort(db *gorm.DB, kb *models.KnowledgeBase) er
 		}
 		return deleteKnowledgeBaseFromWeknora(weknoraCfg, kb)
 	default:
-		return fmt.Errorf("知识库删除同步暂不支持provider: %s", provider)
+		return fmt.Errorf("knowledge base deletion sync not yet supported for provider: %s", provider)
 	}
 }
 
@@ -232,13 +232,13 @@ func syncKnowledgeBaseWithProvider(db *gorm.DB, kb *models.KnowledgeBase) (*know
 		}
 		return syncKnowledgeBaseToWeknora(weknoraCfg, kb)
 	default:
-		return nil, fmt.Errorf("知识库同步暂不支持provider: %s", provider)
+		return nil, fmt.Errorf("knowledge base sync not yet supported for provider: %s", provider)
 	}
 }
 
 func persistKnowledgeSyncState(db *gorm.DB, kb *models.KnowledgeBase, result *knowledgeProviderSyncResult, syncErr error) error {
 	if kb == nil || kb.ID == 0 {
-		return fmt.Errorf("知识库实体无效")
+		return fmt.Errorf("knowledge base entity is invalid")
 	}
 
 	updates := map[string]interface{}{}
@@ -288,13 +288,13 @@ func parseDifyKnowledgeSyncConfig(providerData map[string]interface{}) (*difyKno
 	baseURL, _ := providerData["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("dify base_url 不能为空")
+		return nil, fmt.Errorf("dify base_url cannot be empty")
 	}
 
 	apiKey, _ := providerData["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("dify api_key 不能为空")
+		return nil, fmt.Errorf("dify api_key cannot be empty")
 	}
 
 	cfg := &difyKnowledgeSyncConfig{
@@ -320,13 +320,13 @@ func parseRagflowKnowledgeSyncConfig(providerData map[string]interface{}) (*ragf
 	baseURL, _ := providerData["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("ragflow base_url 不能为空")
+		return nil, fmt.Errorf("ragflow base_url cannot be empty")
 	}
 
 	apiKey, _ := providerData["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("ragflow api_key 不能为空")
+		return nil, fmt.Errorf("ragflow api_key cannot be empty")
 	}
 
 	cfg := &ragflowKnowledgeSyncConfig{
@@ -348,19 +348,19 @@ func parseWeknoraKnowledgeSyncConfig(providerData map[string]interface{}) (*wekn
 	baseURL, _ := providerData["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("weknora base_url 不能为空")
+		return nil, fmt.Errorf("weknora base_url cannot be empty")
 	}
 
 	apiKey, _ := providerData["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("weknora api_key 不能为空")
+		return nil, fmt.Errorf("weknora api_key cannot be empty")
 	}
 
 	embeddingModelID, _ := providerData["embedding_model_id"].(string)
 	embeddingModelID = strings.TrimSpace(embeddingModelID)
 	if embeddingModelID == "" {
-		return nil, fmt.Errorf("weknora embedding_model_id 不能为空")
+		return nil, fmt.Errorf("weknora embedding_model_id cannot be empty")
 	}
 
 	chunkSize := defaultWeknoraChunkSize
@@ -416,7 +416,7 @@ func parseWeknoraKnowledgeSyncConfig(providerData map[string]interface{}) (*wekn
 
 func syncKnowledgeBaseToDify(cfg *difyKnowledgeSyncConfig, kb *models.KnowledgeBase) (*knowledgeProviderSyncResult, error) {
 	if kb == nil {
-		return nil, fmt.Errorf("知识库数据为空")
+		return nil, fmt.Errorf("knowledge base data is empty")
 	}
 	content := strings.TrimSpace(kb.Content)
 	result := &knowledgeProviderSyncResult{
@@ -436,7 +436,7 @@ func syncKnowledgeBaseToDify(cfg *difyKnowledgeSyncConfig, kb *models.KnowledgeB
 		result.AutoDataset = true
 	}
 
-	// 允许空知识库同步：仅确保 dataset 存在，不创建/更新文档。
+	// allow empty knowledge base sync: only ensure dataset exists, do not create/update documents.
 	if content == "" {
 		now := time.Now()
 		result.LastSyncedAt = &now
@@ -462,7 +462,7 @@ func syncKnowledgeBaseToDify(cfg *difyKnowledgeSyncConfig, kb *models.KnowledgeB
 
 func deleteKnowledgeBaseFromDify(cfg *difyKnowledgeSyncConfig, kb *models.KnowledgeBase) error {
 	if kb == nil {
-		return fmt.Errorf("知识库数据为空")
+		return fmt.Errorf("knowledge base data is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	documentID := strings.TrimSpace(kb.ExternalDocID)
@@ -496,7 +496,7 @@ func deleteKnowledgeBaseFromDify(cfg *difyKnowledgeSyncConfig, kb *models.Knowle
 
 func syncKnowledgeBaseToRagflow(cfg *ragflowKnowledgeSyncConfig, kb *models.KnowledgeBase) (*knowledgeProviderSyncResult, error) {
 	if kb == nil {
-		return nil, fmt.Errorf("知识库数据为空")
+		return nil, fmt.Errorf("knowledge base data is empty")
 	}
 	content := strings.TrimSpace(kb.Content)
 	result := &knowledgeProviderSyncResult{
@@ -516,7 +516,7 @@ func syncKnowledgeBaseToRagflow(cfg *ragflowKnowledgeSyncConfig, kb *models.Know
 		result.AutoDataset = true
 	}
 
-	// 允许空知识库同步：仅确保 dataset 存在，不创建/更新文档。
+	// allow empty knowledge base sync: only ensure dataset exists, do not create/update documents.
 	if content == "" {
 		now := time.Now()
 		result.LastSyncedAt = &now
@@ -544,7 +544,7 @@ func syncKnowledgeBaseToRagflow(cfg *ragflowKnowledgeSyncConfig, kb *models.Know
 
 func deleteKnowledgeBaseFromRagflow(cfg *ragflowKnowledgeSyncConfig, kb *models.KnowledgeBase) error {
 	if kb == nil {
-		return fmt.Errorf("知识库数据为空")
+		return fmt.Errorf("knowledge base data is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	documentID := strings.TrimSpace(kb.ExternalDocID)
@@ -578,7 +578,7 @@ func deleteKnowledgeBaseFromRagflow(cfg *ragflowKnowledgeSyncConfig, kb *models.
 
 func syncKnowledgeBaseToWeknora(cfg *weknoraKnowledgeSyncConfig, kb *models.KnowledgeBase) (*knowledgeProviderSyncResult, error) {
 	if kb == nil {
-		return nil, fmt.Errorf("知识库数据为空")
+		return nil, fmt.Errorf("knowledge base data is empty")
 	}
 	content := strings.TrimSpace(kb.Content)
 	result := &knowledgeProviderSyncResult{
@@ -602,7 +602,7 @@ func syncKnowledgeBaseToWeknora(cfg *weknoraKnowledgeSyncConfig, kb *models.Know
 		}
 	}
 
-	// 允许空知识库同步：仅确保知识库存在，不创建文档。
+	// allow empty knowledge base sync: only ensure knowledge base exists, do not create documents.
 	if content == "" {
 		now := time.Now()
 		result.LastSyncedAt = &now
@@ -633,7 +633,7 @@ func syncKnowledgeBaseToWeknora(cfg *weknoraKnowledgeSyncConfig, kb *models.Know
 
 func deleteKnowledgeBaseFromWeknora(cfg *weknoraKnowledgeSyncConfig, kb *models.KnowledgeBase) error {
 	if kb == nil {
-		return fmt.Errorf("知识库数据为空")
+		return fmt.Errorf("knowledge base data is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	documentID := strings.TrimSpace(kb.ExternalDocID)
@@ -665,21 +665,21 @@ func deleteKnowledgeBaseFromWeknora(cfg *weknoraKnowledgeSyncConfig, kb *models.
 
 func syncKnowledgeDocumentBestEffort(db *gorm.DB, kbID, docID uint) error {
 	if kbID == 0 || docID == 0 {
-		return fmt.Errorf("无效的知识库或文档ID")
+		return fmt.Errorf("invalid knowledge base or document ID")
 	}
 	var kb models.KnowledgeBase
 	if err := db.Where("id = ?", kbID).First(&kb).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}
-		return fmt.Errorf("加载知识库失败: %w", err)
+		return fmt.Errorf("failed to load knowledge base: %w", err)
 	}
 	var doc models.KnowledgeBaseDocument
 	if err := db.Where("id = ? AND knowledge_base_id = ?", docID, kbID).First(&doc).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}
-		return fmt.Errorf("加载知识库文档失败: %w", err)
+		return fmt.Errorf("failed to load knowledge base documents: %w", err)
 	}
 
 	persistBestEffort := func(externalDocID, status string, syncErr error) {
@@ -752,7 +752,7 @@ func syncKnowledgeDocumentBestEffort(db *gorm.DB, kbID, docID uint) error {
 			}
 		} else {
 			if content == "" {
-				err := fmt.Errorf("文档内容为空，无法同步")
+				err := fmt.Errorf("document content is empty, cannot sync")
 				return failUpload(strings.TrimSpace(doc.ExternalDocID), err)
 			}
 			if documentID == "" {
@@ -780,7 +780,7 @@ func syncKnowledgeDocumentBestEffort(db *gorm.DB, kbID, docID uint) error {
 
 	case "ragflow":
 		if !isUploadFile && content == "" {
-			err := fmt.Errorf("文档内容为空，无法同步")
+			err := fmt.Errorf("document content is empty, cannot sync")
 			return failUpload(strings.TrimSpace(doc.ExternalDocID), err)
 		}
 
@@ -823,7 +823,7 @@ func syncKnowledgeDocumentBestEffort(db *gorm.DB, kbID, docID uint) error {
 
 	case "weknora":
 		if !isUploadFile && content == "" {
-			err := fmt.Errorf("文档内容为空，无法同步")
+			err := fmt.Errorf("document content is empty, cannot sync")
 			return failUpload(strings.TrimSpace(doc.ExternalDocID), err)
 		}
 
@@ -875,12 +875,12 @@ func syncKnowledgeDocumentBestEffort(db *gorm.DB, kbID, docID uint) error {
 			"sync_error":      "",
 			"last_synced_at":  &now,
 		}).Error; err != nil {
-			return fmt.Errorf("更新知识库external_doc_id失败: %w", err)
+			return fmt.Errorf("failed to update knowledge base external_doc_id: %w", err)
 		}
 		return nil
 
 	default:
-		err := fmt.Errorf("知识库文档同步暂不支持provider: %s", provider)
+		err := fmt.Errorf("knowledge base document sync not yet supported for provider: %s", provider)
 		return failUpload(strings.TrimSpace(doc.ExternalDocID), err)
 	}
 }
@@ -995,13 +995,13 @@ func syncKnowledgeDocumentDeleteBestEffort(db *gorm.DB, kb models.KnowledgeBase,
 		}
 		return nil
 	default:
-		return fmt.Errorf("知识库文档删除同步暂不支持provider: %s", provider)
+		return fmt.Errorf("knowledge base document deletion sync not yet supported for provider: %s", provider)
 	}
 }
 
 func ensureDifyDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase, client *http.Client, cfg *difyKnowledgeSyncConfig) (string, error) {
 	if kb == nil {
-		return "", fmt.Errorf("知识库为空")
+		return "", fmt.Errorf("knowledge base is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	if datasetID != "" {
@@ -1022,7 +1022,7 @@ func ensureDifyDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase, cl
 		"last_synced_at": &now,
 	}
 	if err := db.Model(&models.KnowledgeBase{}).Where("id = ?", kb.ID).Updates(updates).Error; err != nil {
-		return "", fmt.Errorf("更新知识库dataset_id失败: %w", err)
+		return "", fmt.Errorf("failed to update knowledge base dataset_id: %w", err)
 	}
 	kb.ExternalKBID = datasetID
 	kb.AutoDataset = true
@@ -1035,7 +1035,7 @@ func ensureDifyDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase, cl
 
 func ensureRagflowDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase, client *http.Client, cfg *ragflowKnowledgeSyncConfig) (string, error) {
 	if kb == nil {
-		return "", fmt.Errorf("知识库为空")
+		return "", fmt.Errorf("knowledge base is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	if datasetID != "" {
@@ -1056,7 +1056,7 @@ func ensureRagflowDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase,
 		"last_synced_at": &now,
 	}
 	if err := db.Model(&models.KnowledgeBase{}).Where("id = ?", kb.ID).Updates(updates).Error; err != nil {
-		return "", fmt.Errorf("更新知识库dataset_id失败: %w", err)
+		return "", fmt.Errorf("failed to update knowledge base dataset_id: %w", err)
 	}
 	kb.ExternalKBID = datasetID
 	kb.AutoDataset = true
@@ -1069,7 +1069,7 @@ func ensureRagflowDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase,
 
 func ensureWeknoraDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase, client *http.Client, cfg *weknoraKnowledgeSyncConfig) (string, error) {
 	if kb == nil {
-		return "", fmt.Errorf("知识库为空")
+		return "", fmt.Errorf("knowledge base is empty")
 	}
 	datasetID := strings.TrimSpace(kb.ExternalKBID)
 	if datasetID != "" {
@@ -1094,7 +1094,7 @@ func ensureWeknoraDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase,
 		"last_synced_at": &now,
 	}
 	if err := db.Model(&models.KnowledgeBase{}).Where("id = ?", kb.ID).Updates(updates).Error; err != nil {
-		return "", fmt.Errorf("更新知识库dataset_id失败: %w", err)
+		return "", fmt.Errorf("failed to update knowledge base dataset_id: %w", err)
 	}
 	kb.ExternalKBID = datasetID
 	kb.AutoDataset = true
@@ -1107,7 +1107,7 @@ func ensureWeknoraDatasetForKnowledgeBase(db *gorm.DB, kb *models.KnowledgeBase,
 
 func persistKnowledgeDocumentSyncState(db *gorm.DB, doc *models.KnowledgeBaseDocument, externalDocID, syncStatus string, syncErr error) error {
 	if doc == nil || doc.ID == 0 {
-		return fmt.Errorf("文档实体无效")
+		return fmt.Errorf("document entity is invalid")
 	}
 	updates := map[string]interface{}{}
 	if strings.TrimSpace(externalDocID) != "" {
@@ -1219,7 +1219,7 @@ func createDifyDataset(client *http.Client, cfg *difyKnowledgeSyncConfig, kb *mo
 	}
 	_, body, err := doDifyJSONRequest(client, http.MethodPost, buildDifyURL(cfg.BaseURL, "/datasets"), cfg.APIKey, payload, &resp)
 	if err != nil {
-		return "", fmt.Errorf("创建Dify dataset失败: %w", err)
+		return "", fmt.Errorf("failed to create Dify dataset: %w", err)
 	}
 
 	datasetID := strings.TrimSpace(resp.ID)
@@ -1227,7 +1227,7 @@ func createDifyDataset(client *http.Client, cfg *difyKnowledgeSyncConfig, kb *mo
 		datasetID = strings.TrimSpace(resp.Data.ID)
 	}
 	if datasetID == "" {
-		return "", fmt.Errorf("创建Dify dataset失败: 返回缺少id, body=%s", string(body))
+		return "", fmt.Errorf("failed to create Dify dataset: response missing id, body=%s", string(body))
 	}
 	return datasetID, nil
 }
@@ -1256,7 +1256,7 @@ func createDifyDocumentByText(client *http.Client, cfg *difyKnowledgeSyncConfig,
 	path := fmt.Sprintf("/datasets/%s/document/create-by-text", url.PathEscape(datasetID))
 	_, body, err := doDifyJSONRequest(client, http.MethodPost, buildDifyURL(cfg.BaseURL, path), cfg.APIKey, payload, &resp)
 	if err != nil {
-		return "", fmt.Errorf("创建Dify文档失败(dataset_id=%s): %w", datasetID, err)
+		return "", fmt.Errorf("failed to create Dify document (dataset_id=%s): %w", datasetID, err)
 	}
 
 	docID := strings.TrimSpace(resp.Document.ID)
@@ -1270,7 +1270,7 @@ func createDifyDocumentByText(client *http.Client, cfg *difyKnowledgeSyncConfig,
 		docID = strings.TrimSpace(resp.Data.DocumentID)
 	}
 	if docID == "" {
-		return "", fmt.Errorf("创建Dify文档失败: 返回缺少document_id, body=%s", string(body))
+		return "", fmt.Errorf("failed to create Dify document: response missing document_id, body=%s", string(body))
 	}
 	return docID, nil
 }
@@ -1283,7 +1283,7 @@ func createDifyDocumentByFile(client *http.Client, cfg *difyKnowledgeSyncConfig,
 	fields := map[string]string{}
 	meta := map[string]interface{}{
 		"name": fileName,
-		// Dify create-by-file 要求必须携带 process_rule。
+		// Dify create-by-file requires process_rule.
 		"process_rule": map[string]interface{}{
 			"mode":  "automatic",
 			"rules": map[string]interface{}{},
@@ -1315,7 +1315,7 @@ func createDifyDocumentByFile(client *http.Client, cfg *difyKnowledgeSyncConfig,
 		_, body, err := doDifyMultipartFileRequest(client, http.MethodPost, endpoint, cfg.APIKey, fields, "file", fileName, fileData, &resp)
 		if err != nil {
 			if attempt == difyFileUploadMaxAttempts || !shouldRetryDifyRequest(err) {
-				return "", fmt.Errorf("创建Dify文件文档失败(dataset_id=%s): %w", datasetID, err)
+				return "", fmt.Errorf("failed to create Dify file document (dataset_id=%s): %w", datasetID, err)
 			}
 			waitDuration := time.Duration(attempt) * difyFileUploadRetryStep
 			log.Printf(
@@ -1341,12 +1341,12 @@ func createDifyDocumentByFile(client *http.Client, cfg *difyKnowledgeSyncConfig,
 			docID = strings.TrimSpace(resp.Data.DocumentID)
 		}
 		if docID == "" {
-			return "", fmt.Errorf("创建Dify文件文档失败: 返回缺少document_id, body=%s", string(body))
+			return "", fmt.Errorf("failed to create Dify file document: response missing document_id, body=%s", string(body))
 		}
 		return docID, nil
 	}
 
-	return "", fmt.Errorf("创建Dify文件文档失败(dataset_id=%s): 未知错误", datasetID)
+	return "", fmt.Errorf("failed to create Dify file document (dataset_id=%s): unknown error", datasetID)
 }
 
 func replaceDifyDocumentByFile(client *http.Client, cfg *difyKnowledgeSyncConfig, datasetID, oldDocumentID, fileName string, fileData []byte) (string, error) {
@@ -1374,7 +1374,7 @@ func updateDifyDocumentByText(client *http.Client, cfg *difyKnowledgeSyncConfig,
 	path := fmt.Sprintf("/datasets/%s/documents/%s/update-by-text", url.PathEscape(datasetID), url.PathEscape(documentID))
 	_, _, err := doDifyJSONRequest(client, http.MethodPost, buildDifyURL(cfg.BaseURL, path), cfg.APIKey, payload, nil)
 	if err != nil {
-		return fmt.Errorf("更新Dify文档失败(dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
+		return fmt.Errorf("failed to update Dify document (dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
 	}
 	return nil
 }
@@ -1386,7 +1386,7 @@ func deleteDifyDocument(client *http.Client, cfg *difyKnowledgeSyncConfig, datas
 		if status == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("删除Dify文档失败(dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
+		return fmt.Errorf("failed to delete Dify document (dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
 	}
 	return nil
 }
@@ -1401,14 +1401,14 @@ func isDifyDatasetEmpty(client *http.Client, cfg *difyKnowledgeSyncConfig, datas
 	}
 	_, body, err := doDifyJSONRequest(client, http.MethodGet, buildDifyURL(cfg.BaseURL, path), cfg.APIKey, nil, &resp)
 	if err != nil {
-		return false, fmt.Errorf("获取Dify文档列表失败(dataset_id=%s): %w", datasetID, err)
+		return false, fmt.Errorf("failed to get Dify document list (dataset_id=%s): %w", datasetID, err)
 	}
 
 	if resp.Total > 0 || len(resp.Data) > 0 {
 		return false, nil
 	}
 
-	// 某些部署可能返回结构不同，做一次兜底解析
+	// some deployments may return different structures, do a fallback parse
 	var generic map[string]interface{}
 	if err := json.Unmarshal(body, &generic); err == nil {
 		if data, ok := generic["data"].([]interface{}); ok && len(data) > 0 {
@@ -1425,7 +1425,7 @@ func deleteDifyDataset(client *http.Client, cfg *difyKnowledgeSyncConfig, datase
 		if status == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("删除Dify dataset失败(dataset_id=%s): %w", datasetID, err)
+		return fmt.Errorf("failed to delete Dify dataset (dataset_id=%s): %w", datasetID, err)
 	}
 	return nil
 }
@@ -1449,7 +1449,7 @@ func createRagflowDataset(client *http.Client, cfg *ragflowKnowledgeSyncConfig, 
 	}
 	_, body, err := doRagflowJSONRequest(client, http.MethodPost, buildRagflowURL(cfg.BaseURL, "/datasets"), cfg.APIKey, payload, &resp)
 	if err != nil {
-		return "", fmt.Errorf("创建RAGFlow dataset失败: %w", err)
+		return "", fmt.Errorf("failed to create RAGFlow dataset: %w", err)
 	}
 
 	datasetID := strings.TrimSpace(resp.Data.ID)
@@ -1464,7 +1464,7 @@ func createRagflowDataset(client *http.Client, cfg *ragflowKnowledgeSyncConfig, 
 		}
 	}
 	if datasetID == "" {
-		return "", fmt.Errorf("创建RAGFlow dataset失败: 返回缺少id, body=%s", string(body))
+		return "", fmt.Errorf("failed to create RAGFlow dataset: response missing id, body=%s", string(body))
 	}
 	return datasetID, nil
 }
@@ -1559,7 +1559,7 @@ func uploadRagflowDocumentByBytes(client *http.Client, cfg *ragflowKnowledgeSync
 		&resp,
 	)
 	if err != nil {
-		return "", fmt.Errorf("上传RAGFlow文档失败(dataset_id=%s): %w", datasetID, err)
+		return "", fmt.Errorf("failed to upload RAGFlow document (dataset_id=%s): %w", datasetID, err)
 	}
 
 	documentID := ""
@@ -1579,7 +1579,7 @@ func uploadRagflowDocumentByBytes(client *http.Client, cfg *ragflowKnowledgeSync
 		}
 	}
 	if documentID == "" {
-		return "", fmt.Errorf("上传RAGFlow文档失败: 返回缺少document_id, body=%s", string(body))
+		return "", fmt.Errorf("failed to upload RAGFlow document: response missing document_id, body=%s", string(body))
 	}
 	return documentID, nil
 }
@@ -1601,7 +1601,7 @@ func parseRagflowDocuments(client *http.Client, cfg *ragflowKnowledgeSyncConfig,
 	}
 	endpoint := buildRagflowURL(cfg.BaseURL, fmt.Sprintf("/datasets/%s/chunks", url.PathEscape(datasetID)))
 	if _, _, err := doRagflowJSONRequest(client, http.MethodPost, endpoint, cfg.APIKey, payload, nil); err != nil {
-		return fmt.Errorf("触发RAGFlow文档解析失败(dataset_id=%s): %w", datasetID, err)
+		return fmt.Errorf("failed to trigger RAGFlow document parsing (dataset_id=%s): %w", datasetID, err)
 	}
 	return nil
 }
@@ -1616,7 +1616,7 @@ func deleteRagflowDocument(client *http.Client, cfg *ragflowKnowledgeSyncConfig,
 		if status == http.StatusNotFound || isRagflowNotFoundError(err) {
 			return nil
 		}
-		return fmt.Errorf("删除RAGFlow文档失败(dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
+		return fmt.Errorf("failed to delete RAGFlow document (dataset_id=%s, document_id=%s): %w", datasetID, documentID, err)
 	}
 	return nil
 }
@@ -1631,7 +1631,7 @@ func isRagflowDatasetEmpty(client *http.Client, cfg *ragflowKnowledgeSyncConfig,
 	}
 	_, body, err := doRagflowJSONRequest(client, http.MethodGet, endpoint, cfg.APIKey, nil, &resp)
 	if err != nil {
-		return false, fmt.Errorf("获取RAGFlow文档列表失败(dataset_id=%s): %w", datasetID, err)
+		return false, fmt.Errorf("failed to get RAGFlow document list (dataset_id=%s): %w", datasetID, err)
 	}
 
 	if resp.Total > 0 || len(resp.Data) > 0 {
@@ -1657,7 +1657,7 @@ func deleteRagflowDataset(client *http.Client, cfg *ragflowKnowledgeSyncConfig, 
 		if status == http.StatusNotFound || isRagflowNotFoundError(err) {
 			return nil
 		}
-		return fmt.Errorf("删除RAGFlow dataset失败(dataset_id=%s): %w", datasetID, err)
+		return fmt.Errorf("failed to delete RAGFlow dataset (dataset_id=%s): %w", datasetID, err)
 	}
 	return nil
 }
@@ -1671,7 +1671,7 @@ func createWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 	}
 	_, body, err := doWeknoraJSONRequest(client, http.MethodPost, buildWeknoraURL(cfg.BaseURL, "/knowledge-bases"), cfg.APIKey, payload, &resp)
 	if err != nil {
-		return "", fmt.Errorf("创建Weknora知识库失败: %w", err)
+		return "", fmt.Errorf("failed to create Weknora knowledge base: %w", err)
 	}
 	kbID := strings.TrimSpace(resp.Data.ID)
 	if kbID == "" {
@@ -1680,7 +1680,7 @@ func createWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 		}
 	}
 	if kbID == "" {
-		return "", fmt.Errorf("创建Weknora知识库失败: 返回缺少id, body=%s", string(body))
+		return "", fmt.Errorf("failed to create Weknora knowledge base: response missing id, body=%s", string(body))
 	}
 	return kbID, nil
 }
@@ -1688,7 +1688,7 @@ func createWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 func updateWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncConfig, kbID string, kb *models.KnowledgeBase) error {
 	kbID = strings.TrimSpace(kbID)
 	if kbID == "" {
-		return fmt.Errorf("weknora知识库id为空")
+		return fmt.Errorf("weknora knowledge base id is empty")
 	}
 	payload := buildWeknoraKnowledgeBaseUpdatePayload(cfg, kb)
 	endpoint := buildWeknoraURL(cfg.BaseURL, fmt.Sprintf("/knowledge-bases/%s", url.PathEscape(kbID)))
@@ -1696,7 +1696,7 @@ func updateWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 	if err == nil {
 		return nil
 	}
-	// 兼容旧版接口：若新格式(update payload 带 config)失败，按旧扁平格式重试一次。
+	// support old API: if new format (update payload with config) fails, retry with old flat format once.
 	if shouldRetryWeknoraLegacyUpdate(status, body, err) {
 		legacyPayload := buildWeknoraKnowledgeBasePayload(cfg, kb)
 		legacyStatus, legacyBody, legacyErr := doWeknoraJSONRequest(client, http.MethodPut, endpoint, cfg.APIKey, legacyPayload, nil)
@@ -1710,7 +1710,7 @@ func updateWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 			return nil
 		}
 		return fmt.Errorf(
-			"更新Weknora知识库失败(knowledge_base_id=%s): primary_err=%v; fallback_status=%d fallback_err=%v fallback_body=%s",
+			"failed to update Weknora knowledge base (knowledge_base_id=%s): primary_err=%v; fallback_status=%d fallback_err=%v fallback_body=%s",
 			kbID,
 			err,
 			legacyStatus,
@@ -1718,7 +1718,7 @@ func updateWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 			truncateForLog(string(legacyBody), 2000),
 		)
 	}
-	return fmt.Errorf("更新Weknora知识库失败(knowledge_base_id=%s): %w", kbID, err)
+	return fmt.Errorf("failed to update Weknora knowledge base (knowledge_base_id=%s): %w", kbID, err)
 }
 
 func deleteWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncConfig, kbID string) error {
@@ -1728,7 +1728,7 @@ func deleteWeknoraKnowledgeBase(client *http.Client, cfg *weknoraKnowledgeSyncCo
 		if status == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("删除Weknora知识库失败(knowledge_base_id=%s): %w", kbID, err)
+		return fmt.Errorf("failed to delete Weknora knowledge base (knowledge_base_id=%s): %w", kbID, err)
 	}
 	return nil
 }
@@ -1761,7 +1761,7 @@ func replaceWeknoraKnowledgeByText(client *http.Client, cfg *weknoraKnowledgeSyn
 func createWeknoraKnowledgeByFile(client *http.Client, cfg *weknoraKnowledgeSyncConfig, kbID, fileName string, fileData []byte) (string, error) {
 	kbID = strings.TrimSpace(kbID)
 	if kbID == "" {
-		return "", fmt.Errorf("weknora知识库id为空")
+		return "", fmt.Errorf("weknora knowledge base id is empty")
 	}
 	fileName = sanitizeKnowledgeUploadFileName(fileName)
 	if fileName == "" {
@@ -1778,7 +1778,7 @@ func createWeknoraKnowledgeByFile(client *http.Client, cfg *weknoraKnowledgeSync
 	}
 	_, body, err := doWeknoraMultipartFileRequest(client, http.MethodPost, endpoint, cfg.APIKey, fields, "file", fileName, fileData, &resp)
 	if err != nil {
-		return "", fmt.Errorf("创建Weknora文档失败(knowledge_base_id=%s): %w", kbID, err)
+		return "", fmt.Errorf("failed to create Weknora document (knowledge_base_id=%s): %w", kbID, err)
 	}
 	knowledgeID := strings.TrimSpace(resp.Data.ID)
 	if knowledgeID == "" {
@@ -1787,7 +1787,7 @@ func createWeknoraKnowledgeByFile(client *http.Client, cfg *weknoraKnowledgeSync
 		}
 	}
 	if knowledgeID == "" {
-		return "", fmt.Errorf("创建Weknora文档失败: 返回缺少id, body=%s", string(body))
+		return "", fmt.Errorf("failed to create Weknora document: response missing id, body=%s", string(body))
 	}
 	return knowledgeID, nil
 }
@@ -1803,7 +1803,7 @@ func deleteWeknoraKnowledge(client *http.Client, cfg *weknoraKnowledgeSyncConfig
 		if status == http.StatusNotFound {
 			return nil
 		}
-		return fmt.Errorf("删除Weknora文档失败(knowledge_id=%s): %w", knowledgeID, err)
+		return fmt.Errorf("failed to delete Weknora document (knowledge_id=%s): %w", knowledgeID, err)
 	}
 	return nil
 }
@@ -1818,7 +1818,7 @@ func getWeknoraKnowledgeParseStatus(client *http.Client, cfg *weknoraKnowledgeSy
 	}
 	statusCode, body, err := doWeknoraJSONRequest(client, http.MethodGet, endpoint, cfg.APIKey, nil, &resp)
 	if err != nil {
-		return "", "", fmt.Errorf("获取Weknora文档状态失败(knowledge_id=%s): %w", knowledgeID, err)
+		return "", "", fmt.Errorf("failed to get Weknora document status (knowledge_id=%s): %w", knowledgeID, err)
 	}
 	status := strings.ToLower(strings.TrimSpace(resp.Data.ParseStatus))
 	errMsg := strings.TrimSpace(resp.Data.ErrorMessage)
@@ -1835,7 +1835,7 @@ func getWeknoraKnowledgeParseStatus(client *http.Client, cfg *weknoraKnowledgeSy
 		}
 	}
 	if statusCode == http.StatusNotFound {
-		return "", "", fmt.Errorf("文档不存在")
+		return "", "", fmt.Errorf("document not found")
 	}
 	return status, errMsg, nil
 }
@@ -1843,7 +1843,7 @@ func getWeknoraKnowledgeParseStatus(client *http.Client, cfg *weknoraKnowledgeSy
 func waitWeknoraKnowledgeParsed(client *http.Client, cfg *weknoraKnowledgeSyncConfig, knowledgeID string) error {
 	knowledgeID = strings.TrimSpace(knowledgeID)
 	if knowledgeID == "" {
-		return fmt.Errorf("weknora文档id为空")
+		return fmt.Errorf("weknora document id is empty")
 	}
 	timeout := cfg.ParseTimeout
 	if timeout <= 0 {
@@ -1866,15 +1866,15 @@ func waitWeknoraKnowledgeParsed(client *http.Client, cfg *weknoraKnowledgeSyncCo
 			if errMsg == "" {
 				errMsg = "unknown error"
 			}
-			return fmt.Errorf("Weknora文档解析失败(knowledge_id=%s): %s", knowledgeID, errMsg)
+			return fmt.Errorf("Weknora document parsing failed (knowledge_id=%s): %s", knowledgeID, errMsg)
 		case "pending", "processing", "":
 			if time.Now().After(deadline) {
-				return fmt.Errorf("等待Weknora文档解析超时(knowledge_id=%s timeout_ms=%d)", knowledgeID, timeout.Milliseconds())
+				return fmt.Errorf("timed out waiting for Weknora document parsing (knowledge_id=%s timeout_ms=%d)", knowledgeID, timeout.Milliseconds())
 			}
 			time.Sleep(interval)
 		default:
 			if time.Now().After(deadline) {
-				return fmt.Errorf("等待Weknora文档解析超时(knowledge_id=%s status=%s timeout_ms=%d)", knowledgeID, status, timeout.Milliseconds())
+				return fmt.Errorf("timed out waiting for Weknora document parsing (knowledge_id=%s status=%s timeout_ms=%d)", knowledgeID, status, timeout.Milliseconds())
 			}
 			time.Sleep(interval)
 		}
@@ -1893,7 +1893,7 @@ func isWeknoraKnowledgeBaseEmpty(client *http.Client, cfg *weknoraKnowledgeSyncC
 	}
 	_, body, err := doWeknoraJSONRequest(client, http.MethodGet, endpoint, cfg.APIKey, nil, &resp)
 	if err != nil {
-		return false, fmt.Errorf("获取Weknora文档列表失败(knowledge_base_id=%s): %w", kbID, err)
+		return false, fmt.Errorf("failed to get Weknora document list (knowledge_base_id=%s): %w", kbID, err)
 	}
 	if resp.Data.Total > 0 || len(resp.Data.List) > 0 {
 		return false, nil
@@ -1923,7 +1923,7 @@ func buildWeknoraKnowledgeBaseConfigPayload(cfg *weknoraKnowledgeSyncConfig) map
 			"separators":        cfg.Separators,
 			"enable_multimodal": cfg.EnableMultimodal,
 		},
-		// WeKnora PUT 文档示例中 config 下包含该字段；无模型时传空字符串。
+		// WeKnora PUT document example includes this field under config; pass empty string if no model.
 		"image_processing_config": map[string]interface{}{
 			"model_id": strings.TrimSpace(cfg.VLMModelID),
 		},
@@ -2014,7 +2014,7 @@ func doWeknoraJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 	if payload != nil {
 		payloadBytesLocal, err := json.Marshal(payload)
 		if err != nil {
-			return 0, nil, fmt.Errorf("编码请求体失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to encode request body: %w", err)
 		}
 		payloadBytes = payloadBytesLocal
 		bodyReader = bytes.NewReader(payloadBytes)
@@ -2024,7 +2024,7 @@ func doWeknoraJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, bodyReader)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("X-API-Key", apiKey)
 	if payload != nil {
@@ -2080,8 +2080,8 @@ func doWeknoraJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析Weknora响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse Weknora response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil
@@ -2099,18 +2099,18 @@ func doWeknoraMultipartFileRequest(
 	writer := multipart.NewWriter(&body)
 	for key, value := range fields {
 		if err := writer.WriteField(key, value); err != nil {
-			return 0, nil, fmt.Errorf("写入表单字段失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to write form field: %w", err)
 		}
 	}
 	fileWriter, err := writer.CreateFormFile(fileField, fileName)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建文件字段失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create file field: %w", err)
 	}
 	if _, err := fileWriter.Write(fileContent); err != nil {
-		return 0, nil, fmt.Errorf("写入文件内容失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to write file content: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return 0, nil, fmt.Errorf("关闭表单写入器失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to close form writer: %w", err)
 	}
 
 	fieldsBytes, _ := json.Marshal(fields)
@@ -2125,7 +2125,7 @@ func doWeknoraMultipartFileRequest(
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, &body)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("X-API-Key", apiKey)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -2179,8 +2179,8 @@ func doWeknoraMultipartFileRequest(
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析Weknora响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse Weknora response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil
@@ -2192,7 +2192,7 @@ func doRagflowJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 	if payload != nil {
 		payloadBytesLocal, err := json.Marshal(payload)
 		if err != nil {
-			return 0, nil, fmt.Errorf("编码请求体失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to encode request body: %w", err)
 		}
 		payloadBytes = payloadBytesLocal
 		bodyReader = bytes.NewReader(payloadBytes)
@@ -2202,7 +2202,7 @@ func doRagflowJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, bodyReader)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	if payload != nil {
@@ -2243,8 +2243,8 @@ func doRagflowJSONRequest(client *http.Client, method, endpoint, apiKey string, 
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析RAGFlow响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse RAGFlow response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil
@@ -2262,25 +2262,25 @@ func doRagflowMultipartFileRequest(
 	writer := multipart.NewWriter(&body)
 	for key, value := range fields {
 		if err := writer.WriteField(key, value); err != nil {
-			return 0, nil, fmt.Errorf("写入表单字段失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to write form field: %w", err)
 		}
 	}
 	fileWriter, err := writer.CreateFormFile(fileField, fileName)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建文件字段失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create file field: %w", err)
 	}
 	if _, err := fileWriter.Write(fileContent); err != nil {
-		return 0, nil, fmt.Errorf("写入文件内容失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to write file content: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return 0, nil, fmt.Errorf("关闭表单写入器失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to close form writer: %w", err)
 	}
 
 	log.Printf("[KnowledgeSync][Ragflow] Request method=%s url=%s multipart_file=%s size=%d", method, endpoint, fileName, len(fileContent))
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, &body)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -2319,8 +2319,8 @@ func doRagflowMultipartFileRequest(
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析RAGFlow响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse RAGFlow response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil
@@ -2332,7 +2332,7 @@ func doDifyJSONRequest(client *http.Client, method, endpoint, apiKey string, pay
 	if payload != nil {
 		payloadBytesLocal, err := json.Marshal(payload)
 		if err != nil {
-			return 0, nil, fmt.Errorf("编码请求体失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to encode request body: %w", err)
 		}
 		payloadBytes = payloadBytesLocal
 		bodyReader = bytes.NewReader(payloadBytes)
@@ -2342,7 +2342,7 @@ func doDifyJSONRequest(client *http.Client, method, endpoint, apiKey string, pay
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, bodyReader)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	if payload != nil {
@@ -2371,8 +2371,8 @@ func doDifyJSONRequest(client *http.Client, method, endpoint, apiKey string, pay
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析Dify响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse Dify response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil
@@ -2390,18 +2390,18 @@ func doDifyMultipartFileRequest(
 	writer := multipart.NewWriter(&body)
 	for key, value := range fields {
 		if err := writer.WriteField(key, value); err != nil {
-			return 0, nil, fmt.Errorf("写入表单字段失败: %w", err)
+			return 0, nil, fmt.Errorf("failed to write form field: %w", err)
 		}
 	}
 	fileWriter, err := writer.CreateFormFile(fileField, fileName)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建文件字段失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create file field: %w", err)
 	}
 	if _, err := fileWriter.Write(fileContent); err != nil {
-		return 0, nil, fmt.Errorf("写入文件内容失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to write file content: %w", err)
 	}
 	if err := writer.Close(); err != nil {
-		return 0, nil, fmt.Errorf("关闭表单写入器失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to close form writer: %w", err)
 	}
 
 	fieldsBytes, _ := json.Marshal(fields)
@@ -2416,7 +2416,7 @@ func doDifyMultipartFileRequest(
 	startAt := time.Now()
 	req, err := http.NewRequest(method, endpoint, &body)
 	if err != nil {
-		return 0, nil, fmt.Errorf("创建请求失败: %w", err)
+		return 0, nil, fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("Content-Type", writer.FormDataContentType())
@@ -2443,8 +2443,8 @@ func doDifyMultipartFileRequest(
 
 	if out != nil && len(bodyBytes) > 0 {
 		if err := json.Unmarshal(bodyBytes, out); err != nil {
-			log.Printf("解析Dify响应失败: %v, body: %s", err, string(bodyBytes))
-			return resp.StatusCode, bodyBytes, fmt.Errorf("解析响应失败: %w", err)
+			log.Printf("failed to parse Dify response: %v, body: %s", err, string(bodyBytes))
+			return resp.StatusCode, bodyBytes, fmt.Errorf("failed to parse response: %w", err)
 		}
 	}
 	return resp.StatusCode, bodyBytes, nil

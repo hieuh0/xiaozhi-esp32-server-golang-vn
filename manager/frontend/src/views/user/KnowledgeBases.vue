@@ -1,7 +1,7 @@
 <template>
   <div class="config-page">
     <div class="page-actions">
-      <el-button type="primary" @click="openDialog()">{{ t('add_knowledge_base') }}新增知识库</el-button>
+      <el-button type="primary" @click="openDialog()">{{ t('add_knowledge_base') }}</el-button>
     </div>
 
     <el-table :data="items" v-loading="loading" stripe table-layout="fixed" style="width: 100%">
@@ -57,7 +57,7 @@
       <el-table-column :label="t('actions')" width="176">
         <template #default="scope">
           <div class="action-buttons">
-            <el-button size="small" type="primary" plain @click="openDocuments(scope.row)">文档</el-button>
+            <el-button size="small" type="primary" plain @click="openDocuments(scope.row)">{{ t('document_btn') }}</el-button>
             <el-button size="small" type="success" plain @click="openSearchTestDialog(scope.row)">{{ t('test') }}</el-button>
             <el-dropdown trigger="click" @command="(cmd) => handleKnowledgeBaseAction(cmd, scope.row)">
               <el-button size="small">{{ t('more') }}</el-button>
@@ -82,17 +82,17 @@
         <el-form-item :label="t('description')">
           <el-input v-model="form.description" />
         </el-form-item>
-        <el-form-item label="同步说明">
-          <div class="kb-helper-text">保存后会自动异步同步到管理员配置的知识库提供商（如 Dify / RAGFlow / WeKnora）。文档请在“文档管理”中新增。</div>
+        <el-form-item :label=”t('sync_note_label')”>
+          <div class=”kb-helper-text”>{{ t('kb_helper_text') }}</div>
         </el-form-item>
-        <el-form-item label="检索阈值">
+        <el-form-item :label=”t('retrieve_threshold')”>
           <el-input
-            v-model="form.retrieval_threshold_text"
-            placeholder="请输入 0~1 之间的小数，如 0.2"
+            v-model=”form.retrieval_threshold_text”
+            :placeholder=”t('threshold_test_ph')”
             clearable
           />
-          <div class="kb-helper-text is-spaced">
-            默认填充提供商全局阈值。当前提供商：{{ form.threshold_provider || '-' }}，全局阈值：{{ formatKnowledgeThreshold(form.global_threshold) }}。
+          <div class=”kb-helper-text is-spaced”>
+            {{ t('threshold_hint', { provider: form.threshold_provider || '-', threshold: formatKnowledgeThreshold(form.global_threshold) }) }}
           </div>
         </el-form-item>
         <el-form-item :label="t('status')">
@@ -108,10 +108,10 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="documentsVisible" title="文档管理" width="900px">
+    <el-dialog v-model="documentsVisible" :title="t('document_management')" width="900px">
       <div class="dialog-toolbar">
         <div>
-          当前知识库: <strong>{{ currentKb?.name || '-' }}</strong>
+          {{ t('current_kb_info', { name: currentKb?.name || '-' }) }}
         </div>
         <div class="dialog-toolbar-actions">
           <el-upload
@@ -132,7 +132,7 @@
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" :label="t('document_name')" width="180" />
         <el-table-column prop="external_doc_id" label="Document ID" width="220" />
-        <el-table-column label="内容预览">
+        <el-table-column :label="t('content_preview')">
           <template #default="scope">
             {{ getDocumentPreview(scope.row) }}
           </template>
@@ -142,7 +142,7 @@
             <el-tag :type="getSyncStatusTagType(scope.row.sync_status)">{{ getSyncStatusText(scope.row.sync_status) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="last_synced_at" label="最近同步时间" width="170" />
+        <el-table-column prop="last_synced_at" :label="t('latest_sync_time')" width="170" />
         <el-table-column :label="t('actions')" width="250">
           <template #default="scope">
             <div class="action-buttons">
@@ -160,8 +160,8 @@
         <el-form-item :label="t('document_name')">
           <el-input v-model="documentForm.name" maxlength="200" show-word-limit />
         </el-form-item>
-        <el-form-item label="内容">
-          <el-input v-model="documentForm.content" type="textarea" :rows="12" placeholder="请输入文档内容" />
+        <el-form-item :label="t('content_label')">
+          <el-input v-model="documentForm.content" type="textarea" :rows="12" :placeholder="t('content_ph')" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -170,52 +170,50 @@
       </template>
     </el-dialog>
 
-    <el-dialog v-model="searchTestVisible" title="召回测试" width="960px">
+    <el-dialog v-model="searchTestVisible" :title="t('search_test_title')" width="960px">
       <div style="display: flex; justify-content: space-between; gap: 12px; margin-bottom: 12px; flex-wrap: wrap;">
         <div>
-          当前知识库: <strong>{{ searchTestKb?.name || '-' }}</strong>
+          {{ t('current_kb_info', { name: searchTestKb?.name || '-' }) }}
           <el-tag size="small" style="margin-left: 8px;">{{ searchTestKb?.sync_provider || '-' }}</el-tag>
         </div>
         <div style="display: flex; gap: 8px; flex: 1; min-width: 420px; justify-content: flex-end;">
           <el-input
             v-model="searchTestForm.query"
-            placeholder="输入测试关键词或问题，如：退款流程/接口鉴权"
+            :placeholder="t('search_test_ph')"
             clearable
             @keyup.enter="runSearchTest"
           />
-          <el-tooltip content="TopK：返回前 K 条召回结果" placement="top">
+          <el-tooltip :content="t('topk_tooltip')" placement="top">
             <span style="display:inline-flex;align-items:center;color:#909399;font-size:12px;white-space:nowrap;">TopK</span>
           </el-tooltip>
           <el-select v-model="searchTestForm.top_k" style="width: 110px;">
             <el-option v-for="k in topKOptions" :key="k" :value="k" :label="String(k)" />
           </el-select>
-          <el-tooltip content="仅本次召回测试生效；为空则使用知识库当前阈值（或全局阈值）" placement="top">
+          <el-tooltip :content="t('threshold_test_hint')" placement="top">
             <span style="display:inline-flex;align-items:center;color:#909399;font-size:12px;white-space:nowrap;">{{ t('threshold') }}</span>
           </el-tooltip>
           <el-input
             v-model="searchTestForm.threshold_text"
-            placeholder="如 0.2"
+            :placeholder="t('threshold_test_ph')"
             clearable
             style="width: 120px;"
           />
-          <el-button type="primary" :loading="searchTestLoading" @click="runSearchTest">开始测试</el-button>
+          <el-button type="primary" :loading="searchTestLoading" @click="runSearchTest">{{ t('run_search_test') }}</el-button>
         </div>
       </div>
-      <div class="kb-helper-text is-bottom">
-        召回测试会直接调用当前知识库对应 provider 的检索接口（Dify / RAGFlow / WeKnora），用于验证关键词召回效果。
-      </div>
+      <div class="kb-helper-text is-bottom">{{ t('search_test_hint') }}</div>
       <div v-if="searchTestElapsedMs !== null" class="kb-helper-text is-bottom is-regular">
-        响应耗时：{{ searchTestElapsedMs }} ms
+        {{ t('response_time_ms', { ms: searchTestElapsedMs }) }}
       </div>
       <el-table :data="searchTestResult.hits" v-loading="searchTestLoading" style="width: 100%" max-height="420">
         <el-table-column type="index" label="#" width="60" />
         <el-table-column prop="title" :label="t('source_label')" width="200" />
-        <el-table-column label="分数" width="110">
+        <el-table-column :label="t('score_col')" width="110">
           <template #default="scope">
             {{ formatHitScore(scope.row.score) }}
           </template>
         </el-table-column>
-        <el-table-column prop="content" label="命中内容" min-width="480">
+        <el-table-column prop="content" :label="t('hit_content_col')" min-width="480">
           <template #default="scope">
             <div class="search-hit-content">
               {{ scope.row.content }}
@@ -224,7 +222,7 @@
         </el-table-column>
       </el-table>
       <div v-if="!searchTestLoading && hasRunSearchTest && searchTestResult.hits.length === 0" class="kb-helper-text is-empty">
-        未命中内容，可尝试更换关键词或检查该知识库是否已同步完成。
+        {{ t('search_no_hit') }}
       </div>
     </el-dialog>
   </div>
@@ -316,7 +314,7 @@ const uploadTipText = computed(() => {
   if (currentKBProvider.value === 'weknora') {
     return t('weknora_upload_hint')
   }
-  return `当前提供商 ${currentKBProvider.value} 暂不支持上传建文档。`
+  return t('provider_upload_unsupported', { provider: currentKBProvider.value })
 })
 
 const applyKnowledgeGlobalConfig = (knowledge) => {
@@ -463,7 +461,7 @@ const toggleKnowledgeBaseStatus = async (row, checked) => {
     if (res?.data?.warning) {
       ElMessage.warning(res.data.warning)
     } else {
-      ElMessage.success(`已${nextStatus === 'active' ? t('enabled') : t('deactivate')}`)
+      ElMessage.success(nextStatus === 'active' ? t('enabled') : t('deactivate'))
     }
     await loadData()
   } catch (e) {
@@ -558,7 +556,7 @@ const runSearchTest = async () => {
     const elapsed = Number(data.elapsed_ms)
     searchTestElapsedMs.value = Number.isNaN(elapsed) ? Date.now() - startedAt : elapsed
     hasRunSearchTest.value = true
-    ElMessage.success(`召回完成，共返回 ${searchTestResult.count} 条`)
+    ElMessage.success(t('recall_complete', { count: searchTestResult.count }))
   } catch (e) {
     const msg = e?.response?.data?.error || t('test_failed')
     ElMessage.error(msg)
@@ -660,7 +658,7 @@ const uploadDocumentFile = async (options) => {
     return
   }
   if (!isUploadProviderSupported.value) {
-    ElMessage.error(`当前知识库提供商为 ${currentKBProvider.value}，暂不支持文件上传创建文档`)
+    ElMessage.error(t('provider_upload_unsupported', { provider: currentKBProvider.value }))
     options?.onError?.(new Error('provider not supported'))
     return
   }
@@ -705,9 +703,9 @@ const getDocumentPreview = (doc) => {
     try {
       const payload = JSON.parse(content.slice(FILE_UPLOAD_CONTENT_PREFIX.length))
       const fileName = payload?.file_name || doc?.name || t('upload_file')
-      return `[文件] ${fileName}`
+      return t('file_document_name', { name: fileName })
     } catch {
-      return `[文件] ${doc?.name || t('upload_file')}`
+      return t('file_document_name', { name: doc?.name || t('upload_file') })
     }
   }
   const text = String(content)

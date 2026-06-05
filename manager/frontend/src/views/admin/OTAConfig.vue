@@ -13,17 +13,15 @@
             <div>
               <p class="card-kicker">OTA Base</p>
               <h3>{{ t('signature_constraints') }}</h3>
-              <p class="card-description">{{ t('ota_mqtt_password_hint') }}OTA 下发的 MQTT 用户密码会基于签名密钥生成，请确保与 MQTT Server 配置保持一致。</p>
+              <p class="card-description">{{ t('ota_mqtt_password_hint') }}</p>
             </div>
           </div>
         </template>
 
         <div class="field-grid">
           <el-form-item :label="t('signature_key')" prop="signature_key" class="field-span-full">
-            <el-input v-model="form.signature_key" placeholder="请输入 OTA 与 MQTT Server 共用的签名密钥" show-password />
-            <div class="field-help">
-              该密钥需要和 MQTT Server 配置页中的签名密钥完全一致，否则终端拿到的连接凭证将无法通过校验。
-            </div>
+            <el-input v-model="form.signature_key" :placeholder="t('ota_sig_key_ph')" show-password />
+            <div class="field-help">{{ t('ota_sig_key_hint') }}</div>
           </el-form-item>
         </div>
       </el-card>
@@ -48,7 +46,7 @@
             <section class="config-section">
               <div class="section-title">{{ t('ws_delivery') }}</div>
               <el-form-item label="WebSocket URL" prop="test.websocket.url">
-                <el-input v-model="form.test.websocket.url" placeholder="例如：ws://host:port/xiaozhi/v1/" />
+                <el-input v-model="form.test.websocket.url" :placeholder="t('ws_test_url_ph')" />
               </el-form-item>
             </section>
 
@@ -68,7 +66,7 @@
                 <el-input
                   v-model="form.test.mqtt.endpoint"
                   :disabled="!form.test.mqtt.enable"
-                  placeholder="例如：127.0.0.1:1883"
+                  :placeholder="t('mqtt_test_endpoint_ph')"
                 />
                 <div class="field-help">{{ t('mqtt_udp_note') }}</div>
               </el-form-item>
@@ -95,7 +93,7 @@
             <section class="config-section">
               <div class="section-title">{{ t('ws_delivery') }}</div>
               <el-form-item label="WebSocket URL" prop="external.websocket.url">
-                <el-input v-model="form.external.websocket.url" placeholder="例如：wss://example.com/xiaozhi/v1/" />
+                <el-input v-model="form.external.websocket.url" :placeholder="t('wss_external_url_ph')" />
               </el-form-item>
             </section>
 
@@ -115,7 +113,7 @@
                 <el-input
                   v-model="form.external.mqtt.endpoint"
                   :disabled="!form.external.mqtt.enable"
-                  placeholder="例如：broker.example.com:1883"
+                  :placeholder="t('mqtt_external_endpoint_ph')"
                 />
               </el-form-item>
             </section>
