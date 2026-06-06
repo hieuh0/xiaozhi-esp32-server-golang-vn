@@ -4,38 +4,27 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/utils/api'
+import { useLocale } from '@/composables/useLocale'
 
-export default {
-  name: 'App',
-  setup() {
-    const router = useRouter()
+const router = useRouter()
+const { t } = useLocale()
 
-    const checkSystemStatus = async () => {
-      try {
-        // Check if system needs initialization
-        const response = await api.get('/setup/status')
-
-        if (response.data.needs_setup) {
-          // If setup is needed and not already on the setup page, redirect
-          if (router.currentRoute.value.path !== '/setup') {
-            router.push('/setup')
-          }
-        }
-      } catch (error) {
-        console.error(t('check_system_failed'), error)
-        // Check failed (likely network issue) — do not force redirect
-      }
+const checkSystemStatus = async () => {
+  try {
+    const response = await api.get('/setup/status')
+    if (response.data.needs_setup && router.currentRoute.value.path !== '/setup') {
+      router.push('/setup')
     }
-
-    onMounted(() => {
-      checkSystemStatus()
-    })
+  } catch (error) {
+    console.error(t('check_system_failed'), error)
   }
 }
+
+onMounted(checkSystemStatus)
 </script>
 
 <style>

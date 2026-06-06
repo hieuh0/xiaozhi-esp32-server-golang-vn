@@ -1,12 +1,4 @@
-import { useLocaleStore } from '../stores/locale'
-import zh from '../locales/zh.js'
-import vi from '../locales/vi.js'
-import en from '../locales/en.js'
-
-const _lm = { zh, vi, en }
-function _tl(key) {
-  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
-}
+import { tl as _tl } from './i18n-helper'
 
 const OPENCLAW_CHANNEL_NAME = 'xiaozhi'
 const OPENCLAW_CHANNEL_CONFIG_PREFIX = `channels.${OPENCLAW_CHANNEL_NAME}`

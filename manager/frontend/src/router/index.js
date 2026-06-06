@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { isMobile } from '../utils/device'
+import { getPostLoginRedirectPath } from '../utils/authRedirect'
 
 // Dynamically load login component based on device type
 const getLoginComponent = () => {
@@ -14,21 +15,6 @@ const routes = [
     path: '/setup',
     name: 'Setup',
     component: () => import('../views/Setup.vue')
-  },
-  {
-    path: '/test',
-    name: 'Test',
-    component: () => import('../views/Test.vue')
-  },
-  {
-    path: '/test-route',
-    name: 'TestRoute',
-    component: () => import('../views/TestRoute.vue')
-  },
-  {
-    path: '/simple-login',
-    name: 'SimpleLogin',
-    component: () => import('../views/SimpleLogin.vue')
   },
   {
     path: '/login',
@@ -298,74 +284,35 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
-  // Already logged in: redirect from login page based on role (admin goes to wizard on first login)
+  // Already logged in: redirect from login page based on role
   if (to.path === '/login' && authStore.isAuthenticated) {
-    if (authStore.user?.role === 'admin') {
-      if (!localStorage.getItem('admin_first_login_done')) {
-        next('/admin/config-wizard')
-      } else {
-        next('/dashboard')
-      }
-    } else {
-      next('/agents')
-    }
+    next(getPostLoginRedirectPath(authStore.user))
     return
   }
 
   // Route requires authentication
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
-      // No token — redirect to login
       next('/login')
       return
     }
 
-    // Token present but no user info — validate token
-    if (!authStore.user && !authStore.isValidating) {
+    // Token present but no user info — validate token (getProfile deduplicates concurrent calls)
+    if (!authStore.user) {
       try {
         await authStore.getProfile()
       } catch (error) {
-        // 401: token invalid — redirect to login
-        if (error.response?.status === 401) {
+        if (error.response?.status === 401 || !authStore.user) {
           next('/login')
           return
         }
-        // Network error (backend unreachable) — allow access with error shown
-        if (error.code === 'ERR_NETWORK' || error.message?.includes('Failed to fetch') || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-          // On network error without local user info, redirect to login
-          if (!authStore.user) {
-            next('/login')
-            return
-          }
-          // Fall through to final next()
-        } else {
-          // Other errors — allow access (backend may be temporarily unavailable)
-          // Fall through to final next()
-        }
-      }
-    }
-
-    // Wait for in-progress validation (max 2 seconds)
-    if (authStore.isValidating) {
-      let waitCount = 0
-      while (authStore.isValidating && waitCount < 20) {
-        await new Promise(resolve => setTimeout(resolve, 100))
-        waitCount++
       }
     }
   }
 
-  // Root path: redirect based on role (admin goes to wizard on first login)
+  // Root path: redirect based on role
   if (to.path === '/' && authStore.isAuthenticated) {
-    if (authStore.user?.role === 'admin') {
-      if (!localStorage.getItem('admin_first_login_done')) {
-        next('/admin/config-wizard')
-      } else {
-        next('/dashboard')
-      }
-    } else {
-      next('/agents')
-    }
+    next(getPostLoginRedirectPath(authStore.user))
     return
   }
 

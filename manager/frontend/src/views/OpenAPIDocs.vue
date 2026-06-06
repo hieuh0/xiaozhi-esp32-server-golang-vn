@@ -256,3 +256,4 @@ const nav = [
 .vp-hero h1 { margin: 0; font-size: 32px; }
 .lead { margin: 10px 0; color: #4b5563; }
 .hero-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+</style>

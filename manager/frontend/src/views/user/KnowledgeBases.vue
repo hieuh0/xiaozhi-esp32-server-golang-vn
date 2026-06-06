@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="config-page">
     <div class="page-actions">
       <el-button type="primary" @click="openDialog()">{{ t('add_knowledge_base') }}</el-button>
@@ -82,16 +82,16 @@
         <el-form-item :label="t('description')">
           <el-input v-model="form.description" />
         </el-form-item>
-        <el-form-item :label=”t('sync_note_label')”>
-          <div class=”kb-helper-text”>{{ t('kb_helper_text') }}</div>
+        <el-form-item :label="t('sync_note_label')">
+          <div class="kb-helper-text">{{ t('kb_helper_text') }}</div>
         </el-form-item>
-        <el-form-item :label=”t('retrieve_threshold')”>
+        <el-form-item :label="t('retrieve_threshold')">
           <el-input
-            v-model=”form.retrieval_threshold_text”
-            :placeholder=”t('threshold_test_ph')”
+            v-model="form.retrieval_threshold_text"
+            :placeholder="t('threshold_test_ph')"
             clearable
           />
-          <div class=”kb-helper-text is-spaced”>
+          <div class="kb-helper-text is-spaced">
             {{ t('threshold_hint', { provider: form.threshold_provider || '-', threshold: formatKnowledgeThreshold(form.global_threshold) }) }}
           </div>
         </el-form-item>

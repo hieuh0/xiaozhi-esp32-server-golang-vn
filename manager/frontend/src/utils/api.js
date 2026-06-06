@@ -1,13 +1,11 @@
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
-import { useLocaleStore } from '../stores/locale'
-import zh from '../locales/zh.js'
-import vi from '../locales/vi.js'
-import en from '../locales/en.js'
+import { tl } from './i18n-helper'
 
-const _lm = { zh, vi, en }
-function _tl(key) {
-  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
+let _router = null
+
+export function setRouter(router) {
+  _router = router
 }
 
 const api = axios.create({
@@ -39,9 +37,13 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
-      window.location.href = '/login'
+      if (_router) {
+        _router.push('/login')
+      } else {
+        window.location.href = '/login'
+      }
     } else if (!silentError) {
-      ElMessage.error(error.response?.data?.error || _tl('request_failed'))
+      ElMessage.error(error.response?.data?.error || tl('request_failed'))
     }
     return Promise.reject(error)
   }

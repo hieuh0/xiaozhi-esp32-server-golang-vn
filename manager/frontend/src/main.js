@@ -21,6 +21,7 @@ import 'vant/lib/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import App from './App.vue'
 import router from './router'
+import { setRouter } from './utils/api'
 import './styles/apple-light.css'
 
 const app = createApp(App)
@@ -47,5 +48,7 @@ app.use(Icon)
 app.use(createPinia())
 app.use(router)
 app.use(ElementPlus)  // Desktop use
+
+setRouter(router)
 
 app.mount('#app')

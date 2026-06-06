@@ -1,15 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import api from '../utils/api'
-import { useLocaleStore } from './locale'
-import zh from '../locales/zh.js'
-import vi from '../locales/vi.js'
-import en from '../locales/en.js'
-
-const _lm = { zh, vi, en }
-function _tl(key) {
-  try { const s = useLocaleStore(); return _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key } catch { return _lm.zh[key] ?? key }
-}
+import { tl } from '../utils/i18n-helper'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'))
@@ -34,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       return { 
         success: false, 
-        message: error.response?.data?.error || _tl('login_failed')
+        message: error.response?.data?.error || tl('login_failed')
       }
     }
   }
@@ -46,7 +38,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch (error) {
       return { 
         success: false, 
-        message: error.response?.data?.error || _tl('register_failed')
+        message: error.response?.data?.error || tl('register_failed')
       }
     }
   }
@@ -58,23 +50,27 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('user')
   }
 
+  let _validationPromise = null
+
   const getProfile = async () => {
-    // Skip if already validating to prevent duplicate calls
-    if (isValidating.value) {
-      return
-    }
-    
-    isValidating.value = true
-    try {
-      const response = await api.get('/profile')
-      user.value = response.data.user
-      localStorage.setItem('user', JSON.stringify(response.data.user))
-    } catch (error) {
-      logout()
-      throw error // Re-throw so the route guard can handle it
-    } finally {
-      isValidating.value = false
-    }
+    if (_validationPromise) return _validationPromise
+
+    _validationPromise = (async () => {
+      isValidating.value = true
+      try {
+        const response = await api.get('/profile')
+        user.value = response.data.user
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+      } catch (error) {
+        logout()
+        throw error
+      } finally {
+        isValidating.value = false
+        _validationPromise = null
+      }
+    })()
+
+    return _validationPromise
   }
 
   return {

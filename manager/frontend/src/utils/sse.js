@@ -1,17 +1,4 @@
-import { useLocaleStore } from '../stores/locale'
-import zh from '../locales/zh.js'
-import vi from '../locales/vi.js'
-import en from '../locales/en.js'
-
-const _lm = { zh, vi, en }
-function _tl(key, params) {
-  try {
-    const s = useLocaleStore()
-    let str = _lm[s.lang]?.[key] ?? _lm.zh[key] ?? key
-    if (params) Object.entries(params).forEach(([k, v]) => { str = str.replaceAll(`{${k}}`, v) })
-    return str
-  } catch { return _lm.zh[key] ?? key }
-}
+import { tl as _tl } from './i18n-helper'
 
 const parseJSONSafe = (text) => {
   if (typeof text !== 'string' || text.trim() === '') {
