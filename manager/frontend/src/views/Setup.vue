@@ -115,11 +115,13 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/utils/api'
+import { useLocale } from '@/composables/useLocale'
 
 export default {
   name: 'Setup',
   setup() {
     const router = useRouter()
+    const { t } = useLocale()
     const checking = ref(true)
     const needsSetup = ref(false)
     const initialized = ref(false)
@@ -186,6 +188,7 @@ export default {
     })
 
     return {
+      t,
       checking,
       needsSetup,
       initialized,
