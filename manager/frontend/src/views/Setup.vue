@@ -143,7 +143,7 @@ export default {
         if (response.data.needs_setup) {
           needsSetup.value = true
         } else {
-          // 系统已初始化，跳转到登录页
+          // System already initialized — go to login
           router.push('/login')
         }
       } catch (error) {
@@ -155,7 +155,7 @@ export default {
     }
 
     const initializeSystem = async () => {
-      // 验证密码确认
+      // Validate password confirmation
       if (form.value.admin_password !== confirmPassword.value) {
         errorMessage.value = t('passwords_inconsistent')
         return

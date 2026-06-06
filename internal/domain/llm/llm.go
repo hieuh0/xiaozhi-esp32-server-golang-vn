@@ -8,26 +8,26 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
-// ConvertMCPToolsToEinoTools 将MCP工具转换为Eino ToolInfo格式
+// ConvertMCPToolsToEinoTools Convert MCP tools to Eino ToolInfo format
 func ConvertMCPToolsToEinoTools(ctx context.Context, mcpTools map[string]interface{}) ([]*schema.ToolInfo, error) {
 	var einoTools []*schema.ToolInfo
 
 	for toolName, mcpTool := range mcpTools {
-		// 尝试获取工具信息
+		//Try to get tool information
 		if invokableTool, ok := mcpTool.(interface {
 			Info(context.Context) (*schema.ToolInfo, error)
 		}); ok {
 			toolInfo, err := invokableTool.Info(ctx)
 			if err != nil {
-				log.Errorf("获取工具 %s 信息失败: %v", toolName, err)
+				log.Errorf("Failed to obtain tool %s information: %v", toolName, err)
 				continue
 			}
 			einoTools = append(einoTools, toolInfo)
 		} else {
-			log.Warnf("工具 %s 不支持Info接口，跳过转换", toolName)
+			log.Warnf("Tool %s does not support Info interface, skip conversion", toolName)
 		}
 	}
 
-	log.Infof("成功转换了 %d 个MCP工具为Eino工具", len(einoTools))
+	log.Infof("Successfully converted %d MCP tools to Eino tools", len(einoTools))
 	return einoTools, nil
 }

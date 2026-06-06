@@ -20,7 +20,7 @@ const (
 	defaultTimeoutMS = 10000
 )
 
-// Client 是 MemOS 独立 provider 客户端实现。
+// Client is a MemOS independent provider client implementation.
 type Client struct {
 	baseURL         string
 	apiKey          string
@@ -30,8 +30,8 @@ type Client struct {
 	searchThreshold float64
 }
 
-// GetWithConfig 使用配置初始化 MemOS 客户端。
-// 实际请求 URL = base_url + 固定路径
+// GetWithConfig Initializes the MemOS client with configuration.
+// Actual request URL = base_url + fixed path
 func GetWithConfig(config map[string]interface{}) (*Client, error) {
 	if config == nil {
 		config = map[string]interface{}{}
@@ -45,7 +45,7 @@ func GetWithConfig(config map[string]interface{}) (*Client, error) {
 	searchThreshold := getFloat(config, "search_threshold", 0.5)
 
 	if strings.TrimSpace(baseURL) == "" {
-		return nil, fmt.Errorf("memos.base_url 配置缺失或为空")
+		return nil, fmt.Errorf("memos.base_url configuration is missing or empty")
 	}
 	if searchTopK <= 0 {
 		searchTopK = 3
@@ -63,7 +63,7 @@ func GetWithConfig(config map[string]interface{}) (*Client, error) {
 		searchThreshold: searchThreshold,
 	}
 
-	log.Log().Infof("MemOS 客户端初始化成功, base_url: %s", client.baseURL)
+	log.Log().Infof("MemOS client initialization successful, base_url: %s", client.baseURL)
 	return client, nil
 }
 
@@ -146,7 +146,7 @@ func (c *Client) Search(ctx context.Context, agentID string, query string, topK 
 	payload["query"] = query
 	payload["memory_limit_number"] = topK
 	payload["relativity"] = c.searchThreshold
-	_ = timeRangeDays // 文档当前无 time_range_days 字段，保留签名兼容
+	_ = timeRangeDays //The document currently does not have a time_range_days field, retaining signature compatibility
 	data, err := c.requestJSON(ctx, http.MethodPost, "/search/memory", payload)
 	if err != nil {
 		return "", fmt.Errorf("memos search failed: %w", err)
@@ -204,7 +204,7 @@ func (c *Client) newIdentityPayload(agentID string) (map[string]interface{}, err
 		"conversation_id": identity,
 	}
 
-	// agent_id 在 MemOS 文档中为可选字段，仅在有值时传递
+	//agent_id is an optional field in the MemOS document and is only passed if there is a value
 	if identity != "" {
 		payload["agent_id"] = identity
 	}

@@ -1,9 +1,9 @@
 <template>
   <div class="test-route">
-    <h1>{{ t('test_route_page') }}测试路由页面</h1>
-    <p>{{ t('routing_works_hint') }}如果您能看到这个页面，说明路由系统正常工作。</p>
+    <h1>{{ t('test_route_page') }}</h1>
+    <p>{{ t('routing_works_hint') }}</p>
     <div class="route-state">{{ message }}</div>
-    <el-button @click="testFunction">{{ t('test_button') }}测试按钮</el-button>
+    <el-button @click="testFunction">{{ t('test_button') }}</el-button>
   </div>
 </template>
 

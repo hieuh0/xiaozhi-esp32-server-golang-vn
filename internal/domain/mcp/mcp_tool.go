@@ -20,22 +20,22 @@ var reconnectGlobalMCPServer = func(serverName string) (*client.Client, error) {
 	return GetGlobalMCPManager().reconnectServer(serverName)
 }
 
-// LocalToolHandler 本地工具处理函数类型
+// LocalToolHandler local tool processing function type
 type LocalToolHandler func(ctx context.Context, argumentsInJSON string) (string, error)
 
-// mcpTool MCP工具实现，支持远程和本地工具
+// mcpTool MCP tool implementation, supporting remote and local tools
 type McpTool struct {
 	info       *schema.ToolInfo
 	originName string
 	serverName string
 	client     *client.Client
 
-	// 本地工具支持
+	//Native tool support
 	isLocal      bool
 	localHandler LocalToolHandler
 }
 
-// Info 获取工具信息，实现BaseTool接口
+// Info obtains tool information and implements the BaseTool interface
 func (t *McpTool) Info(ctx context.Context) (*schema.ToolInfo, error) {
 	return t.info, nil
 }
@@ -85,49 +85,49 @@ func remoteCallNameForTool(invokable tool.InvokableTool, fallback string) string
 func (t *McpTool) InvokeableLocalRun(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
 	toolInfo := t.info
 	if t.localHandler == nil {
-		return "", fmt.Errorf("本地工具 %s 的处理函数未定义", toolInfo.Name)
+		return "", fmt.Errorf("The handler function for local tool %s is undefined", toolInfo.Name)
 	}
 
-	log.Infof("执行本地工具: %s, 参数: %s", toolInfo.Name, argumentsInJSON)
+	log.Infof("Execute local tool: %s, parameters: %s", toolInfo.Name, argumentsInJSON)
 
 	resultStr, err := t.localHandler(ctx, argumentsInJSON)
 	if err != nil {
-		log.Errorf("本地工具 %s 执行失败: %v", toolInfo.Name, err)
-		return "", fmt.Errorf("本地工具执行失败: %v", err)
+		log.Errorf("Local tool %s failed to execute: %v", toolInfo.Name, err)
+		return "", fmt.Errorf("Local tool execution failed: %v", err)
 	}
 	if len(resultStr) > 2048 {
-		log.Infof("本地工具 %s 执行成功，结果长度: %d", toolInfo.Name, len(resultStr))
+		log.Infof("Local tool %s executed successfully, result length: %d", toolInfo.Name, len(resultStr))
 	} else {
-		log.Infof("本地工具 %s 执行成功，结果: %+s", toolInfo.Name, resultStr)
+		log.Infof("Local tool %s was executed successfully, result: %+s", toolInfo.Name, resultStr)
 	}
 
 	return resultStr, nil
 }
 
-// InvokableRun 调用工具，实现InvokableTool接口
+// InvokableRun calls the tool and implements the InvokableTool interface
 func (t *McpTool) InvokableRun(ctx context.Context, argumentsInJSON string, opts ...tool.Option) (string, error) {
-	// 如果是本地工具，直接调用本地处理函数
+	//If it is a local tool, call the local processing function directly
 	if t.isLocal {
 		return t.InvokeableLocalRun(ctx, argumentsInJSON, opts...)
 	}
 
 	retContent := ""
 
-	// 远程MCP工具调用逻辑
-	// 检查客户端是否可用
+	//Remote MCP tool calling logic
+	//Check if the client is available
 	if t.client == nil {
-		return retContent, fmt.Errorf("调用MCP工具失败: MCP客户端未初始化")
+		return retContent, fmt.Errorf("Failed to call MCP tool: MCP client not initialized")
 	}
 
-	// 解析参数
+	//Parse parameters
 	var arguments map[string]interface{}
 	if argumentsInJSON != "" {
 		if err := json.Unmarshal([]byte(argumentsInJSON), &arguments); err != nil {
-			return retContent, fmt.Errorf("解析工具参数失败: %v", err)
+			return retContent, fmt.Errorf("Failed to parse tool parameters: %v", err)
 		}
 	}
 
-	// 准备调用请求
+	//Prepare to call request
 	toolName := t.callName()
 	callRequest := mcp.CallToolRequest{
 		Params: mcp.CallToolParams{
@@ -139,30 +139,30 @@ func (t *McpTool) InvokableRun(ctx context.Context, argumentsInJSON string, opts
 	result, err := callRemoteMCPTool(ctx, t.client, callRequest)
 	if err != nil {
 		if !isRetryableRemoteCallError(err) {
-			return retContent, fmt.Errorf("调用工具失败: %v", err)
+			return retContent, fmt.Errorf("Failed to call tool: %v", err)
 		}
 
-		log.Warnf("工具 %s 调用失败，准备重连服务器 %s 后重试: %v", t.info.Name, t.serverName, err)
+		log.Warnf("The tool %s failed to call, prepare to reconnect to the server %s and try again: %v", t.info.Name, t.serverName, err)
 
 		newClient, reconnectErr := reconnectGlobalMCPServer(t.serverName)
 		if reconnectErr != nil {
-			return retContent, fmt.Errorf("调用工具失败: %v，且重连服务器失败: %v", err, reconnectErr)
+			return retContent, fmt.Errorf("Failed to call the tool: %v, and failed to reconnect to the server: %v", err, reconnectErr)
 		}
 
 		t.client = newClient
 		result, err = callRemoteMCPTool(ctx, t.client, callRequest)
 		if err != nil {
-			return retContent, fmt.Errorf("重连后调用仍然失败: %v", err)
+			return retContent, fmt.Errorf("The call still fails after reconnecting: %v", err)
 		}
 	}
 
 	if err != nil {
-		return retContent, fmt.Errorf("调用工具失败: %v", err)
+		return retContent, fmt.Errorf("Failed to call tool: %v", err)
 	}
 
 	resultStr, err := result.MarshalJSON()
 	if err != nil {
-		return retContent, fmt.Errorf("工具调用返回内容转换失败: %v", err)
+		return retContent, fmt.Errorf("Tool call returns content conversion failure: %v", err)
 	}
 
 	return string(resultStr), nil

@@ -1,6 +1,6 @@
 <template>
   <div class="config-page">
-    <!-- 基础配置部分 -->
+    <!-- Basic config section -->
     <el-card class="base-config-card" style="margin-bottom: 20px;">
       <template #header>
         <div class="card-header">
@@ -35,7 +35,7 @@
       </el-form>
     </el-card>
 
-    <!-- 配置列表部分 -->
+    <!-- Config list section -->
     <el-card>
       <template #header>
         <div class="card-header">
@@ -88,7 +88,7 @@
       </el-table>
     </el-card>
 
-    <!-- 添加/编辑配置弹窗 -->
+    <!-- Add/Edit config dialog -->
     <el-dialog
       v-model="showDialog"
       :title="editingConfig ? t('edit_vision_config') : t('add_vision_config')"
@@ -173,13 +173,13 @@ const editingConfig = ref(null)
 const formRef = ref()
 const baseFormRef = ref()
 
-// 基础配置表单
+// Base config form
 const baseForm = reactive({
   enable_auth: false,
   vision_url: ''
 })
 
-// 基础配置验证规则
+// Base config validation rules
 const baseRules = {
   vision_url: [
     { required: true, message: t('enter_vision_url'), trigger: 'blur' },
@@ -246,7 +246,7 @@ const normalizeVisionConfigRow = (config) => {
   }
 }
 
-// 加载基础配置
+// Load base config
 const loadBaseConfig = async () => {
   try {
     const response = await api.get('/admin/vision-base-config')
@@ -258,7 +258,7 @@ const loadBaseConfig = async () => {
   }
 }
 
-// 保存基础配置
+// Save base config
 const saveBaseConfig = async () => {
   if (!baseFormRef.value) return
   
@@ -284,7 +284,7 @@ const loadConfigs = async () => {
   loading.value = true
   try {
     const response = await api.get('/admin/vision-configs')
-    // 过滤掉vision_base配置，确保不在列表中显示
+    // Filter out the vision_base config to keep it out of the list
     const allConfigs = response.data.data || []
     configs.value = allConfigs.filter(config => config.config_id !== 'vision_base').map(normalizeVisionConfigRow)
   } catch (error) {

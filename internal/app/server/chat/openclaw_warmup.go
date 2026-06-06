@@ -36,29 +36,29 @@ const (
 	openClawWarmupPlanSize    = 11
 )
 
-const openClawWarmupSystemPrompt = `你是实时语音对话里的暖场助手，不是主回答者。
+const openClawWarmupSystemPrompt = `You are a warmup assistant in a real-time voice conversation, not the main responder.
 
-你的任务是：在主回复返回前，生成 11 条很短的中文接话，让等待过程听起来一直有人在回应。
+Your task: Before the main response is returned, generate 11 very short English filler phrases to make the waiting period feel like someone is always responding.
 
-硬性要求：
-1. 只负责暖场，不能直接回答问题，不能给出事实、结论、建议、步骤、分析、解释或推测。
-2. 语气要像真人在通话里轻声接话：简短、自然、口语化、有耐心。
-3. 不要像客服，不要像系统提示，不要像通知播报，不要像写文案。
-4. 禁止复述用户原话，尤其不要把“帮我查一下”“帮我看看”“帮我查询一下”“告诉我”这类用户指令原样拼进回复。
-5. 如果需要提到主题，只能提炼成助手视角的名词短语，例如“北京后天的天气”“这个安排”；不要用命令句。
-6. 前 1 到 2 条尽量更轻，不一定带主题词，例如“我看一下”“等我一下”；不要一上来就说很重的安慰话。
-7. 后面的句子再逐步表达“我还在看”“我还在确认”，但要自然，不要机械重复。
-8. 避免使用“正在为您处理”“请稍候”“持续跟进”“调取数据”“连接服务中”这类生硬说法。
-9. 每条都必须是单句短中文，适合语音播报，长度控制在 4 到 16 个汉字。
-10. 你会拿到实际播报时间点。11 条话术必须严格按这些时间点依次设计：
-   - 第 1 秒：像刚接到问题，轻轻接一句。
-   - 第 10 秒：自然补一句，语气仍然轻。
-   - 第 20、30 秒：开始表达“我还在看”，但不要机械。
-   - 第 40、50、60 秒：继续安抚，允许更明确地说“还在确认”。
-   - 第 70、80、90、100 秒：承认时间有点久，但仍然自然、平静，不抱怨。
-11. 只输出严格 JSON 数组，长度必须为 11。
-12. JSON 每项格式必须为：{"text":"暖场语"}。
-13. 禁止输出编号、Markdown、解释、代码块或 JSON 之外的任何内容。`
+Hard requirements:
+1. Only responsible for warmup - do not directly answer questions, do not provide facts, conclusions, suggestions, steps, analysis, explanations or speculation.
+2. Tone should be like a real person gently responding in a phone call: short, natural, conversational, patient.
+3. Do not sound like customer service, system prompts, notifications, or marketing copy.
+4. Do not repeat the user's original words, especially avoid echoing command phrases like “help me search”, “help me check”, “tell me”.
+5. If you need to mention the topic, only distill it into a noun phrase from the assistant's perspective, e.g. “tomorrow's weather in Hanoi”, “this arrangement” - do not use imperative sentences.
+6. The first 1-2 phrases should be lightest, not necessarily topic-specific, e.g. “Let me check” or “Just a moment” - do not start with heavy reassurance.
+7. Later phrases should gradually express “still looking” and “still confirming” - but naturally, not mechanically repetitive.
+8. Avoid stiff phrases like “processing your request”, “please wait”, “following up”, “retrieving data”, “connecting to service”.
+9. Each phrase must be a single short English sentence suitable for voice broadcast, length 5-80 characters.
+10. You will receive actual broadcast time points. The 11 phrases must be strictly designed in order for these time points:
+   - 1st second: Just received the question, respond gently.
+   - 10th second: Naturally add a phrase, still light in tone.
+   - 20th, 30th seconds: Start expressing “still looking” but not mechanically.
+   - 40th, 50th, 60th seconds: Continue reassuring, more explicitly saying “still confirming”.
+   - 70th, 80th, 90th, 100th seconds: Acknowledge it's taking a while, but remain natural and calm, no complaining.
+11. Output strictly a JSON array of length 11.
+12. Each JSON item format must be: {“text”:”warmup phrase”}.
+13. Do not output numbering, Markdown, explanations, code blocks, or anything other than JSON.`
 
 type openClawWarmupTask struct {
 	correlationID string
@@ -369,8 +369,8 @@ func (s *ChatSession) runOpenClawWarmupTask(task *openClawWarmupTask, userText s
 		task.spokeAny.Store(true)
 	}
 
-	// 不在这里清理 active task：最后一条暖场音频可能仍在发送/播放中，
-	// 需要继续允许 OpenClaw 首句到达时执行抢占打断。
+	// Do not clean up the active task here: the last warm-up audio may still be sent/played,
+	// It is necessary to continue to allow OpenClaw to perform preemption interrupts when the first sentence arrives.
 }
 
 func waitOpenClawWarmupUntil(ctx context.Context, deadline time.Time) bool {
@@ -444,7 +444,7 @@ func (s *ChatSession) speakOpenClawWarmupLine(task *openClawWarmupTask, text str
 		IsStart: task.takeWarmupSegmentStartFlag(),
 		IsEnd:   true,
 	}
-	// 暖场句需要确保已经进入发送链路，避免被后续正式回复“看起来像没生效”。
+	// The warm-up sentence needs to ensure that it has entered the sending link to avoid being followed by a formal reply saying "it doesn't look like it took effect".
 	return s.ttsManager.handleTextResponse(task.sessionCtx, resp, true)
 }
 
@@ -485,12 +485,12 @@ func (s *ChatSession) generateOpenClawWarmupPlan(ctx context.Context, correlatio
 func buildOpenClawWarmupUserPrompt(userText string) string {
 	trimmed := strings.TrimSpace(userText)
 	topic := formatOpenClawWarmupTopic(buildOpenClawWarmupHint(userText))
-	topicLine := "不要复述“帮我查一下”这类用户指令。"
-	if topic != "" {
-		topicLine = fmt.Sprintf("如果需要提到主题，只能提炼成名词短语“%s”，不要复述“帮我查一下”这类用户指令。", topic)
+	topicLine := “Do not repeat user command phrases like \”help me search\”.”
+	if topic != “” {
+		topicLine = fmt.Sprintf(“If you need to mention the topic, distill it into the noun phrase \”%s\” only; do not repeat user command phrases like \”help me search\”.”, topic)
 	}
 	return fmt.Sprintf(
-		"用户本轮任务：\n%s\n\n%s\n\n实际播报时间点依次为：第1秒、第10秒、第20秒、第30秒、第40秒、第50秒、第60秒、第70秒、第80秒、第90秒、第100秒。\n请输出 11 条暖场语，并按上述 11 个时间点一一对应。",
+		“User's current task:\n%s\n\n%s\n\nActual broadcast time points in order: 1st second, 10th second, 20th second, 30th second, 40th second, 50th second, 60th second, 70th second, 80th second, 90th second, 100th second.\nPlease output 11 warmup phrases, one for each of the above 11 time points.”,
 		trimmed,
 		topicLine,
 	)
@@ -609,27 +609,25 @@ func sanitizeOpenClawWarmupText(text string) string {
 		return ""
 	}
 
-	runes := []rune(text)
-	if len(runes) > 16 {
+	if len(text) > 80 {
 		return ""
 	}
 	return text
 }
 
 func isInvalidOpenClawWarmupText(text string) bool {
+	lower := strings.ToLower(text)
 	for _, bad := range []string{
-		"帮我",
-		"给我",
-		"告诉我",
-		"请帮",
-		"麻烦帮",
-		"能帮我",
-		"可以帮我",
-		"帮忙查",
-		"帮忙看",
-		"帮忙问",
+		"help me",
+		"tell me",
+		"please help",
+		"can you",
+		"could you",
+		"search for",
+		"look up",
+		"find out",
 	} {
-		if strings.Contains(text, bad) {
+		if strings.Contains(lower, bad) {
 			return true
 		}
 	}
@@ -652,78 +650,62 @@ func buildOpenClawWarmupHint(userText string) string {
 		return ""
 	}
 
-	for _, keyword := range []string{"天气", "气温", "温度", "预报"} {
-		if idx := strings.Index(normalized, keyword); idx >= 0 {
-			limit := idx + len([]rune(keyword))
-			runes := []rune(normalized)
-			if limit > len(runes) {
-				limit = len(runes)
+	for _, keyword := range []string{"weather", "temperature", "forecast"} {
+		if idx := strings.Index(strings.ToLower(normalized), keyword); idx >= 0 {
+			limit := idx + len(keyword)
+			if limit > len(normalized) {
+				limit = len(normalized)
 			}
-			normalized = string(runes[:limit])
+			normalized = normalized[:limit]
 			break
 		}
 	}
 
-	runes := []rune(normalized)
-	if len(runes) > 10 {
-		runes = runes[:10]
+	words := strings.Fields(normalized)
+	if len(words) > 6 {
+		words = words[:6]
 	}
-	for len(runes) > 0 {
-		last := runes[len(runes)-1]
-		if last == '的' || last == '了' || last == '呢' {
-			runes = runes[:len(runes)-1]
-			continue
-		}
-		break
-	}
-	return string(runes)
+	return strings.Join(words, " ")
 }
 
 func trimOpenClawWarmupCommandPrefix(text string) string {
 	trimmed := strings.TrimSpace(text)
+	lower := strings.ToLower(trimmed)
 	for {
 		changed := false
 		for _, prefix := range []string{
-			"麻烦帮我查询一下",
-			"麻烦帮我查一下",
-			"麻烦帮我看一下",
-			"请帮我查询一下",
-			"请帮我查一下",
-			"请帮我看一下",
-			"帮我查询一下",
-			"帮我查一下",
-			"帮我看一下",
-			"帮我问一下",
-			"给我查询一下",
-			"给我查一下",
-			"给我看一下",
-			"可以帮我查一下",
-			"可以帮我看一下",
-			"能帮我查一下",
-			"能帮我看一下",
-			"我想知道",
-			"我想问一下",
-			"我想问",
-			"请问一下",
-			"请问",
-			"查询一下",
-			"查一下",
-			"看一下",
-			"问一下",
-			"帮我查询",
-			"帮我查",
-			"帮我看",
-			"帮我问",
-			"给我查询",
-			"给我查",
-			"给我看",
-			"查询",
-			"查",
-			"看",
-			"问",
+			"please help me search for",
+			"please help me look up",
+			"please help me find",
+			"could you please search for",
+			"could you please look up",
+			"could you please find",
+			"can you please search for",
+			"can you please look up",
+			"can you help me find",
+			"can you find",
+			"can you search",
+			"could you search",
+			"could you find",
+			"help me search for",
+			"help me look up",
+			"help me find",
+			"help me check",
+			"tell me about",
+			"tell me",
+			"i want to know about",
+			"i want to know",
+			"i'd like to know",
+			"search for",
+			"look up",
+			"find out",
+			"find",
+			"check",
+			"search",
 		} {
-			if strings.HasPrefix(trimmed, prefix) {
-				trimmed = strings.TrimSpace(strings.TrimPrefix(trimmed, prefix))
+			if strings.HasPrefix(lower, prefix) {
+				trimmed = strings.TrimSpace(trimmed[len(prefix):])
+				lower = strings.ToLower(trimmed)
 				changed = true
 				break
 			}
@@ -737,18 +719,19 @@ func trimOpenClawWarmupCommandPrefix(text string) string {
 
 func trimOpenClawWarmupQuestionSuffix(text string) string {
 	trimmed := strings.TrimSpace(text)
+	lower := strings.ToLower(trimmed)
 	for _, suffix := range []string{
-		"怎么样",
-		"如何",
-		"多少",
-		"是什么",
-		"是啥",
-		"吗",
-		"呢",
-		"呀",
-		"吧",
+		"how is it",
+		"how is that",
+		"what is it",
+		"what's that",
+		"right",
+		"ok",
 	} {
-		trimmed = strings.TrimSpace(strings.TrimSuffix(trimmed, suffix))
+		if strings.HasSuffix(lower, suffix) {
+			trimmed = strings.TrimSpace(trimmed[:len(trimmed)-len(suffix)])
+			lower = strings.ToLower(trimmed)
+		}
 	}
 	return trimmed
 }
@@ -758,13 +741,14 @@ func formatOpenClawWarmupTopic(hint string) string {
 	if hint == "" {
 		return ""
 	}
-	for _, keyword := range []string{"天气", "气温", "温度", "预报"} {
-		if idx := strings.Index(hint, keyword); idx > 0 {
+	lower := strings.ToLower(hint)
+	for _, keyword := range []string{"weather", "temperature", "forecast"} {
+		if idx := strings.Index(lower, keyword); idx > 0 {
 			prefix := strings.TrimSpace(hint[:idx])
-			if prefix == "" || strings.HasSuffix(prefix, "的") {
+			if prefix == "" || strings.HasSuffix(strings.ToLower(prefix), "in") || strings.HasSuffix(strings.ToLower(prefix), "for") {
 				return hint
 			}
-			return prefix + "的" + hint[idx:]
+			return prefix + " " + hint[idx:]
 		}
 	}
 	return hint

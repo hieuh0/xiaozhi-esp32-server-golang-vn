@@ -134,12 +134,12 @@ func TestSummarizeDoubaoWSAttemptErrorResourceNotGranted(t *testing.T) {
 		"zh_female_vv_uranus_bigtts",
 		resolvedTTSModel{ConfigModel: modelSeedTTS20Standard, ResourceID: "TTS-SeedTTS2.02000000628041826146"},
 		[]string{"TTS-SeedTTS2.02000000628041826146"},
-		[]error{errors.New(`建立豆包 WebSocket TTS 连接失败: websocket handshake status=403 body={"error":"[resource_id=TTS-SeedTTS2.02000000628041826146] requested resource not granted"}`)},
+		[]error{errors.New(`Failed to establish Doubao WebSocket TTS connection: websocket handshake status=403 body={"error":"[resource_id=TTS-SeedTTS2.02000000628041826146] requested resource not granted"}`)},
 	)
 	if err == nil {
 		t.Fatal("expected error")
 	}
-	if !strings.Contains(err.Error(), "resource_id 未授权") {
+	if !strings.Contains(err.Error(), "resource_id Unauthorized") {
 		t.Fatalf("unexpected error = %v", err)
 	}
 }
@@ -150,14 +150,14 @@ func TestSummarizeDoubaoWSAttemptErrorExplicitUnauthorizedThenMismatch(t *testin
 		resolvedTTSModel{ConfigModel: modelSeedTTS20Standard, ResourceID: "TTS-SeedTTS2.02000000628041826146"},
 		[]string{"TTS-SeedTTS2.02000000628041826146", resourceSeedTTS20},
 		[]error{
-			errors.New(`建立豆包 WebSocket TTS 连接失败: websocket handshake status=403 body={"error":"[resource_id=TTS-SeedTTS2.02000000628041826146] requested resource not granted"}`),
+			errors.New(`Failed to establish Doubao WebSocket TTS connection: websocket handshake status=403 body={"error":"[resource_id=TTS-SeedTTS2.02000000628041826146] requested resource not granted"}`),
 			errors.New(`resource ID is mismatched with speaker related resource`),
 		},
 	)
 	if err == nil {
 		t.Fatal("expected error")
 	}
-	if !strings.Contains(err.Error(), "显式 resource_id 对该 app/token 未授权") {
+	if !strings.Contains(err.Error(), "explicit resource_id is not authorized") {
 		t.Fatalf("unexpected error = %v", err)
 	}
 }

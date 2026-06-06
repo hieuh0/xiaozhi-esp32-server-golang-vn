@@ -52,7 +52,7 @@
         </template>
       </el-table-column>
       
-      <!-- 空状态插槽 -->
+      <!-- Empty state slot -->
       <template #empty>
         <div class="empty-state">
           <el-icon size="64" color="#C0C4CC" class="empty-icon">
@@ -68,7 +68,7 @@
       </template>
     </el-table>
 
-    <!-- 添加/编辑配置弹窗 -->
+    <!-- Add/Edit config dialog -->
     <el-dialog
       v-model="showDialog"
       :title="editingConfig ? t('edit_memory_config') : t('add_memory_config')"
@@ -97,7 +97,7 @@
           <el-input v-model="form.config_id" :placeholder="t('enter_unique_config_id')" />
         </el-form-item>
         
-        <!-- Memobase配置字段 -->
+        <!-- Memobase config fields -->
         <template v-if="form.provider === 'memobase'">
           <el-form-item :label="t('api_key')" prop="api_key">
             <el-input v-model="form.api_key" type="password" :placeholder="t('memobase_api_key_ph')" show-password />
@@ -120,7 +120,7 @@
           </el-form-item>
         </template>
         
-        <!-- Mem0配置字段 -->
+        <!-- Mem0 config fields -->
         <template v-if="form.provider === 'mem0' || form.provider === 'memos'">
           <el-form-item :label="t('api_key')" prop="api_key">
             <el-input v-model="form.api_key" type="password" :placeholder="form.provider === 'memos' ? t('enter_memos_api_key') : t('enter_mem0_api_key')" show-password />
@@ -172,7 +172,7 @@ const showDialog = ref(false)
 const editingConfig = ref(null)
 const formRef = ref()
 
-// 确保configs始终是一个数组
+// Ensure configs is always an array
 const safeConfigs = computed(() => {
   return Array.isArray(configs.value) ? configs.value : []
 })
@@ -191,7 +191,7 @@ const form = reactive({
   timeout_ms: 10000
 })
 
-// 默认URL配置
+// Default URL config
 const defaultUrls = {
   memobase: 'https://api.memobase.dev',
   mem0: 'https://api.mem0.ai',
@@ -206,7 +206,7 @@ const getProviderTagType = (provider) => {
 }
 
 const handleProviderChange = (value) => {
-  // 清空表单字段
+  // Clear form fields
   form.api_key = ''
   form.base_url = defaultUrls[value] || ''
   form.enable_search = true
@@ -215,7 +215,7 @@ const handleProviderChange = (value) => {
   form.timeout_ms = 10000
 }
 
-// 生成配置JSON字符串
+// Generate config JSON string
 const generateConfig = () => {
   const config = {
     api_key: form.api_key,
@@ -232,7 +232,7 @@ const generateConfig = () => {
   return JSON.stringify(config)
 }
 
-// 解析配置JSON字符串
+// Parse config JSON string
 const parseConfig = (jsonData) => {
   try {
     const config = JSON.parse(jsonData)
@@ -275,12 +275,12 @@ const loadConfigs = async () => {
     const response = await api.get('/admin/memory-configs')
     console.log('API response:', response)
     
-    // 使用nextTick确保响应式更新的安全性
+    // Use nextTick to ensure reactive update safety
     await nextTick()
-    
+
     // The backend returns { data: configs }, so we need to access response.data.data
     if (response && response.data && response.data.data && Array.isArray(response.data.data)) {
-      // 使用Object.freeze防止意外修改，然后创建新数组
+      // Use Object.freeze to prevent accidental mutation, then create a new array
       const newConfigs = response.data.data.map(normalizeMemoryConfigRow)
       configs.value = newConfigs
     } else if (response && response.data && response.data.data) {
@@ -425,7 +425,7 @@ const toggleDefault = async (config) => {
 }
 
 const handleAddConfig = () => {
-  // 重置表单并设置默认值
+  // Reset form and set default values
   Object.assign(form, {
     name: '',
     config_id: '',
@@ -433,7 +433,7 @@ const handleAddConfig = () => {
     is_default: false,
     enabled: true,
     api_key: '',
-    base_url: defaultUrls['memobase'], // 设置默认URL
+    base_url: defaultUrls['memobase'], // Set default URL
     enable_search: true,
     search_threshold: 0.5,
     search_top_k: 3,
@@ -448,7 +448,7 @@ const handleDialogClose = () => {
   showDialog.value = false
   editingConfig.value = null
   
-  // 重置表单
+  // Reset form
   Object.assign(form, {
     name: '',
     config_id: '',

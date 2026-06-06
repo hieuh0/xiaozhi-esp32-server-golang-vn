@@ -1,66 +1,66 @@
 package llm_memory
 
 var MemorySummaryPrompt = `
-# 时空记忆编织者
+# Space-Time Memory Weaver
 
-## 核心使命
-构建可生长的动态记忆网络，在有限空间内保留关键信息的同时，智能维护信息演变轨迹
-根据对话记录，总结user的重要信息，以便在未来的对话中提供更个性化的服务
+## Core Mission
+Build a growable dynamic memory network that retains key information in limited space while intelligently maintaining the evolution trajectory of information.
+Based on conversation records, summarize important user information to provide more personalized service in future conversations.
 
-## 记忆法则
-### 1. 三维度记忆评估（每次更新必执行）
-| 维度       | 评估标准                  | 权重分 |
-|------------|---------------------------|--------|
-| 时效性     | 信息新鲜度（按对话轮次） | 40%    |
-| 情感强度   | 含💖标记/重复提及次数     | 35%    |
-| 关联密度   | 与其他信息的连接数量      | 25%    |
+## Memory Laws
+### 1. Three-Dimensional Memory Assessment (Execute on each update)
+| Dimension           | Assessment Criteria                          | Weight |
+|---------------------|----------------------------------------------|--------|
+| Timeliness          | Information freshness (by conversation turns) | 40%   |
+| Emotional Intensity | Contains 💖 marker / repeat mention count    | 35%    |
+| Connection Density  | Number of connections with other information | 25%    |
 
-### 2. 动态更新机制
-**名字变更处理示例：**
-原始记忆："曾用名": ["张三"], "现用名": "张三丰"
-触发条件：当检测到「我叫X」「称呼我Y」等命名信号时
-操作流程：
-1. 将旧名移入"曾用名"列表
-2. 记录命名时间轴："2024-02-15 14:32:启用张三丰"
-3. 在记忆立方追加：「从张三到张三丰的身份蜕变」
+### 2. Dynamic Update Mechanism
+**Example of name change processing:**
+Original memory: "former_names": ["Alice"], "current_name": "Alice Smith"
+Trigger condition: When naming signals like "my name is X" or "call me Y" are detected
+Operation flow:
+1. Move old name to "former_names" list
+2. Record naming timeline: "2024-02-15 14:32: Adopted Alice Smith"
+3. Append to memory cube: "Identity transformation from Alice to Alice Smith"
 
-### 3. 空间优化策略
-- **信息压缩术**：用符号体系提升密度
-  - ✅"张三丰[北/软工/🐱]"
-  - ❌"北京软件工程师，养猫"
-- **淘汰预警**：当总字数≥900时触发
-  1. 删除权重分<60且3轮未提及的信息
-  2. 合并相似条目（保留时间戳最近的）
+### 3. Space Optimization Strategy
+- **Information Compression**: Use symbol systems to increase density
+  - ✅ "Alice Smith[Hanoi/SoftEng/🐱]"
+  - ❌ "Software engineer in Hanoi, has a cat"
+- **Eviction Warning**: Triggered when total characters ≥ 900
+  1. Delete information with weight score <60 and not mentioned in 3+ turns
+  2. Merge similar entries (keep the most recent timestamp)
 
-## 记忆结构
-输出格式必须为可解析的json字符串，不需要解释、注释和说明，保存记忆时仅从对话提取信息，不要混入示例内容
+## Memory Structure
+Output format must be a parseable JSON string, no explanations, annotations or notes. When saving memory, only extract information from the conversation, do not mix in example content.
 ` + "```" + `json
 {
-  "时空档案": {
-    "身份图谱": {
-      "现用名": "",
-      "特征标记": [] 
+  "space_time_archive": {
+    "identity_map": {
+      "current_name": "",
+      "characteristic_tags": []
     },
-    "记忆立方": [
+    "memory_cube": [
       {
-        "事件": "入职新公司",
-        "时间戳": "2024-03-20",
-        "情感值": 0.9,
-        "关联项": ["下午茶"],
-        "保鲜期": 30 
+        "event": "Joined new company",
+        "timestamp": "2024-03-20",
+        "emotional_value": 0.9,
+        "related_items": ["afternoon tea"],
+        "freshness_period": 30
       }
     ]
   },
-  "关系网络": {
-    "高频话题": {"职场": 12},
-    "暗线联系": [""]
+  "relationship_network": {
+    "high_frequency_topics": {"work": 12},
+    "implicit_connections": [""]
   },
-  "待响应": {
-    "紧急事项": ["需立即处理的任务"], 
-    "潜在关怀": ["可主动提供的帮助"]
+  "pending": {
+    "urgent_items": ["tasks needing immediate attention"],
+    "potential_care": ["help that can be proactively offered"]
   },
-  "高光语录": [
-    "最打动人心的瞬间，强烈的情感表达，user的原话"
+  "highlights": [
+    "most touching moments, strong emotional expressions, user's own words"
   ]
 }
 ` + "```"

@@ -7,15 +7,15 @@ import (
 	log "xiaozhi-esp32-server-golang/logger"
 )
 
-// ClientEvent 客户端发送事件基础结构
+// ClientEvent client sends event infrastructure
 type ClientEvent struct {
 	EventID string   `json:"event_id,omitempty"`
 	Type    string   `json:"type"`
 	Session *Session `json:"session,omitempty"`
-	Audio   string   `json:"audio,omitempty"` // Base64 编码的音频数据
+	Audio   string   `json:"audio,omitempty"` //Base64 encoded audio data
 }
 
-// Session session.update 事件中的 session 配置
+// Session configuration in session session.update event
 type Session struct {
 	Modalities              []string                 `json:"modalities"`
 	InputAudioFormat        string                   `json:"input_audio_format,omitempty"`
@@ -24,19 +24,19 @@ type Session struct {
 	TurnDetection           *TurnDetection           `json:"turn_detection"`
 }
 
-// InputAudioTranscription 音频转录配置
+// InputAudioTranscription audio transcription configuration
 type InputAudioTranscription struct {
 	Language string `json:"language,omitempty"`
 }
 
-// TurnDetection VAD 配置
+// TurnDetection VAD configuration
 type TurnDetection struct {
-	Type              string  `json:"type,omitempty"`                // "server_vad" 或不设置
-	Threshold         float64 `json:"threshold,omitempty"`           // VAD 阈值
-	SilenceDurationMs int     `json:"silence_duration_ms,omitempty"` // 静音持续时间（毫秒）
+	Type              string  `json:"type,omitempty"`                //"server_vad" or not set
+	Threshold         float64 `json:"threshold,omitempty"`           //VAD threshold
+	SilenceDurationMs int     `json:"silence_duration_ms,omitempty"` //Silence duration (milliseconds)
 }
 
-// ServerEvent 服务端响应事件基础结构
+// ServerEvent server response event infrastructure
 type ServerEvent struct {
 	Type            string     `json:"type"`
 	EventID         string     `json:"event_id,omitempty"`
@@ -49,7 +49,7 @@ type ServerEvent struct {
 	Error           *ErrorInfo `json:"error,omitempty"`
 }
 
-// Item 会话项（如输入音频转录结果）
+// Item session item (such as input audio transcription results)
 type Item struct {
 	ID            string         `json:"id,omitempty"`
 	Type          string         `json:"type,omitempty"`
@@ -57,19 +57,19 @@ type Item struct {
 	Transcription *Transcription `json:"transcription,omitempty"`
 }
 
-// Transcription 转录结果
+// Transcription Transcription results
 type Transcription struct {
 	Text     string `json:"text,omitempty"`
 	Language string `json:"language,omitempty"`
 }
 
-// ErrorInfo 错误信息
+// ErrorInfo error message
 type ErrorInfo struct {
 	Message string `json:"message,omitempty"`
 	Code    string `json:"code,omitempty"`
 }
 
-// NewSessionUpdateEvent 创建 session.update 事件
+// NewSessionUpdateEvent creates session.update event
 func NewSessionUpdateEvent(config Config) *ClientEvent {
 	session := &Session{
 		Modalities:              []string{"text"},
@@ -94,7 +94,7 @@ func NewSessionUpdateEvent(config Config) *ClientEvent {
 		Session: session,
 	}
 
-	// 调试：打印 session.update 事件
+	//Debugging: Print session.update events
 	if jsonBytes, err := json.Marshal(event); err == nil {
 		log.Debugf("[aliyun_qwen3] session.update JSON: %s", string(jsonBytes))
 	}
@@ -102,7 +102,7 @@ func NewSessionUpdateEvent(config Config) *ClientEvent {
 	return event
 }
 
-// NewAudioAppendEvent 创建 input_audio_buffer.append 事件
+// NewAudioAppendEvent creates input_audio_buffer.append event
 func NewAudioAppendEvent(audioData []byte) *ClientEvent {
 	encoded := base64.StdEncoding.EncodeToString(audioData)
 	return &ClientEvent{
@@ -111,7 +111,7 @@ func NewAudioAppendEvent(audioData []byte) *ClientEvent {
 	}
 }
 
-// NewAudioCommitEvent 创建 input_audio_buffer.commit 事件
+// NewAudioCommitEvent creates input_audio_buffer.commit event
 func NewAudioCommitEvent() *ClientEvent {
 	return &ClientEvent{
 		EventID: "audio_commit",
@@ -119,7 +119,7 @@ func NewAudioCommitEvent() *ClientEvent {
 	}
 }
 
-// NewSessionFinishEvent 创建 session.finish 事件
+// NewSessionFinishEvent creates session.finish event
 func NewSessionFinishEvent() *ClientEvent {
 	return &ClientEvent{
 		EventID: "session_finish",
@@ -127,18 +127,18 @@ func NewSessionFinishEvent() *ClientEvent {
 	}
 }
 
-// IsTranscriptionEvent 判断是否为转录事件
+// IsTranscriptionEvent determines whether it is a transcription event
 func IsTranscriptionEvent(event *ServerEvent) bool {
 	return event.Type == "conversation.item.input_audio_transcription.text" ||
 		event.Type == "conversation.item.input_audio_transcription.completed"
 }
 
-// IsFinalTranscription 判断是否为最终转录结果
+// IsFinalTranscription determines whether it is the final transcription result
 func IsFinalTranscription(event *ServerEvent) bool {
 	return event.Type == "conversation.item.input_audio_transcription.completed"
 }
 
-// GetTranscriptionText 获取转录文本
+// GetTranscriptionText Gets the transcript text
 func GetTranscriptionText(event *ServerEvent) string {
 	if event == nil {
 		return ""

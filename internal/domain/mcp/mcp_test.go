@@ -95,8 +95,8 @@ func TestMCPTool_InvokableRun(t *testing.T) {
 	// 这个测试会失败，因为客户端为nil
 	// 但可以验证方法签名和基本逻辑
 	_, err := tool.InvokableRun(context.Background(), `{"query": "test"}`)
-	assert.Error(t, err)                         // 预期会有错误，因为客户端为nil
-	assert.Contains(t, err.Error(), "调用MCP工具失败") // 验证错误消息包含预期文本
+	assert.Error(t, err)                                       // 预期会有错误，因为客户端为nil
+	assert.Contains(t, err.Error(), "Failed to call MCP tool") // Verify the expected error message.
 }
 
 func TestDeviceMCPManager_GetDeviceTools(t *testing.T) {

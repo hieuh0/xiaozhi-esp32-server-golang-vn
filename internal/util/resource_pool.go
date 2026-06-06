@@ -8,43 +8,43 @@ import (
 	"time"
 )
 
-// Resource 资源接口，所有被池管理的资源都需要实现此接口
+// Resource interface; all resources managed by the pool must implement this interface
 type Resource interface {
-	// Close 关闭资源
+	// Close closes the resource
 	Close() error
-	// IsValid 检查资源是否有效
+	// IsValid checks whether the resource is valid
 	IsValid() bool
 }
 
-// ResourceFactory 资源工厂接口，用于创建和验证资源
+// ResourceFactory interface for creating and validating resources
 type ResourceFactory interface {
-	// Create 创建新的资源实例
+	// Create creates a new resource instance
 	Create() (Resource, error)
-	// Validate 验证资源是否有效（可选，如果返回false，资源将被销毁）
+	// Validate checks whether the resource is valid (optional; if false, resource will be destroyed)
 	Validate(resource Resource) bool
-	// Reset 重置资源状态（可选，用于资源复用前的清理）
+	// Reset resets the resource state (optional, for cleanup before reuse)
 	Reset(resource Resource) error
 }
 
-// PoolConfig 资源池配置
+// PoolConfig resource pool configuration
 type PoolConfig struct {
-	// MaxSize 最大资源数量
+	// MaxSize maximum number of resources
 	MaxSize int
-	// MinSize 最小资源数量（预创建）
+	// MinSize minimum number of resources (pre-created)
 	MinSize int
-	// MaxIdle 最大空闲资源数量
+	// MaxIdle maximum number of idle resources
 	MaxIdle int
-	// AcquireTimeout 获取资源超时时间
+	// AcquireTimeout timeout for acquiring a resource
 	AcquireTimeout time.Duration
-	// IdleTimeout 资源空闲超时时间
+	// IdleTimeout resource idle timeout duration
 	IdleTimeout time.Duration
-	// ValidateOnBorrow 获取时是否验证资源
+	// ValidateOnBorrow whether to validate the resource on borrow
 	ValidateOnBorrow bool
-	// ValidateOnReturn 归还时是否验证资源
+	// ValidateOnReturn whether to validate the resource on return
 	ValidateOnReturn bool
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig returns the default pool configuration
 func DefaultConfig() *PoolConfig {
 	return &PoolConfig{
 		MaxSize:          1000,
@@ -57,7 +57,7 @@ func DefaultConfig() *PoolConfig {
 	}
 }
 
-// pooledResource 池化资源包装器
+// pooledResource wraps a pool-managed resource
 type pooledResource struct {
 	resource   Resource
 	createTime time.Time
@@ -65,27 +65,27 @@ type pooledResource struct {
 	inUse      bool
 }
 
-// ResourcePool 通用资源池
+// ResourcePool generic resource pool
 type ResourcePool struct {
 	config  *PoolConfig
 	factory ResourceFactory
 
-	// 可用资源队列
+	// available resource queue
 	available chan *pooledResource
-	// 所有资源映射（包括在用和可用的）
+	// map of all resources (both in-use and available)
 	resources map[Resource]*pooledResource
-	// 读写锁
+	// read-write lock
 	mu sync.RWMutex
-	// 关闭标志
+	// closed flag
 	closed bool
-	// 取消上下文
+	// cancellation context
 	ctx    context.Context
 	cancel context.CancelFunc
-	// 清理协程等待组
+	// cleanup goroutine wait group
 	cleanupWg sync.WaitGroup
 }
 
-// NewResourcePool 创建新的资源池
+// NewResourcePool creates a new resource pool
 func NewResourcePool(config *PoolConfig, factory ResourceFactory) (*ResourcePool, error) {
 	if config == nil {
 		config = DefaultConfig()
@@ -114,19 +114,19 @@ func NewResourcePool(config *PoolConfig, factory ResourceFactory) (*ResourcePool
 		cancel:    cancel,
 	}
 
-	// 预创建最小数量的资源
+	// Pre-create the minimum number of resources
 	if err := pool.preCreateResources(); err != nil {
 		pool.Close()
 		return nil, fmt.Errorf("failed to pre-create resources: %w", err)
 	}
 
-	// 启动清理协程
+	// Start the cleanup goroutine
 	pool.startCleanupRoutine()
 
 	return pool, nil
 }
 
-// preCreateResources 预创建资源
+// preCreateResources pre-creates resources up to MinSize
 func (p *ResourcePool) preCreateResources() error {
 	for i := 0; i < p.config.MinSize; i++ {
 		resource, err := p.factory.Create()
@@ -147,12 +147,12 @@ func (p *ResourcePool) preCreateResources() error {
 	return nil
 }
 
-// Acquire 获取资源
+// Acquire acquires a resource from the pool
 func (p *ResourcePool) Acquire() (Resource, error) {
 	return p.AcquireWithTimeout(p.config.AcquireTimeout)
 }
 
-// AcquireWithTimeout 在指定超时时间内获取资源
+// AcquireWithTimeout acquires a resource within the specified timeout duration
 func (p *ResourcePool) AcquireWithTimeout(timeout time.Duration) (Resource, error) {
 	p.mu.RLock()
 	if p.closed {
@@ -169,10 +169,10 @@ func (p *ResourcePool) AcquireWithTimeout(timeout time.Duration) (Resource, erro
 		case <-ctx.Done():
 			return nil, fmt.Errorf("acquire timeout after %v", timeout)
 		case pooled := <-p.available:
-			// 验证资源有效性
+			// Validate the resource
 			if p.config.ValidateOnBorrow && pooled.resource != nil {
 				if !pooled.resource.IsValid() || !p.factory.Validate(pooled.resource) {
-					// 资源无效，销毁并尝试创建新的
+					// Resource is invalid; destroy it and try to create a new one
 					p.destroyResource(pooled)
 					if newResource, err := p.tryCreateResource(); err == nil {
 						return newResource, nil
@@ -181,13 +181,13 @@ func (p *ResourcePool) AcquireWithTimeout(timeout time.Duration) (Resource, erro
 				}
 			}
 
-			// 重置资源状态
+			// Reset the resource state
 			if err := p.factory.Reset(pooled.resource); err != nil {
 				p.destroyResource(pooled)
 				continue
 			}
 
-			// 标记为使用中
+			// Mark as in-use
 			p.mu.Lock()
 			pooled.inUse = true
 			pooled.lastUsed = time.Now()
@@ -195,17 +195,17 @@ func (p *ResourcePool) AcquireWithTimeout(timeout time.Duration) (Resource, erro
 
 			return pooled.resource, nil
 		default:
-			// 没有可用资源，尝试创建新的
+			// No available resources; try to create a new one
 			if resource, err := p.tryCreateResource(); err == nil {
 				return resource, nil
 			}
-			// 创建失败，等待资源释放
+			// Creation failed; wait for a resource to be released
 			time.Sleep(10 * time.Millisecond)
 		}
 	}
 }
 
-// tryCreateResource 尝试创建新资源
+// tryCreateResource attempts to create a new resource
 func (p *ResourcePool) tryCreateResource() (Resource, error) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -230,7 +230,7 @@ func (p *ResourcePool) tryCreateResource() (Resource, error) {
 	return resource, nil
 }
 
-// Release 释放资源回池
+// Release returns a resource back to the pool
 func (p *ResourcePool) Release(resource Resource) error {
 	if resource == nil {
 		return errors.New("resource cannot be nil")
@@ -252,7 +252,7 @@ func (p *ResourcePool) Release(resource Resource) error {
 		return errors.New("resource is not in use")
 	}
 
-	// 验证资源有效性
+	// Validate the resource
 	if p.config.ValidateOnReturn {
 		if !resource.IsValid() || !p.factory.Validate(resource) {
 			p.destroyResourceUnsafe(pooled)
@@ -260,35 +260,35 @@ func (p *ResourcePool) Release(resource Resource) error {
 		}
 	}
 
-	// 检查是否超过最大空闲数量
+	// Check whether the max idle count is exceeded
 	if len(p.available) >= p.config.MaxIdle {
 		p.destroyResourceUnsafe(pooled)
 		return nil
 	}
 
-	// 标记为可用
+	// Mark as available
 	pooled.inUse = false
 	pooled.lastUsed = time.Now()
 
-	// 尝试放回可用队列
+	// Try to put back into the available queue
 	select {
 	case p.available <- pooled:
 		return nil
 	default:
-		// 队列已满，销毁资源
+		// Queue is full; destroy the resource
 		p.destroyResourceUnsafe(pooled)
 		return nil
 	}
 }
 
-// destroyResource 销毁资源（带锁）
+// destroyResource destroys a resource (with lock)
 func (p *ResourcePool) destroyResource(pooled *pooledResource) {
 	p.mu.Lock()
 	p.destroyResourceUnsafe(pooled)
 	p.mu.Unlock()
 }
 
-// destroyResourceUnsafe 销毁资源（不带锁）
+// destroyResourceUnsafe destroys a resource (without lock)
 func (p *ResourcePool) destroyResourceUnsafe(pooled *pooledResource) {
 	if pooled.resource != nil {
 		pooled.resource.Close()
@@ -296,7 +296,7 @@ func (p *ResourcePool) destroyResourceUnsafe(pooled *pooledResource) {
 	}
 }
 
-// Stats 获取资源池统计信息
+// Stats returns pool statistics
 func (p *ResourcePool) Stats() map[string]interface{} {
 	p.mu.RLock()
 	defer p.mu.RUnlock()
@@ -319,7 +319,7 @@ func (p *ResourcePool) Stats() map[string]interface{} {
 	}
 }
 
-// Resize 调整池大小
+// Resize adjusts the pool size
 func (p *ResourcePool) Resize(newMaxSize int) error {
 	if newMaxSize <= 0 {
 		return errors.New("new max size must be positive")
@@ -335,7 +335,7 @@ func (p *ResourcePool) Resize(newMaxSize int) error {
 	oldMaxSize := p.config.MaxSize
 	p.config.MaxSize = newMaxSize
 
-	// 如果缩小池大小，需要移除多余的资源
+	// If shrinking the pool, remove excess resources
 	if newMaxSize < oldMaxSize {
 		excess := len(p.resources) - newMaxSize
 		for excess > 0 {
@@ -344,7 +344,7 @@ func (p *ResourcePool) Resize(newMaxSize int) error {
 				p.destroyResourceUnsafe(pooled)
 				excess--
 			default:
-				// 没有更多可用资源可以移除
+				// No more available resources to remove
 				break
 			}
 		}
@@ -353,7 +353,7 @@ func (p *ResourcePool) Resize(newMaxSize int) error {
 	return nil
 }
 
-// startCleanupRoutine 启动清理协程
+// startCleanupRoutine starts the cleanup goroutine
 func (p *ResourcePool) startCleanupRoutine() {
 	if p.config.IdleTimeout <= 0 {
 		return
@@ -376,7 +376,7 @@ func (p *ResourcePool) startCleanupRoutine() {
 	}()
 }
 
-// cleanupIdleResources 清理空闲超时的资源
+// cleanupIdleResources cleans up resources that have been idle past the timeout
 func (p *ResourcePool) cleanupIdleResources() {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -388,14 +388,14 @@ func (p *ResourcePool) cleanupIdleResources() {
 	now := time.Now()
 	var toRemove []*pooledResource
 
-	// 检查可用队列中的空闲资源
+	// Check idle resources in the available queue
 	for {
 		select {
 		case pooled := <-p.available:
 			if now.Sub(pooled.lastUsed) > p.config.IdleTimeout {
 				toRemove = append(toRemove, pooled)
 			} else {
-				// 放回队列
+				// Put back into the queue
 				p.available <- pooled
 				goto cleanup
 			}
@@ -405,13 +405,13 @@ func (p *ResourcePool) cleanupIdleResources() {
 	}
 
 cleanup:
-	// 销毁超时的资源
+	// Destroy timed-out resources
 	for _, pooled := range toRemove {
 		p.destroyResourceUnsafe(pooled)
 	}
 }
 
-// Close 关闭资源池
+// Close closes the resource pool
 func (p *ResourcePool) Close() error {
 	p.mu.Lock()
 	if p.closed {
@@ -421,23 +421,23 @@ func (p *ResourcePool) Close() error {
 	p.closed = true
 	p.mu.Unlock()
 
-	// 取消上下文
+	// Cancel the context
 	p.cancel()
 
-	// 等待清理协程结束
+	// Wait for the cleanup goroutine to finish
 	p.cleanupWg.Wait()
 
-	// 关闭所有资源
+	// Close all resources
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	// 清空可用队列
+	// Drain the available queue
 	close(p.available)
 	for pooled := range p.available {
 		p.destroyResourceUnsafe(pooled)
 	}
 
-	// 关闭所有资源
+	// Close all resources
 	for _, pooled := range p.resources {
 		p.destroyResourceUnsafe(pooled)
 	}

@@ -1,9 +1,9 @@
 <template>
   <div class="mobile-login-container">
     <div class="mobile-login-header">
-      <img class="mobile-login-logo" :src="appLogo" alt="小智管理系统" />
-      <h1>{{ t('xiaozhi_management_system') }}小智管理系统</h1>
-      <p>{{ t('ai_voice_assistant_platform') }}智能语音助手管理平台</p>
+      <img class="mobile-login-logo" :src="appLogo" :alt="t('xiaozhi_management_system')" />
+      <h1>{{ t('xiaozhi_management_system') }}</h1>
+      <p>{{ t('ai_voice_assistant_platform') }}</p>
     </div>
     
     <van-tabs v-model:active="activeTab" class="mobile-login-tabs">
@@ -27,9 +27,9 @@
             />
             <div v-if="loginCaptchaEnabled" class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
-                <span>{{ t('captcha') }}人机验证</span>
+                <span>{{ t('captcha') }}</span>
                 <strong>{{ loginCaptchaPrompt || t('generating_questions') }}</strong>
-                <p>{{ t('arithmetic_captcha_hint') }}简单算术题，防止脚本批量登录。</p>
+                <p>{{ t('arithmetic_captcha_hint') }}</p>
               </div>
               <van-button
                 size="small"
@@ -63,7 +63,7 @@
               loading-:text="t('logging_in')"
               class="mobile-login-button"
             >
-              {{ t('login') }}  登录
+              {{ t('login') }}
             </van-button>
           </div>
         </van-form>
@@ -113,9 +113,9 @@
             />
             <div class="mobile-captcha-panel">
               <div class="mobile-captcha-copy">
-                <span>{{ t('captcha') }}人机验证</span>
+                <span>{{ t('captcha') }}</span>
                 <strong>{{ registerCaptchaPrompt || t('generating_questions') }}</strong>
-                <p>{{ t('captcha_math_hint') }}完成简单算式后再提交注册。</p>
+                <p>{{ t('captcha_math_hint') }}</p>
               </div>
               <van-button
                 size="small"
@@ -148,7 +148,7 @@
               loading-:text="t('registering')"
               class="mobile-login-button"
             >
-              {{ t('register') }}  注册
+              {{ t('register') }}
             </van-button>
           </div>
         </van-form>
@@ -196,7 +196,7 @@ const registerForm = reactive({
   captchaAnswer: ''
 })
 
-// 自定义验证器：确认密码
+// Custom validator: confirm password
 const validateConfirmPassword = (val) => {
   if (val !== registerForm.password) {
     return t('password_mismatch')
@@ -301,7 +301,7 @@ const handleRegister = async () => {
   if (result.success) {
     showSuccessToast(t('register_success_login'))
     activeTab.value = 'login'
-    // 清空注册表单
+    // Reset registration form
     Object.assign(registerForm, {
       username: '',
       email: '',
@@ -320,7 +320,7 @@ const handleRegister = async () => {
   }
 }
 
-// 检查系统状态，如果未初始化则跳转到引导页面
+// Check system status; redirect to setup page if not initialized
 const checkSystemStatus = async () => {
   try {
     if (await checkNeedsSetup()) {

@@ -42,15 +42,15 @@ type AsyncConfig struct {
 type HubOption func(*Hub)
 
 type namedSync struct {
-	meta     PluginMeta
-	enabled  bool
-	handler  SyncHandler
+	meta    PluginMeta
+	enabled bool
+	handler SyncHandler
 }
 
 type namedAsync struct {
-	meta     PluginMeta
-	enabled  bool
-	handler  AsyncHandler
+	meta    PluginMeta
+	enabled bool
+	handler AsyncHandler
 }
 
 type PluginStats struct {
@@ -137,20 +137,20 @@ func (e *AsyncExecutor) Submit(task func()) bool {
 		return false
 	}
 
-	// 队列满时根据配置处理
+	// Handle a full queue according to configuration.
 	if e.cfg.QueueSize > 0 && len(e.queue) >= e.cfg.QueueSize {
 		if e.cfg.DropWhenFull {
 			return false
 		}
-		// DropWhenFull=false 时，阻塞等待队列有机会消费
-		// 使用超时避免永久阻塞
+		// When DropWhenFull is false, wait for the queue to consume an item.
+		// Use a timeout to avoid blocking forever.
 		waitCtx, cancel := context.WithTimeout(context.Background(), time.Second)
 		defer cancel()
 		for len(e.queue) >= e.cfg.QueueSize && waitCtx.Err() == nil {
 			e.cond.Wait()
 		}
 		if waitCtx.Err() != nil {
-			// 超时则丢弃
+			// Drop on timeout.
 			return false
 		}
 	}
@@ -275,7 +275,7 @@ func (h *Hub) setPluginEnabled(name string, enabled bool) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	// 遍历 syncHandlers 查找并更新
+	// Find and update the synchronous handler.
 	for event, handlers := range h.syncHandlers {
 		for i := range handlers {
 			if handlers[i].meta.Name == name {
@@ -286,7 +286,7 @@ func (h *Hub) setPluginEnabled(name string, enabled bool) {
 		}
 	}
 
-	// 遍历 asyncHandlers 查找并更新
+	// Find and update the asynchronous handler.
 	for event, handlers := range h.asyncHandlers {
 		for i := range handlers {
 			if handlers[i].meta.Name == name {
@@ -443,10 +443,10 @@ func (h *Hub) RegisterSyncMeta(event string, meta PluginMeta, handler SyncHandle
 	}
 	meta.Kind = PluginKindInterceptor
 	meta.Stage = event
-	// 默认为启用状态
+	// Enabled by default.
 	enabled := meta.Enabled
 	if !meta.Enabled {
-		// 通过 Enabled 字段控制，默认 true
+		// Controlled by Enabled, which defaults to true.
 		enabled = true
 	}
 	h.recordPluginMeta(meta)
@@ -473,7 +473,7 @@ func (h *Hub) RegisterAsyncMeta(event string, meta PluginMeta, handler AsyncHand
 	}
 	meta.Kind = PluginKindObserver
 	meta.Stage = event
-	// 默认为启用状态
+	// Enabled by default.
 	enabled := meta.Enabled
 	if !meta.Enabled {
 		enabled = true

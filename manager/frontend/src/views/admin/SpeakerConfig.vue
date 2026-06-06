@@ -108,28 +108,28 @@ const loadConfig = async () => {
     const configs = response.data.data || []
     
     if (configs.length > 0) {
-      // 如果有配置，使用第一个（应该只有一个）
+      // If configs exist, use the first one (should be only one)
       currentConfig.value = configs[0]
       const configObj = JSON.parse(configs[0].json_data || '{}')
-      
-      // 解析配置
+
+      // Parse config
       if (configObj.service && configObj.service.base_url) {
         form.base_url = configObj.service.base_url
       } else if (configObj.base_url) {
-        // 兼容旧格式
+        // Old format compatibility
         form.base_url = configObj.base_url
       }
-      // 读取阈值配置
+      // Read threshold config
       if (configObj.service && configObj.service.threshold !== undefined) {
         form.threshold = configObj.service.threshold
       } else if (configObj.threshold !== undefined) {
-        // 兼容旧格式
+        // Old format compatibility
         form.threshold = configObj.threshold
       } else {
-        // 默认值
+        // Default value
         form.threshold = 0.4
       }
-      // 开关对应 json_data.enable（业务启用），不使用接口返回的 enabled 列
+      // Toggle maps to json_data.enable (business-level enable), not the API-returned enabled column
       form.enabled = configObj.enable !== undefined ? configObj.enable : true
     }
   } catch (error) {
@@ -146,7 +146,7 @@ const handleSave = async () => {
     if (valid) {
       saving.value = true
       try {
-        // 构建配置数据：开关写入 json_data.enable，对外输出以该字段为准
+        // Build config data: toggle written to json_data.enable, used as the authoritative enable state
         const configData = {
           service: {
             base_url: form.base_url,
@@ -165,16 +165,16 @@ const handleSave = async () => {
         }
         
         if (currentConfig.value) {
-          // 更新现有配置
+          // Update existing config
           await api.put(`/admin/speaker-configs/${currentConfig.value.id}`, saveData)
           ElMessage.success(t('config_update_success'))
         } else {
-          // 创建新配置
+          // Create new config
           await api.post('/admin/speaker-configs', saveData)
           ElMessage.success(t('config_create_success'))
         }
-        
-        // 重新加载配置
+
+        // Reload config
         await loadConfig()
       } catch (error) {
         ElMessage.error(t('save_failed_colon') + (error.response?.data?.message || error.message))

@@ -66,7 +66,7 @@ export function buildOpenClawCommands(endpoint) {
       copyText: commands.join('\n')
     }
   } catch (error) {
-    console.error('解析 OpenClaw endpoint 失败:', error)
+    console.error('Failed to parse OpenClaw endpoint:', error)
     return EMPTY_COMMAND_DATA
   }
 }

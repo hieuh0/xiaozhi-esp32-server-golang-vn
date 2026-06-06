@@ -1873,4 +1873,11 @@ export default {
   tts_provider_label: 'TTS提供商: {provider}',
   confirm_delete_sample: '确定要删除样本"{name}"吗？此操作不可恢复。',
   agent_console: '智能体工作台',
+  nickname_label: '昵称：',
+  linked_kbs_tooltip: '关联知识库：{names}',
+  mcp_selected_services: '已选择 {count} 个服务',
+  mcp_client_count_text: '（{count} 个客户端）',
+  mcp_status_tooltip: '智能体WebSocket：{ws}{clients}｜全局MCP服务：{mcp}｜服务范围：{scope}',
+  openclaw_status_tooltip: 'OpenClaw状态：{config}｜连接状态：{connection}',
+  role_config_applied: '已填充角色配置，请点击"保存配置"提交',
 }

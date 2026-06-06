@@ -193,7 +193,7 @@
       @success="handleVoicePushSuccess"
     />
 
-    <!-- 设备MCP弹窗 -->
+    <!-- Device MCP dialog -->
 
     <el-dialog
       v-model="showMcpDialog"
@@ -230,7 +230,7 @@
     </el-dialog>
 
 
-    <!-- 设备角色配置弹窗 -->
+    <!-- Device role configuration dialog -->
     <el-dialog
       v-model="showRoleConfigDialog"
       :title="t('device_role_config_title')"
@@ -362,7 +362,7 @@ const mcpTools = ref([])
 const mcpCallResult = ref('')
 const mcpCallForm = ref({ tool_name: '', argumentsText: '{}' })
 
-// 设备角色配置相关
+// Device role configuration state
 const showRoleConfigDialog = ref(false)
 const roleConfigLoading = ref(false)
 const currentDevice = ref({})
@@ -694,7 +694,7 @@ const callDeviceMcpTool = async () => {
   }
 }
 
-// 加载角色列表
+// Load role list
 const loadRoles = async () => {
   try {
     const response = await api.get('/user/roles')
@@ -706,7 +706,7 @@ const loadRoles = async () => {
   }
 }
 
-// 打开设备角色配置弹窗
+// Open device role configuration dialog
 const handleDeviceRole = async (deviceId) => {
   const device = devices.value.find(d => d.id === deviceId)
   if (!device) return
@@ -715,12 +715,12 @@ const handleDeviceRole = async (deviceId) => {
   selectedRoleId.value = device.role_id || null
   selectedRole.value = null
 
-  // 加载角色列表（如果还没有加载）
+  // Load roles if not yet loaded
   if (availableRoles.value.length === 0) {
     await loadRoles()
   }
 
-  // 如果已有关联角色，查找角色信息
+  // Find the currently associated role
   if (device.role_id) {
     const role = availableRoles.value.find(r => r.id === device.role_id)
     if (role) {
@@ -731,7 +731,7 @@ const handleDeviceRole = async (deviceId) => {
   showRoleConfigDialog.value = true
 }
 
-// 处理角色选择变化
+// Handle role selection change
 const handleRoleSelect = (roleId) => {
   if (!roleId) {
     selectedRole.value = null
@@ -743,7 +743,7 @@ const handleRoleSelect = (roleId) => {
   }
 }
 
-// 应用角色到设备
+// Apply selected role to device
 const handleApplyRole = async () => {
   if (!currentDevice.value.id) return
 
@@ -764,7 +764,7 @@ const handleApplyRole = async () => {
   }
 }
 
-// 关闭角色配置弹窗
+// Close role configuration dialog
 const handleCloseRoleConfig = () => {
   showRoleConfigDialog.value = false
   currentDevice.value = {}
@@ -809,12 +809,12 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 判断设备是否在线（基于最后活跃时间）
+// Check if device is online based on last active timestamp
 const isDeviceOnline = (lastActiveAt) => {
   if (!lastActiveAt) return false
   const now = new Date()
   const lastActive = new Date(lastActiveAt)
-  // 5分钟内有活动认为在线
+  // Online if active within the last 5 minutes
   return (now - lastActive) < 5 * 60 * 1000
 }
 
@@ -1216,7 +1216,7 @@ watch(
   min-width: 80px;
 }
 
-/* 设备角色配置相关样式 */
+/* Device role configuration styles */
 .role-config-content {
   padding: 20px 0;
 }

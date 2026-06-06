@@ -16,7 +16,7 @@
         </div>
       </template>
 
-      <!-- 统计摘要 -->
+      <!-- Statistics summary -->
       <el-row :gutter="20" style="margin-bottom: 20px;">
         <el-col :span="6">
           <el-statistic :title="t('total_records')" :value="summary.total_records || 0" />
@@ -41,7 +41,7 @@
         </el-col>
       </el-row>
 
-      <!-- 最新统计数据 -->
+      <!-- Latest statistics data -->
       <div v-if="viewType === 'latest' && latestStats">
         <el-divider>{{ t('latest_stats_title', { time: formatTime(latestStats.timestamp) }) }}</el-divider>
         <el-table :data="formatStatsData(latestStats.stats)" border stripe style="width: 100%" v-if="latestStats.stats">
@@ -62,7 +62,7 @@
         </el-table>
       </div>
 
-      <!-- 空状态 -->
+      <!-- Empty state -->
       <el-empty v-if="!latestStats" :description="t('no_statistics')" />
     </el-card>
   </div>
@@ -90,7 +90,7 @@ let refreshTimer = null
 onMounted(() => {
   loadSummary()
   loadStats()
-  // 每30秒自动刷新
+  // Auto-refresh every 30 seconds
   refreshTimer = setInterval(() => {
     loadStats()
   }, 30000)
@@ -102,25 +102,25 @@ onUnmounted(() => {
   }
 })
 
-// 加载统计摘要
+// Load statistics summary
 const loadSummary = async () => {
   try {
     const response = await api.get('/admin/pool/stats/summary')
-    // 后端返回格式: { data: { data: {...} } }
+    // Backend response format: { data: { data: {...} } }
     summary.value = response.data?.data || {}
   } catch (error) {
     console.error(t('load_stats_summary_failed'), error)
   }
 }
 
-// 加载统计数据
+// Load statistics data
 const loadStats = async () => {
   try {
     const response = await api.get('/admin/pool/stats?type=latest')
     console.log(t('latest_stats_response'), response)
-    // 后端返回格式: { data: { timestamp: "...", stats: {...} } }
-    // axios 会自动解析，所以 response.data 就是后端返回的 { data: {...} }
-    // 需要再取一层 data
+    // Backend response format: { data: { timestamp: "...", stats: {...} } }
+    // axios auto-parses, so response.data is the backend's { data: {...} }
+    // Need to access one more level of data
     latestStats.value = response.data?.data || response.data || null
     console.log(t('parsed_latest_data'), latestStats.value)
   } catch (error) {
@@ -129,14 +129,14 @@ const loadStats = async () => {
   }
 }
 
-// 刷新统计数据
+// Refresh statistics data
 const refreshStats = () => {
   loadSummary()
   loadStats()
   ElMessage.success(t('refresh_success'))
 }
 
-// 格式化统计数据
+// Format statistics data
 const formatStatsData = (stats) => {
   if (!stats || typeof stats !== 'object') {
     return []
@@ -160,7 +160,7 @@ const formatStatsData = (stats) => {
   return result
 }
 
-// 格式化时间
+// Format timestamp
 const formatTime = (timestamp) => {
   if (!timestamp) {
     return '-'

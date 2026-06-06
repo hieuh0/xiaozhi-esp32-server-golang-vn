@@ -29,10 +29,10 @@ const authStore = useAuthStore()
 
 const activeTab = ref('')
 
-// 根据用户角色定义标签栏
+// Define tabs based on user role
 const tabs = computed(() => {
   if (authStore.isAdmin) {
-    // 管理员标签栏
+    // Admin tab bar
     return [
       { name: 'dashboard', label: t('home'), icon: 'home-o', path: '/dashboard' },
       { name: 'config', label: t('config'), icon: 'setting-o', path: '/admin/vad-config' },
@@ -40,7 +40,7 @@ const tabs = computed(() => {
       { name: 'more', label: t('more'), icon: 'ellipsis', path: '/more' }
     ]
   } else {
-    // 普通用户标签栏
+    // Regular user tab bar
     return [
       { name: 'agents', label: t('agent'), icon: 'apps-o', path: '/agents' },
       { name: 'speakers', label: t('voiceprint'), icon: 'user-o', path: '/user/speakers' },
@@ -49,14 +49,14 @@ const tabs = computed(() => {
   }
 })
 
-// 根据当前路由设置活动标签
+// Set active tab based on current route
 const updateActiveTab = () => {
   const currentPath = route.path
   const currentTab = tabs.value.find(tab => {
     if (tab.path === currentPath) {
       return true
     }
-    // 支持路径前缀匹配
+    // Support prefix matching
     if (currentPath.startsWith(tab.path)) {
       return true
     }
@@ -68,7 +68,7 @@ const updateActiveTab = () => {
   }
 }
 
-// 标签切换处理
+// Handle tab switch
 const handleTabChange = (name) => {
   const tab = tabs.value.find(item => item.name === name)
   if (tab && tab.path !== route.path) {
@@ -76,7 +76,7 @@ const handleTabChange = (name) => {
   }
 }
 
-// 监听路由变化
+// Watch route changes
 watch(
   () => route.path,
   () => {

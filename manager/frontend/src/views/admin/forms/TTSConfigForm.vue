@@ -494,7 +494,7 @@ const props = defineProps({
 const emit = defineEmits(['request-voice-options'])
 
 const formRef = ref()
-// 保证音色选项始终为数组且响应式，供下拉使用
+// Ensure voice options are always a reactive array for use in dropdowns
 const voiceOptionsList = computed(() => Array.isArray(props.voiceOptions) ? props.voiceOptions : [])
 const indexTTSDocURL = 'https://github.com/hackers365/xiaozhi-esp32-server-golang/blob/main/doc/indextts_vllm_api.md'
 const indexTTSReferenceURL = 'https://github.com/hackers365/index-tts-vllm/blob/master/api_server.py'

@@ -207,7 +207,7 @@ const handleCommand = async (command) => {
       ElMessage.success(t('logged_out'))
       router.push('/login')
     } catch {
-      // 用户取消
+      // User cancelled
     }
   }
 }

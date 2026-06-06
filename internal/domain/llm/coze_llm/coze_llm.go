@@ -114,13 +114,13 @@ func NewCozeLLMProvider(config map[string]interface{}) (*CozeLLMProvider, error)
 	apiKey, _ := config["api_key"].(string)
 	apiKey = normalizeAPIToken(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("coze api_key不能为空")
+		return nil, fmt.Errorf("coze api_key cannot be empty")
 	}
 
 	botID, _ := config["bot_id"].(string)
 	botID = strings.TrimSpace(botID)
 	if botID == "" {
-		return nil, fmt.Errorf("coze bot_id不能为空")
+		return nil, fmt.Errorf("coze bot_id cannot be empty")
 	}
 
 	baseURL, _ := config["base_url"].(string)
@@ -161,7 +161,7 @@ func (p *CozeLLMProvider) ResponseWithContext(ctx context.Context, sessionID str
 
 		query := buildCozeQuery(dialogue)
 		if strings.TrimSpace(query) == "" {
-			sendLLMError(out, fmt.Errorf("coze query不能为空"))
+			sendLLMError(out, fmt.Errorf("coze query cannot be empty"))
 			return
 		}
 
@@ -197,7 +197,7 @@ func (p *CozeLLMProvider) ResponseWithContext(ctx context.Context, sessionID str
 				break
 			}
 			if i == 0 && len(requestBodies) > 1 {
-				log.Warnf("coze首个请求失败，尝试回退重试: %v", openErr)
+				log.Warnf("Coze's first request failed, try to roll back and try again: %v", openErr)
 			}
 		}
 		if openErr != nil {
@@ -213,10 +213,10 @@ func (p *CozeLLMProvider) ResponseWithContext(ctx context.Context, sessionID str
 					return
 				}
 				if seenDelta && strings.Contains(strings.ToLower(eventErr.Error()), "unexpected end of input") {
-					// 部分 Coze 实例在最后一个事件后会直接断开连接，容忍该场景。
+					//Some Coze instances will disconnect directly after the last event, tolerating this scenario.
 					return
 				}
-				sendLLMError(out, fmt.Errorf("coze流读取失败: %w", eventErr))
+				sendLLMError(out, fmt.Errorf("Failed to read coze stream: %w", eventErr))
 				return
 			}
 
@@ -295,13 +295,13 @@ func (p *CozeLLMProvider) openStreamRequest(ctx context.Context, bodyBytes []byt
 
 	resp, err := p.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("coze请求失败: %w", err)
+		return nil, fmt.Errorf("coze request failed: %w", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		errBody, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		resp.Body.Close()
-		return nil, fmt.Errorf("coze请求失败 status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(errBody)))
+		return nil, fmt.Errorf("coze request failed status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(errBody)))
 	}
 
 	contentType := strings.ToLower(resp.Header.Get("Content-Type"))
@@ -309,7 +309,7 @@ func (p *CozeLLMProvider) openStreamRequest(ctx context.Context, bodyBytes []byt
 		errBody, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
 		resp.Body.Close()
 		return nil, fmt.Errorf(
-			"coze响应不是SSE流 path=%s content_type=%s body=%s",
+			"coze response is not an SSE stream path=%s content_type=%s body=%s",
 			streamCreatePath,
 			contentType,
 			strings.TrimSpace(string(errBody)),
@@ -385,7 +385,7 @@ func buildCozeQuery(dialogue []*schema.Message) string {
 		return ""
 	}
 
-	// Coze会话模式仅发送当前轮用户输入，不拼接本地历史。
+	//Coze session mode only sends the current round of user input and does not splice local history.
 	for i := len(dialogue) - 1; i >= 0; i-- {
 		msg := dialogue[i]
 		if msg == nil || msg.Role != schema.User {
@@ -396,7 +396,7 @@ func buildCozeQuery(dialogue []*schema.Message) string {
 		}
 	}
 
-	// 兜底：若没有 user 消息，回退到最后一条可提取文本的消息。
+	//Bottom line: If there is no user message, fall back to the last message from which text can be extracted.
 	for i := len(dialogue) - 1; i >= 0; i-- {
 		if text := extractCozeQueryText(dialogue[i]); text != "" {
 			return text
@@ -504,7 +504,7 @@ func extractCozeError(event cozeStreamEvent, data string) string {
 			case string:
 				normalized := normalizeCozeStreamData(v)
 				if normalized != "" && normalized != data {
-					if nestedMsg := extractCozeError(cozeStreamEvent{}, normalized); nestedMsg != "coze返回错误" {
+					if nestedMsg := extractCozeError(cozeStreamEvent{}, normalized); nestedMsg != "Coze returned an error" {
 						return nestedMsg
 					}
 				}
@@ -518,7 +518,7 @@ func extractCozeError(event cozeStreamEvent, data string) string {
 			}
 		}
 	}
-	return "coze返回错误"
+	return "Coze returned an error"
 }
 
 func extractCozeMessageContent(data string, event cozeStreamEvent) string {
@@ -615,7 +615,7 @@ func extractString(v any) string {
 }
 
 func (p *CozeLLMProvider) ResponseWithVllm(_ context.Context, _ []byte, _ string, _ string) (string, error) {
-	return "", fmt.Errorf("coze provider不支持vllm能力")
+	return "", fmt.Errorf("coze provider does not support vllm capability")
 }
 
 func (p *CozeLLMProvider) GetModelInfo() map[string]interface{} {

@@ -26,16 +26,16 @@ var deviceIdList = []string{
 	"5f:f3:85:8b:5d:da",
 }
 
-// 记录最近出错的deviceId及其禁用到期时间
+// Record the deviceId of the latest error and its disabled expiration time
 var (
 	deviceIdBlocklist     = make(map[string]time.Time)
 	deviceIdBlocklistLock sync.Mutex
-	// 设备ID禁用时间（出错后多久内不使用）
+	//Device ID disable time (how long it will not be used after the error)
 	deviceIdBlockDuration = 5 * time.Second
 )
 
-// XiaozhiProvider 小智TTS WebSocket Provider
-// 支持流式文本转语音
+// XiaozhiProvider XiaozhiTTS WebSocket Provider
+// Supports streaming text-to-speech
 type XiaozhiProvider struct {
 	ServerAddr  string
 	DeviceID    string
@@ -43,20 +43,20 @@ type XiaozhiProvider struct {
 	Header      http.Header
 }
 
-// 定期清理过期的deviceId禁用列表
+// Regularly clean up the expired deviceId disabled list
 func init() {
 	go func() {
 		ticker := time.NewTicker(30 * time.Second)
 		defer ticker.Stop()
 
 		for range ticker.C {
-			// 清理过期的deviceId禁用列表
+			//Clean up the expired deviceId disabled list
 			deviceIdBlocklistLock.Lock()
 			now := time.Now()
 			for id, expireTime := range deviceIdBlocklist {
 				if now.After(expireTime) {
 					delete(deviceIdBlocklist, id)
-					log.Debugf("设备ID禁用已过期，重新启用: %s", id)
+					log.Debugf("Device ID disable has expired, re-enable: %s", id)
 				}
 			}
 			deviceIdBlocklistLock.Unlock()
@@ -64,16 +64,16 @@ func init() {
 	}()
 }
 
-// 将deviceId添加到禁用列表
+// Add deviceId to disabled list
 func blockDeviceId(deviceId string) {
 	deviceIdBlocklistLock.Lock()
 	defer deviceIdBlocklistLock.Unlock()
 
 	deviceIdBlocklist[deviceId] = time.Now().Add(deviceIdBlockDuration)
-	log.Warnf("设备ID %s 已添加到禁用列表，将在 %v 后重新启用", deviceId, deviceIdBlockDuration)
+	log.Warnf("Device ID %s has been added to the disabled list and will be re-enabled after %v", deviceId, deviceIdBlockDuration)
 }
 
-// 检查deviceId是否在禁用列表中
+// Check if deviceId is in disabled list
 func isDeviceIdBlocked(deviceId string) bool {
 	deviceIdBlocklistLock.Lock()
 	defer deviceIdBlocklistLock.Unlock()
@@ -83,17 +83,17 @@ func isDeviceIdBlocked(deviceId string) bool {
 		return false
 	}
 
-	// 如果过期时间已过，则从禁用列表中移除
+	//If expiration time has passed, remove from disabled list
 	if time.Now().After(expireTime) {
 		delete(deviceIdBlocklist, deviceId)
-		log.Debugf("设备ID禁用已过期，重新启用: %s", deviceId)
+		log.Debugf("Device ID disable has expired, re-enable: %s", deviceId)
 		return false
 	}
 
 	return true
 }
 
-// NewXiaozhiProvider 创建新的小智TTS Provider
+// NewXiaozhiProvider creates a new XiaozhiTTS Provider
 func NewXiaozhiProvider(config map[string]interface{}) *XiaozhiProvider {
 	serverAddr, _ := config["server_addr"].(string)
 	deviceID, _ := config["device_id"].(string)
@@ -121,32 +121,32 @@ func NewXiaozhiProvider(config map[string]interface{}) *XiaozhiProvider {
 	}
 }
 
-// selectDeviceId 选择一个可用的设备ID
+// selectDeviceId Select an available device ID
 func (p *XiaozhiProvider) selectDeviceId() string {
-	// 从deviceIdList中找出未被禁用的deviceId
+	//Find the deviceId that is not disabled from deviceIdList
 	for _, deviceId := range deviceIdList {
 		if !isDeviceIdBlocked(deviceId) {
-			log.Debugf("选择未被禁用的设备ID: %s", deviceId)
+			log.Debugf("Select a device ID that is not disabled: %s", deviceId)
 			return deviceId
 		}
 	}
 
-	// 如果所有deviceId都被禁用，则从所有deviceId中轮询选择
+	//If all deviceIds are disabled, poll select from all deviceIds
 	if len(deviceIdList) > 0 {
-		// 使用简单的轮询策略（基于时间）
+		//Use a simple polling strategy (time-based)
 		selectedIndex := int(time.Now().Unix()) % len(deviceIdList)
 		selectedDeviceId := deviceIdList[selectedIndex]
-		log.Warnf("所有deviceId均被禁用，轮询选择设备ID: %s (索引: %d)", selectedDeviceId, selectedIndex)
+		log.Warnf("All deviceIds are disabled, polling selects device ID: %s (index: %d)", selectedDeviceId, selectedIndex)
 		return selectedDeviceId
 	}
 
-	// 如果deviceIdList为空，使用传入的deviceId
+	//If deviceIdList is empty, use the passed in deviceId
 	if p.DeviceID != "" {
-		log.Warnf("deviceIdList为空，使用当前设备ID: %s", p.DeviceID)
+		log.Warnf("deviceIdList is empty, use the current device ID: %s", p.DeviceID)
 		return p.DeviceID
 	}
 
-	// 如果都没有，返回第一个设备ID（如果存在）
+	//If neither exists, return the first device ID (if it exists)
 	if len(deviceIdList) > 0 {
 		return deviceIdList[0]
 	}
@@ -154,32 +154,32 @@ func (p *XiaozhiProvider) selectDeviceId() string {
 	return ""
 }
 
-// createWSConnection 创建新的WebSocket连接
+// createWSConnection creates a new WebSocket connection
 func (p *XiaozhiProvider) createWSConnection(ctx context.Context) (*websocket.Conn, string, error) {
-	// 选择一个可用的设备ID
+	//Choose an available device ID
 	selectedDeviceId := p.selectDeviceId()
 	if selectedDeviceId == "" {
-		return nil, "", fmt.Errorf("无法选择设备ID")
+		return nil, "", fmt.Errorf("Unable to select device ID")
 	}
 
-	// 更新当前p.DeviceID和Header
+	//Update current p.DeviceID and Header
 	p.DeviceID = selectedDeviceId
 	p.Header.Set("Device-Id", selectedDeviceId)
 
-	// 创建新连接
+	//Create new connection
 	conn, _, err := websocket.DefaultDialer.DialContext(ctx, p.ServerAddr, p.Header)
 	if err != nil {
-		log.Errorf("创建WebSocket连接失败: %v, 设备ID: %s", err, selectedDeviceId)
-		blockDeviceId(selectedDeviceId) // 将失败的deviceId加入禁用列表
+		log.Errorf("Failed to create WebSocket connection: %v, device ID: %s", err, selectedDeviceId)
+		blockDeviceId(selectedDeviceId) //Add the failed deviceId to the disabled list
 		return nil, "", err
 	}
 
-	// 设置保持连接
+	//Set up stay connected
 	conn.SetPingHandler(func(appData string) error {
 		return conn.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(5*time.Second))
 	})
 
-	// 新建连接时发送hello消息
+	//Send hello message when creating a new connection
 	helloMsg := map[string]interface{}{
 		"type":         "hello",
 		"device_id":    selectedDeviceId,
@@ -187,10 +187,10 @@ func (p *XiaozhiProvider) createWSConnection(ctx context.Context) (*websocket.Co
 		"version":      1,
 		"audio_params": p.AudioFormat,
 	}
-	log.Debugf("创建新连接并发送hello消息，设备ID: %s", selectedDeviceId)
+	log.Debugf("Create a new connection and send a hello message, device ID: %s", selectedDeviceId)
 	if err := conn.WriteJSON(helloMsg); err != nil {
 		conn.Close()
-		return nil, "", fmt.Errorf("发送hello消息失败: %v", err)
+		return nil, "", fmt.Errorf("Failed to send hello message: %v", err)
 	}
 
 	return conn, selectedDeviceId, nil
@@ -203,7 +203,7 @@ type RecvMsg struct {
 	Version int    `json:"version"`
 }
 
-// sendStopMessage 发送stop消息并关闭连接
+// sendStopMessage sends a stop message and closes the connection
 func sendStopMessage(conn *websocket.Conn, deviceId string) {
 	stopMsg := map[string]interface{}{
 		"type":      "listen",
@@ -211,26 +211,26 @@ func sendStopMessage(conn *websocket.Conn, deviceId string) {
 		"state":     "stop",
 	}
 	if err := conn.WriteJSON(stopMsg); err != nil {
-		log.Warnf("发送stop消息失败: %v, 设备ID: %s", err, deviceId)
+		log.Warnf("Failed to send stop message: %v, device ID: %s", err, deviceId)
 	} else {
-		log.Debugf("发送stop消息成功，设备ID: %s", deviceId)
+		log.Debugf("Sending stop message successfully, device ID: %s", deviceId)
 	}
 }
 
-// handleTTSConnection 封装获取连接、发送消息和接收消息的逻辑
+// handleTTSConnection encapsulates the logic of obtaining connections, sending messages, and receiving messages
 func (p *XiaozhiProvider) handleTTSConnection(ctx context.Context, text string, outputChan chan []byte) error {
-	// 创建新连接
+	//Create new connection
 	conn, deviceId, err := p.createWSConnection(ctx)
 	if err != nil {
-		return fmt.Errorf("创建小智TTS连接失败: %v", err)
+		return fmt.Errorf("Failed to create XiaozhiTTS connection: %v", err)
 	}
 	defer func() {
-		// 发送stop消息并关闭连接
+		//Send a stop message and close the connection
 		sendStopMessage(conn, deviceId)
 		conn.Close()
 	}()
 
-	// 发送listen detect消息
+	//Send listen detect message
 	sendText := fmt.Sprintf("`%s`", text)
 	listenMsg := map[string]interface{}{
 		"type":      "listen",
@@ -238,15 +238,15 @@ func (p *XiaozhiProvider) handleTTSConnection(ctx context.Context, text string, 
 		"state":     "detect",
 		"text":      sendText,
 	}
-	log.Debugf("发送xiaozhi服务端消息: %v", listenMsg)
+	log.Debugf("Send xiaozhi server message: %v", listenMsg)
 
 	if err := conn.WriteJSON(listenMsg); err != nil {
-		log.Errorf("发送listen消息失败: %v，设备ID: %s", err, deviceId)
-		blockDeviceId(deviceId) // 将出错的deviceId加入禁用列表
-		return fmt.Errorf("发送消息失败: %v", err)
+		log.Errorf("Failed to send listen message: %v, device ID: %s", err, deviceId)
+		blockDeviceId(deviceId) //Add the wrong deviceId to the disabled list
+		return fmt.Errorf("Failed to send message: %v", err)
 	}
 
-	// 读取并处理消息
+	//Read and process messages
 	startTs := time.Now().UnixMilli()
 	var firstFrameTs bool
 	i := 0
@@ -255,24 +255,24 @@ func (p *XiaozhiProvider) handleTTSConnection(ctx context.Context, text string, 
 	for {
 		select {
 		case <-ctx.Done():
-			log.Debugf("xiaozhi服务端消息ctx.Done(), 设备ID: %s", deviceId)
+			log.Debugf("xiaozhi server message ctx.Done(), device ID: %s", deviceId)
 			return nil
 		default:
 		}
 		msgType, msg, err := conn.ReadMessage()
 		if err != nil {
-			// 连接出错
-			log.Errorf("读取消息错误: %v，设备ID: %s", err, deviceId)
+			//Connection error
+			log.Errorf("Error reading message: %v, device ID: %s", err, deviceId)
 
-			// 如果还没有收到任何音频帧，说明连接可能有问题，将deviceId加入禁用列表
+			//If no audio frames have been received, there may be a problem with the connection. Add deviceId to the disabled list.
 			if !receivedFrames {
 				blockDeviceId(deviceId)
 			}
 
-			return fmt.Errorf("读取消息错误: %v", err)
+			return fmt.Errorf("Error reading message: %v", err)
 		}
 		if msgType == websocket.TextMessage {
-			log.Debugf("收到xiaozhi服务端消息: %s", string(msg))
+			log.Debugf("Received xiaozhi server message: %s", string(msg))
 			var recvMsg RecvMsg
 			err := json.Unmarshal(msg, &recvMsg)
 			if err != nil {
@@ -280,7 +280,7 @@ func (p *XiaozhiProvider) handleTTSConnection(ctx context.Context, text string, 
 			}
 			if recvMsg.Type == "tts" {
 				if recvMsg.State == "stop" {
-					log.Debugf("xiaozhi服务端消息tts stop消息")
+					log.Debugf("xiaozhi server message tts stop message")
 					return nil
 				}
 			}
@@ -288,22 +288,22 @@ func (p *XiaozhiProvider) handleTTSConnection(ctx context.Context, text string, 
 			receivedFrames = true
 			if !firstFrameTs {
 				firstFrameTs = true
-				log.Debugf("tts耗时统计: xiaozhi服务tts 第一个音频帧时间: %d", time.Now().UnixMilli()-startTs)
+				log.Debugf("Tts time consumption statistics: xiaozhi service tts first audio frame time: %d", time.Now().UnixMilli()-startTs)
 			}
 			outputChan <- msg
 			if i%20 == 0 {
-				log.Debugf("xiaozhi服务端音频消息, 已收到%d个音频帧", i)
+				log.Debugf("xiaozhi server audio message, %d audio frames have been received", i)
 			}
 			i++
 		}
 	}
 }
 
-// TextToSpeechStream 实现流式TTS，返回opus音频帧chan
+// TextToSpeechStream implements streaming TTS and returns opus audio frame chan
 func (p *XiaozhiProvider) TextToSpeechStream(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (chan []byte, error) {
 	outputChan := make(chan []byte, 1000)
 
-	// 尝试处理TTS连接，支持重试
+	//Try to handle TTS connection, support retry
 	go func() {
 		defer close(outputChan)
 
@@ -311,44 +311,44 @@ func (p *XiaozhiProvider) TextToSpeechStream(ctx context.Context, text string, s
 		maxRetries := 2
 		var lastError error
 
-		// 最多尝试maxRetries次
+		//Try maxRetries times at most
 		for retryCount <= maxRetries {
 			if retryCount > 0 {
-				log.Infof("尝试重新获取连接，第 %d/%d 次重试", retryCount, maxRetries)
+				log.Infof("Try to reacquire the connection, %d/%d retry", retryCount, maxRetries)
 
-				// 在重试前检查上下文是否已取消
+				//Check if context has been canceled before retrying
 				select {
 				case <-ctx.Done():
-					log.Debugf("上下文已取消，停止重试")
+					log.Debugf("Context canceled, stop retrying")
 					return
 				default:
-					// 继续重试
+					//Keep trying again
 				}
 			}
 
-			// 处理TTS连接
+			//Handling TTS connections
 			err := p.handleTTSConnection(ctx, text, outputChan)
 
 			if err == nil {
-				// 连接处理成功，无需重试
+				//Connection processing successful, no need to retry
 				return
 			}
 
 			lastError = err
-			log.Errorf("TTS连接处理失败: %v (重试: %d/%d)", err, retryCount, maxRetries)
+			log.Errorf("TTS connection processing failed: %v (Retry: %d/%d)", err, retryCount, maxRetries)
 
 			retryCount++
 		}
 
 		if retryCount > maxRetries {
-			log.Warnf("达到最大重试次数 %d，放弃重试，最后错误: %v", maxRetries, lastError)
+			log.Warnf("Reached the maximum number of retries %d and gave up retrying. The final error was: %v", maxRetries, lastError)
 		}
 	}()
 
 	return outputChan, nil
 }
 
-// GetVoiceInfo 获取TTS配置信息
+// GetVoiceInfo Get TTS configuration information
 func (p *XiaozhiProvider) GetVoiceInfo() map[string]interface{} {
 	return map[string]interface{}{
 		"type":         "xiaozhi_ws",
@@ -358,22 +358,22 @@ func (p *XiaozhiProvider) GetVoiceInfo() map[string]interface{} {
 	}
 }
 
-// SetVoice 设置音色参数（Xiaozhi Provider 不支持动态设置音色）
+// SetVoice sets voice parameters (Xiaozhi Provider does not support dynamic setting of voice)
 func (p *XiaozhiProvider) SetVoice(voiceConfig map[string]interface{}) error {
-	return fmt.Errorf("Xiaozhi TTS Provider 不支持动态设置音色")
+	return fmt.Errorf("Xiaozhi TTS Provider does not support dynamically setting timbres")
 }
 
-// Close 关闭资源（无状态 Provider，无需关闭）
+// Close closes the resource (stateless provider, no need to close)
 func (p *XiaozhiProvider) Close() error {
 	return nil
 }
 
-// IsValid 检查资源是否有效
+// IsValid checks whether the resource is valid
 func (p *XiaozhiProvider) IsValid() bool {
 	return p != nil
 }
 
-// TextToSpeech 实现 BaseTTSProvider 接口，直接聚合流式帧
+// TextToSpeech implements the BaseTTSProvider interface and directly aggregates streaming frames
 func (p *XiaozhiProvider) TextToSpeech(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error) {
 	ch, err := p.TextToSpeechStream(ctx, text, sampleRate, channels, frameDuration)
 	if err != nil {

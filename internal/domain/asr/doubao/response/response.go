@@ -46,7 +46,7 @@ func ParseResponse(msg []byte) *AsrResponse {
 	serializationMethod := common.SerializationType(msg[2] >> 4)
 	messageCompression := common.CompressionType(msg[2] & 0x0f)
 	payload := msg[headerSize*4:]
-	// 解析messageTypeSpecificFlags
+	//Parse messageTypeSpecificFlags
 	if messageTypeSpecificFlags&0x01 != 0 {
 		result.PayloadSequence = int32(binary.BigEndian.Uint32(payload[:4]))
 		payload = payload[4:]
@@ -59,7 +59,7 @@ func ParseResponse(msg []byte) *AsrResponse {
 		payload = payload[4:]
 	}
 
-	// 解析messageType
+	//Parse messageType
 	switch messageType {
 	case common.SERVER_FULL_RESPONSE:
 		result.PayloadSize = int(binary.BigEndian.Uint32(payload[:4]))
@@ -74,12 +74,12 @@ func ParseResponse(msg []byte) *AsrResponse {
 		return &result
 	}
 
-	// 是否压缩
+	//Whether to compress
 	if messageCompression == common.GZIP {
 		payload = common.GzipDecompress(payload)
 	}
 
-	// 解析payload
+	//Parse payload
 	var asrResponse AsrResponsePayload
 	switch serializationMethod {
 	case common.JSON:

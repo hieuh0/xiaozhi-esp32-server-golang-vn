@@ -30,13 +30,13 @@ const (
 	defaultQwenLanguageType = "Chinese"
 )
 
-// 全局HTTP客户端，实现连接池
+// Global HTTP client, implementing connection pooling
 var (
 	httpClient     *http.Client
 	httpClientOnce sync.Once
 )
 
-// 获取配置了连接池的HTTP客户端
+// Get an HTTP client configured with a connection pool
 func getHTTPClient() *http.Client {
 	httpClientOnce.Do(func() {
 		transport := &http.Transport{
@@ -59,7 +59,7 @@ func getHTTPClient() *http.Client {
 	return httpClient
 }
 
-// QwenTTSProvider 阿里云千问 TTS 提供者
+// QwenTTSProvider Alibaba Cloud Qianwen TTS provider
 type QwenTTSProvider struct {
 	APIKey        string
 	APIURL        string
@@ -70,7 +70,7 @@ type QwenTTSProvider struct {
 	FrameDuration int
 }
 
-// qwenRequest 请求结构体
+// qwenRequest request structure
 type qwenRequest struct {
 	Model string           `json:"model"`
 	Input qwenRequestInput `json:"input"`
@@ -82,7 +82,7 @@ type qwenRequestInput struct {
 	LanguageType string `json:"language_type,omitempty"`
 }
 
-// qwenResponse 非流式/流式统一响应结构
+// qwenResponse non-streaming/streaming unified response structure
 type qwenResponse struct {
 	StatusCode int        `json:"status_code"`
 	RequestID  string     `json:"request_id"`
@@ -100,10 +100,10 @@ type qwenOutput struct {
 }
 
 type qwenAudioInfo struct {
-	Data      string `json:"data"`       // 流式输出时的 Base64 音频数据（16bit PCM）
-	URL       string `json:"url"`        // 非流式输出的 WAV URL
-	ID        string `json:"id"`         // 音频 ID
-	ExpiresAt int64  `json:"expires_at"` // URL 过期时间戳
+	Data      string `json:"data"`       //Base64 audio data (16bit PCM) when streaming output
+	URL       string `json:"url"`        //WAV URL for non-streaming output
+	ID        string `json:"id"`         //Audio ID
+	ExpiresAt int64  `json:"expires_at"` //URL expiration timestamp
 }
 
 type qwenUsage struct {
@@ -112,7 +112,7 @@ type qwenUsage struct {
 	Characters   int `json:"characters"`
 }
 
-// NewQwenTTSProvider 创建新的阿里云千问 TTS 提供者
+// NewQwenTTSProvider creates a new Alibaba Cloud Qianwen TTS provider
 func NewQwenTTSProvider(config map[string]interface{}) *QwenTTSProvider {
 	apiKey, _ := config["api_key"].(string)
 	apiURL, _ := config["api_url"].(string)
@@ -123,7 +123,7 @@ func NewQwenTTSProvider(config map[string]interface{}) *QwenTTSProvider {
 	frameDuration, _ := config["frame_duration"].(float64)
 	region, _ := config["region"].(string)
 
-	// 处理 API URL / 地域
+	//Handle API URL/Region
 	if apiURL == "" {
 		if strings.EqualFold(region, "singapore") {
 			apiURL = defaultAPIURLSingapore
@@ -132,7 +132,7 @@ func NewQwenTTSProvider(config map[string]interface{}) *QwenTTSProvider {
 		}
 	}
 
-	// 默认值
+	//Default value
 	if model == "" {
 		model = defaultQwenModel
 	}
@@ -157,11 +157,11 @@ func NewQwenTTSProvider(config map[string]interface{}) *QwenTTSProvider {
 	}
 }
 
-// TextToSpeech 非流式文本转语音：调用 HTTP 接口，下载 WAV 并解码为帧
+// TextToSpeech non-streaming text-to-speech: calls the HTTP interface, downloads WAV and decodes it into frames
 func (p *QwenTTSProvider) TextToSpeech(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error) {
 	startTs := time.Now().UnixMilli()
 
-	// 构造请求体
+	//Construct request body
 	reqBody := qwenRequest{
 		Model: p.Model,
 		Input: qwenRequestInput{
@@ -173,13 +173,13 @@ func (p *QwenTTSProvider) TextToSpeech(ctx context.Context, text string, sampleR
 
 	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("序列化请求失败: %v", err)
+		return nil, fmt.Errorf("Serialization request failed: %v", err)
 	}
 
-	// 创建HTTP请求
+	//Create HTTP request
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.APIURL, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %v", err)
+		return nil, fmt.Errorf("Create request failed: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
@@ -188,63 +188,63 @@ func (p *QwenTTSProvider) TextToSpeech(ctx context.Context, text string, sampleR
 	client := getHTTPClient()
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("发送请求失败: %v", err)
+		return nil, fmt.Errorf("Failed to send request: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API请求失败，状态码: %d, 响应: %s", resp.StatusCode, string(body))
+		return nil, fmt.Errorf("API request failed, status code: %d, response: %s", resp.StatusCode, string(body))
 	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("读取响应失败: %v", err)
+		return nil, fmt.Errorf("Failed to read response: %v", err)
 	}
 
 	var ttsResp qwenResponse
 	if err := json.Unmarshal(body, &ttsResp); err != nil {
-		return nil, fmt.Errorf("解析响应失败: %v, 响应体: %s", err, string(body))
+		return nil, fmt.Errorf("Failed to parse response: %v, response body: %s", err, string(body))
 	}
 
 	if ttsResp.StatusCode != 200 {
-		return nil, fmt.Errorf("千问 TTS API 错误 [%s]: %s", ttsResp.Code, ttsResp.Message)
+		return nil, fmt.Errorf("Qianwen TTS API error [%s]: %s", ttsResp.Code, ttsResp.Message)
 	}
 
 	if ttsResp.Output.Audio.URL == "" {
-		return nil, fmt.Errorf("响应中未包含音频 URL")
+		return nil, fmt.Errorf("Audio URL not included in response")
 	}
 
-	log.Debugf("千问 TTS 非流式，下载音频 URL: %s", ttsResp.Output.Audio.URL)
+	log.Debugf("Qianwen TTS non-streaming, download audio URL: %s", ttsResp.Output.Audio.URL)
 
-	// 下载 WAV，并通过通用解码器转为帧
+	//Download WAV and convert to frames with universal codec
 	wavReq, err := http.NewRequestWithContext(ctx, http.MethodGet, ttsResp.Output.Audio.URL, nil)
 	if err != nil {
-		return nil, fmt.Errorf("创建音频下载请求失败: %v", err)
+		return nil, fmt.Errorf("Failed to create audio download request: %v", err)
 	}
 
 	wavResp, err := client.Do(wavReq)
 	if err != nil {
-		return nil, fmt.Errorf("下载音频失败: %v", err)
+		return nil, fmt.Errorf("Failed to download audio: %v", err)
 	}
 	defer wavResp.Body.Close()
 
 	if wavResp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(wavResp.Body)
-		return nil, fmt.Errorf("下载音频失败，状态码: %d, 响应: %s", wavResp.StatusCode, string(body))
+		return nil, fmt.Errorf("Failed to download audio, status code: %d, response: %s", wavResp.StatusCode, string(body))
 	}
 
 	outputChan := make(chan []byte, 1000)
 
 	decoder, err := util.CreateAudioDecoderWithSampleRate(ctx, wavResp.Body, outputChan, frameDuration, "wav", sampleRate)
 	if err != nil {
-		return nil, fmt.Errorf("创建千问音频解码器失败: %v", err)
+		return nil, fmt.Errorf("Failed to create Qianwen audio decoder: %v", err)
 	}
 
-	// 启动解码
+	//Start decoding
 	go func() {
 		if err := decoder.Run(startTs); err != nil {
-			log.Errorf("千问 TTS 非流式音频解码失败: %v", err)
+			log.Errorf("Qianwen TTS non-streaming audio decoding failed: %v", err)
 		}
 	}()
 
@@ -253,16 +253,16 @@ func (p *QwenTTSProvider) TextToSpeech(ctx context.Context, text string, sampleR
 		frames = append(frames, frame)
 	}
 
-	log.Debugf("千问 TTS 非流式完成，从输入到获取音频数据结束耗时: %d ms", time.Now().UnixMilli()-startTs)
+	log.Debugf("Qianwen TTS non-streaming completion, the time taken from input to acquisition of audio data is: %d ms", time.Now().UnixMilli()-startTs)
 	return frames, nil
 }
 
-// TextToSpeechStream 流式文本转语音实现
+// TextToSpeechStream streaming text-to-speech implementation
 func (p *QwenTTSProvider) TextToSpeechStream(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (outputChan chan []byte, err error) {
 
 	startTs := time.Now().UnixMilli()
 
-	// 构造请求体
+	//Construct request body
 	reqBody := qwenRequest{
 		Model: p.Model,
 		Input: qwenRequestInput{
@@ -274,18 +274,18 @@ func (p *QwenTTSProvider) TextToSpeechStream(ctx context.Context, text string, s
 
 	jsonData, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("序列化请求失败: %v", err)
+		return nil, fmt.Errorf("Serialization request failed: %v", err)
 	}
 
-	// 创建HTTP请求
+	//Create HTTP request
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.APIURL, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return nil, fmt.Errorf("创建请求失败: %v", err)
+		return nil, fmt.Errorf("Create request failed: %v", err)
 	}
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.APIKey))
-	req.Header.Set("X-DashScope-SSE", "enable") // 启用流式输出
+	req.Header.Set("X-DashScope-SSE", "enable") //Enable streaming output
 
 	client := getHTTPClient()
 
@@ -295,7 +295,7 @@ func (p *QwenTTSProvider) TextToSpeechStream(ctx context.Context, text string, s
 
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Errorf("发送千问流式请求失败: %v", err)
+			log.Errorf("Failed to send Qianwen streaming request: %v", err)
 			close(outputChan)
 			return
 		}
@@ -303,92 +303,92 @@ func (p *QwenTTSProvider) TextToSpeechStream(ctx context.Context, text string, s
 
 		if resp.StatusCode != http.StatusOK {
 			body, _ := io.ReadAll(resp.Body)
-			log.Errorf("千问流式 API请求失败，状态码: %d, 响应: %s", resp.StatusCode, string(body))
+			log.Errorf("Qianwen Streaming API request failed, status code: %d, response: %s", resp.StatusCode, string(body))
 			close(outputChan)
 			return
 		}
 
 		contentType := resp.Header.Get("Content-Type")
 		if !strings.Contains(contentType, "text/event-stream") {
-			log.Warnf("千问流式 API返回的Content-Type不是text/event-stream: %s", contentType)
+			log.Warnf("The Content-Type returned by Qianwen Streaming API is not text/event-stream: %s", contentType)
 			close(outputChan)
 			return
 		}
 
-		// 管道：解析 SSE -> PCM -> 解码为帧
+		//Pipeline: Parse SSE -> PCM -> Decode to frames
 		pipeReader, pipeWriter := io.Pipe()
 
-		// 解析 SSE，写入原始 PCM 数据。
-		// Qwen 流式返回的 audio.data 在实测中可能携带一次 WAV 头，需先剥离再按 PCM 处理。
+		//Parse SSE and write raw PCM data.
+		//The audio.data returned by Qwen streaming may carry a WAV header once in actual measurement, which needs to be stripped first and then processed according to PCM.
 		go func() {
 			defer func() {
 				if err := pipeWriter.Close(); err != nil {
-					log.Debugf("关闭千问管道写入端失败: %v", err)
+					log.Debugf("Failed to close Qianwen pipeline write end: %v", err)
 				}
 			}()
 
 			if err := p.parseEventStream(ctx, resp.Body, pipeWriter, text); err != nil {
-				log.Errorf("解析千问 Event Stream 失败: %v", err)
+				log.Errorf("Failed to parse Qianwen Event Stream: %v", err)
 			}
 		}()
 
-		// 创建音频解码器，从管道读取 PCM，输出 opus 帧
+		//Create an audio decoder, read PCM from the pipe, and output opus frames
 		decoder, err := util.CreateAudioDecoderWithSampleRate(
 			ctx,
 			pipeReader,
 			outputChan,
 			frameDuration,
-			"pcm", // parseEventStream 会在需要时剥离 WAV 头，输出纯 16bit PCM
+			"pcm", //parseEventStream will strip the WAV header when needed and output pure 16bit PCM
 			sampleRate,
 		)
 		if err != nil {
-			log.Errorf("创建千问流式音频解码器失败: %v", err)
+			log.Errorf("Failed to create Qianwen streaming audio decoder: %v", err)
 			close(outputChan)
 			pipeReader.Close()
 			return
 		}
 
-		// 告诉解码器 PCM 的采样率/声道信息
+		//Tells the decoder the sample rate/channel information of the PCM
 		decoder.WithFormat(beep.Format{
 			SampleRate:  beep.SampleRate(24000),
 			NumChannels: 1,
 		})
 
-		// decoder.Run() 内部会关闭 outputChan
-		// 使用 sync.Once 确保即使 decoder.Run() 关闭了 channel，defer 也不会重复关闭
+		//decoder.Run() internally closes outputChan
+		//Use sync.Once to ensure that even if decoder.Run() closes the channel, defer will not close it repeatedly
 		if err := decoder.Run(startTs); err != nil {
-			log.Errorf("千问流式音频解码失败: %v", err)
+			log.Errorf("Qianwen streaming audio decoding failed: %v", err)
 			return
 		}
 
-		// 如果 decoder.Run() 成功完成，它会关闭 channel
-		// 所以这里需要取消 defer 的关闭操作（通过 sync.Once 已经处理了）
+		//If decoder.Run() completes successfully, it closes the channel
+		//So here you need to cancel the closing operation of defer (already processed through sync.Once)
 
 		select {
 		case <-ctx.Done():
-			log.Debugf("千问 TTS流式合成取消, 文本: %s", text)
+			log.Debugf("Qianwen TTS streaming synthesis cancelled, text: %s", text)
 			return
 		default:
-			log.Debugf("千问 TTS流式耗时: 从输入至获取音频数据结束耗时: %d ms", time.Now().UnixMilli()-startTs)
+			log.Debugf("Qianwen TTS streaming time: from input to the end of obtaining audio data: %d ms", time.Now().UnixMilli()-startTs)
 		}
 	}()
 
 	return outputChan, nil
 }
 
-// parseEventStream 使用 go-sse 解析阿里云千问的 SSE，解码 Base64 PCM 并写入管道
+// parseEventStream uses go-sse to parse Alibaba Cloud Qianwen's SSE, decode Base64 PCM and write to the pipeline
 func (p *QwenTTSProvider) parseEventStream(ctx context.Context, reader io.Reader, writer *io.PipeWriter, text string) error {
 	var leadingAudio bytes.Buffer
 	wroteLeadingAudio := false
 
 	for ev, evErr := range sse.Read(reader, nil) {
 		if evErr != nil {
-			return fmt.Errorf("读取千问 SSE 事件失败: %w", evErr)
+			return fmt.Errorf("Failed to read Qianwen SSE events: %w", evErr)
 		}
 
 		select {
 		case <-ctx.Done():
-			log.Debugf("千问 TTS流式合成取消, 文本: %s", text)
+			log.Debugf("Qianwen TTS streaming synthesis cancelled, text: %s", text)
 			return ctx.Err()
 		default:
 		}
@@ -400,21 +400,21 @@ func (p *QwenTTSProvider) parseEventStream(ctx context.Context, reader io.Reader
 
 		var eventResp qwenResponse
 		if err := json.Unmarshal([]byte(dataValue), &eventResp); err != nil {
-			log.Warnf("解析千问 Event Stream JSON 失败: %v, 数据: %s", err, previewString(dataValue, 200))
+			log.Warnf("Failed to parse Qianwen Event Stream JSON: %v, data: %s", err, previewString(dataValue, 200))
 			continue
 		}
 
-		// 检查业务状态码（流式 data 里可能不包含 status_code，未包含时为 0，视为成功）
+		//Check the business status code (streaming data may not contain status_code, if not, it will be 0, which is considered successful)
 		if eventResp.StatusCode != 0 && eventResp.StatusCode != 200 {
-			return fmt.Errorf("千问流式 API 错误 [%s]: %s", eventResp.Code, eventResp.Message)
+			return fmt.Errorf("Qianwen Streaming API Error [%s]: %s", eventResp.Code, eventResp.Message)
 		}
 
-		// 解码 Base64 PCM 数据
+		//Decode Base64 PCM data
 		if eventResp.Output.Audio.Data != "" {
 			encoded := cleanBase64(eventResp.Output.Audio.Data)
 			audioBytes, err := base64.StdEncoding.DecodeString(encoded)
 			if err != nil {
-				log.Errorf("解码千问 Base64 PCM 失败: %v", err)
+				log.Errorf("Decoding Qianwen Base64 PCM failed: %v", err)
 				continue
 			}
 
@@ -423,33 +423,33 @@ func (p *QwenTTSProvider) parseEventStream(ctx context.Context, reader io.Reader
 					leadingAudio.Write(audioBytes)
 					normalized, needMore, detectedWAV, err := normalizeLeadingQwenAudio(leadingAudio.Bytes())
 					if err != nil {
-						return fmt.Errorf("解析千问流式音频头失败: %w", err)
+						return fmt.Errorf("Failed to parse Qianwen streaming audio header: %w", err)
 					}
 					if needMore {
 						continue
 					}
 					wroteLeadingAudio = true
 					if detectedWAV {
-						log.Infof("千问流式音频检测到 WAV 头，已剥离后按 PCM 处理")
+						log.Infof("Qianwen streaming audio detects WAV header, which has been stripped and processed according to PCM")
 					}
 					if len(normalized) == 0 {
 						continue
 					}
 					if _, err := writer.Write(normalized); err != nil {
-						return fmt.Errorf("写入 PCM 到管道失败: %v", err)
+						return fmt.Errorf("Writing PCM to pipe failed: %v", err)
 					}
 					continue
 				}
 
 				if _, err := writer.Write(audioBytes); err != nil {
-					return fmt.Errorf("写入 PCM 到管道失败: %v", err)
+					return fmt.Errorf("Writing PCM to pipe failed: %v", err)
 				}
 			}
 		}
 
-		// 检查是否完成
+		//Check if completed
 		if eventResp.Output.FinishReason == "stop" {
-			log.Debugf("千问流式收到 finish_reason=stop，请求 ID: %s", eventResp.RequestID)
+			log.Debugf("Qianwen Streaming received finish_reason=stop, request ID: %s", eventResp.RequestID)
 			return nil
 		}
 	}
@@ -474,7 +474,7 @@ func normalizeLeadingQwenAudio(data []byte) (normalized []byte, needMore bool, d
 		return nil, true, true, nil
 	}
 	if offset > len(data) {
-		return nil, false, true, fmt.Errorf("WAV data offset 越界: %d > %d", offset, len(data))
+		return nil, false, true, fmt.Errorf("WAV data offset out of bounds: %d > %d", offset, len(data))
 	}
 	return data[offset:], false, true, nil
 }
@@ -484,7 +484,7 @@ func qwenWAVDataOffset(data []byte) (offset int, needMore bool, err error) {
 		return 0, true, nil
 	}
 	if !bytes.HasPrefix(data, []byte("RIFF")) || !bytes.Equal(data[8:12], []byte("WAVE")) {
-		return 0, false, fmt.Errorf("不是有效的 WAV 头")
+		return 0, false, fmt.Errorf("Not a valid WAV header")
 	}
 
 	offset = 12
@@ -496,7 +496,7 @@ func qwenWAVDataOffset(data []byte) (offset int, needMore bool, err error) {
 		chunkID := string(data[offset : offset+4])
 		chunkSize := int(binary.LittleEndian.Uint32(data[offset+4 : offset+8]))
 		if chunkSize < 0 {
-			return 0, false, fmt.Errorf("非法 WAV chunk size: %d", chunkSize)
+			return 0, false, fmt.Errorf("Illegal WAV chunk size: %d", chunkSize)
 		}
 		offset += 8
 
@@ -515,26 +515,26 @@ func qwenWAVDataOffset(data []byte) (offset int, needMore bool, err error) {
 	}
 }
 
-// SetVoice 设置音色
+// SetVoice Set the voice
 func (p *QwenTTSProvider) SetVoice(voiceConfig map[string]interface{}) error {
 	if voice, ok := voiceConfig["voice"].(string); ok && voice != "" {
 		p.Voice = voice
 		return nil
 	}
-	return fmt.Errorf("无效的音色配置: 缺少 voice")
+	return fmt.Errorf("Invalid voice configuration: missing voice")
 }
 
-// Close 关闭资源（无状态 Provider，无需关闭）
+// Close closes the resource (stateless provider, no need to close)
 func (p *QwenTTSProvider) Close() error {
 	return nil
 }
 
-// IsValid 检查资源是否有效
+// IsValid checks whether the resource is valid
 func (p *QwenTTSProvider) IsValid() bool {
 	return p != nil
 }
 
-// cleanBase64 移除 Base64 字符串中的所有空白字符
+// cleanBase64 removes all whitespace characters from a Base64 string
 func cleanBase64(s string) string {
 	if s == "" {
 		return s
@@ -551,7 +551,7 @@ func cleanBase64(s string) string {
 	return b.String()
 }
 
-// previewString 返回字符串的前 n 个字符用于日志
+// previewString returns the first n characters of the string for logging
 func previewString(s string, n int) string {
 	if len(s) <= n {
 		return s

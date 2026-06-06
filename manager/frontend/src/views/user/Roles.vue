@@ -6,7 +6,7 @@
         {{ t('create_role') }}</el-button>
     </div>
 
-    <!-- 角色卡片列表 -->
+    <!-- Role card list -->
     <div class="roles-grid" v-loading="loading">
       <div v-for="role in userRoles" :key="role.id" class="role-col">
         <el-card class="role-card" shadow="hover">
@@ -58,12 +58,12 @@
       </div>
     </div>
 
-    <!-- 空状态 -->
+    <!-- Empty state -->
     <el-empty v-if="!loading && userRoles.length === 0" :description="t('no_roles_create')">
       <el-button type="primary" @click="showCreateDialog = true">{{ t('create_first_role') }}</el-button>
     </el-empty>
 
-    <!-- 创建/编辑角色弹窗 -->
+    <!-- Create/edit role dialog -->
     <el-dialog
       v-model="showCreateDialog"
       :title="editingRole ? t('edit_role') : t('create_role')"
@@ -107,7 +107,7 @@
               />
               <div class="prompt-tips">
                 <el-text size="small" type="info">
-                  提示：可以使用 &#123;&#123;assistant_name&#125;&#125; 作为智能体名称的占位符
+                  {{ t('assistant_name_placeholder_hint') }}
                 </el-text>
               </div>
             </el-form-item>
@@ -215,7 +215,7 @@ const showCreateDialog = ref(false)
 const editingRole = ref(null)
 const formRef = ref()
 
-// 配置列表
+// Config lists
 const llmConfigs = ref([])
 const ttsConfigs = ref([])
 const availableVoices = ref([])
@@ -237,7 +237,7 @@ const rules = {
   prompt: [{ required: true, message: t('enter_system_prompt'), trigger: 'blur' }]
 }
 
-// 加载角色列表
+// Load role list
 const loadRoles = async () => {
   loading.value = true
   try {
@@ -250,7 +250,7 @@ const loadRoles = async () => {
   }
 }
 
-// 加载配置列表
+// Load config lists
 const loadConfigs = async () => {
   try {
     const [llmRes, ttsRes] = await Promise.all([
@@ -264,7 +264,7 @@ const loadConfigs = async () => {
   }
 }
 
-// 卡片操作
+// Card action handler
 const handleCardAction = (command, role) => {
   switch (command) {
     case 'edit':

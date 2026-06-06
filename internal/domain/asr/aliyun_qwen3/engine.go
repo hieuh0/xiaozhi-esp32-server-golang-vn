@@ -227,8 +227,8 @@ func (a *AliyunQwen3ASR) StreamingRecognize(ctx context.Context, audioStream <-c
 		return connectErr
 	}
 
-	// ctx cancel 时主动关闭底层连接，确保 ReadMessage 及时返回，
-	// 这样旧会话一定会退出并释放 taskMu，避免下一轮重启卡死。
+	//When ctx cancel, the underlying connection is actively closed to ensure that ReadMessage returns in time.
+	//In this way, the old session will definitely exit and release taskMu to avoid being stuck in the next restart.
 	go func() {
 		select {
 		case <-ctx.Done():

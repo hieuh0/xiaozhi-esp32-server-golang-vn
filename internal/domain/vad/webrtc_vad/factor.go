@@ -6,18 +6,18 @@ import (
 	"xiaozhi-esp32-server-golang/internal/util"
 )
 
-// WebRTCVADConfig WebRTC VAD 配置
+// WebRTCVADConfig WebRTC VAD configuration
 type WebRTCVADConfig struct {
 	SampleRate int
 	Mode       int
 }
 
-// WebRTCVADFactory WebRTC VAD 工厂，实现 ResourceFactory 接口
+// WebRTCVADFactory WebRTC VAD factory, implements ResourceFactory interface
 type WebRTCVADFactory struct {
 	config WebRTCVADConfig
 }
 
-// NewWebRTCVADFactory 创建WebRTC VAD工厂
+// NewWebRTCVADFactory creates a WebRTC VAD factory
 func NewWebRTCVADFactory(config WebRTCVADConfig) *WebRTCVADFactory {
 	if config.SampleRate == 0 {
 		config.SampleRate = DefaultSampleRate
@@ -31,7 +31,7 @@ func NewWebRTCVADFactory(config WebRTCVADConfig) *WebRTCVADFactory {
 	}
 }
 
-// Create 创建新的WebRTC VAD资源实例
+// Create creates a new WebRTC VAD resource instance
 func (f *WebRTCVADFactory) Create() (util.Resource, error) {
 	vad := &WebRTCVAD{
 		sampleRate: f.config.SampleRate,
@@ -39,7 +39,7 @@ func (f *WebRTCVADFactory) Create() (util.Resource, error) {
 		lastUsed:   time.Now(),
 	}
 
-	// 初始化实例
+	// Initialize instance
 	if err := vad.init(); err != nil {
 		return nil, fmt.Errorf("failed to initialize WebRTC VAD: %w", err)
 	}
@@ -47,7 +47,7 @@ func (f *WebRTCVADFactory) Create() (util.Resource, error) {
 	return vad, nil
 }
 
-// Validate 验证资源是否有效
+// Validate checks if the resource is valid
 func (f *WebRTCVADFactory) Validate(resource util.Resource) bool {
 	vad, ok := resource.(*WebRTCVAD)
 	if !ok {
@@ -56,7 +56,7 @@ func (f *WebRTCVADFactory) Validate(resource util.Resource) bool {
 	return vad.IsValid()
 }
 
-// Reset 重置资源状态
+// Reset resets the resource state
 func (f *WebRTCVADFactory) Reset(resource util.Resource) error {
 	vad, ok := resource.(*WebRTCVAD)
 	if !ok {

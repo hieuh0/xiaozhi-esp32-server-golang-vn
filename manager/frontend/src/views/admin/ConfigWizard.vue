@@ -78,7 +78,7 @@
         />
       </template>
 
-      <!-- 完成页：展示 OTA 地址与 WebSocket 地址 -->
+      <!-- Completion page: display OTA address and WebSocket address -->
       <template v-if="currentStep === 5">
         <div class="step-title">{{ t('config_done_title') }}</div>
         <p class="step-hint">{{ t('config_done_hint') }}</p>
@@ -640,17 +640,17 @@ async function saveMqttConfig() {
   const port = Number(otaForm.mqttServerPort) || 1883
   const useTls = port === 8883
 
-  // 先获取现有配置，只更新 enable 字段，保留其他配置不变
+  // Fetch existing config first, only update the enable field, preserve everything else
   const resGet = await api.get('/admin/mqtt-configs')
   const list = resGet.data?.data || []
   const existing = list.find(c => c.is_default) || list[0]
 
   let configData
   if (existing?.id) {
-    // 解析现有配置，保留其他字段
+    // Parse existing config, preserve other fields
     const existingData = JSON.parse(existing.json_data || '{}')
     existingData.enable = true
-    // 同时更新与 mqtt_server 相关的字段
+    // Also update mqtt_server-related fields
     existingData.broker = host
     existingData.type = useTls ? 'ssl' : 'tcp'
     existingData.port = port
@@ -659,7 +659,7 @@ async function saveMqttConfig() {
     existingData.password = MQTT_SERVER_DEFAULT_PASS
     configData = existingData
   } else {
-    // 新建配置，使用完整数据
+    // Create new config with full data
     configData = {
       enable: true,
       broker: host,
@@ -1197,10 +1197,10 @@ async function runOtaTest() {
       if (entry) {
         const [, v] = entry
 
-        // 格式化显示结果
+        // Format display result
         let displayText = ''
 
-        // WebSocket 结果
+        // WebSocket result
         if (v.websocket) {
           const ws = v.websocket
           displayText += `WebSocket: ${ws.ok ? '✓' : '✗'} ${ws.message}`
@@ -1211,7 +1211,7 @@ async function runOtaTest() {
           }
         }
 
-        // MQTT UDP 结果
+        // MQTT UDP result
         if (v.mqtt_udp) {
           const mqtt = v.mqtt_udp
           displayText += `MQTT UDP: ${mqtt.ok ? '✓' : '✗'} ${mqtt.message}`
@@ -1222,14 +1222,14 @@ async function runOtaTest() {
           }
         }
 
-        // OTA 响应内容（如果有）
+        // OTA response content (if available)
         if (v.ota_response !== undefined && v.ota_response !== '') {
           displayText += `\n--- ${t('ota_return_label')} ---\n${formatOtaResponseDisplay(v.ota_response)}`
         }
 
         otaTestResult.value = displayText.trim() || t('detail_not_available')
 
-        // 根据整体结果显示消息
+        // Show message based on overall result
         const overallOk = v.ok
         if (overallOk) {
           ElMessage.success(v.message || t('ota_test_passed'))
@@ -1281,7 +1281,7 @@ async function loadOtaIfExists() {
   } catch (_) {}
 }
 
-// 加载 TTS 音色列表（与 TTS 配置页一致）
+// Load TTS voice list (consistent with the TTS config page)
 async function loadTtsVoiceOptions(provider) {
   if (!provider) {
     voiceOptions.value = []
@@ -1308,14 +1308,14 @@ function handleTtsVoiceOptionsRequest(provider) {
   loadTtsVoiceOptions(provider || ttsForm.provider)
 }
 
-// 进入 TTS 步骤时加载当前 provider 的音色列表
+// Load voice list for the current provider when entering the TTS step
 watch(currentStep, (step) => {
   if (step === 4 && ttsForm.provider) {
     nextTick(() => loadTtsVoiceOptions(ttsForm.provider))
   }
 }, { immediate: true })
 
-// TTS 步骤内切换 provider 时重新加载音色列表
+// Reload voice list when switching provider within the TTS step
 watch(() => ttsForm.provider, (provider) => {
   if (currentStep.value === 4 && provider) {
     loadTtsVoiceOptions(provider)

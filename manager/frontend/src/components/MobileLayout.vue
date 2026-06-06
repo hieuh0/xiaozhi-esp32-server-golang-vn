@@ -20,7 +20,7 @@
 
     <MobileTabBar v-if="showTabBar" class="mobile-tabbar" />
 
-    <!-- 用户菜单弹出层 -->
+    <!-- User menu popup -->
     <van-popup
       v-model:show="showUserMenu"
       position="bottom"
@@ -62,20 +62,20 @@ const authStore = useAuthStore()
 
 const showUserMenu = ref(false)
 
-// 页面标题
+// Page title
 const pageTitle = computed(() => {
   const key = route.meta?.title
   return key ? t(key) : t('xiaozhi_management_system')
 })
 
-// 是否显示返回按钮（非首页且不在标签栏页面时显示）
+// Show back button when not on home and not on a tab-bar page
 const showBack = computed(() => {
   const hideBackPages = ['/dashboard', '/agents', '/user/speakers', '/more', '/login']
   const currentPath = route.path
   return !hideBackPages.some(path => currentPath === path || currentPath.startsWith(path + '/'))
 })
 
-// 是否显示底部标签栏
+// Show bottom tab bar
 const showTabBar = computed(() => {
   const hideTabBarPages = [
     '/login',
@@ -85,7 +85,7 @@ const showTabBar = computed(() => {
   ]
   const currentPath = route.path
 
-  // 详情页面不显示标签栏
+  // Hide tab bar on detail pages
   if (currentPath.includes('/edit') || currentPath.includes('/detail') || currentPath.includes('/history')) {
     return false
   }
@@ -93,12 +93,12 @@ const showTabBar = computed(() => {
   return !hideTabBarPages.includes(currentPath)
 })
 
-// 角色文本
+// Role label
 const roleText = computed(() => {
   return authStore.isAdmin ? t('admin') : t('normal_user')
 })
 
-// 用户图标点击
+// User avatar click
 const handleUserClick = () => {
   showUserMenu.value = true
 }
@@ -119,7 +119,7 @@ const handleGoConfigWizard = () => {
   showUserMenu.value = false
 }
 
-// 退出登录
+// Logout
 const handleLogout = async () => {
   try {
     await showConfirmDialog({
@@ -132,11 +132,11 @@ const handleLogout = async () => {
     router.push('/login')
     showUserMenu.value = false
   } catch {
-    // 用户取消
+    // User cancelled
   }
 }
 
-// 监听路由变化，关闭用户菜单
+// Close user menu on route change
 watch(
   () => route.path,
   () => {
@@ -168,7 +168,7 @@ watch(
   padding-bottom: calc(84px + env(safe-area-inset-bottom));
 }
 
-/* 页面切换动画 */
+/* Page transition animation */
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.3s;

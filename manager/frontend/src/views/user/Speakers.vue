@@ -1,6 +1,6 @@
 <template>
   <div class="speakers-page">
-    <!-- 筛选栏 -->
+    <!-- Filter bar -->
     <div class="filter-bar">
       <el-select
         v-model="filterAgentId"
@@ -34,7 +34,7 @@
       </el-button>
     </div>
 
-    <!-- 声纹组列表 -->
+    <!-- Voiceprint group list -->
     <div v-loading="loading" class="speakers-content">
       <el-table :data="filteredGroups" stripe style="width: 100%">
         <el-table-column prop="name" :label="t('voiceprint_group_name')" min-width="150" />
@@ -107,7 +107,7 @@
       </div>
     </div>
 
-    <!-- 创建/编辑声纹组对话框 -->
+    <!-- Create/Edit voiceprint group dialog -->
     <el-dialog
       v-model="showGroupDialog"
       :title="groupDialogMode === 'add' ? t('create_voiceprint_group') : t('edit_voiceprint_group')"
@@ -227,7 +227,7 @@
       </template>
     </el-dialog>
 
-    <!-- 样本管理弹层 -->
+    <!-- Sample management drawer -->
     <el-drawer
       v-model="showSampleDrawer"
       :title="t('sample_management')"
@@ -235,7 +235,7 @@
       :before-close="handleCloseSampleDrawer"
     >
       <div v-if="currentGroup" class="sample-drawer">
-        <!-- 声纹组信息 -->
+        <!-- Voiceprint group info -->
         <el-card class="group-info-card" shadow="never">
           <div class="group-info">
             <h3>{{ currentGroup.name }}</h3>
@@ -250,7 +250,7 @@
           </div>
         </el-card>
 
-        <!-- 样本列表 -->
+        <!-- Sample list -->
         <div class="samples-section">
           <div class="samples-header">
             <h4>{{ t('sample_list') }}</h4>
@@ -338,7 +338,7 @@
       </div>
     </el-drawer>
 
-    <!-- 上传样本对话框 -->
+    <!-- Upload sample dialog -->
     <el-dialog
       v-model="showUploadDialog"
       :title="t('add_voiceprint_sample')"
@@ -346,7 +346,7 @@
       :before-close="handleCloseUploadDialog"
     >
       <el-tabs v-model="uploadMode" class="upload-tabs">
-        <!-- 从历史记录选择 -->
+        <!-- Select from history -->
         <el-tab-pane :label="t('select_from_history')" name="history">
           <div class="history-section">
             <el-form :model="historyForm" label-width="100px">
@@ -425,7 +425,7 @@
           </div>
         </el-tab-pane>
         
-        <!-- 上传文件 -->
+        <!-- Upload file -->
         <el-tab-pane :label="t('upload_file')" name="upload">
           <el-form
             ref="uploadFormRef"
@@ -459,7 +459,7 @@
       </el-form>
         </el-tab-pane>
 
-        <!-- 录制音频 -->
+        <!-- Record audio -->
         <el-tab-pane :label="t('record_audio')" name="record">
           <div class="record-section">
             <div class="record-status">
@@ -532,7 +532,7 @@
       </template>
     </el-dialog>
 
-    <!-- 验证声纹组对话框 -->
+    <!-- Verify voiceprint group dialog -->
     <el-dialog
       v-model="showVerifyDialog"
       :title="t('verify_group_title', { name: currentVerifyGroup?.name || '' })"
@@ -540,7 +540,7 @@
       :before-close="handleCloseVerifyDialog"
     >
       <el-tabs v-model="verifyMode" class="verify-tabs">
-        <!-- 上传文件 -->
+        <!-- Upload file -->
         <el-tab-pane :label="t('upload_file')" name="upload">
           <el-form
             ref="verifyFormRef"
@@ -575,7 +575,7 @@
           </el-form>
         </el-tab-pane>
 
-        <!-- 录制音频 -->
+        <!-- Record audio -->
         <el-tab-pane :label="t('record_audio')" name="record">
           <div class="record-section">
             <div class="record-status">
@@ -635,7 +635,7 @@
         </el-tab-pane>
       </el-tabs>
 
-      <!-- 验证结果展示 -->
+      <!-- Verification result -->
       <div v-if="verifyResult" class="verify-result">
         <el-divider>{{ t('verify_result_divider') }}</el-divider>
         <div :class="['result-content', verifyResult.verified ? 'result-success' : 'result-failed']">
@@ -667,7 +667,7 @@
       </template>
     </el-dialog>
 
-    <!-- 音频播放器（隐藏） -->
+    <!-- Hidden audio player -->
     <audio ref="audioPlayer" style="display: none;" />
   </div>
 </template>
@@ -704,7 +704,7 @@ const samples = ref([])
 const filterAgentId = ref('')
 const searchKeyword = ref('')
 
-// 对话框状态
+// Dialog state
 const showGroupDialog = ref(false)
 const groupDialogMode = ref('add') // 'add' | 'edit'
 const currentGroup = ref(null)
@@ -712,20 +712,20 @@ const showSampleDrawer = ref(false)
 const showUploadDialog = ref(false)
 const uploadMode = ref('history') // 'upload' | 'record' | 'history'
 
-// 验证对话框相关
+// Verify dialog state
 const showVerifyDialog = ref(false)
 const verifyMode = ref('upload') // 'upload' | 'record'
 const currentVerifyGroup = ref(null)
 const verifying = ref(false)
 const verifyResult = ref(null)
 
-// 验证表单
+// Verify form
 const verifyForm = reactive({
   audioFile: null,
   audio: null
 })
 
-// 验证文件列表（用于 el-upload 组件）
+// Verify file list (for el-upload component)
 const verifyFileList = ref([])
 
 const verifyRules = {
@@ -743,7 +743,7 @@ const verifyRules = {
   ]
 }
 
-// 验证录音相关
+// Verify recording state
 const isVerifyRecording = ref(false)
 const verifyMediaRecorder = ref(null)
 const verifyRecordedBlob = ref(null)
@@ -751,7 +751,7 @@ const verifyRecordedBlobUrl = ref('')
 const verifyRecordTime = ref(0)
 const verifyRecordTimer = ref(null)
 
-// 录音相关
+// Recording state
 const isRecording = ref(false)
 const mediaRecorder = ref(null)
 const recordedBlob = ref(null)
@@ -760,7 +760,7 @@ const recordTime = ref(0)
 const recordTimer = ref(null)
 const canRecord = ref(false)
 
-// 表单引用
+// Form refs
 const groupFormRef = ref()
 const uploadFormRef = ref()
 const uploadRef = ref()
@@ -768,7 +768,7 @@ const verifyFormRef = ref()
 const verifyUploadRef = ref()
 const audioPlayer = ref()
 
-// 声纹组表单
+// Voiceprint group form
 const groupForm = reactive({
   agent_id: null,
   name: '',
@@ -788,13 +788,13 @@ const groupRules = {
   ]
 }
 
-// TTS配置相关
+// TTS config state
 const ttsConfigs = ref([])
 const currentVoiceOptions = ref([])
 const cloneVoicePresets = ref([])
 const cloneVoicesLoading = ref(false)
 
-// 上传表单
+// Upload form
 const uploadForm = reactive({
   audioFile: null,
   audio: null
@@ -815,7 +815,7 @@ const uploadRules = {
   ]
 }
 
-// 历史记录相关
+// History state
 const loadingHistory = ref(false)
 const historyMessages = ref([])
 const historyForm = reactive({
@@ -823,7 +823,7 @@ const historyForm = reactive({
   selected_message_id: null
 })
 
-// 计算是否有音频文件
+// Whether audio file is available
 const hasAudioFile = computed(() => {
   if (uploadMode.value === 'history') {
     return historyForm.selected_message_id !== null
@@ -831,16 +831,16 @@ const hasAudioFile = computed(() => {
   return uploadForm.audioFile !== null || recordedBlob.value !== null
 })
 
-// 过滤后的声纹组列表
+// Filtered voiceprint group list
 const filteredGroups = computed(() => {
   let result = speakerGroups.value
 
-  // 按智能体过滤
+  // Filter by agent
   if (filterAgentId.value) {
     result = result.filter(g => g.agent_id === filterAgentId.value)
   }
 
-  // 按关键词搜索
+  // Filter by keyword
   if (searchKeyword.value) {
     const keyword = searchKeyword.value.toLowerCase()
     result = result.filter(g =>
@@ -853,7 +853,7 @@ const filteredGroups = computed(() => {
   return result
 })
 
-// 加载智能体列表
+// Load agent list
 const loadAgents = async () => {
   try {
     const response = await api.get('/user/agents')
@@ -864,7 +864,7 @@ const loadAgents = async () => {
   }
 }
 
-// 加载TTS配置列表
+// Load TTS config list
 const loadTtsConfigs = async () => {
   try {
     const response = await api.get('/user/tts-configs')
@@ -923,7 +923,7 @@ const applyCloneVoice = async (clone) => {
   groupForm.voice = clone.provider_voice_id
 }
 
-// TTS配置变化时，加载对应的音色选项
+// Load voice options when TTS config changes
 const handleTtsConfigChange = async (configId) => {
   if (!configId) {
     currentVoiceOptions.value = []
@@ -938,9 +938,9 @@ const handleTtsConfigChange = async (configId) => {
   }
 
   try {
-    // 从后端API获取该provider的完整音色列表
+    // Fetch full voice list for provider from backend
     const params = { provider: config.provider }
-    // 总是带上config_id参数
+    // Always include config_id parameter
     if (configId) {
       params.config_id = configId
     }
@@ -953,21 +953,21 @@ const handleTtsConfigChange = async (configId) => {
   }
 }
 
-// 根据不同provider提取音色选项
+// Extract voice options by provider
 const extractVoiceOptions = (provider, config) => {
   const options = []
-  
+
   if (!config) return options
-  
-  // 根据不同的TTS提供商提取音色
+
+  // Extract voices by TTS provider
   switch (provider) {
     case 'edge':
     case 'microsoft':
-      // Edge TTS 常用音色
+      // Edge TTS common voices
       if (config.voice) {
         options.push({ label: config.voice, value: config.voice })
       }
-      // 添加常用的中文音色
+      // Add common voices
       const edgeVoices = [
         { label: t('voice_xiaoxiao'), value: 'zh-CN-XiaoxiaoNeural' },
         { label: t('voice_yunxi'), value: 'zh-CN-YunxiNeural' },
@@ -986,7 +986,7 @@ const extractVoiceOptions = (provider, config) => {
       
     case 'doubao':
     case 'doubao_ws':
-      // 豆包TTS音色
+      // Doubao TTS voices
       if (config.voice) {
         options.push({ label: config.voice, value: config.voice })
       }
@@ -1004,7 +1004,7 @@ const extractVoiceOptions = (provider, config) => {
       break
       
     case 'cosyvoice':
-      // CosyVoice 使用 spk_id
+      // CosyVoice uses spk_id
       if (config.spk_id) {
         options.push({ label: config.spk_id, value: config.spk_id })
       }
@@ -1025,7 +1025,7 @@ const extractVoiceOptions = (provider, config) => {
       break
       
     case 'minimax':
-      // Minimax TTS 使用 voice
+      // Minimax TTS uses voice
       if (config.voice) {
         options.push({ label: config.voice, value: config.voice })
       }
@@ -1051,7 +1051,7 @@ const extractVoiceOptions = (provider, config) => {
       break
       
     default:
-      // 其他provider，尝试从配置中提取
+      // Other providers: try extracting from config
       if (config.voice) {
         options.push({ label: config.voice, value: config.voice })
       }
@@ -1063,14 +1063,14 @@ const extractVoiceOptions = (provider, config) => {
   return options
 }
 
-// 获取当前TTS配置名称
+// Get current TTS config name
 const getCurrentTtsConfigName = () => {
   if (!groupForm.tts_config_id) return ''
   const config = ttsConfigs.value.find(c => c.config_id === groupForm.tts_config_id)
   return config ? config.name : ''
 }
 
-// 获取当前TTS配置信息
+// Get current TTS config info
 const getCurrentTtsConfigInfo = () => {
   if (!groupForm.tts_config_id) return ''
   const config = ttsConfigs.value.find(c => c.config_id === groupForm.tts_config_id)
@@ -1078,7 +1078,7 @@ const getCurrentTtsConfigInfo = () => {
   return t('tts_provider_label', { provider: config.provider || t('unknown') })
 }
 
-// 加载声纹组列表
+// Load voiceprint group list
 const loadSpeakerGroups = async () => {
   try {
     loading.value = true
@@ -1096,12 +1096,12 @@ const loadSpeakerGroups = async () => {
   }
 }
 
-// 搜索处理
+// Search handler
 const handleSearch = () => {
-  // 搜索是客户端过滤，不需要重新请求
+  // Search is client-side filtering, no request needed
 }
 
-// 创建声纹组
+// Create voiceprint group
 const handleAddGroup = async () => {
   groupDialogMode.value = 'add'
   resetGroupForm()
@@ -1109,7 +1109,7 @@ const handleAddGroup = async () => {
   showGroupDialog.value = true
 }
 
-// 编辑声纹组
+// Edit voiceprint group
 const handleEditGroup = async (group) => {
   groupDialogMode.value = 'edit'
   currentGroup.value = group
@@ -1120,8 +1120,8 @@ const handleEditGroup = async (group) => {
   groupForm.tts_config_id = group.tts_config_id || null
   groupForm.voice = group.voice || null
   await loadCloneVoicePresets()
-  
-  // 如果有TTS配置，加载对应的音色选项
+
+  // If TTS config set, load voice options
   if (groupForm.tts_config_id) {
     await handleTtsConfigChange(groupForm.tts_config_id)
   }
@@ -1129,7 +1129,7 @@ const handleEditGroup = async (group) => {
   showGroupDialog.value = true
 }
 
-// 提交声纹组
+// Submit voiceprint group form
 const handleSubmitGroup = async () => {
   if (!groupFormRef.value) return
 
@@ -1150,7 +1150,7 @@ const handleSubmitGroup = async () => {
     }
   } catch (error) {
     if (error.fields) {
-      // 表单验证错误
+      // Form validation error
       return
     }
     console.error(t('submit_failed'), error)
@@ -1160,12 +1160,12 @@ const handleSubmitGroup = async () => {
   }
 }
 
-// 验证声纹组
+// Verify voiceprint group
 const handleVerifyGroup = async (group) => {
-  // 先清理之前的数据
+  // Reset previous data first
   resetVerifyForm()
-  
-  // 等待 DOM 更新完成
+
+  // Wait for DOM update
   await nextTick()
   
   currentVerifyGroup.value = group
@@ -1173,12 +1173,12 @@ const handleVerifyGroup = async (group) => {
   verifyMode.value = 'upload'
   showVerifyDialog.value = true
   
-  // 再次确保清空上传组件
+  // Ensure upload component is cleared
   await nextTick()
   verifyUploadRef.value?.clearFiles()
   verifyFileList.value = []
-  
-  // 检查浏览器是否支持录音
+
+  // Check browser recording support
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     stream.getTracks().forEach(track => track.stop())
@@ -1193,7 +1193,7 @@ const handleVerifyGroup = async (group) => {
   }
 }
 
-// 关闭验证对话框
+// Close verify dialog
 const handleCloseVerifyDialog = () => {
   if (isVerifyRecording.value) {
     stopVerifyRecording()
@@ -1202,19 +1202,19 @@ const handleCloseVerifyDialog = () => {
   showVerifyDialog.value = false
 }
 
-// 验证文件变化处理
+// Verify file change handler
 const handleVerifyFileChange = async (file, fileList) => {
-  // 先清空文件列表，确保旧文件被移除
+  // Clear file list first to remove old file
   verifyFileList.value = []
   await nextTick()
-  
-  // 如果已有文件，先清理之前的文件
+
+  // Clear existing file if present
   if (verifyForm.audioFile) {
     verifyForm.audioFile = null
     verifyForm.audio = null
   }
-  
-  // 清理录音相关
+
+  // Clear recording state
   if (verifyRecordedBlob.value) {
     if (verifyRecordedBlobUrl.value) {
       URL.revokeObjectURL(verifyRecordedBlobUrl.value)
@@ -1224,9 +1224,9 @@ const handleVerifyFileChange = async (file, fileList) => {
     verifyRecordTime.value = 0
   }
   
-  // 清理验证结果
+  // Clear verification result
   verifyResult.value = null
-  
+
   const fileObj = file.raw || file
   if (!fileObj) {
     ElMessage.warning(t('invalid_file_object'))
@@ -1236,7 +1236,7 @@ const handleVerifyFileChange = async (file, fileList) => {
     return
   }
 
-  // 验证文件类型
+  // Validate file type
   const fileName = fileObj.name || file.name || ''
   const fileType = fileObj.type || file.type || ''
   if (!fileType.includes('wav') && !fileName.toLowerCase().endsWith('.wav')) {
@@ -1247,7 +1247,7 @@ const handleVerifyFileChange = async (file, fileList) => {
     return
   }
 
-  // 验证文件大小（10MB）
+  // Validate file size (10MB limit)
   const fileSize = fileObj.size || file.size || 0
   if (fileSize > 10 * 1024 * 1024) {
     ElMessage.warning(t('file_size_limit'))
@@ -1257,11 +1257,11 @@ const handleVerifyFileChange = async (file, fileList) => {
     return
   }
 
-  // 设置新文件
+  // Set new file
   verifyForm.audioFile = file
   verifyForm.audio = file
-  
-  // 更新文件列表显示（只显示最新文件）
+
+  // Update file list display (latest file only)
   verifyFileList.value = [file]
   
   await nextTick()
@@ -1271,26 +1271,26 @@ const handleVerifyFileChange = async (file, fileList) => {
   }
 }
 
-// 验证文件移除处理
+// Verify file remove handler
 const handleVerifyFileRemove = () => {
   verifyForm.audioFile = null
   verifyForm.audio = null
   verifyFileList.value = []
-  verifyResult.value = null // 清理验证结果
+  verifyResult.value = null // clear verification result
   if (verifyFormRef.value) {
     verifyFormRef.value.validateField('audio')
   }
 }
 
-// 开始验证录音
+// Start verify recording
 const startVerifyRecording = async () => {
   try {
-    // 停止之前的录音（如果有）
+    // Stop previous recording if active
     if (verifyMediaRecorder.value && verifyMediaRecorder.value.state !== 'inactive') {
       verifyMediaRecorder.value.stop()
     }
 
-    // 清理之前的录音
+    // Clean up previous recording
     if (verifyRecordedBlobUrl.value) {
       URL.revokeObjectURL(verifyRecordedBlobUrl.value)
       verifyRecordedBlobUrl.value = ''
@@ -1298,7 +1298,7 @@ const startVerifyRecording = async () => {
     verifyRecordedBlob.value = null
     verifyRecordTime.value = 0
 
-    // 获取麦克风权限
+    // Request microphone permission
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
@@ -1308,7 +1308,7 @@ const startVerifyRecording = async () => {
       }
     })
 
-    // 创建 MediaRecorder
+    // Create MediaRecorder
     const chunks = []
     const options = {
       mimeType: 'audio/webm;codecs=opus'
@@ -1330,14 +1330,14 @@ const startVerifyRecording = async () => {
       stream.getTracks().forEach(track => track.stop())
       
       try {
-        // 将录制的音频转换为 WAV 格式
+        // Convert recorded audio to WAV
         const blob = new Blob(chunks, { type: chunks[0]?.type || 'audio/webm' })
         const wavBlob = await convertToWav(blob)
         
         verifyRecordedBlob.value = wavBlob
         verifyRecordedBlobUrl.value = URL.createObjectURL(wavBlob)
         
-        // 创建 File 对象用于上传
+        // Create File object for upload
         const fileName = `verify_recording_${Date.now()}.wav`
         const file = new File([wavBlob], fileName, { type: 'audio/wav' })
         verifyForm.audioFile = { raw: file, name: fileName, size: wavBlob.size }
@@ -1358,11 +1358,11 @@ const startVerifyRecording = async () => {
       chunks.length = 0
     }
 
-    // 开始录制
+    // Start recording
     verifyMediaRecorder.value.start(100)
     isVerifyRecording.value = true
 
-    // 开始计时
+    // Start timer
     verifyRecordTimer.value = setInterval(() => {
       verifyRecordTime.value += 0.1
     }, 100)
@@ -1375,7 +1375,7 @@ const startVerifyRecording = async () => {
   }
 }
 
-// 停止验证录音
+// Stop verify recording
 const stopVerifyRecording = () => {
   if (verifyMediaRecorder.value && verifyMediaRecorder.value.state !== 'inactive') {
     verifyMediaRecorder.value.stop()
@@ -1390,7 +1390,7 @@ const stopVerifyRecording = () => {
   ElMessage.success(t('recording_complete'))
 }
 
-// 提交验证
+// Submit verification
 const handleSubmitVerify = async () => {
   if (!verifyFormRef.value) return
 
@@ -1407,10 +1407,10 @@ const handleSubmitVerify = async () => {
 
     let file
     if (verifyForm.audioFile) {
-      // 使用上传的文件
+      // Use uploaded file
       file = verifyForm.audioFile.raw || verifyForm.audioFile
     } else if (verifyRecordedBlob.value) {
-      // 使用录制的音频
+      // Use recorded audio
       const fileName = `verify_recording_${Date.now()}.wav`
       file = new File([verifyRecordedBlob.value], fileName, { type: 'audio/wav' })
     } else {
@@ -1450,7 +1450,7 @@ const handleSubmitVerify = async () => {
   }
 }
 
-// 重置验证表单
+// Reset verify form
 const resetVerifyForm = () => {
   if (verifyFormRef.value) {
     verifyFormRef.value.resetFields()
@@ -1461,7 +1461,7 @@ const resetVerifyForm = () => {
   verifyForm.audioFile = null
   verifyForm.audio = null
   
-  // 清理验证录音相关
+  // Clean up verify recording state
   if (isVerifyRecording.value) {
     stopVerifyRecording()
   }
@@ -1475,12 +1475,12 @@ const resetVerifyForm = () => {
   verifyResult.value = null
 }
 
-// 计算是否有验证音频文件
+// Whether verify audio file is available
 const hasVerifyAudioFile = computed(() => {
   return verifyForm.audioFile !== null || verifyRecordedBlob.value !== null
 })
 
-// 删除声纹组
+// Delete voiceprint group
 const handleDeleteGroup = async (group) => {
   try {
     await ElMessageBox.confirm(
@@ -1507,14 +1507,14 @@ const handleDeleteGroup = async (group) => {
   }
 }
 
-// 查看样本
+// View samples
 const handleViewSamples = async (group) => {
   currentGroup.value = group
   showSampleDrawer.value = true
   await loadSamples(group.id)
 }
 
-// 从样本管理弹层中验证声纹组
+// Verify voiceprint group from sample drawer
 const handleVerifyFromSamples = () => {
   if (currentGroup.value) {
     showSampleDrawer.value = false
@@ -1522,7 +1522,7 @@ const handleVerifyFromSamples = () => {
   }
 }
 
-// 加载样本列表
+// Load sample list
 const loadSamples = async (groupId) => {
   try {
     const response = await api.get(`/user/speaker-groups/${groupId}/samples`)
@@ -1533,31 +1533,31 @@ const loadSamples = async (groupId) => {
   }
 }
 
-// 关闭样本弹层
+// Close sample drawer
 const handleCloseSampleDrawer = () => {
   showSampleDrawer.value = false
   currentGroup.value = null
   samples.value = []
 }
 
-// 添加样本
+// Add sample
 const handleAddSample = async () => {
   resetUploadForm()
   uploadMode.value = 'history'
   showUploadDialog.value = true
-  
-  // 初始化历史记录表单
+
+  // Initialize history form
   historyForm.agent_id = currentGroup.value?.agent_id || null
   historyForm.selected_message_id = null
   historyMessages.value = []
-  
-  // 如果声纹组有关联的智能体，自动加载历史记录
+
+  // Auto-load history if group has an associated agent
   if (currentGroup.value?.agent_id) {
     historyForm.agent_id = currentGroup.value.agent_id
     await loadHistoryMessages()
   }
-  
-  // 检查浏览器是否支持录音
+
+  // Check browser recording support
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     stream.getTracks().forEach(track => track.stop())
@@ -1572,7 +1572,7 @@ const handleAddSample = async () => {
   }
 }
 
-// 关闭上传对话框
+// Close upload dialog
 const handleCloseUploadDialog = () => {
   if (isRecording.value) {
     stopRecording()
@@ -1581,7 +1581,7 @@ const handleCloseUploadDialog = () => {
   showUploadDialog.value = false
 }
 
-// 文件变化处理
+// File change handler
 const handleFileChange = (file) => {
   const fileObj = file.raw || file
   if (!fileObj) {
@@ -1591,7 +1591,7 @@ const handleFileChange = (file) => {
       return
     }
 
-  // 验证文件类型
+  // Validate file type
   const fileName = fileObj.name || file.name || ''
   const fileType = fileObj.type || file.type || ''
   if (!fileType.includes('wav') && !fileName.toLowerCase().endsWith('.wav')) {
@@ -1601,7 +1601,7 @@ const handleFileChange = (file) => {
     return
   }
 
-  // 验证文件大小（10MB）
+  // Validate file size (10MB limit)
   const fileSize = fileObj.size || file.size || 0
   if (fileSize > 10 * 1024 * 1024) {
     ElMessage.warning(t('file_size_limit'))
@@ -1618,7 +1618,7 @@ const handleFileChange = (file) => {
   }
 }
 
-// 文件移除处理
+// File remove handler
 const handleFileRemove = () => {
   uploadForm.audioFile = null
   uploadForm.audio = null
@@ -1627,15 +1627,15 @@ const handleFileRemove = () => {
   }
 }
 
-// 开始录音
+// Start recording
 const startRecording = async () => {
   try {
-    // 停止之前的录音（如果有）
+    // Stop previous recording if active
     if (mediaRecorder.value && mediaRecorder.value.state !== 'inactive') {
       mediaRecorder.value.stop()
     }
 
-    // 清理之前的录音
+    // Clean up previous recording
     if (recordedBlobUrl.value) {
       URL.revokeObjectURL(recordedBlobUrl.value)
       recordedBlobUrl.value = ''
@@ -1643,7 +1643,7 @@ const startRecording = async () => {
     recordedBlob.value = null
     recordTime.value = 0
 
-    // 获取麦克风权限
+    // Request microphone permission
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
         channelCount: 1,
@@ -1653,15 +1653,15 @@ const startRecording = async () => {
       }
     })
 
-    // 创建 MediaRecorder（使用 WAV 格式）
+    // Create MediaRecorder (WAV format)
     const chunks = []
     const options = {
-      mimeType: 'audio/webm;codecs=opus' // 先录制为 webm，然后转换为 WAV
+      mimeType: 'audio/webm;codecs=opus' // record as webm, then convert to WAV
     }
 
-    // 检查浏览器支持
+    // Check browser support
     if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-      // 如果不支持，使用默认格式
+      // Fall back to default format if unsupported
       mediaRecorder.value = new MediaRecorder(stream)
       } else {
       mediaRecorder.value = new MediaRecorder(stream, options)
@@ -1677,14 +1677,14 @@ const startRecording = async () => {
       stream.getTracks().forEach(track => track.stop())
       
       try {
-        // 将录制的音频转换为 WAV 格式
+        // Convert recorded audio to WAV
         const blob = new Blob(chunks, { type: chunks[0]?.type || 'audio/webm' })
         const wavBlob = await convertToWav(blob)
         
         recordedBlob.value = wavBlob
         recordedBlobUrl.value = URL.createObjectURL(wavBlob)
         
-        // 创建 File 对象用于上传
+        // Create File object for upload
         const fileName = `recording_${Date.now()}.wav`
         const file = new File([wavBlob], fileName, { type: 'audio/wav' })
         uploadForm.audioFile = { raw: file, name: fileName, size: wavBlob.size }
@@ -1705,11 +1705,11 @@ const startRecording = async () => {
       chunks.length = 0
     }
 
-    // 开始录制
-    mediaRecorder.value.start(100) // 每100ms收集一次数据
+    // Start recording
+    mediaRecorder.value.start(100) // collect data every 100ms
     isRecording.value = true
 
-    // 开始计时
+    // Start timer
     recordTimer.value = setInterval(() => {
       recordTime.value += 0.1
     }, 100)
@@ -1722,7 +1722,7 @@ const startRecording = async () => {
   }
 }
 
-// 停止录音
+// Stop recording
 const stopRecording = () => {
   if (mediaRecorder.value && mediaRecorder.value.state !== 'inactive') {
     mediaRecorder.value.stop()
@@ -1737,7 +1737,7 @@ const stopRecording = () => {
   ElMessage.success(t('recording_complete'))
 }
 
-// 将音频转换为 WAV 格式
+// Convert audio to WAV format
 const convertToWav = async (blob) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -1747,13 +1747,13 @@ const convertToWav = async (blob) => {
         const arrayBuffer = e.target.result
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
         
-        // 转换为 WAV
+        // Convert to WAV
         const wav = audioBufferToWav(audioBuffer)
         const wavBlob = new Blob([wav], { type: 'audio/wav' })
         resolve(wavBlob)
       } catch (error) {
         console.error(t('convert_wav_failed_v2'), error)
-        // 如果转换失败，直接使用原始 blob（可能需要后端支持 webm 格式）
+        // On failure, use raw blob (backend may support webm)
         reject(error)
       }
     }
@@ -1762,7 +1762,7 @@ const convertToWav = async (blob) => {
   })
 }
 
-// 将 AudioBuffer 转换为 WAV 格式
+// Convert AudioBuffer to WAV format
 const audioBufferToWav = (buffer) => {
   const length = buffer.length
   const numberOfChannels = buffer.numberOfChannels
@@ -1776,7 +1776,7 @@ const audioBufferToWav = (buffer) => {
   const arrayBuffer = new ArrayBuffer(bufferSize)
   const view = new DataView(arrayBuffer)
 
-  // WAV 文件头
+  // WAV file header
   const writeString = (offset, string) => {
     for (let i = 0; i < string.length; i++) {
       view.setUint8(offset + i, string.charCodeAt(i))
@@ -1797,7 +1797,7 @@ const audioBufferToWav = (buffer) => {
   writeString(36, 'data')
   view.setUint32(40, dataSize, true)
 
-  // 写入音频数据
+  // Write audio data
   let offset = 44
   for (let i = 0; i < length; i++) {
     for (let channel = 0; channel < numberOfChannels; channel++) {
@@ -1810,7 +1810,7 @@ const audioBufferToWav = (buffer) => {
   return arrayBuffer
 }
 
-// 格式化录音时长
+// Format recording duration
 const formatRecordTime = (seconds) => {
   const mins = Math.floor(seconds / 60)
   const secs = Math.floor(seconds % 60)
@@ -1818,7 +1818,7 @@ const formatRecordTime = (seconds) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}.${ms}`
 }
 
-// 加载历史聊天记录
+// Load chat history
 const loadHistoryMessages = async () => {
   if (!historyForm.agent_id) {
     historyMessages.value = []
@@ -1836,7 +1836,7 @@ const loadHistoryMessages = async () => {
       }
     })
     
-    // 只显示有音频的消息
+    // Only show messages with audio
     historyMessages.value = (response.data.data || []).filter(msg => msg.audio_path)
   } catch (error) {
     console.error(t('load_chat_history_failed'), error)
@@ -1847,12 +1847,12 @@ const loadHistoryMessages = async () => {
   }
 }
 
-// 选择历史消息
+// Select history message
 const handleSelectHistoryMessage = (row) => {
   historyForm.selected_message_id = row.message_id
 }
 
-// 试听历史音频
+// Preview history audio
 const handlePreviewHistoryAudio = async (message) => {
   try {
     const response = await api.get(`/user/history/messages/${message.id}/audio`, {
@@ -1877,10 +1877,10 @@ const handlePreviewHistoryAudio = async (message) => {
   }
 }
 
-// 提交样本
+// Submit sample
 const handleSubmitSample = async () => {
   if (uploadMode.value === 'history') {
-    // 从历史记录中选择
+    // Select from history
     if (!historyForm.selected_message_id) {
       ElMessage.warning(t('select_chat_history'))
       return
@@ -1895,7 +1895,7 @@ const handleSubmitSample = async () => {
       ElMessage.success(t('add_success'))
       handleCloseUploadDialog()
       await loadSamples(currentGroup.value.id)
-      await loadSpeakerGroups() // 刷新列表以更新样本数量
+      await loadSpeakerGroups() // refresh to update sample count
     } catch (error) {
       console.error(t('add_failed'), error)
       ElMessage.error(t('add_failed') + ' ' + (error.response?.data?.error || error.message))
@@ -1905,7 +1905,7 @@ const handleSubmitSample = async () => {
     return
   }
 
-  // 原有的上传/录制逻辑
+  // Upload/record flow
   if (!uploadFormRef.value) return
 
   try {
@@ -1920,10 +1920,10 @@ const handleSubmitSample = async () => {
 
     let file
     if (uploadForm.audioFile) {
-      // 使用上传的文件
+      // Use uploaded file
       file = uploadForm.audioFile.raw || uploadForm.audioFile
     } else if (recordedBlob.value) {
-      // 使用录制的音频
+      // Use recorded audio
       const fileName = `recording_${Date.now()}.wav`
       file = new File([recordedBlob.value], fileName, { type: 'audio/wav' })
     } else {
@@ -1938,7 +1938,7 @@ const handleSubmitSample = async () => {
     ElMessage.success(t('upload_success'))
     handleCloseUploadDialog()
     await loadSamples(currentGroup.value.id)
-    await loadSpeakerGroups() // 刷新列表以更新样本数量
+    await loadSpeakerGroups() // Refresh list to update sample counts
   } catch (error) {
     if (error.fields) {
       return
@@ -1950,11 +1950,11 @@ const handleSubmitSample = async () => {
   }
 }
 
-// 播放样本
+// Play sample
 const handlePlaySample = async (sample) => {
   try {
-    // 构建音频文件URL（需要后端提供文件访问接口）
-    // 使用 api.get 获取文件，然后创建 blob URL
+    // Build audio file URL (backend must provide file access endpoint)
+    // Fetch file via api.get and create blob URL
     const response = await api.get(
       `/user/speaker-groups/${currentGroup.value.id}/samples/${sample.id}/file`,
       {
@@ -1962,17 +1962,17 @@ const handlePlaySample = async (sample) => {
       }
     )
     
-    // 创建 blob URL
+    // Create blob URL
     const blob = new Blob([response.data], { type: 'audio/wav' })
     const blobUrl = URL.createObjectURL(blob)
-    
+
     audioPlayer.value.src = blobUrl
     audioPlayer.value.play().catch(err => {
       console.error(t('play_failed_colon'), err)
       ElMessage.warning(t('play_failed_check_audio'))
     })
-    
-    // 播放结束后清理 blob URL
+
+    // Revoke blob URL on playback end
     audioPlayer.value.onended = () => {
       URL.revokeObjectURL(blobUrl)
     }
@@ -1982,10 +1982,10 @@ const handlePlaySample = async (sample) => {
   }
 }
 
-// 下载样本
+// Download sample
 const handleDownloadSample = async (sample) => {
   try {
-    // 使用 api.get 获取文件，然后创建下载链接
+    // Fetch file via api.get and trigger download
     const response = await api.get(
       `/user/speaker-groups/${currentGroup.value.id}/samples/${sample.id}/file`,
       {
@@ -1993,7 +1993,7 @@ const handleDownloadSample = async (sample) => {
       }
     )
     
-    // 创建 blob URL 并下载
+    // Create blob URL and trigger download
     const blob = new Blob([response.data], { type: 'audio/wav' })
     const blobUrl = URL.createObjectURL(blob)
     const link = document.createElement('a')
@@ -2002,8 +2002,8 @@ const handleDownloadSample = async (sample) => {
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-    
-    // 清理 blob URL
+
+    // Revoke blob URL
     setTimeout(() => {
       URL.revokeObjectURL(blobUrl)
     }, 100)
@@ -2013,7 +2013,7 @@ const handleDownloadSample = async (sample) => {
   }
 }
 
-// 删除样本
+// Delete sample
 const handleDeleteSample = async (sample) => {
   try {
     await ElMessageBox.confirm(
@@ -2029,7 +2029,7 @@ const handleDeleteSample = async (sample) => {
     await api.delete(`/user/speaker-groups/${currentGroup.value.id}/samples/${sample.id}`)
     ElMessage.success(t('delete_success'))
     await loadSamples(currentGroup.value.id)
-    await loadSpeakerGroups() // 刷新列表以更新样本数量
+    await loadSpeakerGroups() // Refresh list to update sample counts
   } catch (error) {
     if (error !== 'cancel') {
       console.error(t('delete_failed_colon'), error)
@@ -2038,7 +2038,7 @@ const handleDeleteSample = async (sample) => {
   }
 }
 
-// 复制到剪贴板
+// Copy to clipboard
 const copyToClipboard = async (text) => {
   try {
     await navigator.clipboard.writeText(text)
@@ -2049,7 +2049,7 @@ const copyToClipboard = async (text) => {
   }
 }
 
-// 重置表单
+// Reset form
 const resetGroupForm = () => {
   if (groupFormRef.value) {
     groupFormRef.value.resetFields()
@@ -2075,8 +2075,8 @@ const resetUploadForm = () => {
   }
   uploadForm.audioFile = null
   uploadForm.audio = null
-  
-  // 清理录音相关
+
+  // Clean up recording state
   if (isRecording.value) {
     stopRecording()
   }
@@ -2087,20 +2087,20 @@ const resetUploadForm = () => {
   recordedBlob.value = null
   recordTime.value = 0
   uploadMode.value = 'history'
-  
-  // 清理历史记录相关
+
+  // Clean up history state
   historyForm.agent_id = null
   historyForm.selected_message_id = null
   historyMessages.value = []
 }
 
-// 格式化日期
+// Format date
 const formatDate = (dateString) => {
   if (!dateString) return '-'
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 截断ID显示
+// Truncate ID for display
 const truncateId = (id) => {
   if (!id) return '-'
   if (id.length > 20) {
@@ -2109,14 +2109,14 @@ const truncateId = (id) => {
   return id
 }
 
-// 截断文本
+// Truncate text
 const truncateText = (text, maxLength) => {
   if (!text) return '-'
   if (text.length <= maxLength) return text
   return text.substring(0, maxLength) + '...'
 }
 
-// 格式化文件大小
+// Format file size
 const formatFileSize = (bytes) => {
   if (!bytes) return '0 B'
   if (bytes < 1024) return bytes + ' B'
@@ -2131,7 +2131,7 @@ onMounted(() => {
   loadCloneVoicePresets()
 })
 
-// 组件卸载前清理资源
+// Clean up resources before unmount
 onBeforeUnmount(() => {
   if (isRecording.value) {
     stopRecording()
@@ -2332,7 +2332,7 @@ onBeforeUnmount(() => {
   white-space: nowrap;
 }
 
-/* 上传对话框样式 */
+/* Upload dialog styles */
 .upload-tabs {
   margin-top: 10px;
 }
@@ -2368,7 +2368,7 @@ onBeforeUnmount(() => {
   color: #909399;
 }
 
-/* 录音区域样式 */
+/* Recording area styles */
 .record-section {
   padding: 20px 0;
 }
@@ -2464,7 +2464,7 @@ onBeforeUnmount(() => {
   min-width: 120px;
 }
 
-/* 历史记录区域样式 */
+/* History area styles */
 .history-section {
   padding: 20px 0;
 }

@@ -18,7 +18,7 @@ type activationInfo struct {
 var verfiyDeviceId = map[string]bool{}
 var preActivationInfo = map[string]activationInfo{}
 
-// 设备是否激活?
+// Is the device activated?
 func (r *UserConfig) IsDeviceActivated(ctx context.Context, deviceId string, clientId string) (bool, error) {
 	if _, ok := verfiyDeviceId[deviceId]; ok {
 		return true, nil
@@ -26,13 +26,13 @@ func (r *UserConfig) IsDeviceActivated(ctx context.Context, deviceId string, cli
 	return false, nil
 }
 
-// 获取激活需要的信息,  code, challenge, msg, timeoutMs
+// Get the information required for activation, code, challenge, msg, timeoutMs
 func (r *UserConfig) GetActivationInfo(ctx context.Context, deviceId string, clientId string) (string, string, string, int) {
 	if info, ok := preActivationInfo[deviceId]; ok {
 		return info.code, info.challenge, info.msg, 300
 	}
 	challenge := uuid.New().String()
-	code := fmt.Sprintf("%06d", rand.Intn(1000000)) // 000000~999999，保留前导0
+	code := fmt.Sprintf("%06d", rand.Intn(1000000)) //000000~999999, keep leading 0
 	preActivationInfo[deviceId] = activationInfo{
 		code:      code,
 		challenge: challenge,
@@ -41,7 +41,7 @@ func (r *UserConfig) GetActivationInfo(ctx context.Context, deviceId string, cli
 	return code, challenge, preActivationInfo[deviceId].msg, 300
 }
 
-// 验证 challenge和HMAC是否匹配, 设备是否已激活，此处可以省略hmac的校验, 只查询deviceId是否绑定
+// Verify whether the challenge and HMAC match and whether the device has been activated. You can omit the HMAC verification here and only query whether the deviceId is bound.
 func (r *UserConfig) VerifyChallenge(ctx context.Context, deviceId string, clientId string, activationPayload types.ActivationPayload) (bool, error) {
 	if _, ok := verfiyDeviceId[deviceId]; ok {
 		return true, nil

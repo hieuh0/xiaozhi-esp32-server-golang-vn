@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	// DefaultRequestTimeout 默认请求超时时间
+	//DefaultRequestTimeout default request timeout
 	DefaultRequestTimeout = 30 * time.Second
-	// DefaultCloseTimeout 默认关闭超时时间
+	//DefaultCloseTimeout default close timeout
 	DefaultCloseTimeout = 5 * time.Second
 )
 
@@ -76,7 +76,7 @@ func isTransportTimeoutErr(err error) bool {
 		return false
 	}
 	lowerErr := strings.ToLower(err.Error())
-	return strings.Contains(lowerErr, "timeout") || strings.Contains(err.Error(), "超时")
+	return strings.Contains(lowerErr, "timeout")
 }
 
 /**
@@ -105,32 +105,32 @@ type WebsocketTransport struct {
 	conn *websocket.Conn
 
 	notifyHandler func(notification mcp.JSONRPCNotification)
-	// 添加关闭回调
+	//Add close callback
 	onCloseHandler func(reason string)
 
-	// 响应通道管理
+	//Response channel management
 	respChans    map[string]*pendingResponse
 	respChansMux sync.RWMutex
 
-	// 消息监听控制
+	//Message listening control
 	readDone chan struct{}
 	ctx      context.Context
 	cancel   context.CancelFunc
 
-	// 连接状态
+	//connection status
 	closed    bool
 	closedMux sync.RWMutex
 
-	// WebSocket写入锁，防止并发写入
+	//WebSocket write lock to prevent concurrent writes
 	writeMux sync.Mutex
 
-	// 超时配置
+	//Timeout configuration
 	requestTimeout time.Duration
 	closeTimeout   time.Duration
 }
 
 func (t *WebsocketTransport) Send(ctx context.Context, msg []byte) error {
-	// 检查连接状态
+	//Check connection status
 	t.closedMux.RLock()
 	if t.closed {
 		t.closedMux.RUnlock()
@@ -138,7 +138,7 @@ func (t *WebsocketTransport) Send(ctx context.Context, msg []byte) error {
 	}
 	t.closedMux.RUnlock()
 
-	// 发送消息（使用互斥锁保护写入操作）
+	//Send a message (use a mutex to protect the write operation)
 	t.writeMux.Lock()
 	err := t.conn.WriteMessage(websocket.TextMessage, msg)
 	t.writeMux.Unlock()
@@ -157,13 +157,13 @@ func NewWebsocketTransport(conn *websocket.Conn) (*WebsocketTransport, error) {
 		requestTimeout: DefaultRequestTimeout,
 		closeTimeout:   DefaultCloseTimeout,
 	}
-	// 启动消息监听协程
+	//Start the message listening coroutine
 	go wst.readMessages()
 
 	return wst, nil
 }
 
-// 实现 Interface 接口
+// Implement the Interface interface
 func (t *WebsocketTransport) Start(ctx context.Context) error {
 	return nil
 }
@@ -193,7 +193,7 @@ func (t *WebsocketTransport) failAllPending(err error) {
 	}
 }
 
-// readMessages 持续监听 WebSocket 消息
+// readMessages continues to listen to WebSocket messages
 func (t *WebsocketTransport) readMessages() {
 	defer close(t.readDone)
 
@@ -202,7 +202,7 @@ func (t *WebsocketTransport) readMessages() {
 		case <-t.ctx.Done():
 			return
 		default:
-			// 使用 Go 语言级别的超时控制
+			//Use Go language level timeout control
 			_, message, err := t.conn.ReadMessage()
 			if err != nil {
 				t.closedMux.Lock()
@@ -214,7 +214,7 @@ func (t *WebsocketTransport) readMessages() {
 					log.Errorf("WebSocket read error: %v", err)
 				}
 
-				// 连接关闭时通知client层
+				//Notify the client layer when the connection is closed
 				if t.onCloseHandler != nil {
 					reason := "connection_closed"
 					if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
@@ -228,13 +228,13 @@ func (t *WebsocketTransport) readMessages() {
 				return
 			}
 
-			// 处理接收到的消息
+			//Process received messages
 			t.handleMessage(message)
 		}
 	}
 }
 
-// handleMessage 处理接收到的消息
+// handleMessage handles the received message
 func (t *WebsocketTransport) handleMessage(message []byte) {
 	method, hasID, err := classifyJSONRPCMessage(message)
 	if err != nil {
@@ -267,14 +267,14 @@ func (t *WebsocketTransport) handleMessage(message []byte) {
 		return
 	}
 
-	// 无法识别的消息格式
+	//Unrecognized message format
 	log.Warnf("Received unrecognized message: %s", string(message))
 }
 
-// handleResponse 处理 JSON-RPC 响应
+// handleResponse handles JSON-RPC responses
 func (t *WebsocketTransport) handleResponse(response *transport.JSONRPCResponse) {
 	respByte, _ := json.Marshal(response)
-	// 将 ID 转换为字符串作为键
+	//Convert ID to string as key
 	idStr := requestIDKey(response.ID)
 
 	pending := t.popPending(idStr)
@@ -285,7 +285,7 @@ func (t *WebsocketTransport) handleResponse(response *transport.JSONRPCResponse)
 	pending.resolve(response, nil)
 }
 
-// handleNotification 处理 JSON-RPC 通知
+// handleNotification handles JSON-RPC notifications
 func (t *WebsocketTransport) handleNotification(notification *mcp.JSONRPCNotification) {
 	if t.notifyHandler != nil {
 		t.notifyHandler(*notification)
@@ -293,7 +293,7 @@ func (t *WebsocketTransport) handleNotification(notification *mcp.JSONRPCNotific
 }
 
 func (t *WebsocketTransport) SendRequest(ctx context.Context, request transport.JSONRPCRequest) (*transport.JSONRPCResponse, error) {
-	// 检查连接状态
+	//Check connection status
 	t.closedMux.RLock()
 	if t.closed {
 		t.closedMux.RUnlock()
@@ -301,26 +301,26 @@ func (t *WebsocketTransport) SendRequest(ctx context.Context, request transport.
 	}
 	t.closedMux.RUnlock()
 
-	// 创建响应通道
+	//Create response channel
 	idStr := requestIDKey(request.ID)
 	pending := newPendingResponse()
 
-	// 注册响应通道
+	//Register response channel
 	t.respChansMux.Lock()
 	t.respChans[idStr] = pending
 	t.respChansMux.Unlock()
 
-	// 发送请求（使用互斥锁保护写入操作）
+	//Send request (use mutex to protect write operation)
 	t.writeMux.Lock()
 	err := t.conn.WriteJSON(request)
 	t.writeMux.Unlock()
 	if err != nil {
-		// 发送失败，清理通道
+		//Sending failed, clear channel
 		t.popPending(idStr)
 		return nil, fmt.Errorf("failed to send request: %w", err)
 	}
 
-	// 使用 Go 语言级别的超时控制等待响应
+	//Waiting for a response using Go language-level timeout control
 	select {
 	case result := <-pending.resultCh:
 		if result.err != nil {
@@ -328,18 +328,18 @@ func (t *WebsocketTransport) SendRequest(ctx context.Context, request transport.
 		}
 		return result.response, nil
 	case <-ctx.Done():
-		// 上下文取消，清理通道
+		//Context cancellation, clearing channel
 		t.popPending(idStr)
 		return nil, ctx.Err()
 	case <-time.After(t.requestTimeout):
-		// Go 语言级别的超时控制
+		//Go language level timeout control
 		t.popPending(idStr)
 		return nil, fmt.Errorf("request timeout")
 	}
 }
 
 func (t *WebsocketTransport) SendNotification(ctx context.Context, notification mcp.JSONRPCNotification) error {
-	// 检查连接状态
+	//Check connection status
 	t.closedMux.RLock()
 	if t.closed {
 		t.closedMux.RUnlock()
@@ -347,7 +347,7 @@ func (t *WebsocketTransport) SendNotification(ctx context.Context, notification 
 	}
 	t.closedMux.RUnlock()
 
-	// 发送通知消息（使用互斥锁保护写入操作）
+	//Send a notification message (use a mutex to protect the write operation)
 	t.writeMux.Lock()
 	err := t.conn.WriteJSON(notification)
 	t.writeMux.Unlock()
@@ -358,34 +358,34 @@ func (t *WebsocketTransport) SetNotificationHandler(handler func(notification mc
 	t.notifyHandler = handler
 }
 
-// SetOnCloseHandler 设置连接关闭回调
+// SetOnCloseHandler sets the connection close callback
 func (t *WebsocketTransport) SetOnCloseHandler(handler func(reason string)) {
 	t.onCloseHandler = handler
 }
 
 func (t *WebsocketTransport) Close() error {
-	// 标记连接已关闭
+	//Mark connection closed
 	t.closedMux.Lock()
 	t.closed = true
 	t.closedMux.Unlock()
 	t.failAllPending(fmt.Errorf("connection is closed"))
 
-	// 通知client层连接即将关闭
+	//Notify the client layer that the connection is about to be closed
 	if t.onCloseHandler != nil {
 		t.onCloseHandler("manual_close")
 	}
 
-	// 取消上下文
+	//Cancel context
 	t.cancel()
 
-	// 等待读取协程结束
+	//Wait for the read coroutine to end
 	select {
 	case <-t.readDone:
 	case <-time.After(t.closeTimeout):
 		log.Warnf("Timeout waiting for read goroutine to finish")
 	}
 
-	// 关闭 WebSocket 连接
+	//Close WebSocket connection
 	return t.conn.Close()
 }
 
@@ -393,36 +393,36 @@ func (t *WebsocketTransport) GetSessionId() string {
 	return t.conn.RemoteAddr().String()
 }
 
-// IsClosed 检查连接是否已关闭
+// IsClosed checks whether the connection has been closed
 func (t *WebsocketTransport) IsClosed() bool {
 	t.closedMux.RLock()
 	defer t.closedMux.RUnlock()
 	return t.closed
 }
 
-// GetActiveRequests 获取当前活跃的请求数量
+// GetActiveRequests Gets the number of currently active requests
 func (t *WebsocketTransport) GetActiveRequests() int {
 	t.respChansMux.RLock()
 	defer t.respChansMux.RUnlock()
 	return len(t.respChans)
 }
 
-// SetRequestTimeout 设置请求超时时间
+// SetRequestTimeout sets the request timeout
 func (t *WebsocketTransport) SetRequestTimeout(timeout time.Duration) {
 	t.requestTimeout = timeout
 }
 
-// SetCloseTimeout 设置关闭超时时间
+// SetCloseTimeout sets the close timeout
 func (t *WebsocketTransport) SetCloseTimeout(timeout time.Duration) {
 	t.closeTimeout = timeout
 }
 
-// GetRequestTimeout 获取当前请求超时时间
+// GetRequestTimeout Gets the current request timeout
 func (t *WebsocketTransport) GetRequestTimeout() time.Duration {
 	return t.requestTimeout
 }
 
-// GetCloseTimeout 获取当前关闭超时时间
+// GetCloseTimeout Gets the current close timeout
 func (t *WebsocketTransport) GetCloseTimeout() time.Duration {
 	return t.closeTimeout
 }

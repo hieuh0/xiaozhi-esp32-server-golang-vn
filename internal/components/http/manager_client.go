@@ -5,20 +5,20 @@ import (
 	"time"
 )
 
-// ManagerClient Manager后端专用HTTP客户端
+// ManagerClient is an HTTP client for the manager backend.
 type ManagerClient struct {
 	client *Client
 }
 
-// ManagerClientConfig Manager客户端配置
+// ManagerClientConfig configures a manager client.
 type ManagerClientConfig struct {
-	BaseURL   string        // Manager后端地址
-	AuthToken string        // 认证Token（可选）
-	Timeout   time.Duration // 请求超时时间
-	MaxRetries int          // 最大重试次数
+	BaseURL    string        // Manager backend URL.
+	AuthToken  string        // Optional authentication token.
+	Timeout    time.Duration // Request timeout.
+	MaxRetries int           // Maximum retry count.
 }
 
-// NewManagerClient 创建Manager后端HTTP客户端
+// NewManagerClient creates an HTTP client for the manager backend.
 func NewManagerClient(cfg ManagerClientConfig) *ManagerClient {
 	client := NewClient(ClientConfig{
 		BaseURL:    cfg.BaseURL,
@@ -32,13 +32,12 @@ func NewManagerClient(cfg ManagerClientConfig) *ManagerClient {
 	}
 }
 
-// DoRequest 执行HTTP请求（封装通用客户端的DoRequest）
+// DoRequest executes an HTTP request through the general client.
 func (m *ManagerClient) DoRequest(ctx context.Context, opts RequestOptions) error {
 	return m.client.DoRequest(ctx, opts)
 }
 
-// DoRequestRaw 执行HTTP请求并返回原始响应
+// DoRequestRaw executes an HTTP request and returns the raw response.
 func (m *ManagerClient) DoRequestRaw(ctx context.Context, opts RequestOptions) ([]byte, error) {
 	return m.client.DoRequestRaw(ctx, opts)
 }
-

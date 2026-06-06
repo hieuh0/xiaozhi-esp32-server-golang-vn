@@ -16,20 +16,20 @@ const (
 )
 
 var (
-	asrHTTPServer *http.Server // 本进程内嵌的 asr_server HTTP 服务句柄，用于优雅关闭
+	asrHTTPServer *http.Server // Embedded asr_server HTTP service handle for graceful shutdown.
 )
 
-// StartAsrServerHTTP 在本进程内启动 asr_server 的 HTTP 服务（独立端口）。是否调用由 main 根据 -asr-enable 决定。
-// configPath：asr_server 配置文件路径，空则使用默认路径 asr_server/config.json
+// StartAsrServerHTTP starts the embedded asr_server HTTP service on a separate port.
+// configPath is the asr_server config path; an empty value uses asr_server/config.json.
 func StartAsrServerHTTP(configPath string) {
 	if configPath == "" {
 		configPath = defaultAsrServerConfigPath
 	}
-	log.Infof("正在启动内嵌 asr_server HTTP 服务，配置文件: %s", configPath)
+	log.Infof("starting embedded asr_server HTTP service with config: %s", configPath)
 
 	handler, addr, readTimeout, err := server.Setup(configPath)
 	if err != nil {
-		log.Warnf("asr_server 初始化失败，跳过启动: %v", err)
+		log.Warnf("asr_server initialization failed; skipping startup: %v", err)
 		return
 	}
 
@@ -40,22 +40,22 @@ func StartAsrServerHTTP(configPath string) {
 	}
 
 	go func() {
-		log.Infof("asr_server HTTP 服务启动在 %s", addr)
+		log.Infof("asr_server HTTP service listening on %s", addr)
 		if err := asrHTTPServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Errorf("asr_server HTTP 服务异常退出: %v", err)
+			log.Errorf("asr_server HTTP service exited unexpectedly: %v", err)
 		}
 	}()
 }
 
-// StopAsrServerHTTP 优雅关闭本进程内嵌的 asr_server HTTP 服务
+// StopAsrServerHTTP gracefully stops the embedded asr_server HTTP service.
 func StopAsrServerHTTP() {
 	if asrHTTPServer != nil {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := asrHTTPServer.Shutdown(ctx); err != nil {
-			log.Warnf("asr_server HTTP 关闭超时或异常: %v", err)
+			log.Warnf("asr_server HTTP shutdown timed out or failed: %v", err)
 		}
 		asrHTTPServer = nil
-		log.Info("asr_server HTTP 服务已关闭")
+		log.Info("asr_server HTTP service stopped")
 	}
 }

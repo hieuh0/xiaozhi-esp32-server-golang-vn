@@ -19,21 +19,21 @@ const (
 	defaultTimeoutSeconds = 30
 )
 
-// Config 阿里云 Qwen3 ASR 配置
+// Config Alibaba Cloud Qwen3 ASR configuration
 type Config struct {
-	APIKey        string
-	WsURL         string
-	Model         string
-	Format        string
-	SampleRate    int
-	Language      string
-	AutoEnd       bool
-	VADThreshold  float64
-	VADSilenceMs  int
-	Timeout       time.Duration
+	APIKey       string
+	WsURL        string
+	Model        string
+	Format       string
+	SampleRate   int
+	Language     string
+	AutoEnd      bool
+	VADThreshold float64
+	VADSilenceMs int
+	Timeout      time.Duration
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig returns the default configuration
 func DefaultConfig() Config {
 	return Config{
 		WsURL:        defaultWsURL,
@@ -48,21 +48,21 @@ func DefaultConfig() Config {
 	}
 }
 
-// ConfigFromMap 从配置 map 合并生成配置（支持配置文件 + 内控系统）
+// ConfigFromMap merges and generates configurations from configuration maps (supports configuration files + internal control systems)
 func ConfigFromMap(cfg map[string]interface{}) Config {
 	conf := DefaultConfig()
 
-	// 先合并配置文件中的默认值
+	//First merge the default values ​​in the configuration file
 	applyViperDefaults(&conf)
 
-	// 兼容老格式：若传入 { aliyun_qwen3: { ... } }，则优先取内部 map
+	//Compatible with old formats: if { aliyun_qwen3: { ... } } is passed in, the internal map will be taken first
 	if nested, ok := cfg["aliyun_qwen3"].(map[string]interface{}); ok {
 		cfg = nested
 	}
 
 	applyMapOverrides(&conf, cfg)
 
-	// api_key 允许为空时回退环境变量
+	//api_key allows fallback environment variables when empty
 	if conf.APIKey == "" {
 		conf.APIKey = os.Getenv("DASHSCOPE_API_KEY")
 	}

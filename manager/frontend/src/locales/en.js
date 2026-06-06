@@ -1872,4 +1872,11 @@ export default {
   tts_provider_label: 'TTS provider: {provider}',
   confirm_delete_sample: 'Confirm delete sample "{name}"? This cannot be undone.',
   agent_console: 'Agent Console',
+  nickname_label: 'Nickname:',
+  linked_kbs_tooltip: 'Linked KBs: {names}',
+  mcp_selected_services: '{count} service(s) selected',
+  mcp_client_count_text: ' ({count} client(s))',
+  mcp_status_tooltip: 'Agent WebSocket: {ws}{clients} | Global MCP: {mcp} | Scope: {scope}',
+  openclaw_status_tooltip: 'OpenClaw: {config} | Connection: {connection}',
+  role_config_applied: 'Role config applied, click "Save Config" to submit',
 }

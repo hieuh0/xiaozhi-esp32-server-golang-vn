@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	// punctuationMap 句子结束和暂停的标点符号映射
+	// punctuationMap maps sentence-ending and pause punctuation
 	punctuationMap = map[rune]bool{
 		'。':  true,
 		'？':  true,
@@ -23,7 +23,7 @@ var (
 		':':  true,
 	}
 
-	// firstPunctuation 首次处理时使用的标点符号映射（包含逗号）
+	// firstPunctuation maps punctuation used during first-pass processing (includes comma)
 	firstPunctuation = map[rune]bool{
 		'，':  true,
 		',':  true,
@@ -40,20 +40,20 @@ var (
 		':':  true,
 	}
 
-	// 句子结束的标点符号
+	// sentence-ending punctuation
 	sentenceEndPunctuation = []rune{'.', '。', '!', '！', '?', '？', '\n'}
 
-	// 句子暂停的标点符号（可以作为长句子的断句点）
+	// sentence-pause punctuation (can serve as break points for long sentences)
 	sentencePausePunctuation = []rune{',', '，', ';', '；', ':', '：'}
 
-	// 用于复用的对象池
+	// object pool for builder reuse
 	builderPool = sync.Pool{
 		New: func() interface{} {
 			return &strings.Builder{}
 		},
 	}
 
-	// 用于存储结果的切片池
+	// slice pool for storing results
 	runeSlicePool = sync.Pool{
 		New: func() interface{} {
 			slice := make([]rune, 0, 1024)
@@ -62,7 +62,7 @@ var (
 	}
 )
 
-// IsSentenceEndPunctuation 判断一个字符是否为句子结束的标点符号
+// IsSentenceEndPunctuation reports whether a rune is a sentence-ending punctuation mark
 func IsSentenceEndPunctuation(r rune) bool {
 	for _, p := range sentenceEndPunctuation {
 		if r == p {
@@ -72,7 +72,7 @@ func IsSentenceEndPunctuation(r rune) bool {
 	return false
 }
 
-// IsSentencePausePunctuation 判断一个字符是否为句子暂停的标点符号
+// IsSentencePausePunctuation reports whether a rune is a sentence-pause punctuation mark
 func IsSentencePausePunctuation(r rune) bool {
 	for _, p := range sentencePausePunctuation {
 		if r == p {
@@ -82,7 +82,7 @@ func IsSentencePausePunctuation(r rune) bool {
 	return false
 }
 
-// IsNumberWithDot 判断字符串是否为数字加点号格式（如"1."、"2."等）
+// IsNumberWithDot reports whether the string is a number-dot format (e.g. "1.", "2.")
 func IsNumberWithDot(s string) bool {
 	trimmed := strings.TrimSpace(s)
 	if len(trimmed) < 2 || trimmed[len(trimmed)-1] != '.' {
@@ -97,8 +97,8 @@ func IsNumberWithDot(s string) bool {
 	return true
 }
 
-// ExtractCompleteSentences 从文本中提取完整的句子
-// 返回完整句子的切片和剩余的未完成内容
+// ExtractCompleteSentences extracts complete sentences from text.
+// Returns a slice of complete sentences and the remaining incomplete content.
 func ExtractCompleteSentences(text string) ([]string, string) {
 	if text == "" {
 		return []string{}, ""
@@ -113,52 +113,52 @@ func ExtractCompleteSentences(text string) ([]string, string) {
 	for i, r := range runes {
 		currentSentence.WriteRune(r)
 
-		// 判断句子是否结束
+		// Check whether the sentence has ended
 		if IsSentenceEndPunctuation(r) {
-			// 如果是句子结束标点
+			// Sentence-ending punctuation found
 			sentence := strings.TrimSpace(currentSentence.String())
 			if sentence != "" {
 				sentences = append(sentences, sentence)
 			}
 			currentSentence.Reset()
 		} else if i == lastIndex {
-			// 如果是最后一个字符但不是句子结束标点，保留在remaining中
+			// Last character but not a sentence-ending punctuation; keep in remaining
 			break
 		}
 	}
 
-	// 当前未完成的句子作为remaining返回
+	// Return the current incomplete sentence as remaining
 	remaining := currentSentence.String()
 	return sentences, strings.TrimSpace(remaining)
 }
 
-// isNumberPrefix 使用快速的字符检查替代正则，判断是否是序号前缀
+// isNumberPrefix uses fast character checks instead of regex to detect a numeric list prefix
 func isNumberPrefix(text []rune, pos int) bool {
 	if pos <= 0 || text[pos] != '.' {
 		return false
 	}
 
-	// 向前查找行首或换行符
+	// Scan backward to find line start or newline
 	start := pos - 1
 	digitCount := 0
 	foundDigit := false
 
-	// 跳过点号前的空白字符
+	// Skip whitespace before the dot
 	for start >= 0 && (text[start] == ' ' || text[start] == '\t') {
 		start--
 	}
 
-	// 统计数字
+	// Count digits
 	for start >= 0 && text[start] >= '0' && text[start] <= '9' {
 		digitCount++
 		foundDigit = true
-		if digitCount > 3 { // 超过3位数字不是合法序号
+		if digitCount > 3 { // More than 3 digits is not a valid list number
 			return false
 		}
 		start--
 	}
 
-	// 检查数字前面是否为空白字符或行首
+	// Check that what precedes the digits is whitespace or the start of a line
 	if start >= 0 && text[start] != ' ' && text[start] != '\t' && text[start] != '\n' {
 		return false
 	}
@@ -166,7 +166,7 @@ func isNumberPrefix(text []rune, pos int) bool {
 	return foundDigit
 }
 
-// trimSpaceRunes 去除首尾空白字符
+// trimSpaceRunes strips leading and trailing whitespace from a rune slice
 func trimSpaceRunes(text []rune) []rune {
 	start, end := 0, len(text)-1
 
@@ -205,13 +205,13 @@ func isDigitAdjacentColon(text []rune, pos int) bool {
 	return unicode.IsDigit(text[pos+1])
 }
 
-// findLastPunctuation 从后向前查找最后一个标点
+// findLastPunctuation searches backward for the last punctuation mark
 func findLastPunctuation(text []rune, separatorMap map[rune]bool) int {
 	lastPos := -1
 	for i := len(text) - 1; i >= 0; i-- {
-		// 检查是否是标点符号
+		// Check whether it is a punctuation mark
 		if separatorMap[text[i]] {
-			// 如果是点号，检查是否是序号的一部分
+			// If it is a dot, check whether it is part of a list number
 			if text[i] == '.' && isNumberPrefix(text, i) {
 				continue
 			}
@@ -224,31 +224,31 @@ func findLastPunctuation(text []rune, separatorMap map[rune]bool) int {
 	return lastPos
 }
 
-// findNextSplitPoint 查找下一个分割点
+// findNextSplitPoint finds the next split point in text
 func findNextSplitPoint(text []rune, startPos int, maxLen int, separatorMap map[rune]bool) int {
-	// 计算查找的结束位置
+	// Calculate the end position to search up to
 	endPos := startPos + maxLen
 	if endPos > len(text) {
 		endPos = len(text)
 	}
 
-	// 从前向后查找
+	// Search forward
 	for i := startPos; i < endPos; i++ {
-		// 检查是否是换行符，同时检查下一行是否是序号
+		// Check for newline; also check whether the next line starts with a list number
 		if text[i] == '\n' {
 			nextPos := i + 1
-			// 跳过空白字符
+			// Skip whitespace
 			for nextPos < endPos && (text[nextPos] == ' ' || text[nextPos] == '\t') {
 				nextPos++
 			}
-			// 检查是否是序号开始
+			// Check whether a list number begins here
 			if nextPos < endPos-2 && text[nextPos] >= '0' && text[nextPos] <= '9' {
 				return i
 			}
 			continue
 		}
 
-		// 使用map检查是否是标点符号
+		// Use map to check whether it is a punctuation mark
 		if separatorMap[text[i]] {
 			if isDigitAdjacentColon(text, i) {
 				continue
@@ -257,7 +257,7 @@ func findNextSplitPoint(text []rune, startPos int, maxLen int, separatorMap map[
 		}
 	}
 
-	// 如果在maxLen范围内没找到，尝试在更大范围内查找
+	// If no split point found within maxLen, search a wider range
 	if endPos < len(text) {
 		for i := endPos; i < len(text); i++ {
 			if text[i] == '\n' {
@@ -275,40 +275,40 @@ func findNextSplitPoint(text []rune, startPos int, maxLen int, separatorMap map[
 	return -1
 }
 
-// ExtractSmartSentences 智能提取句子
-// text: 待处理的文本
-// minLen: 最小句子长度
-// maxLen: 最大句子长度
-// isFirst: 是否为首次处理（首次处理时允许使用逗号作为分隔符）
+// ExtractSmartSentences intelligently extracts sentences from text.
+// text: text to process
+// minLen: minimum sentence length
+// maxLen: maximum sentence length
+// isFirst: whether this is the first pass (first pass allows comma as separator)
 func ExtractSmartSentences(text string, minLen, maxLen int, isFirst bool) (sentences []string, remaining string) {
-	// 当isFirst为true时, 放宽到逗号作为分隔符
+	// When isFirst is true, relax to allow comma as separator
 	separatorMap := punctuationMap
 	if isFirst {
 		separatorMap = firstPunctuation
 	}
-	// 预分配一个合理的切片容量
+	// Pre-allocate a reasonable slice capacity
 	estimatedCount := len(text) / 50
 	if estimatedCount < 10 {
 		estimatedCount = 10
 	}
 	sentences = make([]string, 0, estimatedCount)
 
-	// 一次性转换为rune切片
+	// Convert to rune slice once
 	currentRunes := []rune(text)
 	startPos := 0
 
-	// 从对象池获取复用对象
+	// Get reusable objects from the pool
 	builder := builderPool.Get().(*strings.Builder)
 	defer builderPool.Put(builder)
 	builder.Grow(maxLen * 2)
 
-	// 获取临时rune切片
+	// Get a temporary rune slice from the pool
 	tempRunesPtr := runeSlicePool.Get().(*[]rune)
 	tempRunes := (*tempRunesPtr)[:0]
 	defer runeSlicePool.Put(tempRunesPtr)
 
 	for startPos < len(currentRunes) {
-		// 跳过开头的空白字符
+		// Skip leading whitespace
 		for startPos < len(currentRunes) && (currentRunes[startPos] == ' ' || currentRunes[startPos] == '\t' || currentRunes[startPos] == '\n') {
 			startPos++
 		}
@@ -317,10 +317,10 @@ func ExtractSmartSentences(text string, minLen, maxLen int, isFirst bool) (sente
 			break
 		}
 
-		// 查找下一个分割点
+		// Find the next split point
 		splitPos := findNextSplitPoint(currentRunes, startPos, maxLen, separatorMap)
 		if splitPos == -1 {
-			// 没有找到分割点，将剩余文本作为remaining
+			// No split point found; treat remaining text as remaining
 			segment := trimSpaceRunes(currentRunes[startPos:])
 			if len(segment) > 0 {
 				remaining = string(segment)
@@ -328,18 +328,18 @@ func ExtractSmartSentences(text string, minLen, maxLen int, isFirst bool) (sente
 			break
 		}
 
-		// 提取当前段落
+		// Extract the current segment
 		builder.Reset()
 		tempRunes = tempRunes[:0]
 
-		// 收集并处理当前段落
+		// Collect and process the current segment
 		segment := trimSpaceRunes(currentRunes[startPos : splitPos+1])
 
-		// 检查段落是否满足最小长度要求且以标点符号结尾
+		// Check whether the segment meets the minimum length and ends with punctuation
 		if len(segment) >= minLen && separatorMap[segment[len(segment)-1]] {
 			sentences = append(sentences, string(segment))
 		} else {
-			// 如果不满足条件，将其添加到remaining中
+			// Does not meet conditions; add to remaining
 			if len(segment) > 0 {
 				if len(remaining) > 0 {
 					remaining += " "
@@ -354,7 +354,7 @@ func ExtractSmartSentences(text string, minLen, maxLen int, isFirst bool) (sente
 	return sentences, remaining
 }
 
-// ContainsSentenceSeparator 判断字符串中是否包含分隔符（句子结束或暂停标点符号）
+// ContainsSentenceSeparator reports whether the string contains a separator (sentence-ending or pause punctuation)
 func ContainsSentenceSeparator(s string, isFirst bool) bool {
 	separatorMap := punctuationMap
 	if isFirst {

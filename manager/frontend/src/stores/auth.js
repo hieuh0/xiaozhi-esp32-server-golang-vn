@@ -14,7 +14,7 @@ function _tl(key) {
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'))
   const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
-  const isValidating = ref(false) // 添加验证状态标记
+  const isValidating = ref(false) // Validation in-progress flag
 
   const isAuthenticated = computed(() => !!token.value)
   const isAdmin = computed(() => user.value?.role === 'admin')
@@ -59,7 +59,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const getProfile = async () => {
-    // 如果正在验证中，避免重复调用
+    // Skip if already validating to prevent duplicate calls
     if (isValidating.value) {
       return
     }
@@ -71,7 +71,7 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(response.data.user))
     } catch (error) {
       logout()
-      throw error // 重新抛出错误，让路由守卫能够处理
+      throw error // Re-throw so the route guard can handle it
     } finally {
       isValidating.value = false
     }

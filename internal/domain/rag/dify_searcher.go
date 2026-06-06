@@ -29,13 +29,13 @@ func (s *difySearcher) Search(
 	baseURL, _ := providerConfig["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("dify base_url 不能为空")
+		return nil, fmt.Errorf("dify base_url cannot be empty")
 	}
 
 	apiKey, _ := providerConfig["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("dify api_key 不能为空")
+		return nil, fmt.Errorf("dify api_key cannot be empty")
 	}
 
 	globalScoreThreshold := 0.2
@@ -115,7 +115,7 @@ func (s *difySearcher) Search(
 		return nil, errors.New(strings.Join(errs, "; "))
 	}
 	if len(errs) > 0 {
-		log.Warnf("Dify 知识库检索部分失败: %s", strings.Join(errs, "; "))
+		log.Warnf("Dify knowledge base search part failed: %s", strings.Join(errs, "; "))
 	}
 	return ret, nil
 }
@@ -160,19 +160,19 @@ func (s *difySearcher) searchOneDataset(
 	body, _ := json.Marshal(payload)
 	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, retrieveURL, bytes.NewReader(body))
 	if err != nil {
-		return nil, fmt.Errorf("创建Dify请求失败(dataset_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to create Dify request (dataset_id=%s): %w", datasetID, err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
 	httpReq.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := client.Do(httpReq)
 	if err != nil {
-		return nil, fmt.Errorf("调用Dify失败(dataset_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to call Dify (dataset_id=%s): %w", datasetID, err)
 	}
 	if resp.StatusCode >= 400 {
 		bodyBytes, _ := io.ReadAll(resp.Body)
 		resp.Body.Close()
-		return nil, fmt.Errorf("Dify返回异常(dataset_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("Dify returns exception (dataset_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
 	}
 
 	var difyResp struct {
@@ -194,7 +194,7 @@ func (s *difySearcher) searchOneDataset(
 	decodeErr := json.NewDecoder(resp.Body).Decode(&difyResp)
 	resp.Body.Close()
 	if decodeErr != nil {
-		return nil, fmt.Errorf("解析Dify返回失败(dataset_id=%s): %w", datasetID, decodeErr)
+		return nil, fmt.Errorf("Parsing Dify returns failure (dataset_id=%s): %w", datasetID, decodeErr)
 	}
 
 	records := difyResp.Records

@@ -79,7 +79,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加/编辑配置弹窗 -->
+    <!-- Add/Edit config dialog -->
     <el-dialog
       v-model="showDialog"
       :title="editingConfig ? t('edit_asr_config') : t('add_asr_config')"
@@ -204,7 +204,7 @@ const form = reactive({
   }
 })
 
-// 按当前 provider 动态规则，避免未显示的 doubao/funasr 字段触发必填导致保存不发请求
+// Dynamic rules based on current provider, prevents hidden doubao/funasr fields from triggering required validation and blocking save
 const rules = computed(() => {
   const base = {
     name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
@@ -306,15 +306,15 @@ const editConfig = (config) => {
   form.is_default = config.is_default
   form.enabled = config.enabled
   
-  // 解析配置JSON并填充到对应字段
+  // Parse config JSON and populate the corresponding fields
   try {
     const configObj = JSON.parse(config.json_data || '{}')
-    
-    // 兼容新旧格式：检查是否是包装格式（包含provider层）还是直接格式
+
+    // Support both old and new formats: check if it's a wrapped format (with provider layer) or a flat format
     if (configObj.funasr) {
-      // 旧格式：包含provider层
+      // Old format: contains provider layer
       const funasrConfig = { ...form.funasr, ...configObj.funasr }
-      // 兼容chunk_size：如果是单个数字或无效格式，转换为默认值 [5, 10, 5]
+      // chunk_size compatibility: if it's a single number or invalid format, convert to default [5, 10, 5]
       if (typeof funasrConfig.chunk_size === 'number') {
         funasrConfig.chunk_size = [5, 10, 5]
       } else if (!Array.isArray(funasrConfig.chunk_size) || funasrConfig.chunk_size.length !== 3) {
@@ -322,15 +322,15 @@ const editConfig = (config) => {
       }
       form.funasr = funasrConfig
     } else if (configObj.aliyun_funasr) {
-      // 旧格式：包含provider层
+      // Old format: contains provider layer
       form.aliyun_funasr = { ...form.aliyun_funasr, ...configObj.aliyun_funasr }
     } else if (configObj.doubao) {
-      // 旧格式：包含provider层
+      // Old format: contains provider layer
       form.doubao = { ...form.doubao, ...configObj.doubao }
     } else if (config.provider === 'funasr' && configObj.host) {
-      // 新格式：直接包含配置内容
+      // New format: flat config content
       const funasrConfig = { ...form.funasr, ...configObj }
-      // 兼容chunk_size：如果是单个数字或无效格式，转换为默认值 [5, 10, 5]
+      // chunk_size compatibility: if it's a single number or invalid format, convert to default [5, 10, 5]
       if (typeof funasrConfig.chunk_size === 'number') {
         funasrConfig.chunk_size = [5, 10, 5]
       } else if (!Array.isArray(funasrConfig.chunk_size) || funasrConfig.chunk_size.length !== 3) {
@@ -338,16 +338,16 @@ const editConfig = (config) => {
       }
       form.funasr = funasrConfig
     } else if (config.provider === 'aliyun_funasr' && (configObj.ws_url || configObj.model || configObj.api_key)) {
-      // 新格式：直接包含配置内容
+      // New format: flat config content
       form.aliyun_funasr = { ...form.aliyun_funasr, ...configObj }
     } else if (config.provider === 'doubao' && (configObj.appid || configObj.access_token)) {
-      // 新格式：直接包含配置内容
+      // New format: flat config content
       form.doubao = { ...form.doubao, ...configObj }
     } else if (configObj.aliyun_qwen3) {
-      // 旧格式：包含provider层
+      // Old format: contains provider layer
       form.aliyun_qwen3 = { ...form.aliyun_qwen3, ...configObj.aliyun_qwen3 }
     } else if (config.provider === 'aliyun_qwen3' && (configObj.ws_url || configObj.model || configObj.api_key)) {
-      // 新格式：直接包含配置内容
+      // New format: flat config content
       form.aliyun_qwen3 = { ...form.aliyun_qwen3, ...configObj }
     } else if (configObj.xunfei) {
       form.xunfei = { ...form.xunfei, ...configObj.xunfei }
@@ -370,15 +370,15 @@ const handleSave = async () => {
     if (valid) {
       saving.value = true
       try {
-        // 如果是新增配置且当前没有任何配置，则自动设为默认配置
+        // If adding a new config and no configs exist yet, automatically set as default
         const isFirstConfig = !editingConfig.value && configs.value.length === 0
         
         const configData = {
           name: form.name,
           config_id: form.config_id,
           provider: form.provider,
-          is_default: isFirstConfig || form.is_default, // 首次添加时自动设为默认
-          enabled: form.enabled !== undefined ? form.enabled : true, // 确保enabled字段存在
+          is_default: isFirstConfig || form.is_default, // Auto-set as default on first add
+          enabled: form.enabled !== undefined ? form.enabled : true, // Ensure the enabled field is present
           json_data: formRef.value.getJsonData()
         }
         
@@ -407,7 +407,7 @@ const toggleEnable = async (config) => {
     await api.post(`/admin/configs/${config.id}/toggle`)
     ElMessage.success(config.enabled ? t('enabled_success') : t('disable_success'))
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))
   }
@@ -433,10 +433,10 @@ const toggleDefault = async (config) => {
     await api.put(`/admin/asr-configs/${config.id}`, configData)
     ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     
-    // 刷新列表以更新其他配置的默认状态
+    // Refresh list to update default status of other configs
     loadConfigs()
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.is_default = !config.is_default
     ElMessage.error(t('operation_failed'))
   }

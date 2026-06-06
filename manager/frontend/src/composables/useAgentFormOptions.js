@@ -13,8 +13,8 @@ function _tl(key) {
 export const getDefaultAgentPrompt = () => _tl('default_agent_prompt')
 export const DEFAULT_AGENT_PROMPT = getDefaultAgentPrompt()
 
-export const OPENCLAW_DEFAULT_ENTER_KEYWORDS = ['打开龙虾', '进入龙虾']
-export const OPENCLAW_DEFAULT_EXIT_KEYWORDS = ['关闭龙虾', '退出龙虾']
+export const OPENCLAW_DEFAULT_ENTER_KEYWORDS = ['open openclaw', 'enter openclaw']
+export const OPENCLAW_DEFAULT_EXIT_KEYWORDS = ['close openclaw', 'exit openclaw']
 
 const normalizeDataList = (response) => {
   const data = response?.data?.data

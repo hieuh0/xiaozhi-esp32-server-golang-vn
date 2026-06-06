@@ -14,7 +14,7 @@ function tl(key) {
   }
 }
 
-/** 从接口条目解析为统一结果（含 first_packet_ms） */
+/** Normalize a response entry into a unified result (with first_packet_ms) */
 function normItem(item) {
   if (!item || typeof item !== 'object') return { ok: false, message: '', first_packet_ms: undefined, reasoning_content_returned: false }
   const ms = item.first_packet_ms
@@ -27,10 +27,10 @@ function normItem(item) {
 }
 
 /**
- * 测试单个或单类配置
- * @param {string} type - 类型：ota | vad | asr | llm | tts
- * @param {string} [configId] - 可选，指定 config_id 则只测该条
- * @returns {Promise<{ ok: boolean, message: string, first_packet_ms?: number }>} 单条时直接返回结果；多条时返回第一条或汇总
+ * Test a single config or all configs of a type
+ * @param {string} type - Type: ota | vad | asr | llm | tts
+ * @param {string} [configId] - Optional; if given, only that config_id is tested
+ * @returns {Promise<{ ok: boolean, message: string, first_packet_ms?: number }>} Single result, or first/summary for multiple
  */
 export async function testSingleConfig(type, configId) {
   const body = {
@@ -57,8 +57,8 @@ export async function testSingleConfig(type, configId) {
 }
 
 /**
- * 测试某类型全部配置，返回按 config_id 的结果（用于“测试全部”并在每行展示）
- * @param {string} type - 类型：vad | asr | llm | tts
+ * Test all configs of a type; returns results keyed by config_id (for “test all” row display)
+ * @param {string} type - Type: vad | asr | llm | tts
  * @returns {Promise<Record<string, { ok: boolean, message: string, first_packet_ms?: number }>>} config_id -> { ok, message, first_packet_ms? }
  */
 export async function testAllConfigs(type) {
@@ -83,8 +83,8 @@ export async function testAllConfigs(type) {
 }
 
 /**
- * 将 getJsonData() 返回值转为可合并对象（表单返回的是 JSON 字符串）
- * @param {string|object} jsonData - getJsonData() 返回值
+ * Convert getJsonData() return value to a plain object (form returns JSON string)
+ * @param {string|object} jsonData - Value returned by getJsonData()
  * @returns {object}
  */
 export function parseJsonData(jsonData) {
@@ -99,10 +99,10 @@ export function parseJsonData(jsonData) {
 }
 
 /**
- * 使用自定义 data 测试（未保存草稿 / 向导当前步）
- * @param {string} type - 类型：ota | vad | asr | llm | tts
- * @param {Record<string, object>} typeData - 该类型下 config_id -> 配置对象，与接口 data[type] 一致
- * @returns {Promise<{ ok: boolean, message: string, first_packet_ms?: number }>} 单条结果（仅支持单条）
+ * Test with custom data (unsaved draft / current wizard step)
+ * @param {string} type - Type: ota | vad | asr | llm | tts
+ * @param {Record<string, object>} typeData - config_id -> config object for this type, matching data[type] shape
+ * @returns {Promise<{ ok: boolean, message: string, first_packet_ms?: number }>} Single result (only one config supported)
  */
 export async function testWithData(type, typeData) {
   const body = { types: [type], data: { [type]: typeData } }

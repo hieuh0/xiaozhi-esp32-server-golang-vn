@@ -1585,7 +1585,7 @@ func (vcc *VoiceCloneController) cloneWithCosyVoice(ctx context.Context, filePat
 		return nil, fmt.Errorf("failed to parse CosyVoice response: %w", err)
 	}
 	status := strings.TrimSpace(getStringAny(parsed, "status"))
-	if status != "成功" {
+	if status != "成功" && status != "success" && status != "Success" {
 		return nil, fmt.Errorf("CosyVoice clone failed (status=%s): %s", status, strings.TrimSpace(string(respBody)))
 	}
 	sid := strings.TrimSpace(getStringAny(parsed, "sid"))

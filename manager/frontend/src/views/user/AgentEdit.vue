@@ -22,7 +22,7 @@
         <span>{{ role.name }}</span>
         <small>{{ role.role_type === 'global' ? t('global') : t('mine') }}</small>
       </button>
-      <span v-if="!rolesLoading && allRoles.length === 0" class="role-empty">{{ t('no_roles_available') }}暂无可用角色</span>
+      <span v-if="!rolesLoading && allRoles.length === 0" class="role-empty">{{ t('no_roles_available') }}</span>
     </div>
 
     <div class="form-card" v-loading="loadingAgent">
@@ -108,7 +108,7 @@ const applyRoleConfig = async (role) => {
     }
 
     form.value.voice = role.voice || null
-    ElMessage.info('已填充角色配置，请点击“保存配置”提交')
+    ElMessage.info(t('role_config_applied'))
   } finally {
     applyingRoleConfig.value = false
   }

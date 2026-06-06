@@ -79,7 +79,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加/编辑配置弹窗 -->
+    <!-- Add/Edit config dialog -->
     <el-dialog
       v-model="showDialog"
       :title="editingConfig ? t('edit_tts_config') : t('add_tts_config')"
@@ -129,7 +129,7 @@ const showDialog = ref(false)
 const editingConfig = ref(null)
 const formRef = ref()
 
-// 音色列表相关
+// Voice list related
 const voiceOptions = ref([])
 const voiceLoading = ref(false)
 
@@ -276,30 +276,30 @@ const rules = {
   name: [{ required: true, message: t('enter_config_name'), trigger: 'blur' }],
   config_id: [{ required: true, message: t('enter_config_id'), trigger: 'blur' }],
   provider: [{ required: true, message: t('select_provider'), trigger: 'change' }],
-  // CosyVoice 验证规则
+  // CosyVoice validation rules
   'cosyvoice.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }],
   'cosyvoice.spk_id': [{ required: true, message: t('enter_speaker_id'), trigger: 'blur' }],
-  // 豆包 TTS 验证规则
+  // Doubao TTS validation rules
   'doubao.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
   'doubao.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
   'doubao.model': [{ required: true, message: t('select_model'), trigger: 'change' }],
   'doubao.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
   'doubao.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }],
-  // 豆包 WebSocket 验证规则
+  // Doubao WebSocket validation rules
   'doubao_ws.appid': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
   'doubao_ws.access_token': [{ required: true, message: t('enter_access_token'), trigger: 'blur' }],
   'doubao_ws.model': [{ required: true, message: t('select_model'), trigger: 'change' }],
   'doubao_ws.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
   'doubao_ws.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
-  // Edge TTS 验证规则
+  // Edge TTS validation rules
   'edge.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
   'edge.rate': [{ required: true, message: t('enter_speech_rate'), trigger: 'blur' }],
   'edge.volume': [{ required: true, message: t('enter_volume'), trigger: 'blur' }],
-  // Edge 离线验证规则
+  // Edge offline validation rules
   'edge_offline.server_url': [{ required: true, message: t('enter_server_url'), trigger: 'blur' }],
-  // OpenAI TTS 验证规则
+  // OpenAI TTS validation rules
   'openai.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
-  // 讯飞 TTS 验证规则
+  // Xunfei TTS validation rules
   'xunfei.app_id': [{ required: true, message: t('enter_app_id'), trigger: 'blur' }],
   'xunfei.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
   'xunfei.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
@@ -310,11 +310,11 @@ const rules = {
   'xunfei_super_tts.api_secret': [{ required: true, message: t('enter_api_secret'), trigger: 'blur' }],
   'xunfei_super_tts.ws_url': [{ required: true, message: t('enter_websocket_url'), trigger: 'blur' }],
   'xunfei_super_tts.voice': [{ required: true, message: t('enter_voice_timbre'), trigger: 'blur' }],
-  // 智谱 TTS 验证规则
+  // Zhipu TTS validation rules
   'zhipu.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
-  // Minimax TTS 验证规则
+  // Minimax TTS validation rules
   'minimax.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
-  // 千问 TTS 验证规则
+  // Qwen TTS validation rules
   'qwen_tts.api_key': [{ required: true, message: t('enter_api_key'), trigger: 'blur' }],
   'indextts_vllm.api_url': [{ required: true, message: t('enter_api_url'), trigger: 'blur' }]
 }
@@ -349,10 +349,10 @@ const editConfig = (config) => {
   form.enabled = config.enabled
   form.double_stream = false
 
-  // IndexTTS 改为点击音色下拉时再请求
+  // IndexTTS: load voices only when the voice dropdown is opened
   loadVoiceOptions(config.provider)
 
-  // 解析配置JSON并填充到对应的表单字段
+  // Parse config JSON and populate the corresponding form fields
   try {
     const configData = JSON.parse(config.json_data || '{}')
     form.double_stream = configData.double_stream === true
@@ -465,7 +465,7 @@ const editConfig = (config) => {
         form.indextts_vllm.frame_duration = configData.frame_duration || 60
         break
       case 'zhipu':
-        // 智谱配置从 json_data 中读取
+        // Read Zhipu config from json_data
         form.zhipu.api_key = configData.api_key || ''
         form.zhipu.api_url = configData.api_url || 'https://open.bigmodel.cn/api/paas/v4/audio/speech'
         form.zhipu.model = configData.model || 'glm-tts'
@@ -504,14 +504,14 @@ const handleSave = async () => {
     if (valid) {
       saving.value = true
       try {
-        // 如果是新增配置且当前没有任何配置，则自动设为默认配置
+        // If adding a new config and no configs exist yet, automatically set as default
         const isFirstConfig = !editingConfig.value && configs.value.length === 0
-        
+
         const configData = {
           name: form.name,
           config_id: form.config_id,
           provider: form.provider,
-          is_default: isFirstConfig || form.is_default, // 首次添加时自动设为默认
+          is_default: isFirstConfig || form.is_default, // Auto-set as default on first add
           enabled: form.enabled !== undefined ? form.enabled : true,
           json_data: formRef.value.getJsonData()
         }
@@ -540,7 +540,7 @@ const toggleEnable = async (config) => {
     await api.post(`/admin/configs/${config.id}/toggle`)
     ElMessage.success(config.enabled ? t('enabled_success') : t('disable_success'))
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))
   }
@@ -566,10 +566,10 @@ const toggleDefault = async (config) => {
     await api.put(`/admin/tts-configs/${config.id}`, configData)
     ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     
-    // 刷新列表以更新其他配置的默认状态
+    // Refresh list to update default status of other configs
     loadConfigs()
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.is_default = !config.is_default
     ElMessage.error(t('operation_failed'))
   }
@@ -840,7 +840,7 @@ const formatDate = (dateString) => {
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 加载音色列表
+// Load voice list
 const loadVoiceOptions = async (provider, options = {}) => {
   const trigger = options?.trigger || 'auto'
   if (!provider) {
@@ -848,13 +848,13 @@ const loadVoiceOptions = async (provider, options = {}) => {
     return
   }
 
-  // IndexTTS 仅在下拉展开时请求
+  // IndexTTS: only request when dropdown is opened
   if (provider === 'indextts_vllm' && trigger !== 'dropdown') {
     voiceOptions.value = []
     return
   }
-  
-  // 只有这些 provider 需要从后端获取音色列表
+
+  // Only these providers need to fetch the voice list from the backend
   if (!TTS_PROVIDERS_WITH_VOICES.includes(provider)) {
     voiceOptions.value = []
     return
@@ -890,14 +890,14 @@ const handleVoiceOptionsRequest = (provider) => {
   loadVoiceOptions(provider || form.provider, { trigger: 'dropdown' })
 }
 
-// 监听 provider 变化，自动加载对应的音色列表
+// Watch provider changes and auto-load the corresponding voice list
 watch(() => form.provider, (newProvider) => {
   if (showDialog.value) {
     loadVoiceOptions(newProvider)
   }
 }, { immediate: false })
 
-// 监听对话框打开，加载当前 provider 的音色列表（nextTick 确保弹窗已渲染后再请求）
+// Watch dialog open and load voice list for the current provider (nextTick ensures the dialog is rendered before requesting)
 watch(showDialog, (isOpen) => {
   if (isOpen && form.provider) {
     nextTick(() => loadVoiceOptions(form.provider))

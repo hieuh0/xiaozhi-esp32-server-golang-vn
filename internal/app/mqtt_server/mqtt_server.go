@@ -20,19 +20,20 @@ var (
 	serverMu      sync.Mutex
 )
 
-// StartMqttServer 启动 MQTT 服务器（可被 StopMqttServer 后再次调用以热更）
+// StartMqttServer starts the MQTT server and may be called again after
+// StopMqttServer to apply configuration changes.
 func StartMqttServer() error {
 	serverMu.Lock()
 	defer serverMu.Unlock()
 	if currentServer != nil {
-		return errors.New("mqtt_server 已在运行，请先 StopMqttServer")
+		return errors.New("mqtt_server is already running; call StopMqttServer first")
 	}
 	srv := mqttServer.New(&mqttServer.Options{
 		InlineClient: true,
 	})
 
 	if err := srv.AddHook(&AuthHook{}, nil); err != nil {
-		log.Errorf("添加 AuthHook 失败: %v", err)
+		log.Errorf("Failed to add AuthHook: %v", err)
 		return err
 	}
 	deviceHook := &DeviceHook{
@@ -46,7 +47,7 @@ func StartMqttServer() error {
 		},
 	}
 	if err := srv.AddHook(deviceHook, nil); err != nil {
-		log.Errorf("添加 DeviceHook 失败: %v", err)
+		log.Errorf("Failed to add DeviceHook: %v", err)
 		return err
 	}
 
@@ -55,7 +56,7 @@ func StartMqttServer() error {
 		keyFile := viper.GetString("mqtt_server.tls.key")
 		cert, err := tls.LoadX509KeyPair(pemFile, keyFile)
 		if err != nil {
-			log.Errorf("加载证书失败: %v", err)
+			log.Errorf("Failed to load certificate: %v", err)
 			return err
 		}
 		tlsConfig := &tls.Config{Certificates: []tls.Certificate{cert}}
@@ -72,7 +73,7 @@ func StartMqttServer() error {
 	host := viper.GetString("mqtt_server.listen_host")
 	port := viper.GetInt("mqtt_server.listen_port")
 	if port == 0 {
-		return errors.New("mqtt_server.port 配置错误，请检查配置文件")
+		return errors.New("invalid mqtt_server.port; check the configuration file")
 	}
 	address := fmt.Sprintf("%s:%d", host, port)
 	tcp := listeners.NewTCP(listeners.Config{Type: "tcp", ID: "t1", Address: address})
@@ -81,17 +82,19 @@ func StartMqttServer() error {
 	}
 
 	currentServer = srv
-	log.Infof("MQTT 服务器启动，监听 %s 地址...", address)
+	log.Infof("MQTT server started and listening on %s...", address)
 	go func() {
-		// Serve() 在库内启动 listener 协程后即返回，不会阻塞，故不在此处清 currentServer
+		// Serve starts listener goroutines internally and returns immediately, so
+		// currentServer must remain set here.
 		if err := srv.Serve(); err != nil {
-			log.Warnf("MQTT Server Serve 退出: %v", err)
+			log.Warnf("MQTT server Serve exited: %v", err)
 		}
 	}()
 	return nil
 }
 
-// StopMqttServer 停止当前 MQTT 服务器，便于热更后重新 StartMqttServer
+// StopMqttServer stops the current MQTT server so it can be restarted with
+// updated configuration.
 func StopMqttServer() error {
 	log.Infof("enter StopMqttServer ")
 	defer log.Infof("exit StopMqttServer ")
@@ -101,12 +104,13 @@ func StopMqttServer() error {
 	if srv == nil {
 		return nil
 	}
-	// 将 Close 纳入同一临界区，避免并发 Stop 对同一实例重复调用 Close。
+	// Keep Close in the same critical section to prevent concurrent stop calls
+	// from closing the same server instance more than once.
 	if err := srv.Close(); err != nil {
 		log.Warnf("StopMqttServer Close: %v", err)
 		return err
 	}
 	currentServer = nil
-	log.Info("MQTT 服务器已停止")
+	log.Info("MQTT server stopped")
 	return nil
 }

@@ -10,12 +10,12 @@ import (
 )
 
 func AcquireVAD(provider string, config map[string]interface{}) (inter.VAD, error) {
-	// 优先使用 config 中的 provider，否则使用参数中的 provider
+	// Prefer provider from config; fall back to the parameter provider
 	if configProvider, ok := config["provider"].(string); ok && configProvider != "" {
 		provider = configProvider
 	}
 
-	// 如果 provider 为空，返回明确的错误信息
+	// If provider is empty, return a clear error message
 	if provider == "" {
 		return nil, errors.New("vad provider is empty, please set provider in config (supported: silero_vad, ten_vad)")
 	}
@@ -33,7 +33,7 @@ func AcquireVAD(provider string, config map[string]interface{}) (inter.VAD, erro
 }
 
 func ReleaseVAD(vad inter.VAD) error {
-	//根据vad的类型，调用对应的ReleaseVAD方法
+	// Call the corresponding ReleaseVAD method based on the VAD type
 	switch vad.(type) {
 	// case *webrtc_vad.WebRTCVAD:
 	// 	return webrtc_vad.ReleaseVAD(vad)

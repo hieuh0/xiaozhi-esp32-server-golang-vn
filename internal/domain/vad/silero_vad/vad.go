@@ -71,7 +71,7 @@ func NewSileroVAD(config map[string]interface{}) (*SileroVAD, error) {
 	cfg := withDefaults(config)
 	modelPath := getString(cfg, "model_path", "")
 	if modelPath == "" {
-		return nil, errors.New("缺少模型路径配置")
+		return nil, errors.New("missing model path configuration")
 	}
 	resolvedModelPath, err := resolveModelPath(modelPath)
 	if err != nil {
@@ -142,7 +142,7 @@ func (s *SileroVAD) IsVADExt(pcmData []float32, sampleRate int, frameSize int) (
 	defer s.mu.Unlock()
 
 	if s.closed || s.stream == nil || s.runtime == nil {
-		return false, errors.New("Silero VAD实例未初始化")
+		return false, errors.New("Silero VAD instance not initialized")
 	}
 	if len(pcmData) == 0 {
 		return false, nil
@@ -275,7 +275,7 @@ func acquireRuntime(cfg speech.RuntimeConfig) (runtimeKey, *speech.Runtime, erro
 	if shared, ok := runtimes[key]; ok {
 		shared.refs++
 		log.Debugf(
-			"Silero VAD共享Runtime复用: model=%s, num_sessions=%d, refs=%d",
+			"Silero VAD shared runtime reused: model=%s, num_sessions=%d, refs=%d",
 			key.modelPath,
 			key.numSessions,
 			shared.refs,
@@ -289,7 +289,7 @@ func acquireRuntime(cfg speech.RuntimeConfig) (runtimeKey, *speech.Runtime, erro
 	}
 	runtimes[key] = &sharedRuntime{runtime: rt, refs: 1}
 	log.Debugf(
-		"Silero VAD共享Runtime创建: model=%s, num_sessions=%d, intra_threads=%d, inter_threads=%d, refs=1",
+		"Silero VAD shared runtime created: model=%s, num_sessions=%d, intra_threads=%d, inter_threads=%d, refs=1",
 		key.modelPath,
 		key.numSessions,
 		key.intraOpNumThreads,
@@ -319,7 +319,7 @@ func releaseRuntime(key runtimeKey) error {
 func resolveModelPath(modelPath string) (string, error) {
 	modelPath = strings.TrimSpace(modelPath)
 	if modelPath == "" {
-		return "", errors.New("缺少模型路径配置")
+		return "", errors.New("missing model path configuration")
 	}
 
 	candidates := buildModelPathCandidates(modelPath, modelPathSearchRoots()...)
@@ -330,7 +330,7 @@ func resolveModelPath(modelPath string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("模型文件不存在: %s (已尝试: %s)", modelPath, strings.Join(candidates, ", "))
+	return "", fmt.Errorf("model file not found: %s (tried: %s)", modelPath, strings.Join(candidates, ", "))
 }
 
 func buildModelPathCandidates(modelPath string, roots ...string) []string {

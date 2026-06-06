@@ -2,7 +2,7 @@ package client
 
 import "time"
 
-// Statistic 结构体已废弃，请使用 statistic_plugin 在 MetricTtsStop 时获取统计信息
+// Statistic struct is deprecated; use statistic_plugin to get statistics at MetricTtsStop
 type Statistic struct {
 	TurnStartTs        int64
 	VoiceSilenceTs     int64
@@ -17,7 +17,7 @@ type Statistic struct {
 	TtsStopTs          int64
 }
 
-// MarkTurnStart 记录轮次开始时间
+// MarkTurnStart records the turn start timestamp
 func (state *ClientState) MarkTurnStart() {
 	state.Statistic.TurnStartTs = time.Now().UnixMilli()
 	state.Statistic.VoiceSilenceTs = 0
@@ -25,7 +25,7 @@ func (state *ClientState) MarkTurnStart() {
 	state.Statistic.AsrFinalTextTs = 0
 }
 
-// MarkVoiceSilenceAt 记录语音静默开始时间，返回本轮是否首次记录
+// MarkVoiceSilenceAt records the voice silence start timestamp; returns whether this is the first record in this turn
 func (state *ClientState) MarkVoiceSilenceAt(ts int64) bool {
 	if state.Statistic.VoiceSilenceTs != 0 {
 		return false
@@ -34,24 +34,24 @@ func (state *ClientState) MarkVoiceSilenceAt(ts int64) bool {
 	return true
 }
 
-// MarkVoiceSilence 记录语音静默开始时间，返回本轮是否首次记录
+// MarkVoiceSilence records the voice silence start timestamp; returns whether this is the first record in this turn
 func (state *ClientState) MarkVoiceSilence() bool {
 	return state.MarkVoiceSilenceAt(time.Now().UnixMilli())
 }
 
-// MarkAsrFirstText 记录 ASR 首次返回文本时间
+// MarkAsrFirstText records the timestamp of the first ASR text return
 func (state *ClientState) MarkAsrFirstText() {
 	if state.Statistic.AsrFirstTextTs == 0 {
 		state.Statistic.AsrFirstTextTs = time.Now().UnixMilli()
 	}
 }
 
-// MarkAsrFinalText 记录 ASR 最终文本时间
+// MarkAsrFinalText records the ASR final text timestamp
 func (state *ClientState) MarkAsrFinalText() {
 	state.MarkAsrFinalTextAt(time.Now().UnixMilli())
 }
 
-// MarkAsrFinalTextAt 记录 ASR 最终文本时间，返回本轮是否首次记录
+// MarkAsrFinalTextAt records the ASR final text timestamp; returns whether this is the first record in this turn
 func (state *ClientState) MarkAsrFinalTextAt(ts int64) bool {
 	if state.Statistic.AsrFinalTextTs != 0 {
 		return false
@@ -60,7 +60,7 @@ func (state *ClientState) MarkAsrFinalTextAt(ts int64) bool {
 	return true
 }
 
-// MarkLlmStart 记录 LLM 开始时间
+// MarkLlmStart records the LLM start timestamp
 func (state *ClientState) MarkLlmStart() {
 	state.Statistic.LlmStartTs = time.Now().UnixMilli()
 	state.Statistic.LlmFirstTokenTs = 0
@@ -68,12 +68,12 @@ func (state *ClientState) MarkLlmStart() {
 	state.Statistic.LlmEndTs = 0
 }
 
-// MarkLlmFirstToken 记录 LLM 首次返回 token 时间
+// MarkLlmFirstToken records the timestamp of the first LLM token return
 func (state *ClientState) MarkLlmFirstToken() {
 	state.Statistic.LlmFirstTokenTs = time.Now().UnixMilli()
 }
 
-// MarkLlmFirstSentenceAt 记录 LLM 首句输出时间，返回本轮是否首次记录
+// MarkLlmFirstSentenceAt records the LLM first sentence output timestamp; returns whether this is the first record in this turn
 func (state *ClientState) MarkLlmFirstSentenceAt(ts int64) bool {
 	if state.Statistic.LlmFirstSentenceTs != 0 {
 		return false
@@ -82,60 +82,60 @@ func (state *ClientState) MarkLlmFirstSentenceAt(ts int64) bool {
 	return true
 }
 
-// MarkLlmFirstSentence 记录 LLM 首句输出时间，返回本轮是否首次记录
+// MarkLlmFirstSentence records the LLM first sentence output timestamp; returns whether this is the first record in this turn
 func (state *ClientState) MarkLlmFirstSentence() bool {
 	return state.MarkLlmFirstSentenceAt(time.Now().UnixMilli())
 }
 
-// MarkLlmEnd 记录 LLM 结束时间
+// MarkLlmEnd records the LLM end timestamp
 func (state *ClientState) MarkLlmEnd() {
 	state.Statistic.LlmEndTs = time.Now().UnixMilli()
 }
 
-// MarkTtsStart 记录 TTS 开始时间
+// MarkTtsStart records the TTS start timestamp
 func (state *ClientState) MarkTtsStart() {
 	state.Statistic.TtsStartTs = time.Now().UnixMilli()
 	state.Statistic.TtsFirstFrameTs = 0
 	state.Statistic.TtsStopTs = 0
 }
 
-// MarkTtsFirstFrame 记录 TTS 首帧时间
+// MarkTtsFirstFrame records the TTS first frame timestamp
 func (state *ClientState) MarkTtsFirstFrame() {
 	if state.Statistic.TtsFirstFrameTs == 0 {
 		state.Statistic.TtsFirstFrameTs = time.Now().UnixMilli()
 	}
 }
 
-// MarkTtsStop 记录 TTS 结束时间
+// MarkTtsStop records the TTS stop timestamp
 func (state *ClientState) MarkTtsStop() {
 	state.Statistic.TtsStopTs = time.Now().UnixMilli()
 }
 
-// SetStartAsrTs 设置 ASR 开始时间（别名，为了兼容）
+// SetStartAsrTs sets ASR start timestamp (alias for compatibility)
 func (state *ClientState) SetStartAsrTs() { state.MarkVoiceSilence() }
 
-// SetStartLlmTs 设置 LLM 开始时间（别名，为了兼容）
+// SetStartLlmTs sets LLM start timestamp (alias for compatibility)
 func (state *ClientState) SetStartLlmTs() { state.MarkLlmStart() }
 
-// SetStartTtsTs 设置 TTS 开始时间（别名，为了兼容）
+// SetStartTtsTs sets TTS start timestamp (alias for compatibility)
 func (state *ClientState) SetStartTtsTs() { state.MarkTtsStart() }
 
-// GetAsrDuration 获取 ASR 处理耗时（已废弃，仅保留方法签名）
+// GetAsrDuration returns ASR processing duration (deprecated, method signature kept for compatibility)
 func (state *ClientState) GetAsrDuration() int64 {
 	return calcStatisticDuration(state.Statistic.VoiceSilenceTs, state.Statistic.AsrFinalTextTs)
 }
 
-// GetAsrLlmTtsDuration 获取整体耗时（已废弃，仅保留方法签名）
+// GetAsrLlmTtsDuration returns overall pipeline duration (deprecated, method signature kept for compatibility)
 func (state *ClientState) GetAsrLlmTtsDuration() int64 {
 	return calcStatisticDuration(state.Statistic.VoiceSilenceTs, state.Statistic.TtsFirstFrameTs)
 }
 
-// GetLlmDuration 获取 LLM 耗时（已废弃，仅保留方法签名）
+// GetLlmDuration returns LLM duration (deprecated, method signature kept for compatibility)
 func (state *ClientState) GetLlmDuration() int64 {
 	return calcStatisticDuration(state.Statistic.LlmStartTs, state.Statistic.LlmEndTs)
 }
 
-// GetTtsDuration 获取 TTS 耗时（已废弃，仅保留方法签名）
+// GetTtsDuration returns TTS duration (deprecated, method signature kept for compatibility)
 func (state *ClientState) GetTtsDuration() int64 {
 	return calcStatisticDuration(state.Statistic.TtsStartTs, state.Statistic.TtsStopTs)
 }

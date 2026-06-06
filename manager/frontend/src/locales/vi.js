@@ -1872,4 +1872,11 @@ export default {
   tts_provider_label: 'Nhà cung cấp TTS: {provider}',
   confirm_delete_sample: 'Xác nhận xóa mẫu "{name}"? Thao tác này không thể hoàn tác.',
   agent_console: 'Bảng điều khiển Agent',
+  nickname_label: 'Biệt danh:',
+  linked_kbs_tooltip: 'Tri thức liên kết: {names}',
+  mcp_selected_services: 'Đã chọn {count} dịch vụ',
+  mcp_client_count_text: ' ({count} client)',
+  mcp_status_tooltip: 'Agent WebSocket: {ws}{clients} | MCP toàn cục: {mcp} | Phạm vi: {scope}',
+  openclaw_status_tooltip: 'OpenClaw: {config} | Kết nối: {connection}',
+  role_config_applied: 'Đã điền cấu hình vai trò, nhấn "Lưu cấu hình" để gửi',
 }

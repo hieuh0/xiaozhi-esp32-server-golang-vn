@@ -1,18 +1,18 @@
 <template>
   <div class="test-page">
-    <h1>{{ t('test_page') }}测试页面</h1>
+    <h1>{{ t('test_page') }}</h1>
     <p>{{ t('routing_works') }}</p>
     <div class="debug-info">
-      <h3>{{ t('debug_info_label') }}调试信息：</h3>
-      <p>当前路径: {{ $route.path }}</p>
-      <p>用户认证状态: {{ authStore.isAuthenticated }}</p>
-      <p>用户信息: {{ authStore.user }}</p>
-      <p>是否管理员: {{ authStore.isAdmin }}</p>
+      <h3>{{ t('debug_info_label') }}</h3>
+      <p>{{ t('current_path_label') }}{{ $route.path }}</p>
+      <p>{{ t('auth_status_label') }}{{ authStore.isAuthenticated }}</p>
+      <p>{{ t('user_info_label') }}{{ authStore.user }}</p>
+      <p>{{ t('is_admin_label') }}{{ authStore.isAdmin }}</p>
     </div>
     <div class="actions">
-      <el-button @click="$router.push('/login')">{{ t('go_to_login_page') }}去登录页</el-button>
-      <el-button @click="$router.push('/dashboard')">{{ t('go_to_dashboard') }}去仪表板</el-button>
-      <el-button @click="$router.push('/agents')">{{ t('go_to_agent_list') }}去智能体列表</el-button>
+      <el-button @click="$router.push('/login')">{{ t('go_to_login_page') }}</el-button>
+      <el-button @click="$router.push('/dashboard')">{{ t('go_to_dashboard') }}</el-button>
+      <el-button @click="$router.push('/agents')">{{ t('go_to_agent_list') }}</el-button>
     </div>
   </div>
 </template>

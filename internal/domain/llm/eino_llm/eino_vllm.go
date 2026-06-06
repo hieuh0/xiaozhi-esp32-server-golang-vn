@@ -11,9 +11,9 @@ import (
 )
 
 func (p *EinoLLMProvider) ResponseWithVllm(ctx context.Context, file []byte, text string, mimeType string) (string, error) {
-	log.Infof("[Eino-LLM] 开始进行VLLM请求 - MIMEType: %s, file length: %d", mimeType, len(file))
+	log.Infof("[Eino-LLM] Start VLLM request - MIMEType: %s, file length: %d", mimeType, len(file))
 
-	// 将图片文件以base64编码，组装为data url
+	//Encode the image file with base64 and assemble it into a data url
 	base64Str := base64.StdEncoding.EncodeToString(file)
 	dataURL := fmt.Sprintf("data:%s;base64,%s", mimeType, base64Str)
 
@@ -36,14 +36,14 @@ func (p *EinoLLMProvider) ResponseWithVllm(ctx context.Context, file []byte, tex
 	dialogue := []*schema.Message{
 		&schema.Message{
 			Role:    schema.System,
-			Content: "你是一个专业的图片识别专家，请根据图片内容使用中文回答用户的问题。",
+			Content: "You are a professional image recognition expert. Please answer user questions in English based on the image content.",
 		},
 		msg,
 	}
 	responseChan := p.ResponseWithContext(ctx, "", dialogue, []*schema.ToolInfo{})
 	if responseChan == nil {
-		log.Errorf("[Eino-VLLM] 调用视觉api请求处理失败 - responseChan为nil")
-		return "", fmt.Errorf("调用视觉api请求处理失败 - responseChan为nil")
+		log.Errorf("[Eino-VLLM] Calling visual api request processing failed - responseChan is nil")
+		return "", fmt.Errorf("Calling visual api request processing failed - responseChan is nil")
 	}
 
 	var result bytes.Buffer

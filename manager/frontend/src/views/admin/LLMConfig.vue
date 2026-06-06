@@ -93,7 +93,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加/编辑配置弹窗 -->
+    <!-- Add/Edit config dialog -->
     <el-dialog
       v-model="showDialog"
       :title="editingConfig ? t('edit_llm_config') : t('add_llm_config')"
@@ -252,7 +252,7 @@ const editConfig = (config) => {
   form.is_default = config.is_default
   form.enabled = config.enabled
   
-  // 解析配置JSON并填充到对应字段
+  // Parse config JSON and populate the corresponding fields
   try {
     const configObj = JSON.parse(config.json_data || '{}')
     const detectedProvider = resolveLLMProvider(config.provider, configObj.type)
@@ -297,14 +297,14 @@ const handleSave = async () => {
     if (valid) {
       saving.value = true
       try {
-        // 检查是否是首次添加配置
+        // Check if this is the first config being added
         const isFirstConfig = !editingConfig.value && configs.value.length === 0
-        
+
         const configData = {
           name: form.name,
           config_id: form.config_id,
           provider: form.provider,
-          is_default: isFirstConfig || form.is_default, // 首次添加自动设为默认
+          is_default: isFirstConfig || form.is_default, // Auto-set as default on first add
           enabled: form.enabled !== undefined ? form.enabled : true,
           json_data: formRef.value.getJsonData()
         }
@@ -333,7 +333,7 @@ const toggleEnable = async (config) => {
     await api.post(`/admin/configs/${config.id}/toggle`)
     ElMessage.success(config.enabled ? t('enabled_success') : t('disable_success'))
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.enabled = !config.enabled
     ElMessage.error(t('operation_failed'))
   }
@@ -359,10 +359,10 @@ const toggleDefault = async (config) => {
     await api.put(`/admin/llm-configs/${config.id}`, configData)
     ElMessage.success(config.is_default ? t('set_default_success') : t('cancel_default_success'))
     
-    // 刷新列表以更新其他配置的默认状态
+    // Refresh list to update default status of other configs
     loadConfigs()
   } catch (error) {
-    // 恢复开关状态
+    // Revert toggle state
     config.is_default = !config.is_default
     ElMessage.error(t('operation_failed'))
   }

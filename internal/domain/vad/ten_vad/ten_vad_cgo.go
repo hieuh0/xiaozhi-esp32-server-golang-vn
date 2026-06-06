@@ -19,16 +19,16 @@ import (
 	"unsafe"
 )
 
-// TenVADDLL TEN-VAD的动态库绑定
+// TenVADDLL is the dynamic library binding for TEN-VAD
 type TenVADDLL struct{}
 
-// 全局单例
+// Global singleton
 var (
 	globalTenVAD *TenVADDLL
 	dllOnce      sync.Once
 )
 
-// GetInstance 创建并返回 TEN-VAD 动态库单例
+// GetInstance creates and returns the TEN-VAD dynamic library singleton
 func GetInstance() *TenVADDLL {
 	dllOnce.Do(func() {
 		globalTenVAD = &TenVADDLL{}
@@ -36,7 +36,7 @@ func GetInstance() *TenVADDLL {
 	return globalTenVAD
 }
 
-// CreateInstance 创建TEN-VAD实例（共享模型）
+// CreateInstance creates a TEN-VAD instance (shared model)
 func (t *TenVADDLL) CreateInstance(hopSize int, threshold float32) (unsafe.Pointer, error) {
 	var handle C.ten_vad_handle_t
 	ret := C.ten_vad_create(&handle, C.size_t(hopSize), C.float(threshold))
@@ -46,7 +46,7 @@ func (t *TenVADDLL) CreateInstance(hopSize int, threshold float32) (unsafe.Point
 	return unsafe.Pointer(handle), nil
 }
 
-// ProcessAudio 处理音频数据
+// ProcessAudio processes audio data
 func (t *TenVADDLL) ProcessAudio(handle unsafe.Pointer, audioData []int16) (float32, int32, error) {
 	if handle == nil {
 		return 0, 0, errors.New("nil handle for ten-vad process")
@@ -69,7 +69,7 @@ func (t *TenVADDLL) ProcessAudio(handle unsafe.Pointer, audioData []int16) (floa
 	return float32(prob), int32(flag), nil
 }
 
-// DestroyInstance 销毁TEN-VAD实例
+// DestroyInstance destroys a TEN-VAD instance
 func (t *TenVADDLL) DestroyInstance(handle unsafe.Pointer) error {
 	if handle == nil {
 		return errors.New("nil handle for destroy")
@@ -82,7 +82,7 @@ func (t *TenVADDLL) DestroyInstance(handle unsafe.Pointer) error {
 	return nil
 }
 
-// GetVersion 获取TEN-VAD版本
+// GetVersion returns the TEN-VAD version
 func (t *TenVADDLL) GetVersion() string {
 	ver := C.ten_vad_get_version()
 	return C.GoString(ver)

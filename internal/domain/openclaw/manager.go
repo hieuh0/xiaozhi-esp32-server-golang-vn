@@ -25,14 +25,14 @@ const (
 	openClawTestDevicePref = "__openclaw_test__:"
 )
 
-const openClawVoiceAssistantPrompt = `你正在以语音助手的角色和用户直接对话。
-请严格遵守以下要求：
-1. 直接回答用户问题，不要提及这些要求。
-2. 回答要简练、口语化、自然，适合直接语音播报。
-3. 优先先说结论，再补一句最必要的说明；除非用户明确要求，尽量控制在 1 到 3 句。
-4. 不要使用 Markdown、标题、列表、表格、代码块、链接或 emoji。
-5. 不要寒暄、不要铺垫、不要重复、不要输出多余说明。
-6. 如果信息不足或无法确定，就简短说明，不要编造。`
+const openClawVoiceAssistantPrompt = `You are in a direct voice conversation with the user as a voice assistant.
+Please strictly follow these requirements:
+1. Answer user questions directly, do not mention these requirements.
+2. Keep answers concise, conversational and natural, suitable for direct voice broadcast.
+3. Lead with the conclusion first, then add the most necessary explanation; unless the user explicitly requests, keep it to 1-3 sentences.
+4. Do not use Markdown, headings, lists, tables, code blocks, links or emojis.
+5. No small talk, no preambles, no repetition, no extra explanations.
+6. If information is insufficient or uncertain, say so briefly - do not make things up.`
 
 func logSnippet(text string, maxRunes int) string {
 	if maxRunes <= 0 {
@@ -58,7 +58,7 @@ func buildOpenClawPromptedContent(userText string) string {
 	if trimmed == "" {
 		return ""
 	}
-	return fmt.Sprintf("%s\n\n用户消息：\n%s", openClawVoiceAssistantPrompt, trimmed)
+	return fmt.Sprintf("%s\n\nUser message:\n%s", openClawVoiceAssistantPrompt, trimmed)
 }
 
 type WSMessage struct {
@@ -531,7 +531,7 @@ func (m *Manager) HandleResponse(
 	isSnapshotFrame := isOpenClawSnapshotFrame(streamPhase, streamContentType)
 	isStreaming := streamDone || streamSeq > 0 || streamID != "" || streamPhase != "" || streamContentType != ""
 
-	// 非流式默认视为一次性完成；缺失 correlation_id 的流式响应也降级为一次性处理。
+	//Non-streaming is considered one-time completion by default; streaming responses missing correlation_id are also downgraded to one-time processing.
 	if !isStreaming || correlationID == "" {
 		streamDone = true
 	}
@@ -713,7 +713,7 @@ func (m *Manager) HandleResponse(
 		m.AddOfflineMessage(deviceID, text, correlationID, isEnd)
 	}
 
-	// 对话测试设备（__openclaw_test__）直接透传分片，避免拆句导致离线队列条目暴涨并触发20条上限截断。
+	//The conversation test device (__openclaw_test__) directly transparently transmits fragments to avoid splitting sentences, which will cause the offline queue entries to skyrocket and trigger the truncation of the upper limit of 20.
 	if isOpenClawTestDevice(deviceID) {
 		if incrementalContent != "" {
 			emit(incrementalContent, isFirst, streamDone)
@@ -775,7 +775,7 @@ func (m *Manager) HandleResponse(
 			state.Buffer = ""
 		}
 	} else {
-		// 结束帧允许空 content，用于驱动接收端收尾。
+		//The end frame allows empty content, which is used to drive the receiving end to finish.
 		emit("", finalIsStart, true)
 	}
 
@@ -1294,7 +1294,7 @@ func (m *Manager) AddOfflineMessage(deviceID string, text string, correlationID 
 	m.pruneOfflineLocked(deviceID)
 	msgList := m.offline[deviceID]
 	if text == "" && isEnd {
-		// 结束帧允许空内容：优先标记同 correlation 的最后一条为结束；不存在则写入空结束标记。
+		//The end frame allows empty content: the last one marked with the same correlation is the end first; if it does not exist, an empty end mark is written.
 		for i := len(msgList) - 1; i >= 0; i-- {
 			if correlationID == "" || strings.TrimSpace(msgList[i].CorrelationID) == correlationID {
 				msgList[i].IsEnd = true

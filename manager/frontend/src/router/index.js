@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { isMobile } from '../utils/device'
 
-// 根据设备类型动态加载组件
+// Dynamically load login component based on device type
 const getLoginComponent = () => {
   return isMobile()
     ? import('../views/mobile/MobileLogin.vue')
@@ -55,7 +55,7 @@ const routes = [
         component: () => import('../views/Dashboard.vue'),
         meta: { title: 'dashboard', requiresAdmin: true }
       },
-      // 管理员路由
+      // Admin routes
       {
         path: '/admin',
         name: 'Admin',
@@ -189,7 +189,7 @@ const routes = [
           }
         ]
       },
-      // 用户路由
+      // User routes
       {
         path: '/console',
         redirect: '/agents',
@@ -292,13 +292,13 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
 
-  // 如果访问引导页面，直接通过
+  // Allow setup page without auth
   if (to.path === '/setup') {
     next()
     return
   }
 
-  // 如果访问登录页且已登录，根据角色跳转（管理员首次未完成向导则去配置向导）
+  // Already logged in: redirect from login page based on role (admin goes to wizard on first login)
   if (to.path === '/login' && authStore.isAuthenticated) {
     if (authStore.user?.role === 'admin') {
       if (!localStorage.getItem('admin_first_login_done')) {
@@ -312,40 +312,40 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
-  // 如果需要认证
+  // Route requires authentication
   if (to.meta.requiresAuth) {
     if (!authStore.isAuthenticated) {
-      // 没有token，跳转到登录页
+      // No token — redirect to login
       next('/login')
       return
     }
 
-    // 有token但没有用户信息，尝试验证token有效性
+    // Token present but no user info — validate token
     if (!authStore.user && !authStore.isValidating) {
       try {
         await authStore.getProfile()
       } catch (error) {
-        // 如果是401错误（token无效），跳转到登录页
+        // 401: token invalid — redirect to login
         if (error.response?.status === 401) {
           next('/login')
           return
         }
-        // 如果是网络错误（后端连接失败），允许继续访问（但会显示错误）
+        // Network error (backend unreachable) — allow access with error shown
         if (error.code === 'ERR_NETWORK' || error.message?.includes('Failed to fetch') || error.message?.includes('ERR_CONNECTION_REFUSED')) {
-          // 网络错误时，如果本地有用户信息，允许继续访问
+          // On network error without local user info, redirect to login
           if (!authStore.user) {
             next('/login')
             return
           }
-          // 注意：这里不调用 next()，让代码继续执行到最后的 next()
+          // Fall through to final next()
         } else {
-          // 其他错误，允许继续访问（可能是后端暂时不可用）
-          // 注意：这里不调用 next()，让代码继续执行到最后的 next()
+          // Other errors — allow access (backend may be temporarily unavailable)
+          // Fall through to final next()
         }
       }
     }
 
-    // 如果正在验证中，等待验证完成（最多等待2秒）
+    // Wait for in-progress validation (max 2 seconds)
     if (authStore.isValidating) {
       let waitCount = 0
       while (authStore.isValidating && waitCount < 20) {
@@ -355,7 +355,7 @@ router.beforeEach(async (to, from, next) => {
     }
   }
 
-  // 如果访问根路径，根据角色跳转（管理员首次未完成向导则去配置向导）
+  // Root path: redirect based on role (admin goes to wizard on first login)
   if (to.path === '/' && authStore.isAuthenticated) {
     if (authStore.user?.role === 'admin') {
       if (!localStorage.getItem('admin_first_login_done')) {
@@ -369,7 +369,7 @@ router.beforeEach(async (to, from, next) => {
     return
   }
 
-  // 如果普通用户访问管理员页面，跳转到智能体工作台
+  // Non-admin accessing admin page — redirect to agents
   if (to.meta.requiresAdmin && authStore.user?.role !== 'admin') {
     next('/agents')
     return

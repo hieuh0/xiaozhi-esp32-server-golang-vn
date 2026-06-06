@@ -27,7 +27,7 @@ type toolCallResponseSummary struct {
 	hasMediaOutput    bool
 }
 
-// handleToolCallResponse 处理工具调用响应
+// handleToolCallResponse handles the tool call response
 func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema.Message, tools []schema.ToolCall, executor *toolCallExecutor) (toolCallResponseSummary, error) {
 	if len(tools) == 0 {
 		return toolCallResponseSummary{}, nil
@@ -38,7 +38,7 @@ func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema
 		respMsg.ToolCalls = normalizeToolCallIDs(respMsg.ToolCalls)
 	}
 
-	log.Infof("处理 %d 个工具调用", len(tools))
+	log.Infof("Handled %d tool calls", len(tools))
 	if executor == nil {
 		executor = newToolCallExecutor(l, ctx)
 		executor.Submit(tools)
@@ -46,8 +46,8 @@ func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema
 
 	var messageList []*schema.Message
 
-	// 只有当respMsg有内容（Content不为空或ToolCalls不为空）时才添加到messageList
-	// 避免保存空的assistant消息导致后续LLM调用出现400错误
+	// Only add to messageList when respMsg has content (Content is not empty or ToolCalls is not empty)
+	// Avoid saving empty assistant messages causing 400 errors in subsequent LLM calls
 	if respMsg != nil && (respMsg.Content != "" || len(respMsg.ToolCalls) > 0) {
 		messageList = append(messageList, respMsg)
 	}
@@ -76,10 +76,10 @@ func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema
 
 	if len(messageList) > 0 {
 		for _, msg := range messageList {
-			// 过滤掉Content为空的assistant消息，避免保存到历史记录中
-			// 空的assistant消息会导致后续LLM调用时出现400错误
+			// Filter out assistant messages with empty Content to avoid saving them in the history
+			// Empty assistant messages will cause 400 errors on subsequent LLM calls
 			if msg != nil && msg.Role == schema.Assistant && msg.Content == "" && len(msg.ToolCalls) == 0 {
-				log.Debugf("跳过保存空的assistant消息")
+				log.Debugf("Skip saving empty assistant messages")
 				continue
 			}
 			l.AddLlmMessage(ctx, msg)
@@ -93,10 +93,10 @@ func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema
 	executor.WaitMedia()
 
 	if findExitTool {
-		// 发布退出聊天事件
+		// Post exit chat event
 		eventbus.Get().Publish(eventbus.TopicExitChat, &eventbus.ExitChatEvent{
 			ClientState: l.clientState,
-			Reason:      "工具调用退出",
+			Reason:      "Tool call exit",
 			TriggerType: "tool_call",
 			UserText:    "",
 			Timestamp:   time.Now(),
@@ -108,7 +108,7 @@ func (l *LLMManager) handleToolCallResponse(ctx context.Context, respMsg *schema
 		}, nil
 	}
 
-	// 如果工具调用成功且没有被标记为停止处理，则继续LLM调用
+	// If the tool call is successful and is not marked to stop processing, continue the LLM call
 	if invokeToolSuccess && !shouldStopLLMProcessing {
 		l.DoLLmRequest(ctx, nil, l.einoTools, true, nil)
 	}
@@ -241,24 +241,24 @@ func (e *toolCallExecutor) executeToolCall(order int, toolCall schema.ToolCall) 
 	}
 	toolObj, ok := mcp.GetToolByNameWithTransport(state.DeviceID, state.AgentID, transportType, toolName, state.DeviceConfig.MCPServiceNames)
 	if !ok || toolObj == nil {
-		log.Errorf("未找到工具: %s", toolName)
-		resultMessage.Content = fmt.Sprintf("未找到工具: %s", toolName)
+		log.Errorf("Tool not found: %s", toolName)
+		resultMessage.Content = fmt.Sprintf("Tool not found: %s", toolName)
 		return toolCallExecutionResult{order: order, message: resultMessage}
 	}
 
-	log.Infof("进行工具调用请求: %s, 参数: %+v", toolName, toolCall.Function.Arguments)
+	log.Infof("Make tool call request: %s, parameters: %+v", toolName, toolCall.Function.Arguments)
 	startTs := time.Now().UnixMilli()
 	fcResult, err := toolObj.InvokableRun(e.toolCtx, toolCall.Function.Arguments)
 	if err != nil {
-		log.Errorf("工具调用失败: %v", err)
-		resultMessage.Content = fmt.Sprintf("工具 %s 调用失败: %v", toolName, err)
+		log.Errorf("Tool call failed: %v", err)
+		resultMessage.Content = fmt.Sprintf("Tool %s call failed: %v", toolName, err)
 		return toolCallExecutionResult{order: order, message: resultMessage}
 	}
 	costTs := time.Now().UnixMilli() - startTs
 	if len(fcResult) > 2048 {
-		log.Infof("工具调用结果 len: %d, 耗时: %dms", len(fcResult), costTs)
+		log.Infof("Tool call result len: %d, time consumption: %dms", len(fcResult), costTs)
 	} else {
-		log.Infof("工具调用结果 %s, 耗时: %dms", fcResult, costTs)
+		log.Infof("Tool call result %s, time taken: %dms", fcResult, costTs)
 	}
 
 	execResult := toolCallExecutionResult{
@@ -281,7 +281,7 @@ func (e *toolCallExecutor) executeToolCall(order int, toolCall schema.ToolCall) 
 		contentList = mcpResp.GetContent()
 	} else if toolCallResult, ok := e.manager.handleToolResult(fcResult); ok {
 		if toolCallResult.IsError {
-			log.Errorf("工具调用失败: %s, 错误标记: %t", fcResult, toolCallResult.IsError)
+			log.Errorf("Tool call failed: %s, error tag: %t", fcResult, toolCallResult.IsError)
 		}
 		contentList = toolCallResult.Content
 	}
@@ -290,29 +290,29 @@ func (e *toolCallExecutor) executeToolCall(order int, toolCall schema.ToolCall) 
 		var mcpContent string
 		for _, content := range contentList {
 			if audioContent, ok := content.(mcp_go.AudioContent); ok {
-				log.Debugf("调用工具 %s 返回音频资源长度: %d", toolName, len(audioContent.Data))
-				mcpContent = "执行成功"
+				log.Debugf("Calling tool %s returns audio resource length: %d", toolName, len(audioContent.Data))
+				mcpContent = "Success"
 				if err := e.manager.handleAudioContent(e.ctx, toolName, audioContent, &e.mediaWg); err != nil {
-					log.Errorf("mcp播放音频资源失败: %v", err)
-					mcpContent = "执行失败"
+					log.Errorf("mcp failed to play audio resource: %v", err)
+					mcpContent = "Failed"
 				}
 				execResult.shouldStopLLMProcessing = true
 				execResult.hasMediaOutput = true
 				break
 			}
 			if resourceLink, ok := content.(mcp_go.ResourceLink); ok {
-				log.Debugf("调用工具 %s 返回资源链接: %+v", toolName, resourceLink)
-				mcpContent = "执行成功"
+				log.Debugf("Call tool %s to return resource link: %+v", toolName, resourceLink)
+				mcpContent = "Success"
 				if err := e.manager.handleResourceLink(e.ctx, resourceLink, toolObj, &e.mediaWg); err != nil {
-					log.Errorf("mcp播放资源链接失败: %v", err)
-					mcpContent = "执行失败"
+					log.Errorf("mcp playback resource link failed: %v", err)
+					mcpContent = "Failed"
 				}
 				execResult.shouldStopLLMProcessing = true
 				execResult.hasMediaOutput = true
 				break
 			}
 			if textContent, ok := content.(mcp_go.TextContent); ok {
-				log.Debugf("调用工具 %s 返回文本资源长度: %s", toolName, textContent.Text)
+				log.Debugf("Calling tool %s returns text resource length: %s", toolName, textContent.Text)
 				mcpContent += textContent.Text
 			}
 		}
@@ -336,7 +336,7 @@ func (l *LLMManager) handleResourceLink(ctx context.Context, resourceLink mcp_go
 
 	if l.session == nil || l.session.mediaPlayer == nil {
 		wg.Done()
-		return fmt.Errorf("session media player 未初始化")
+		return fmt.Errorf("session media player not initialized")
 	}
 
 	handle, err := l.session.mediaPlayer.PlaySourceWithHandle(ctx, source)
@@ -359,13 +359,13 @@ func (l *LLMManager) handleAudioContent(ctx context.Context, realMusicName strin
 	source, err := buildMediaSourceFromAudioContent(realMusicName, audioContent)
 	if err != nil {
 		wg.Done()
-		log.Errorf("解码音频数据失败: %v", err)
+		log.Errorf("Failed to decode audio data: %v", err)
 		return err
 	}
 
 	if l.session == nil || l.session.mediaPlayer == nil {
 		wg.Done()
-		return fmt.Errorf("session media player 未初始化")
+		return fmt.Errorf("session media player not initialized")
 	}
 
 	handle, err := l.session.mediaPlayer.PlaySourceWithHandle(ctx, source)
@@ -385,12 +385,12 @@ func (l *LLMManager) handleAudioContent(ctx context.Context, realMusicName strin
 func buildMediaSourceFromAudioContent(title string, audioContent mcp_go.AudioContent) (MediaSourceDescriptor, error) {
 	rawAudioData, err := base64.StdEncoding.DecodeString(audioContent.Data)
 	if err != nil {
-		return MediaSourceDescriptor{}, fmt.Errorf("解码音频数据失败: %v", err)
+		return MediaSourceDescriptor{}, fmt.Errorf("Failed to decode audio data: %v", err)
 	}
 
 	title = strings.TrimSpace(title)
-	if title == "" || title == "执行成功" {
-		title = "工具音频"
+	if title == "" || title == "Success" {
+		title = "tool audio"
 	}
 
 	return MediaSourceDescriptor{
@@ -410,7 +410,7 @@ func buildMediaSourceFromAudioContent(title string, audioContent mcp_go.AudioCon
 func buildMediaSourceFromResourceLink(resourceLink mcp_go.ResourceLink, toolCall tool.InvokableTool) (MediaSourceDescriptor, error) {
 	mcpTool, ok := toolCall.(*mcp.McpTool)
 	if !ok || mcpTool == nil {
-		return MediaSourceDescriptor{}, fmt.Errorf("resource link 播放仅支持 MCP 远程工具")
+		return MediaSourceDescriptor{}, fmt.Errorf("resource link playback only supports MCP remote tools")
 	}
 
 	serverName := mcpTool.GetServerName()
@@ -461,7 +461,7 @@ func buildMediaSourceFromResourceLink(resourceLink mcp_go.ResourceLink, toolCall
 }
 
 func (l *LLMManager) handleLocalToolResult(toolResult string) (MCPResponse, bool) {
-	// 如果是mcp返回格式, 则解析
+	// If it is mcp return format, parse
 	var response MCPResponse
 	var err error
 	if response, err = ParseMCPResponse(toolResult); err != nil {

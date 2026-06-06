@@ -122,7 +122,7 @@
               />
               <div class="prompt-tips">
                 <el-text size="small" type="info">
-                  提示：可以使用 &#123;&#123;assistant_name&#125;&#125; 作为智能体名称的占位符
+                  {{ t('assistant_name_placeholder_hint') }}
                 </el-text>
               </div>
             </el-form-item>

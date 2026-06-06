@@ -14,10 +14,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-// AuthHook 实现自定义鉴权逻辑
-// 支持普通用户和超级管理员
-// 普通用户: 用户名为 base64 后的 {"ip":"1.202.193.194"}，密码为 HMAC-SHA256 签名
-// 超级管理员: 用户名 admin，密码 shijingbo!@#
+// AuthHook implements custom authentication for regular users and administrators.
+// Regular users: the username is a base64-encoded {"ip":"1.202.193.194"} object,
+// and the password is an HMAC-SHA256 signature.
+// Administrator: username admin, password shijingbo!@#
 type AuthHook struct {
 	mqttServer.HookBase
 }
@@ -31,10 +31,10 @@ func (h *AuthHook) Provides(b byte) bool {
 }
 
 func (h *AuthHook) OnConnectAuthenticate(cl *mqttServer.Client, pk packets.Packet) bool {
-	// 检查是否启用鉴权
+	// Check whether authentication is enabled.
 	enableAuth := viper.GetBool("mqtt_server.enable_auth")
 	if !enableAuth {
-		//log.Infof("MQTT鉴权已禁用，允许所有连接")
+		//log.Infof("MQTT authentication is disabled; allowing all connections")
 		return true
 	}
 
@@ -42,44 +42,44 @@ func (h *AuthHook) OnConnectAuthenticate(cl *mqttServer.Client, pk packets.Packe
 	password := string(pk.Connect.Password)
 	clientId := string(pk.Connect.ClientIdentifier)
 
-	// 超级管理员校验
+	// Validate the administrator credentials.
 	adminUsername := configuredAdminUsername()
 	adminPassword := configuredAdminPassword()
 	if username == adminUsername && password == adminPassword {
-		log.Infof("超级管理员登录成功: %s", username)
+		log.Infof("Administrator login succeeded: %s", username)
 		return true
 	}
 	if username == adminUsername {
-		log.Warnf("MQTT管理员登录失败: username=%s, clientId=%s, 原因=密码错误", username, clientId)
+		log.Warnf("MQTT administrator login failed: username=%s, clientId=%s, reason=incorrect password", username, clientId)
 		return false
 	}
 
-	// 普通用户校验 - 使用新的签名验证逻辑
+	// Validate regular users with the signature-based flow.
 	signatureKey := viper.GetString("mqtt_server.signature_key")
 	if signatureKey != "" {
 		credentialInfo, err := util.ValidateMqttCredentials(clientId, username, password, signatureKey)
-		//log.Infof("MQTT用户验证开始: clientId=%s, username=%s, password=%s, signatureKey=%s",
+		//log.Infof("Starting MQTT user validation: clientId=%s, username=%s, password=%s, signatureKey=%s",
 		//	clientId, username, password, signatureKey)
-		//log.Infof("MQTT用户验证开始: credentialInfo=%+v", credentialInfo)
+		//log.Infof("Starting MQTT user validation: credentialInfo=%+v", credentialInfo)
 
 		if err != nil {
-			log.Warnf("MQTT凭据验证失败: username=%s, clientId=%s, err=%v", username, clientId, err)
+			log.Warnf("MQTT credential validation failed: username=%s, clientId=%s, err=%v", username, clientId, err)
 			return false
 		}
 
-		log.Infof("MQTT用户验证成功: groupId=%s, macAddress=%s, uuid=%s",
+		log.Infof("MQTT user validation succeeded: groupId=%s, macAddress=%s, uuid=%s",
 			credentialInfo.GroupId, credentialInfo.MacAddress, credentialInfo.UUID)
 		return true
 	}
 
-	// 如果没有配置签名密钥，回退到原来的AES验证逻辑
-	log.Warnf("缺少OTA签名密钥配置，使用AES验证方式")
+	// Fall back to the legacy AES validation flow when no signature key is configured.
+	log.Warnf("OTA signature key is not configured; using AES validation")
 	return h.validateWithAes(username, password)
 }
 
-// validateWithAes 使用AES方式验证密码（向后兼容）
+// validateWithAes validates the password with AES for backward compatibility.
 func (h *AuthHook) validateWithAes(username, password string) bool {
-	// 普通用户校验
+	// Validate the regular user payload.
 	decoded, err := base64.StdEncoding.DecodeString(username)
 	if err != nil {
 		return false
@@ -91,16 +91,16 @@ func (h *AuthHook) validateWithAes(username, password string) bool {
 	if _, ok := userInfo["ip"]; !ok {
 		return false
 	}
-	// 校验 password 是否为 AES 加密后的 username
+	// Verify that password is the AES-encrypted username.
 	if !checkAesPassword(username, password) {
 		return false
 	}
 	return true
 }
 
-// checkAesPassword 校验 password 是否为 AES-ECB 加密后 base64(username)
+// checkAesPassword verifies password against AES-ECB-encrypted base64(username).
 func checkAesPassword(username, password string) bool {
-	key := []byte("xiaozhi_aes_key_1") // 16字节密钥，实际建议配置
+	key := []byte("xiaozhi_aes_key_1") // 16-byte key; configure this in production.
 	ciphertext, err := aesEncryptECB([]byte(username), key)
 	if err != nil {
 		return false
@@ -109,14 +109,14 @@ func checkAesPassword(username, password string) bool {
 	return cipherBase64 == password
 }
 
-// aesEncryptECB 实现 AES-ECB 加密
+// aesEncryptECB encrypts data with AES-ECB.
 func aesEncryptECB(src, key []byte) ([]byte, error) {
 	block, err := aes.NewCipher(key)
 	if err != nil {
 		return nil, err
 	}
 	blockSize := block.BlockSize()
-	// PKCS7 填充
+	// Apply PKCS7 padding.
 	padding := blockSize - len(src)%blockSize
 	padtext := bytes.Repeat([]byte{byte(padding)}, padding)
 	src = append(src, padtext...)

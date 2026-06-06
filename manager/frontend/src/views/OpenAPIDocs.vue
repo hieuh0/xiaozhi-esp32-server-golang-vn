@@ -57,7 +57,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>agent_id</td><td>number</td><td>{{ t('yes_label') }}</td><td>{{ t('bind_agent_id') }}</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"success":true,"message":"设备创建成功","data":{"device_code":"654321","device":{"id":8,"device_name":"bedroom"}}}</code></pre>
+        <pre><code>{"success":true,"message":"Device created successfully","data":{"device_code":"654321","device":{"id":8,"device_name":"bedroom"}}}</code></pre>
       </section>
 
       <section id="agents" class="vp-section">
@@ -67,7 +67,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
         <div class="api-line"><span class="method get">GET</span><code>/api/open/v1/agents</code></div>
         <h4>{{ t('input_params') }}</h4><p>{{ t('no_auth_required') }}</p>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"data":[{"id":2,"name":"家庭助手","nickname":"小辉","llm_config_id":"llm_default"}]}</code></pre>
+        <pre><code>{"data":[{"id":2,"name":"Home Assistant","nickname":"Xiao Hui","llm_config_id":"llm_default"}]}</code></pre>
 
         <h3>{{ t('create_agent') }}</h3>
         <div class="api-line"><span class="method post">POST</span><code>/api/open/v1/agents</code></div>
@@ -83,7 +83,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>memory_mode</td><td>string</td><td>{{ t('no_label') }}</td><td>short/long/none</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"success":true,"data":{"id":3,"name":"客厅助手","nickname":"小辉"}}</code></pre>
+        <pre><code>{"success":true,"data":{"id":3,"name":"Living Room Assistant","nickname":"Xiao Hui"}}</code></pre>
 
         <h3>{{ t('get_agent_detail') }}</h3>
         <div class="api-line"><span class="method get">GET</span><code>/api/open/v1/agents/:id</code></div>
@@ -92,7 +92,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>id</td><td>number</td><td>{{ t('yes_label') }}</td><td>{{ t('agent_id') }}</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"data":{"id":2,"name":"家庭助手","nickname":"小辉","custom_prompt":"..."}}</code></pre>
+        <pre><code>{"data":{"id":2,"name":"Home Assistant","nickname":"Xiao Hui","custom_prompt":"..."}}</code></pre>
 
         <h3>{{ t('update_agent') }}</h3>
         <div class="api-line"><span class="method put">PUT</span><code>/api/open/v1/agents/:id</code></div>
@@ -112,7 +112,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>memory_mode</td><td>string</td><td>{{ t('no_label') }}</td><td>short/long/none</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"data":{"id":2,"name":"家庭助手-更新后","nickname":"小辉"}}</code></pre>
+        <pre><code>{"data":{"id":2,"name":"Home Assistant (updated)","nickname":"Xiao Hui"}}</code></pre>
 
         <h3>{{ t('delete_agent') }}</h3>
         <div class="api-line"><span class="method delete">DELETE</span><code>/api/open/v1/agents/:id</code></div>
@@ -121,7 +121,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>id</td><td>number</td><td>{{ t('yes_label') }}</td><td>{{ t('agent_id') }}</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"message":"删除成功"}</code></pre>
+        <pre><code>{"message":"Deleted successfully"}</code></pre>
       </section>
 
       <section id="history" class="vp-section">
@@ -139,7 +139,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>page_size</td><td>number</td><td>{{ t('no_label') }}</td><td>{{ t('default_50') }}</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"total":120,"page":1,"page_size":50,"data":[{"id":1,"role":"user","content":"你好"}]}</code></pre>
+        <pre><code>{"total":120,"page":1,"page_size":50,"data":[{"id":1,"role":"user","content":"Hello"}]}</code></pre>
 
         <h3>{{ t('export_messages') }}</h3>
         <div class="api-line"><span class="method get">GET</span><code>/api/open/v1/history/export</code></div>
@@ -165,7 +165,7 @@ X-API-Token: &lt;api-token&gt;</code></pre>
           <tr><td>auto_listen</td><td>boolean</td><td>{{ t('no_label') }}</td><td>{{ t('auto_listen_after_broadcast') }}</td></tr>
         </tbody></table>
         <h4>{{ t('output_example') }}</h4>
-        <pre><code>{"success":true,"message":"语音推送请求已发送","data":{"device_id":"bedroom","message":"hello","skip_llm":false,"auto_listen":true}}</code></pre>
+        <pre><code>{"success":true,"message":"Voice push request sent","data":{"device_id":"bedroom","message":"hello","skip_llm":false,"auto_listen":true}}</code></pre>
       </section>
 
       <section id="mcp" class="vp-section">

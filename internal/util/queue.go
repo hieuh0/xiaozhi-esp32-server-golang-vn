@@ -84,8 +84,8 @@ func (q *Queue[T]) Push(val T) error {
 }
 
 // Pop tries to get an item from the queue.
-// ctx: 支持取消，ctx.Done()时立即返回
-// timeout=0: block until item或queue cleared
+// ctx: supports cancellation; returns immediately when ctx.Done() fires
+// timeout=0: block until item arrives or queue is cleared
 // timeout<0: non-blocking
 // timeout>0: wait up to timeout duration
 func (q *Queue[T]) Pop(ctx context.Context, timeout time.Duration) (T, error) {
@@ -110,7 +110,7 @@ func (q *Queue[T]) Pop(ctx context.Context, timeout time.Duration) (T, error) {
 			return zero, ErrQueueEmpty
 		}
 	} else if timeout == 0 {
-		// Blocking, 支持ctx.Done()
+		// Blocking, supports ctx.Done()
 		select {
 		case v, ok := <-ch:
 			if !ok {
@@ -121,7 +121,7 @@ func (q *Queue[T]) Pop(ctx context.Context, timeout time.Duration) (T, error) {
 			return zero, ErrQueueCtxDone
 		}
 	} else {
-		// Timeout, 支持ctx.Done()
+		// Timeout, supports ctx.Done()
 		select {
 		case v, ok := <-ch:
 			if !ok {

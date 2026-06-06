@@ -9,10 +9,10 @@ import (
 const DefaultManagerAuthToken = "xiaozhi_admin_secret_key"
 const DefaultManagerEndpointAuthToken = "xiaozhi_mcp_openclaw_secret_key"
 
-// GetManagerAuthToken 获取主程序与控制台之间通用的内部调用鉴权 Token。
-// 优先级：
+// GetManagerAuthToken returns the internal auth token shared between the main program and the console.
+// Priority:
 // 1. manager.auth_token
-// 2. 默认值（两端保持一致）
+// 2. Default value (must be consistent on both ends)
 func GetManagerAuthToken() string {
 	if token := strings.TrimSpace(viper.GetString("manager.auth_token")); token != "" {
 		return token
@@ -20,10 +20,10 @@ func GetManagerAuthToken() string {
 	return DefaultManagerAuthToken
 }
 
-// GetManagerEndpointAuthToken 获取 MCP/OpenClaw 端点 JWT 的签名/校验 Token。
-// 优先级：
+// GetManagerEndpointAuthToken returns the signing/verification token for MCP/OpenClaw endpoint JWTs.
+// Priority:
 // 1. manager.endpoint_auth_token
-// 2. 默认值（需与控制台保持一致）
+// 2. Default value (must be consistent with the console)
 func GetManagerEndpointAuthToken() string {
 	if token := strings.TrimSpace(viper.GetString("manager.endpoint_auth_token")); token != "" {
 		return token

@@ -378,7 +378,7 @@ const handleRegister = async () => {
   }
 }
 
-// 检查系统状态，如果未初始化则跳转到引导页面
+// Check system status; redirect to setup page if not initialized
 const checkSystemStatus = async () => {
   try {
     if (await checkNeedsSetup()) {

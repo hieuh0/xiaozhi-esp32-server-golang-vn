@@ -4,10 +4,10 @@ package main
 
 import log "xiaozhi-esp32-server-golang/logger"
 
-// StartManagerHTTP 未启用 manager 编译时的空实现。需使用 -tags manager 编译以启用内嵌 manager HTTP。
+// StartManagerHTTP is a no-op when manager is not enabled at build time.
 func StartManagerHTTP(configPath string) {
-	log.Warn("manager 内嵌未编译进本二进制，请使用 -tags manager 重新编译以启用")
+	log.Warn("embedded manager is not included; rebuild with -tags manager to enable it")
 }
 
-// StopManagerHTTP 未启用 manager 编译时的空实现。
+// StopManagerHTTP is a no-op when manager is not enabled at build time.
 func StopManagerHTTP() {}

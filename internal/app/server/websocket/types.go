@@ -84,7 +84,7 @@ package websocket
     }
 }
 */
-//header头中会有 Device-Id: 02:4A:7D:E3:89:BF, Client-Id: e3b0c442-98fc-4e1a-8c3d-6a5b6a5b6a5b
+// Header contains: Device-Id: 02:4A:7D:E3:89:BF, Client-Id: e3b0c442-98fc-4e1a-8c3d-6a5b6a5b6a5b
 type OtaRequest struct {
 	Version             int         `json:"version"`
 	Language            string      `json:"language"`
@@ -161,7 +161,7 @@ type Board struct {
 	    }
 	}
 */
-//如果已经注册了, 不会返回activation
+// If already registered, activation will not be returned
 type OtaResponse struct {
 	Mqtt       *MqttInfo       `json:"mqtt,omitempty"`
 	ServerTime ServerTimeInfo  `json:"server_time"`

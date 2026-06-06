@@ -30,7 +30,7 @@ type McpTransport struct {
 }
 
 func (c *McpTransport) SendMcpMsg(payload []byte) error {
-	//如果是initialize请求，则注入vision
+	// If it is an initialize request, inject vision
 	var request transport.JSONRPCRequest
 	err := json.Unmarshal(payload, &request)
 	if err == nil {
@@ -79,7 +79,7 @@ func (c *McpTransport) GetMcpTransportType() string {
 
 func initMcp(deviceID string, mcpTransport *McpTransport) error {
 	if err := ensureDeviceMcpRuntime(deviceID, mcpTransport); err != nil {
-		log.Errorf("确保IotOverMcp客户端失败: %v", err)
+		log.Errorf("Ensure IotOverMcp client failed: %v", err)
 		return err
 	}
 	return nil

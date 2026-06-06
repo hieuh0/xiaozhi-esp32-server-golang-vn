@@ -281,7 +281,7 @@ func TestEnsureSessionRejectsClosingSession(t *testing.T) {
 	if manager.GetSession() != closingSession {
 		t.Fatalf("expected closing session to remain registered until close callback completes")
 	}
-	if !strings.Contains(err.Error(), "关闭") {
+	if !strings.Contains(err.Error(), "closing") {
 		t.Fatalf("expected ensureSession error to mention closing state, got %v", err)
 	}
 }

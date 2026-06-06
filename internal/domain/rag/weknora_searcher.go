@@ -28,13 +28,13 @@ func (s *weknoraSearcher) Search(
 	baseURL, _ := providerConfig["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("weknora base_url 不能为空")
+		return nil, fmt.Errorf("weknora base_url cannot be empty")
 	}
 
 	apiKey, _ := providerConfig["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("weknora api_key 不能为空")
+		return nil, fmt.Errorf("weknora api_key cannot be empty")
 	}
 
 	globalScoreThreshold := 0.2
@@ -115,7 +115,7 @@ func (s *weknoraSearcher) Search(
 		return nil, errors.New(strings.Join(errs, "; "))
 	}
 	if len(errs) > 0 {
-		log.Warnf("Weknora 知识库检索部分失败: %s", strings.Join(errs, "; "))
+		log.Warnf("Weknora knowledge base search partially failed: %s", strings.Join(errs, "; "))
 	}
 	return ret, nil
 }
@@ -148,20 +148,20 @@ func (s *weknoraSearcher) searchOneKnowledgeBase(
 	body, _ := json.Marshal(payload)
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
-		return nil, fmt.Errorf("创建Weknora请求失败(knowledge_base_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to create Weknora request (knowledge_base_id=%s): %w", datasetID, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("X-API-Key", apiKey)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用Weknora失败(knowledge_base_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to call Weknora (knowledge_base_id=%s): %w", datasetID, err)
 	}
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("Weknora返回异常(knowledge_base_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("Weknora returns exception (knowledge_base_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
 	}
 
 	var weknoraResp struct {
@@ -178,21 +178,21 @@ func (s *weknoraSearcher) searchOneKnowledgeBase(
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(bodyBytes, &weknoraResp); err != nil {
-		return nil, fmt.Errorf("解析Weknora返回失败(knowledge_base_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to parse Weknora (knowledge_base_id=%s): %w", datasetID, err)
 	}
 	if weknoraResp.Success != nil && !*weknoraResp.Success {
 		msg := strings.TrimSpace(weknoraResp.Message)
 		if msg == "" {
 			msg = strings.TrimSpace(weknoraResp.Msg)
 		}
-		return nil, fmt.Errorf("Weknora请求失败(knowledge_base_id=%s): %s", datasetID, msg)
+		return nil, fmt.Errorf("Weknora request failed (knowledge_base_id=%s): %s", datasetID, msg)
 	}
 	if code, ok := parseCodeInt(weknoraResp.Code); ok && code != 0 {
 		msg := strings.TrimSpace(weknoraResp.Message)
 		if msg == "" {
 			msg = strings.TrimSpace(weknoraResp.Msg)
 		}
-		return nil, fmt.Errorf("Weknora请求失败(knowledge_base_id=%s): code=%d message=%s", datasetID, code, msg)
+		return nil, fmt.Errorf("Weknora request failed (knowledge_base_id=%s): code=%d message=%s", datasetID, code, msg)
 	}
 
 	title := strings.TrimSpace(kb.Name)

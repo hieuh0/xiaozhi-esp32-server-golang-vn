@@ -26,19 +26,19 @@ func TestHandleTTSSpeechReturnsOpus(t *testing.T) {
 	cfg.handleTTSSpeech(rec, req)
 
 	if rec.Code != http.StatusOK {
-		t.Fatalf("期望状态码 200，实际为 %d, body=%s", rec.Code, rec.Body.String())
+		t.Fatalf("expected status code 200, got %d, body=%s", rec.Code, rec.Body.String())
 	}
 
 	if got := rec.Header().Get("Content-Type"); got != "audio/ogg" {
-		t.Fatalf("期望 Content-Type=audio/ogg，实际为 %s", got)
+		t.Fatalf("expected Content-Type=audio/ogg, got %s", got)
 	}
 
 	body := rec.Body.Bytes()
 	if len(body) == 0 {
-		t.Fatal("未返回任何音频数据")
+		t.Fatal("no audio data returned")
 	}
 	if !bytes.HasPrefix(body, []byte("OggS")) {
-		t.Fatalf("期望返回 Ogg Opus 数据，前 4 字节实际为 %q", body[:minInt(len(body), 4)])
+		t.Fatalf("expected Ogg Opus data, got first 4 bytes %q", body[:minInt(len(body), 4)])
 	}
 }
 

@@ -151,7 +151,7 @@ func TestHandleHelloRejectsUnsupportedTransportBeforeSession(t *testing.T) {
 		},
 	})
 
-	if err == nil || !strings.Contains(err.Error(), "不支持的传输类型") {
+	if err == nil || !strings.Contains(err.Error(), "Unsupported transfer type") {
 		t.Fatalf("expected unsupported transport error, got %v", err)
 	}
 	if manager.helloInited {
@@ -386,7 +386,7 @@ func TestPrepareSpeakPathForInjectedSpeechTimesOut(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected prepareSpeakPathForInjectedSpeech to time out")
 	}
-	if !errors.Is(err, context.DeadlineExceeded) && err.Error() != "等待 speak_ready 超时" {
+	if !errors.Is(err, context.DeadlineExceeded) && err.Error() != "Waiting for speak_ready timeout" {
 		t.Fatalf("expected speak_ready timeout error, got %v", err)
 	}
 	if conn.sentCmdCount() != 1 {
@@ -537,7 +537,7 @@ func TestInjectMessageTimesOutWhenSessionBootstrapDoesNotFinish(t *testing.T) {
 		if err == nil {
 			t.Fatal("expected InjectMessage to time out while waiting for ChatSession")
 		}
-		if !strings.Contains(err.Error(), "等待 ChatSession 建立超时") {
+		if !strings.Contains(err.Error(), "Timeout waiting for ChatSession to be established") {
 			t.Fatalf("expected ChatSession wait timeout error, got %v", err)
 		}
 	case <-time.After(time.Second):

@@ -19,12 +19,12 @@ func (s *ChatSession) StopSpeakingWithReason(isSendTtsStop bool, reason string) 
 	s.stopSpeakingWithLock(true, isSendTtsStop, true, reason)
 }
 
-// StopAssistantOutputAfterAsrWithReason 只停止当前 assistant 输出，不挂起媒体播放。
+// StopAssistantOutputAfterAsrWithReason only stops the current assistant output and does not suspend media playback.
 func (s *ChatSession) StopAssistantOutputAfterAsrWithReason(isSendTtsStop bool, reason string) {
 	s.stopSpeakingWithLock(false, isSendTtsStop, false, reason)
 }
 
-// stopSpeakingWithLock 在 stopSpeaking 基础上增加了 mutex 保护
+// stopSpeakingWithLock adds mutex protection based on stopSpeaking
 func (s *ChatSession) stopSpeakingWithLock(cancelSession bool, isSendTtsStop bool, suspendMedia bool, reason string) {
 	s.stopSpeakingMu.Lock()
 	defer s.stopSpeakingMu.Unlock()
@@ -56,7 +56,7 @@ func (s *ChatSession) stopSpeaking(cancelSession bool, isSendTtsStop bool, suspe
 
 	if suspendMedia && s.mediaPlayer != nil {
 		if err := s.mediaPlayer.Suspend(); err != nil && !errors.Is(err, context.Canceled) {
-			log.Warnf("stopSpeaking 挂起媒体播放失败: %v", err)
+			log.Warnf("stopSpeaking failed to suspend media playback: %v", err)
 		}
 	}
 

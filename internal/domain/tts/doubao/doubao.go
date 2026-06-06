@@ -130,7 +130,7 @@ func (p *DoubaoTTSProvider) TextToSpeech(ctx context.Context, text string, sampl
 		}
 	}
 	if len(frames) == 0 {
-		return nil, fmt.Errorf("豆包 TTS 返回音频为空")
+		return nil, fmt.Errorf("Doubao TTS returns empty audio")
 	}
 	return frames, nil
 }
@@ -142,7 +142,7 @@ func (p *DoubaoTTSProvider) TextToSpeechStream(ctx context.Context, text string,
 func (p *DoubaoTTSProvider) streamHTTP(ctx context.Context, text string, sampleRate int, frameDuration int) (chan []byte, error) {
 	voice := strings.TrimSpace(p.Voice)
 	if voice == "" {
-		return nil, fmt.Errorf("豆包 TTS 缺少 voice")
+		return nil, fmt.Errorf("Doubao TTS missing voice")
 	}
 	if strings.TrimSpace(text) == "" {
 		return nil, nil
@@ -160,12 +160,12 @@ func (p *DoubaoTTSProvider) streamHTTP(ctx context.Context, text string, sampleR
 	reqBody := newDoubaoTTSV3Request(text, voice, sampleRate, resolved.RequestModel)
 	bodyBytes, err := json.Marshal(reqBody)
 	if err != nil {
-		return nil, fmt.Errorf("序列化豆包 TTS 请求失败: %w", err)
+		return nil, fmt.Errorf("Serialization Doubao TTS request failed: %w", err)
 	}
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.APIURL, bytes.NewReader(bodyBytes))
 	if err != nil {
-		return nil, fmt.Errorf("创建豆包 TTS 请求失败: %w", err)
+		return nil, fmt.Errorf("Creation of Doubao TTS request failed: %w", err)
 	}
 	headers := doubaoapi.NewTTSHeaders(p.AppID, p.AccessToken, resolved.ResourceID)
 	for key, values := range headers {
@@ -181,14 +181,14 @@ func (p *DoubaoTTSProvider) streamHTTP(ctx context.Context, text string, sampleR
 	go func() {
 		resp, err := client.Do(req)
 		if err != nil {
-			log.Errorf("豆包 HTTP TTS 请求失败: %v", err)
+			log.Errorf("Doubao HTTP TTS request failed: %v", err)
 			close(outputChan)
 			return
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode >= http.StatusBadRequest {
 			body, _ := io.ReadAll(io.LimitReader(resp.Body, 1<<20))
-			log.Errorf("豆包 HTTP TTS 返回错误: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(body)))
+			log.Errorf("Doubao HTTP TTS returns error: status=%d body=%s", resp.StatusCode, strings.TrimSpace(string(body)))
 			close(outputChan)
 			return
 		}
@@ -203,7 +203,7 @@ func (p *DoubaoTTSProvider) decodeStreamResponse(ctx context.Context, body io.Re
 
 	decoder, err := util.CreateAudioDecoderWithSampleRate(ctx, pipeReader, outputChan, frameDuration, defaultDoubaoAudioFmt, sampleRate)
 	if err != nil {
-		log.Errorf("创建豆包音频解码器失败: %v", err)
+		log.Errorf("Failed to create Doubao audio decoder: %v", err)
 		_ = pipeReader.Close()
 		_ = pipeWriter.Close()
 		close(outputChan)
@@ -211,7 +211,7 @@ func (p *DoubaoTTSProvider) decodeStreamResponse(ctx context.Context, body io.Re
 	}
 	go func() {
 		if err := decoder.Run(startTs); err != nil {
-			log.Errorf("豆包音频解码失败: %v", err)
+			log.Errorf("Doubao audio decoding failed: %v", err)
 		}
 	}()
 
@@ -258,12 +258,12 @@ func parseDoubaoTTSStreamEvent(raw []byte) (*doubaoTTSV3Event, error) {
 
 	var event doubaoTTSV3Event
 	if err := json.Unmarshal([]byte(line), &event); err != nil {
-		return nil, fmt.Errorf("解析豆包 TTS 流式事件失败: %w", err)
+		return nil, fmt.Errorf("Failed to parse Doubao TTS streaming events: %w", err)
 	}
 	if event.Code != 0 {
 		msg := strings.TrimSpace(event.Message)
 		if msg == "" {
-			msg = fmt.Sprintf("豆包 TTS 返回错误码 %d", event.Code)
+			msg = fmt.Sprintf("Doubao TTS returned error code %d", event.Code)
 		}
 		return nil, fmt.Errorf("%s", msg)
 	}
@@ -288,7 +288,7 @@ func decodeDoubaoTTSAudioChunk(event *doubaoTTSV3Event) ([]byte, error) {
 	}
 	chunk, err := base64.StdEncoding.DecodeString(strings.TrimSpace(*event.Data))
 	if err != nil {
-		return nil, fmt.Errorf("解码豆包音频数据失败: %w", err)
+		return nil, fmt.Errorf("Failed to decode Doubao audio data: %w", err)
 	}
 	return chunk, nil
 }

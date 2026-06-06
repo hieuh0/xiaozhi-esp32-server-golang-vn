@@ -1,6 +1,6 @@
 package aliyun_funasr
 
-// Header WebSocket 事件头
+// Header WebSocket event header
 type Header struct {
 	Action       string                 `json:"action,omitempty"`
 	TaskID       string                 `json:"task_id,omitempty"`
@@ -11,7 +11,7 @@ type Header struct {
 	Attributes   map[string]interface{} `json:"attributes,omitempty"`
 }
 
-// Params 识别参数
+// Params identification parameters
 type Params struct {
 	Format                     string   `json:"format,omitempty"`
 	SampleRate                 int      `json:"sample_rate,omitempty"`
@@ -21,7 +21,7 @@ type Params struct {
 	SemanticPunctuationEnabled bool     `json:"semantic_punctuation_enabled,omitempty"`
 }
 
-// Output 识别输出
+// Output identification output
 type Output struct {
 	Sentence struct {
 		BeginTime   int64  `json:"begin_time"`
@@ -38,7 +38,7 @@ type Output struct {
 	} `json:"sentence"`
 }
 
-// Payload 事件载荷
+// Payload event payload
 type Payload struct {
 	TaskGroup  string `json:"task_group,omitempty"`
 	Task       string `json:"task,omitempty"`
@@ -52,10 +52,10 @@ type Payload struct {
 	} `json:"usage,omitempty"`
 }
 
-// Input 事件输入（占位）
+// Input event input (placeholder)
 type Input struct{}
 
-// Event 事件结构
+// Event event structure
 type Event struct {
 	Header  Header  `json:"header"`
 	Payload Payload `json:"payload"`

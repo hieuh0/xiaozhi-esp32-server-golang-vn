@@ -78,9 +78,9 @@ var upgrader = websocket.Upgrader{
 func main() {
 	cfg := serverConfig{}
 	flag.StringVar(&cfg.addr, "addr", ":18080", "server listen address")
-	flag.StringVar(&cfg.asrText, "asr-text", "你好，这是mock asr结果", "ASR final text")
+	flag.StringVar(&cfg.asrText, "asr-text", "Hello, this is mock ASR result", "ASR final text")
 	flag.IntVar(&cfg.asrDelayMs, "asr-delay-ms", 120, "ASR final response delay in milliseconds")
-	flag.StringVar(&cfg.llmReply, "llm-reply", "你好，我是mock llm，很高兴为你服务。", "LLM reply text")
+	flag.StringVar(&cfg.llmReply, "llm-reply", "Hello, I'm mock LLM, glad to serve you.", "LLM reply text")
 	flag.IntVar(&cfg.llmFirstDelay, "llm-first-delay-ms", 80, "LLM first token delay in milliseconds")
 	flag.IntVar(&cfg.llmChunkDelay, "llm-chunk-delay-ms", 40, "LLM chunk delay in milliseconds when stream=true")
 	flag.StringVar(&cfg.ttsMode, "tts-mode", "silence", "TTS audio mode: silence|beep")
@@ -289,7 +289,7 @@ func (c *serverConfig) handleTTSSpeech(w http.ResponseWriter, r *http.Request) {
 	if c.ttsFirstDelay > 0 {
 		time.Sleep(time.Duration(c.ttsFirstDelay) * time.Millisecond)
 	}
-	_ = c.ttsFrameDelay // 预留字段，方便后续扩展成真实分帧流式返回
+	_ = c.ttsFrameDelay // Reserved for future real frame-by-frame streaming responses.
 
 	responseFormat := strings.ToLower(strings.TrimSpace(req.ResponseFormat))
 	if responseFormat == "" {

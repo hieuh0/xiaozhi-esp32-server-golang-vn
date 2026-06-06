@@ -2,22 +2,22 @@
   <div class="agents-page">
     <section class="page-toolbar apple-surface">
       <div class="toolbar-chips">
-        <span class="apple-chip is-primary">智能体 {{ agentsCountText }}</span>
-        <span class="apple-chip is-success">设备 {{ devicesCountText }}</span>
-        <span class="apple-chip">在线 {{ onlineDevicesCountText }}</span>
+        <span class="apple-chip is-primary">{{ t('agent') }} {{ agentsCountText }}</span>
+        <span class="apple-chip is-success">{{ t('device') }} {{ devicesCountText }}</span>
+        <span class="apple-chip">{{ t('online') }} {{ onlineDevicesCountText }}</span>
       </div>
 
       <div class="toolbar-actions">
         <el-button type="primary" @click="showAddAgentDialog = true">
           <el-icon><Plus /></el-icon>
-          {{ t('add_agent') }}  添加智能体
+          {{ t('add_agent') }}
         </el-button>
         <el-button plain @click="openAddDeviceDialog">
           <el-icon><Monitor /></el-icon>
           {{ t('add_device') }}</el-button>
         <el-button plain @click="openInjectMessageDialog">
           <el-icon><ChatDotRound /></el-icon>
-          {{ t('voice_push') }}  语音推送
+          {{ t('voice_push') }}
         </el-button>
       </div>
     </section>
@@ -54,8 +54,8 @@
       <el-card class="welcome-card apple-surface">
         <div class="welcome-content">
           <el-icon size="64" color="var(--apple-primary)"><Monitor /></el-icon>
-          <h3>{{ t('create_first_agent') }}先创建第一个智能体</h3>
-          <p>{{ t('post_create_agent_hint') }}创建后就能继续绑定设备、配置知识库和语音能力。</p>
+          <h3>{{ t('create_first_agent') }}</h3>
+          <p>{{ t('post_create_agent_hint') }}</p>
           <div class="welcome-actions">
             <el-button type="primary" size="large" @click="showAddAgentDialog = true">
               <el-icon><Plus /></el-icon>
@@ -74,12 +74,12 @@
             </div>
             <div class="agent-info">
               <h3 class="agent-name">{{ agent.name }}</h3>
-              <p class="agent-desc">昵称：{{ agent.nickname || agent.name }}</p>
+              <p class="agent-desc">{{ t('nickname_label') }} {{ agent.nickname || agent.name }}</p>
             </div>
           </div>
 
           <div class="agent-state-grid">
-            <el-tooltip :content="`记忆类型：${getMemoryModeText(agent)}`" placement="top" :show-after="200">
+            <el-tooltip :content="t('memory_type_tooltip', { type: getMemoryModeText(agent) })" placement="top" :show-after="200">
               <div class="agent-state-badge is-icon-only" :class="`is-memory-${getMemoryModeKey(agent)}`">
                 <img class="state-image-icon state-image-icon--memory" :src="memoryStatusIcon" alt="" />
               </div>
@@ -106,16 +106,16 @@
         </div>
 
         <div class="agent-summary">
-          <div class="summary-row" :title="`音色模型：${getVoiceModelText(agent)}`">
-            <span class="summary-label">{{ t('timbre_model') }}音色模型：</span>
+          <div class="summary-row" :title="`${t('timbre_model')} ${getVoiceModelText(agent)}`">
+            <span class="summary-label">{{ t('timbre_model') }}</span>
             <span class="summary-text">{{ truncateText(getVoiceModelText(agent), 18) }}</span>
           </div>
-          <div class="summary-row" :title="`语言模型：${getLLMModelText(agent)}`">
-            <span class="summary-label">{{ t('language_model_label') }}语言模型：</span>
+          <div class="summary-row" :title="`${t('language_model_label')} ${getLLMModelText(agent)}`">
+            <span class="summary-label">{{ t('language_model_label') }}</span>
             <span class="summary-text">{{ truncateText(getLLMModelText(agent), 16) }}</span>
           </div>
-          <div class="summary-row" :title="`设备数量：${getDeviceCountText(agent)}`">
-            <span class="summary-label">{{ t('device_count') }}设备数量：</span>
+          <div class="summary-row" :title="`${t('device_count')} ${getDeviceCountText(agent)}`">
+            <span class="summary-label">{{ t('device_count') }}</span>
             <span class="summary-text is-count">{{ getDeviceCountText(agent) }}</span>
           </div>
         </div>
@@ -129,11 +129,11 @@
             {{ t('chat') }}</el-button>
           <el-button class="agent-action-button" size="small" @click="handleManageDevices(agent.id)">
             <el-icon><Connection /></el-icon>
-            {{ t('device') }}  设备
+            {{ t('device') }}
           </el-button>
           <el-button class="agent-action-button agent-action-button-danger" size="small" @click="handleDeleteAgent(agent)">
             <el-icon><Delete /></el-icon>
-            {{ t('delete') }}  删除
+            {{ t('delete') }}
           </el-button>
         </div>
       </article>
@@ -154,7 +154,7 @@
 
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="handleCloseAddAgent">{{ t('cancel') }}取消</el-button>
+          <el-button @click="handleCloseAddAgent">{{ t('cancel') }}</el-button>
           <el-button type="primary" :loading="adding" @click="handleAddAgent">
             {{ adding ? t('creating') : t('create_agent_label') }}
           </el-button>
@@ -236,7 +236,7 @@ const onlineDevicesCountText = computed(() => initialLoading.value ? '--' : onli
 const knowledgeBaseNameMap = computed(() => {
   const map = new Map()
   for (const kb of knowledgeBases.value) {
-    map.set(Number(kb.id), kb.name || `知识库 #${kb.id}`)
+    map.set(Number(kb.id), kb.name || t('knowledge_base_id', { id: kb.id }))
   }
   return map
 })
@@ -396,7 +396,7 @@ const handleDeleteAgent = async (agent) => {
 
   try {
     await ElMessageBox.confirm(
-      `确定要删除智能体 "${agent.name}" 吗？`,
+      t('confirm_delete_agent_msg', { name: agent.name }),
       t('confirm_delete'),
       {
         confirmButtonText: t('confirm'),
@@ -431,7 +431,7 @@ const getVoiceModelText = (agent) => {
     return `${ttsType} · ${voiceName}`
   }
   if (ttsType) {
-    return `${ttsType} · 默认音色`
+    return t('default_voice_suffix', { type: ttsType })
   }
   if (voiceName) {
     return voiceName
@@ -444,7 +444,7 @@ const getLLMModelText = (agent) => {
 }
 
 const getDeviceCountText = (agent) => {
-  return `${getAgentDeviceCount(agent.id)} 台`
+  return t('device_count_n', { count: getAgentDeviceCount(agent.id) })
 }
 
 const getMemoryModeKey = (agent) => {
@@ -470,7 +470,7 @@ const getKnowledgeBaseCount = (agent) => {
 }
 
 const getKnowledgeBaseNames = (agent) => {
-  return getKnowledgeBaseIds(agent).map((id) => knowledgeBaseNameMap.value.get(Number(id)) || `知识库 #${id}`)
+  return getKnowledgeBaseIds(agent).map((id) => knowledgeBaseNameMap.value.get(Number(id)) || t('knowledge_base_id', { id }))
 }
 
 const getKnowledgeBaseTooltip = (agent) => {
@@ -478,7 +478,7 @@ const getKnowledgeBaseTooltip = (agent) => {
   if (names.length === 0) {
     return t('knowledge_base_unlinked')
   }
-  return `关联知识库：${names.join('、')}`
+  return t('linked_kbs_tooltip', { names: names.join(', ') })
 }
 
 const normalizeMcpServiceNames = (raw) => {
@@ -507,24 +507,24 @@ const getMcpStatusKey = (agent) => {
 const getGlobalMcpServiceCountText = () => {
   if (globalMcpServiceCountError.value) return t('detection_failed')
   if (globalMcpServiceCount.value === null) return t('detecting')
-  return `${globalMcpServiceCount.value} 个`
+  return t('global_mcp_count', { count: globalMcpServiceCount.value })
 }
 
 const getMcpServiceScopeText = (agent) => {
   const count = normalizeMcpServiceNames(agent.mcp_service_names).length
-  return count > 0 ? `已选择 ${count} 个服务` : t('follow_global_config')
+  return count > 0 ? t('mcp_selected_services', { count }) : t('follow_global_config')
 }
 
 const getMcpClientCountText = (connection) => {
   const count = Number(connection?.client_count || 0)
   if (count <= 0) return ''
-  return `（${count} 个客户端）`
+  return t('mcp_client_count_text', { count })
 }
 
 const getMcpStatusTooltip = (agent) => {
   const connection = mcpConnectionStatusMap[String(agent.id)]
   const connectionText = getConnectionStatusText(connection)
-  return `智能体WebSocket：${connectionText}${getMcpClientCountText(connection)}｜全局MCP服务：${getGlobalMcpServiceCountText()}｜服务范围：${getMcpServiceScopeText(agent)}`
+  return t('mcp_status_tooltip', { ws: connectionText, clients: getMcpClientCountText(connection), mcp: getGlobalMcpServiceCountText(), scope: getMcpServiceScopeText(agent) })
 }
 
 const parseOpenClawConfig = (agent) => {
@@ -549,7 +549,7 @@ const getOpenClawStatusKey = (agent) => {
 const getOpenClawStatusTooltip = (agent) => {
   const connection = openClawConnectionStatusMap[String(agent.id)]
   const configText = parseOpenClawConfig(agent).allowed ? t('enabled') : t('not_enabled')
-  return `OpenClaw状态：${configText}｜连接状态：${getConnectionStatusText(connection)}`
+  return t('openclaw_status_tooltip', { config: configText, connection: getConnectionStatusText(connection) })
 }
 
 const ensureMcpConnectionStatus = async (agentId) => {

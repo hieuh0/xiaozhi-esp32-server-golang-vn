@@ -21,39 +21,39 @@ import (
 	"xiaozhi-esp32-server-golang/internal/domain/tts/zhipu"
 )
 
-// 基础TTS提供者接口（不含Context方法）
+// Basic TTS provider interface (excluding Context method)
 type BaseTTSProvider interface {
 	TextToSpeech(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error)
 	TextToSpeechStream(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (outputChan chan []byte, err error)
 }
 
-// DualStreamProvider TTS 输入与输出均为流式的可选接口：边收文本边合成输出。Provider 若支持则实现此接口。
+// DualStreamProvider TTS input and output are streaming optional interfaces: text is received and output is synthesized at the same time. Provider implements this interface if supported.
 type DualStreamProvider interface {
 	StreamingSynthesize(ctx context.Context, textChan <-chan string, sampleRate int, channels int, frameDuration int) (outputChan chan streaming.SynthesisEvent, err error)
 }
 
-// 完整TTS提供者接口（包含Context方法）
+// Complete TTS provider interface (including Context method)
 type TTSProvider interface {
 	BaseTTSProvider
-	// SetVoice 动态设置音色参数
-	// voiceConfig: 包含音色相关配置的 map，如 {"voice": "xxx"} 或 {"spk_id": "xxx"}
+	//SetVoice dynamically sets voice parameters
+	//voiceConfig: map containing voice-related configurations, such as {"voice": "xxx"} or {"spk_id": "xxx"}
 	SetVoice(voiceConfig map[string]interface{}) error
-	// Close 关闭资源，释放连接等
+	//Close closes resources, releases connections, etc.
 	Close() error
-	// IsValid 检查资源是否有效（连接是否存活等）
+	//IsValid checks whether the resource is valid (whether the connection is alive, etc.)
 	IsValid() bool
 }
 
-// GetTTSProvider 获取一个完整的TTS提供者（支持Context）
-// providerName: 可能是 config_id/provider 或资源池 key（如 "edge_tts:zh-CN-XiaoxiaoNeural"）
-// config: 从数据库configs表的json_data字段解析的配置map
-// 优先使用 config 中的 provider 字段，否则从 providerName 解析（取 ":" 前部分）
+// GetTTSProvider Gets a complete TTS provider (supports Context)
+// providerName: may be config_id/provider or resource pool key (such as "edge_tts:zh-CN-XiaoxiaoNeural")
+// config: Configuration map parsed from the json_data field of the database configs table
+// Priority is given to using the provider field in config, otherwise it is resolved from providerName (take the part before ":")
 func GetTTSProvider(providerName string, config map[string]interface{}) (TTSProvider, error) {
 	effectiveName := providerName
 	if configProvider, ok := config["provider"].(string); ok && configProvider != "" {
 		effectiveName = configProvider
 	}
-	// 资源池 key 格式为 "provider:voiceID"，取前半部分作为提供者类型
+	//The resource pool key format is "provider:voiceID", take the first half as the provider type
 	if idx := strings.Index(effectiveName, ":"); idx > 0 {
 		effectiveName = effectiveName[:idx]
 	}
@@ -87,14 +87,14 @@ func GetTTSProvider(providerName string, config map[string]interface{}) (TTSProv
 	case constants.TtsTypeIndexTTSVLLM:
 		baseProvider = openai.NewOpenAITTSProvider(buildIndexTTSOpenAIConfig(config))
 	default:
-		return nil, fmt.Errorf("不支持的TTS提供者: %s", effectiveName)
+		return nil, fmt.Errorf("Unsupported TTS provider: %s", effectiveName)
 	}
 
 	if baseProvider == nil {
-		return nil, fmt.Errorf("无法创建TTS提供者: %s", effectiveName)
+		return nil, fmt.Errorf("Unable to create TTS provider: %s", effectiveName)
 	}
 
-	// 使用适配器包装基础提供者，转换为完整的TTSProvider
+	//Use an adapter to wrap the base provider and convert it to a complete TTSProvider
 	provider := &ContextTTSAdapter{baseProvider}
 
 	return provider, nil
@@ -149,53 +149,53 @@ func buildIndexTTSOpenAIConfig(config map[string]interface{}) map[string]interfa
 	return normalized
 }
 
-// ContextTTSAdapter 是一个适配器，为基础TTS提供者添加Context支持
+// ContextTTSAdapter is an adapter that adds Context support to the base TTS provider
 type ContextTTSAdapter struct {
 	Provider BaseTTSProvider
 }
 
-// StreamingSynthesize 代理到原始提供者的双流式合成接口
+// StreamingSynthesize Dual-streaming synthesis interface that proxies to the original provider
 func (a *ContextTTSAdapter) StreamingSynthesize(ctx context.Context, textChan <-chan string, sampleRate int, channels int, frameDuration int) (outputChan chan streaming.SynthesisEvent, err error) {
-	// 检查底层 Provider 是否支持双流式
+	//Check whether the underlying Provider supports dual streams
 	if dsProvider, ok := a.Provider.(DualStreamProvider); ok {
 		return dsProvider.StreamingSynthesize(ctx, textChan, sampleRate, channels, frameDuration)
 	}
-	return nil, fmt.Errorf("底层 Provider 不支持双流式合成")
+	return nil, fmt.Errorf("The underlying Provider does not support dual-stream composition")
 }
 
-// TextToSpeech 代理到原始提供者
+// TextToSpeech proxy to original provider
 func (a *ContextTTSAdapter) TextToSpeech(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error) {
 	return a.Provider.TextToSpeech(ctx, text, sampleRate, channels, frameDuration)
 }
 
-// TextToSpeechStream 代理到原始提供者
+// TextToSpeechStream proxies to the original provider
 func (a *ContextTTSAdapter) TextToSpeechStream(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (outputChan chan []byte, err error) {
 	return a.Provider.TextToSpeechStream(ctx, text, sampleRate, channels, frameDuration)
 }
 
-// SetVoice 代理到底层 Provider 的 SetVoice 方法
+// SetVoice proxies to the underlying Provider's SetVoice method
 func (a *ContextTTSAdapter) SetVoice(voiceConfig map[string]interface{}) error {
-	// 如果底层 Provider 实现了 SetVoice 方法，直接调用
+	//If the underlying Provider implements the SetVoice method, call it directly
 	if setter, ok := a.Provider.(interface {
 		SetVoice(map[string]interface{}) error
 	}); ok {
 		return setter.SetVoice(voiceConfig)
 	}
-	// 否则返回不支持的错误
-	return fmt.Errorf("底层 Provider 不支持 SetVoice 方法")
+	//Otherwise an unsupported error is returned
+	return fmt.Errorf("The underlying Provider does not support the SetVoice method")
 }
 
-// TextToSpeechWithContext 使用Context版本的文本转语音
+// TextToSpeechWithContext uses the Context version of text-to-speech
 func (a *ContextTTSAdapter) TextToSpeechWithContext(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error) {
-	// 检查提供者是否直接支持Context版本
+	//Check if the provider directly supports the Context version
 	if provider, ok := a.Provider.(interface {
 		TextToSpeechWithContext(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) ([][]byte, error)
 	}); ok {
-		// 提供者直接支持Context版本
+		//Providers directly support Context versions
 		return provider.TextToSpeechWithContext(ctx, text, sampleRate, channels, frameDuration)
 	}
 
-	// 否则使用标准版本，并通过goroutine和channel实现上下文控制
+	//Otherwise use the standard version and implement context control through goroutines and channels
 	resultChan := make(chan struct {
 		frames [][]byte
 		err    error
@@ -205,13 +205,13 @@ func (a *ContextTTSAdapter) TextToSpeechWithContext(ctx context.Context, text st
 		frames, err := a.Provider.TextToSpeech(ctx, text, sampleRate, channels, frameDuration)
 		select {
 		case <-ctx.Done():
-			// 上下文已取消，不发送结果
+			//Context canceled, no results sent
 			return
 		case resultChan <- struct {
 			frames [][]byte
 			err    error
 		}{frames, err}:
-			// 结果已发送
+			//Result sent
 		}
 	}()
 
@@ -223,17 +223,17 @@ func (a *ContextTTSAdapter) TextToSpeechWithContext(ctx context.Context, text st
 	}
 }
 
-// TextToSpeechStreamWithContext 使用Context版本的流式文本转语音
+// TextToSpeechStreamWithContext uses the Context version of streaming text-to-speech
 func (a *ContextTTSAdapter) TextToSpeechStreamWithContext(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (outputChan chan []byte, cancelFunc func(), err error) {
-	// 检查提供者是否直接支持Context版本
+	//Check if the provider directly supports the Context version
 	if provider, ok := a.Provider.(interface {
 		TextToSpeechStreamWithContext(ctx context.Context, text string, sampleRate int, channels int, frameDuration int) (chan []byte, func(), error)
 	}); ok {
-		// 提供者直接支持Context版本
+		//Providers directly support Context versions
 		return provider.TextToSpeechStreamWithContext(ctx, text, sampleRate, channels, frameDuration)
 	}
 
-	// 否则使用标准版本，但创建一个包装器来处理上下文取消
+	//Otherwise use the standard version, but create a wrapper to handle context cancellation
 	streamCtx, cancel := context.WithCancel(ctx)
 	streamChan, err := a.Provider.TextToSpeechStream(streamCtx, text, sampleRate, channels, frameDuration)
 	if err != nil {
@@ -242,32 +242,32 @@ func (a *ContextTTSAdapter) TextToSpeechStreamWithContext(ctx context.Context, t
 	}
 	cancelFunc = cancel
 
-	// 创建一个新的输出通道，用于转发和处理取消
+	//Create a new output channel for forwarding and handling cancellations
 	outputChan = make(chan []byte, 10)
 
-	// 创建一个goroutine来转发数据并监听上下文取消
+	//Create a goroutine to forward data and listen for context cancellation
 	go func() {
 		defer close(outputChan)
 
 		for {
 			select {
 			case <-streamCtx.Done():
-				// 上下文已取消，调用原始取消函数并退出
+				//The context has been canceled, call the original cancellation function and exit
 				cancelFunc()
 				return
 			case frame, ok := <-streamChan:
 				if !ok {
-					// 原始通道已关闭
+					//The original channel is closed
 					return
 				}
-				// 转发数据
+				//forward data
 				select {
 				case <-streamCtx.Done():
-					// 上下文已取消
+					//context canceled
 					cancelFunc()
 					return
 				case outputChan <- frame:
-					// 成功转发数据
+					//Data forwarded successfully
 				}
 			}
 		}
@@ -276,9 +276,9 @@ func (a *ContextTTSAdapter) TextToSpeechStreamWithContext(ctx context.Context, t
 	return outputChan, cancelFunc, nil
 }
 
-// Close 关闭资源
+// Close closes the resource
 func (a *ContextTTSAdapter) Close() error {
-	// 如果底层 Provider 实现了 Close 方法，直接调用
+	//If the underlying Provider implements the Close method, call it directly
 	if closer, ok := a.Provider.(interface {
 		Close() error
 	}); ok {
@@ -287,14 +287,14 @@ func (a *ContextTTSAdapter) Close() error {
 	return nil
 }
 
-// IsValid 检查资源是否有效
+// IsValid checks whether the resource is valid
 func (a *ContextTTSAdapter) IsValid() bool {
-	// 如果底层 Provider 实现了 IsValid 方法，直接调用
+	//If the underlying Provider implements the IsValid method, call it directly
 	if validator, ok := a.Provider.(interface {
 		IsValid() bool
 	}); ok {
 		return validator.IsValid()
 	}
-	// 否则检查 Provider 是否为 nil
+	//Otherwise check if Provider is nil
 	return a.Provider != nil
 }

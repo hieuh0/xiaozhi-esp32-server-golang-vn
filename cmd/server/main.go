@@ -18,20 +18,20 @@ import (
 )
 
 func main() {
-	// 解析命令行参数
-	configFile := flag.String("c", defaultConfigFilePath, "配置文件路径")
-	managerEnable := flag.Bool("manager-enable", defaultManagerEnable, "是否启用内嵌 manager")
-	managerConfig := flag.String("manager-config", "", "manager 配置文件路径，启用时可选，默认 manager/backend/config/config.json")
-	asrEnable := flag.Bool("asr-enable", defaultAsrEnable, "是否启用内嵌 asr_server")
-	asrConfig := flag.String("asr-config", "", "asr_server 配置文件路径，启用时可选，默认 asr_server/config.json")
+	// Parse command-line arguments.
+	configFile := flag.String("c", defaultConfigFilePath, "configuration file path")
+	managerEnable := flag.Bool("manager-enable", defaultManagerEnable, "enable embedded manager")
+	managerConfig := flag.String("manager-config", "", "optional manager config path; defaults to manager/backend/config/config.json")
+	asrEnable := flag.Bool("asr-enable", defaultAsrEnable, "enable embedded asr_server")
+	asrConfig := flag.String("asr-config", "", "optional asr_server config path; defaults to asr_server/config.json")
 	flag.Parse()
 
 	if *configFile == "" {
-		fmt.Println("配置文件路径不能为空")
+		fmt.Println("configuration file path cannot be empty")
 		return
 	}
 
-	// 先启动 manager，再 Init，否则 Init 里 updateConfigFromAPI 会一直连不上 manager 导致卡死
+	// Start manager before Init so updateConfigFromAPI can connect without blocking startup.
 	if *managerEnable {
 		StartManagerHTTP(*managerConfig)
 	}
@@ -43,25 +43,25 @@ func main() {
 		return
 	}
 
-	// 根据配置启动 pprof 服务
+	// Start the pprof service when configured.
 	if viper.GetBool("server.pprof.enable") {
 		pprofPort := viper.GetInt("server.pprof.port")
 		go func() {
-			log.Infof("启动 pprof 服务，端口: %d", pprofPort)
+			log.Infof("starting pprof service on port %d", pprofPort)
 			if err := http.ListenAndServe(fmt.Sprintf(":%d", pprofPort), nil); err != nil {
-				log.Errorf("pprof 服务启动失败: %v", err)
+				log.Errorf("pprof service failed: %v", err)
 			}
 		}()
-		log.Infof("pprof 地址: http://localhost:%d/debug/pprof/", pprofPort)
+		log.Infof("pprof URL: http://localhost:%d/debug/pprof/", pprofPort)
 	} else {
-		log.Info("pprof 服务已禁用")
+		log.Info("pprof service is disabled")
 	}
 
-	// 创建服务器
+	// Create the server.
 	appInstance := server.NewApp()
 
 	var lock sync.RWMutex
-	// 注册 system_config 热更：用 viper 当前配置与推送配置对比，仅当内容变更时合并并触发热更
+	// Register system_config hot reload and apply only semantic changes.
 	user_config.RegisterManagerSystemConfigHandler(func(data map[string]interface{}) {
 		lock.Lock()
 		defer lock.Unlock()
@@ -129,16 +129,16 @@ func main() {
 	})
 	appInstance.Run()
 
-	// 阻塞监听退出信号
+	// Wait for an exit signal.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	log.Info("服务器已启动，按 Ctrl+C 退出")
+	log.Info("server started; press Ctrl+C to exit")
 	<-quit
 
-	log.Info("正在关闭服务器...")
+	log.Info("shutting down server...")
 
-	// 停止周期性配置更新服务
+	// Stop periodic configuration updates.
 	StopPeriodicConfigUpdate()
 	if *managerEnable {
 		StopManagerHTTP()
@@ -147,7 +147,7 @@ func main() {
 		StopAsrServerHTTP()
 	}
 
-	log.Info("服务器已关闭")
+	log.Info("server stopped")
 }
 
 func udpListenChanged(newUdpCfg interface{}, oldUdpCfg interface{}) bool {

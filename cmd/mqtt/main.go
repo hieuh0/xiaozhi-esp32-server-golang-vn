@@ -18,7 +18,7 @@ import (
 	log "xiaozhi-esp32-server-golang/logger"
 )
 
-// 初始化函数
+// init configures logging.
 func Init(configFile string) error {
 	err := initConfig(configFile)
 	if err != nil {
@@ -34,19 +34,18 @@ func Init(configFile string) error {
 }
 
 func initLog() error {
-	// 不再检查stdout配置，统一输出到文件
-	// 输出到文件
+	// Always write logs to a file.
 	binPath, _ := os.Executable()
 	baseDir := filepath.Dir(binPath)
 	logPath := fmt.Sprintf("%s/%s%s", baseDir, viper.GetString("log.path"), viper.GetString("log.file"))
-	/* 日志轮转相关函数
-	`WithLinkName` 为最新的日志建立软连接
-	`WithRotationTime` 设置日志分割的时间，隔多久分割一次
-	WithMaxAge 和 WithRotationCount二者只能设置一个
-		`WithMaxAge` 设置文件清理前的最长保存时间
-		`WithRotationCount` 设置文件清理前最多保存的个数
+	/* Log rotation options:
+	`WithLinkName` creates a symlink to the latest log.
+	`WithRotationTime` sets the rotation interval.
+	Only one of WithMaxAge and WithRotationCount may be set.
+	`WithMaxAge` sets how long files are retained.
+	`WithRotationCount` sets the maximum number of retained files.
 	*/
-	// 下面配置日志每隔 1 分钟轮转一个新文件，保留最近 3 分钟的日志文件，多余的自动清理掉。
+	// Rotate every minute and retain the most recent three minutes of logs.
 	writer, err := rotatelogs.New(
 		logPath+".%Y%m%d",
 		rotatelogs.WithLinkName(logPath),
@@ -60,11 +59,11 @@ func initLog() error {
 	}
 	logrus.SetOutput(writer)
 	logrus.SetFormatter(&logrus.TextFormatter{
-		TimestampFormat: "2006-01-02 15:04:05.000", //时间格式化，添加毫秒
-		ForceColors:     false,                     // 文件输出不启用颜色
+		TimestampFormat: "2006-01-02 15:04:05.000", // Include milliseconds.
+		ForceColors:     false,                     // Disable colors for file output.
 	})
 
-	// 禁用默认的调用者报告，使用自定义的caller字段
+	// Disable default caller reporting; use the custom caller field.
 	logrus.SetReportCaller(false)
 	logLevel, _ := logrus.ParseLevel(viper.GetString("log.level"))
 	logrus.SetLevel(logLevel)
@@ -76,7 +75,7 @@ func initLog() error {
 func initConfig(configFile string) error {
 	basePath, file := filepath.Split(configFile)
 
-	// 获取文件名和扩展名
+	// Get the file name and extension.
 	fileName, fileExt := func(file string) (string, string) {
 		if pos := strings.LastIndex(file, "."); pos != -1 {
 			return file[:pos], strings.ToLower(file[pos+1:])
@@ -84,11 +83,11 @@ func initConfig(configFile string) error {
 		return file, ""
 	}(file)
 
-	// 设置配置文件名(不带扩展名)
+	// Set the config file name without its extension.
 	viper.SetConfigName(fileName)
 	viper.AddConfigPath(basePath)
 
-	// 根据文件扩展名设置配置类型
+	// Set the config type from the file extension.
 	switch fileExt {
 	case "json":
 		viper.SetConfigType("json")
@@ -102,38 +101,38 @@ func initConfig(configFile string) error {
 }
 
 func main() {
-	// 解析命令行参数
-	configFile := flag.String("c", "config/mqtt_config.json", "配置文件路径")
+	// Parse command-line arguments.
+	configFile := flag.String("c", "config/mqtt_config.json", "configuration file path")
 	flag.Parse()
 
 	if *configFile == "" {
-		fmt.Println("配置文件路径不能为空")
+		fmt.Println("configuration file path cannot be empty")
 		return
 	}
 
-	// 初始化配置和日志
+	// Initialize configuration and logging.
 	err := Init(*configFile)
 	if err != nil {
-		fmt.Printf("初始化失败: %v\n", err)
+		fmt.Printf("initialization failed: %v\n", err)
 		return
 	}
 
-	// 启动MQTT服务器
+	// Start the MQTT server.
 	err = mqtt_server.StartMqttServer()
 	if err != nil {
-		log.Errorf("启动MQTT服务器失败: %v", err)
+		log.Errorf("failed to start MQTT server: %v", err)
 		return
 	}
 
-	fmt.Println("MQTT服务器已启动")
+	fmt.Println("MQTT server started")
 
-	// 阻塞监听退出信号
+	// Wait for an exit signal.
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
-	log.Info("MQTT服务器已启动，按 Ctrl+C 退出")
+	log.Info("MQTT server started; press Ctrl+C to exit")
 	<-quit
 
-	log.Info("正在关闭MQTT服务器...")
-	log.Info("MQTT服务器已关闭")
+	log.Info("shutting down MQTT server...")
+	log.Info("MQTT server stopped")
 }

@@ -16,7 +16,7 @@ import (
 )
 
 // ServerTransport handles sending messages to the client via the transport layer
-// (原ServerMsgService)
+// (formerly ServerMsgService)
 type ServerTransport struct {
 	transport      types_conn.IConn
 	clientState    *ClientState
@@ -99,7 +99,7 @@ func (s *ServerTransport) SendTtsStop() error {
 		return err
 	}
 	s.clientState.IsWelcomePlaying = false
-	// 一轮对话播报结束后，回到可触发下一轮对话的状态。
+	// After a round of dialogue reporting ends, return to a state where the next round of dialogue can be triggered.
 	s.clientState.SetStatus(ClientStatusListenStop)
 	s.clientState.SetTtsStart(false)
 	return nil
@@ -143,7 +143,7 @@ func (s *ServerTransport) SendMqttGoodbye() error {
 func (s *ServerTransport) SendHello(transportType string, audioFormat *types_audio.AudioFormat, udpConfig *UdpConfig) error {
 	msg := ServerMessage{
 		Type:        MessageTypeHello,
-		Text:        "欢迎使用小智服务器",
+		Text:        "Welcome to Xiaozhi Server",
 		SessionID:   s.clientState.SessionID,
 		Transport:   transportType,
 		AudioFormat: audioFormat,
@@ -300,7 +300,7 @@ func (s *ServerTransport) RecvMcpMsg(ctx context.Context, timeOut int) ([]byte, 
 		}
 		return msg, nil
 	case <-time.After(time.Duration(timeOut) * time.Millisecond):
-		return nil, fmt.Errorf("mcp 接收消息超时")
+		return nil, fmt.Errorf("mcp received message timeout")
 	}
 }
 
@@ -313,7 +313,7 @@ func (s *ServerTransport) HandleMcpMessage(payload []byte) error {
 	select {
 	case s.McpRecvMsgChan <- payload:
 	default:
-		log.Warnf("mcp 接收消息通道已满, 丢弃消息")
+		log.Warnf("The mcp receiving message channel is full, discarding the message")
 	}
 	return nil
 }
@@ -342,7 +342,7 @@ func (s *ServerTransport) close(closeUnderlyingTransport bool) error {
 
 	if closeUnderlyingTransport && s.transport.GetTransportType() == types_conn.TransportTypeMqttUdp {
 		if err := s.SendMqttGoodbye(); err != nil {
-			log.Warnf("发送 mqtt goodbye 失败: %v", err)
+			log.Warnf("Sending mqtt goodbye failed: %v", err)
 		}
 	}
 

@@ -13,7 +13,7 @@
         {{ t('add_user') }}</el-button>
     </div>
 
-    <!-- 用户列表表格 -->
+    <!-- User list table -->
     <el-table :data="filteredUserList" v-loading="tableLoading" style="width: 100%">
       <el-table-column prop="id" label="ID" width="80" />
       <el-table-column prop="username" :label="t('username')" width="150" />
@@ -49,7 +49,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加/编辑用户对话框 -->
+    <!-- Add/Edit user dialog -->
     <el-dialog 
       v-model="userDialogVisible" 
       :title="isEditMode ? t('edit_user') : t('add_user')"
@@ -99,7 +99,7 @@
       </template>
     </el-dialog>
 
-    <!-- 重置密码对话框 -->
+    <!-- Reset password dialog -->
     <el-dialog 
       v-model="resetPasswordDialogVisible" 
       :title="t('reset_password_title')"
@@ -141,7 +141,7 @@
       </template>
     </el-dialog>
 
-    <!-- 声音复刻额度对话框 -->
+    <!-- Voice clone quota dialog -->
     <el-dialog
       v-model="quotaDialogVisible"
       :title="t('voice_clone_quota_title', { name: quotaUser.username || '' })"
@@ -181,7 +181,7 @@ import api from '../../utils/api'
 import { useLocale } from '../../composables/useLocale'
 const { t } = useLocale()
 
-// 数据状态
+// Data state
 const userList = ref([])
 const tableLoading = ref(false)
 const userDialogVisible = ref(false)
@@ -198,7 +198,7 @@ const isEditMode = ref(false)
 const currentUser = ref({})
 const searchKeyword = ref('')
 
-// 计算属性
+// Computed properties
 const filteredUserList = computed(() => {
   if (!searchKeyword.value) {
     return userList.value
@@ -209,11 +209,11 @@ const filteredUserList = computed(() => {
   )
 })
 
-// 表单引用
+// Form refs
 const userFormRef = ref()
 const passwordFormRef = ref()
 
-// 用户表单数据
+// User form data
 const userForm = reactive({
   username: '',
   email: '',
@@ -221,13 +221,13 @@ const userForm = reactive({
   role: ''
 })
 
-// 密码表单数据
+// Password form data
 const passwordForm = reactive({
   newPassword: '',
   confirmPassword: ''
 })
 
-// 用户表单验证规则
+// User form validation rules
 const userFormRules = {
   username: [
     { required: true, message: t('enter_username'), trigger: 'blur' }
@@ -245,7 +245,7 @@ const userFormRules = {
   ]
 }
 
-// 密码表单验证规则
+// Password form validation rules
 const passwordFormRules = {
   newPassword: [
     { required: true, message: t('enter_new_password'), trigger: 'blur' },
@@ -266,7 +266,7 @@ const passwordFormRules = {
   ]
 }
 
-// 加载用户列表
+// Load user list
 const loadUserList = async () => {
   tableLoading.value = true
   try {
@@ -279,13 +279,13 @@ const loadUserList = async () => {
   }
 }
 
-// 打开添加用户对话框
+// Open add user dialog
 const openAddDialog = () => {
   isEditMode.value = false
   userDialogVisible.value = true
 }
 
-// 打开编辑用户对话框
+// Open edit user dialog
 const openEditDialog = (user) => {
   isEditMode.value = true
   currentUser.value = user
@@ -295,7 +295,7 @@ const openEditDialog = (user) => {
   userDialogVisible.value = true
 }
 
-// 重置用户表单
+// Reset user form
 const resetUserForm = () => {
   userForm.username = ''
   userForm.email = ''
@@ -307,7 +307,7 @@ const resetUserForm = () => {
   }
 }
 
-// 处理用户提交
+// Handle user form submit
 const handleUserSubmit = async () => {
   if (!userFormRef.value) return
   
@@ -316,14 +316,14 @@ const handleUserSubmit = async () => {
     userSubmitLoading.value = true
     
     if (isEditMode.value) {
-      // 编辑用户
+      // Edit user
       await api.put(`/admin/users/${currentUser.value.id}`, {
         email: userForm.email,
         role: userForm.role
       })
       ElMessage.success(t('user_update_success'))
     } else {
-      // 添加用户
+      // Add user
       await api.post('/admin/users', {
         username: userForm.username,
         email: userForm.email,
@@ -342,7 +342,7 @@ const handleUserSubmit = async () => {
   }
 }
 
-// 删除用户
+// Delete user
 const handleDeleteUser = async (user) => {
   try {
     await ElMessageBox.confirm(
@@ -365,13 +365,13 @@ const handleDeleteUser = async (user) => {
   }
 }
 
-// 打开重置密码对话框
+// Open reset password dialog
 const openResetPasswordDialog = (user) => {
   currentUser.value = user
   resetPasswordDialogVisible.value = true
 }
 
-// 打开复刻额度设置
+// Open voice clone quota settings
 const openQuotaDialog = async (user) => {
   quotaUser.value = user
   quotaDialogVisible.value = true
@@ -443,7 +443,7 @@ const resetQuotaDialog = () => {
   quotaOriginalMaxMap.value = {}
 }
 
-// 重置密码表单
+// Reset password form
 const resetPasswordForm = () => {
   passwordForm.newPassword = ''
   passwordForm.confirmPassword = ''
@@ -452,7 +452,7 @@ const resetPasswordForm = () => {
   }
 }
 
-// 处理重置密码
+// Handle reset password
 const handleResetPassword = async () => {
   if (!passwordFormRef.value) return
   
@@ -486,13 +486,13 @@ const handleResetPassword = async () => {
   }
 }
 
-// 格式化日期时间
+// Format date/time
 const formatDateTime = (dateString) => {
   if (!dateString) return '--'
   return new Date(dateString).toLocaleString('zh-CN')
 }
 
-// 组件挂载时加载数据
+// Load data on component mount
 onMounted(() => {
   loadUserList()
 })

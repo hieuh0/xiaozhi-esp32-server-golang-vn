@@ -22,39 +22,39 @@ const (
 	MqttLifecycleStateOffline = "offline"
 )
 
-// 消息类型常量
+// Message type constants
 const (
-	MessageTypeHello      = "hello"       // 握手消息
-	MessageTypeAbort      = "abort"       // 中止消息
-	MessageTypeListen     = "listen"      // 监听消息
-	MessageTypeIot        = "iot"         // 物联网消息
-	MessageTypeMcp        = "mcp"         // MCP消息
-	MessageTypeGoodBye    = "goodbye"     // 再见消息
-	MessageTypeSpeakReady = "speak_ready" // 设备已准备好接收主动播报
+	MessageTypeHello      = "hello"       // Handshake message
+	MessageTypeAbort      = "abort"       // Abort message
+	MessageTypeListen     = "listen"      // Listen message
+	MessageTypeIot        = "iot"         // IoT message
+	MessageTypeMcp        = "mcp"         // MCP message
+	MessageTypeGoodBye    = "goodbye"     // Goodbye message
+	MessageTypeSpeakReady = "speak_ready" // Device is ready to receive proactive broadcast
 )
 
-// 服务器消息类型常量
+// Server message type constants
 const (
-	ServerMessageTypeHello        = "hello"         // 握手消息
-	ServerMessageTypeStt          = "stt"           // 语音转文本
-	ServerMessageTypeTts          = "tts"           // 文本转语音
-	ServerMessageTypeIot          = "iot"           // 物联网消息
-	ServerMessageTypeLlm          = "llm"           // 大语言模型
-	ServerMessageTypeText         = "text"          // 文本消息
-	ServerMessageTypeGoodBye      = "goodbye"       // 再见消息
-	ServerMessageTypeSpeakRequest = "speak_request" // 主动播报请求
+	ServerMessageTypeHello        = "hello"         // Handshake message
+	ServerMessageTypeStt          = "stt"           // Speech-to-text
+	ServerMessageTypeTts          = "tts"           // Text-to-speech
+	ServerMessageTypeIot          = "iot"           // IoT message
+	ServerMessageTypeLlm          = "llm"           // Large language model
+	ServerMessageTypeText         = "text"          // Text message
+	ServerMessageTypeGoodBye      = "goodbye"       // Goodbye message
+	ServerMessageTypeSpeakRequest = "speak_request" // Proactive broadcast request
 )
 
-// 消息状态常量
+// Message state constants
 const (
-	MessageStateStart         = "start"          // 开始状态
-	MessageStateSentenceStart = "sentence_start" // 句子开始状态
-	MessageStateSentenceEnd   = "sentence_end"   // 句子结束状态
-	MessageStateStop          = "stop"           // 停止状态
-	MessageStateDetect        = "detect"         // 检测状态
-	MessageStateAbort         = "abort"          // 中止状态
-	MessageStateSuccess       = "success"        // 成功状态
-	MessageStateReady         = "ready"          // 设备已准备好
+	MessageStateStart         = "start"          // Start state
+	MessageStateSentenceStart = "sentence_start" // Sentence start state
+	MessageStateSentenceEnd   = "sentence_end"   // Sentence end state
+	MessageStateStop          = "stop"           // Stop state
+	MessageStateDetect        = "detect"         // Detect state
+	MessageStateAbort         = "abort"          // Abort state
+	MessageStateSuccess       = "success"        // Success state
+	MessageStateReady         = "ready"          // Device ready state
 )
 
 type UdpConfig struct {
@@ -72,7 +72,7 @@ type MqttLifecycleEvent struct {
 	Ts       int64  `json:"ts"`
 }
 
-// ServerMessage 表示服务器消息
+// ServerMessage represents a server message
 type ServerMessage struct {
 	Type        string                   `json:"type"`
 	Text        string                   `json:"text,omitempty"`

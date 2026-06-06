@@ -12,21 +12,21 @@ import (
 )
 
 var (
-	// 全局Redis客户端实例
+	// Global Redis client instance.
 	globalClient *redis.Client
-	// 确保只初始化一次
+	// Ensures initialization occurs once.
 	once sync.Once
-	// 读写锁保护实例访问
+	// Protects client access.
 	mu sync.RWMutex
 )
 
-// Config Redis配置结构体
+// Config contains Redis settings.
 type Config struct {
 	Host     string `mapstructure:"host" json:"host"`
 	Port     int    `mapstructure:"port" json:"port"`
 	Password string `mapstructure:"password" json:"password"`
 	DB       int    `mapstructure:"db" json:"db"`
-	// 连接池配置
+	// Connection pool settings.
 	PoolSize     int           `mapstructure:"pool_size" json:"pool_size"`
 	MinIdleConns int           `mapstructure:"min_idle_conns" json:"min_idle_conns"`
 	MaxRetries   int           `mapstructure:"max_retries" json:"max_retries"`
@@ -35,7 +35,7 @@ type Config struct {
 	DialTimeout  time.Duration `mapstructure:"dial_timeout" json:"dial_timeout"`
 }
 
-// DefaultConfig 返回默认配置
+// DefaultConfig returns the default Redis configuration.
 func DefaultConfig() *Config {
 	return &Config{
 		Host:         "localhost",
@@ -51,7 +51,7 @@ func DefaultConfig() *Config {
 	}
 }
 
-// Init 初始化Redis客户端
+// Init initializes the Redis client.
 func Init(config *Config) error {
 	var initErr error
 
@@ -60,7 +60,7 @@ func Init(config *Config) error {
 			config = DefaultConfig()
 		}
 
-		// 创建Redis客户端
+		// Create the Redis client.
 		options := &redis.Options{
 			Addr:         fmt.Sprintf("%s:%d", config.Host, config.Port),
 			Password:     config.Password,
@@ -75,7 +75,7 @@ func Init(config *Config) error {
 
 		client := redis.NewClient(options)
 
-		// 测试连接
+		// Test the connection.
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
@@ -88,26 +88,26 @@ func Init(config *Config) error {
 		globalClient = client
 		mu.Unlock()
 
-		log.Log().Info("Redis客户端初始化成功")
+		log.Log().Info("Redis client initialized")
 	})
 
 	return initErr
 }
 
-// GetClient 获取Redis客户端实例
+// GetClient returns the Redis client instance.
 func GetClient() *redis.Client {
 	mu.RLock()
 	defer mu.RUnlock()
 
 	if globalClient == nil {
-		log.Log().Warn("Redis客户端未初始化")
+		log.Log().Warn("Redis client is not initialized")
 		return nil
 	}
 
 	return globalClient
 }
 
-// GetClientWithOptions 使用指定配置获取Redis客户端
+// GetClientWithOptions returns a Redis client using the supplied configuration.
 func GetClientWithOptions(options *redis.Options) *redis.Client {
 	if options == nil {
 		return GetClient()
@@ -115,19 +115,19 @@ func GetClientWithOptions(options *redis.Options) *redis.Client {
 
 	client := redis.NewClient(options)
 
-	// 测试连接
+	// Test the connection.
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
 	if err := client.Ping(ctx).Err(); err != nil {
-		log.Log().Errorf("Redis连接失败: %v", err)
+		log.Log().Errorf("Redis connection failed: %v", err)
 		return nil
 	}
 
 	return client
 }
 
-// IsHealthy 检查Redis连接健康状态
+// IsHealthy checks Redis connection health.
 func IsHealthy() bool {
 	client := GetClient()
 	if client == nil {
@@ -140,7 +140,7 @@ func IsHealthy() bool {
 	return client.Ping(ctx).Err() == nil
 }
 
-// Close 关闭Redis客户端连接
+// Close closes the Redis client connection.
 func Close() error {
 	mu.Lock()
 	defer mu.Unlock()
@@ -149,16 +149,16 @@ func Close() error {
 		err := globalClient.Close()
 		globalClient = nil
 		if err != nil {
-			log.Log().Errorf("关闭Redis连接失败: %v", err)
+			log.Log().Errorf("failed to close Redis connection: %v", err)
 			return err
 		}
-		log.Log().Info("Redis连接已关闭")
+		log.Log().Info("Redis connection closed")
 	}
 
 	return nil
 }
 
-// GetKeyWithPrefix 获取带前缀的键名
+// GetKeyWithPrefix returns a key with the configured prefix.
 func GetKeyWithPrefix(prefix, key string) string {
 	if prefix == "" {
 		return key
@@ -166,24 +166,24 @@ func GetKeyWithPrefix(prefix, key string) string {
 	return fmt.Sprintf("%s:%s", prefix, key)
 }
 
-// Reconnect 重新连接Redis（用于连接断开后的重连）
+// Reconnect reconnects Redis after a connection loss.
 func Reconnect() error {
 	mu.Lock()
 	defer mu.Unlock()
 
 	if globalClient != nil {
-		// 关闭现有连接
+		// Close the existing connection.
 		_ = globalClient.Close()
 		globalClient = nil
 	}
 
-	// 重置once，允许重新初始化
+	// Reset once to allow reinitialization.
 	once = sync.Once{}
 
 	return nil
 }
 
-// Stats 获取Redis连接池统计信息
+// Stats returns Redis connection pool statistics.
 func Stats() *redis.PoolStats {
 	client := GetClient()
 	if client == nil {
@@ -194,14 +194,14 @@ func Stats() *redis.PoolStats {
 	return stats
 }
 
-// LogStats 记录Redis连接池统计信息
+// LogStats logs Redis connection pool statistics.
 func LogStats() {
 	stats := Stats()
 	if stats == nil {
-		log.Log().Warn("无法获取Redis连接池统计信息")
+		log.Log().Warn("unable to get Redis connection pool statistics")
 		return
 	}
 
-	log.Log().Infof("Redis连接池统计 - 总连接: %d, 空闲连接: %d, 过期连接: %d, 命中: %d, 未命中: %d, 超时: %d",
+	log.Log().Infof("Redis pool stats - total: %d, idle: %d, stale: %d, hits: %d, misses: %d, timeouts: %d",
 		stats.TotalConns, stats.IdleConns, stats.StaleConns, stats.Hits, stats.Misses, stats.Timeouts)
 }

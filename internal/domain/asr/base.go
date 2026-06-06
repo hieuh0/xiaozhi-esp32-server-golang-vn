@@ -10,27 +10,27 @@ import (
 	log "xiaozhi-esp32-server-golang/logger"
 )
 
-// Asr 语音识别接口
+// Asr speech recognition interface
 type AsrProvider interface {
-	// Process 一次性处理整段音频，返回完整识别结果
+	//Process processes the entire audio segment at once and returns complete recognition results.
 	Process(pcmData []float32) (string, error)
 
-	// StreamingRecognize 流式识别接口
-	// 输入音频数据通过 audioStream 通道，识别结果通过返回的通道获取
-	// 当 audioStream 被关闭时，表示输入结束，最终结果将会通过返回的通道发送，然后关闭该通道
-	// 可以通过 ctx 控制识别过程的取消和超时
+	//StreamingRecognize streaming recognition interface
+	//The input audio data passes through the audioStream channel, and the recognition result is obtained through the returned channel.
+	//When audioStream is closed, it indicates the end of input, the final result will be sent through the returned channel, and then the channel is closed
+	//Cancellation and timeout of the recognition process can be controlled through ctx
 	StreamingRecognize(ctx context.Context, audioStream <-chan []float32) (chan types.StreamingResult, error)
-	// Close 关闭资源，释放连接等
+	//Close closes resources, releases connections, etc.
 	Close() error
-	// IsValid 检查资源是否有效
+	//IsValid checks whether the resource is valid
 	IsValid() bool
 }
 
-// NewAsrProvider 创建一个新的ASR实例
-// asrType: ASR引擎类型，目前支持 "funasr"
-// config: ASR引擎配置，为 map[string]interface{} 类型
+// NewAsrProvider creates a new ASR instance
+// asrType: ASR engine type, currently supports "funasr"
+// config: ASR engine configuration, of type map[string]interface{}
 func NewAsrProvider(asrType string, config map[string]interface{}) (AsrProvider, error) {
-	// 优先使用 config 中的 provider，否则使用参数中的 provider
+	//Prioritize using the provider in config, otherwise use the provider in the parameters
 	if configProvider, ok := config["provider"].(string); ok && configProvider != "" {
 		asrType = configProvider
 	}
@@ -40,33 +40,33 @@ func NewAsrProvider(asrType string, config map[string]interface{}) (AsrProvider,
 	case constants.AsrTypeAliyunFunASR:
 		return NewAliyunFunASRAdapter(config)
 	case constants.AsrTypeDoubao:
-		log.Info("使用 豆包ASR 提供者")
+		log.Info("Using the DoubaoASR provider")
 		provider, err := doubao.NewDoubaoV2Adapter(config)
 		if err != nil {
-			log.Errorf("豆包ASR适配器创建失败: %v", err)
+			log.Errorf("DoubaoASR adapter creation failed: %v", err)
 		} else {
-			log.Info("豆包ASR适配器创建成功")
+			log.Info("DoubaoASR adapter created successfully")
 		}
 		return provider, err
 	case constants.AsrTypeAliyunQwen3:
-		log.Info("使用 阿里云 Qwen3 ASR 提供者")
+		log.Info("Using Alibaba Cloud Qwen3 ASR provider")
 		provider, err := NewAliyunQwen3Adapter(config)
 		if err != nil {
-			log.Errorf("阿里云 Qwen3 ASR 适配器创建失败: %v", err)
+			log.Errorf("Alibaba Cloud Qwen3 ASR adapter creation failed: %v", err)
 		} else {
-			log.Info("阿里云 Qwen3 ASR 适配器创建成功")
+			log.Info("Alibaba Cloud Qwen3 ASR adapter created successfully")
 		}
 		return provider, err
 	case constants.AsrTypeXunfei:
-		log.Info("使用 讯飞 ASR 提供者")
+		log.Info("Using Xunfei ASR provider")
 		provider, err := NewXunfeiAdapter(config)
 		if err != nil {
-			log.Errorf("讯飞 ASR 适配器创建失败: %v", err)
+			log.Errorf("Xunfei ASR adapter creation failed: %v", err)
 		} else {
-			log.Info("讯飞 ASR 适配器创建成功")
+			log.Info("Xunfei ASR adapter created successfully")
 		}
 		return provider, err
 	default:
-		return nil, fmt.Errorf("不支持的ASR引擎类型: %s，目前仅支持 'funasr', 'aliyun_funasr', 'doubao', 'aliyun_qwen3', 'xunfei'", asrType)
+		return nil, fmt.Errorf("Unsupported ASR engine type: %s, currently only supports 'funasr', 'aliyun_funasr', 'doubao', 'aliyun_qwen3', 'xunfei'", asrType)
 	}
 }

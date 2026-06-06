@@ -17,17 +17,17 @@ import (
 	log "xiaozhi-esp32-server-golang/logger"
 )
 
-// WebSocketServer 表示 WebSocket 服务器
+// WebSocketServer represents the WebSocket server
 type WebSocketServer struct {
-	// 配置升级器
+	// WebSocket upgrader
 	upgrader websocket.Upgrader
-	// 客户端状态，使用 sync.Map 实现并发安全
+	// client states, concurrency-safe via sync.Map
 	clientStates sync.Map
-	// 认证管理器
+	// authentication manager
 	authManager *auth.AuthManager
-	// 端口
+	// port
 	port int
-	// MCP管理器
+	// MCP manager
 	globalMCPManager *mcp.GlobalMCPManager
 
 	onNewConnection    types.OnNewConnection
@@ -35,18 +35,17 @@ type WebSocketServer struct {
 	onInjectMessage    func(deviceID, message string, skipLlm bool, autoListen bool) error
 }
 
-// Option 类型定义
-// WebSocketServerOption 用于配置 WebSocketServer 的可选参数
+// WebSocketServerOption is a functional option for configuring WebSocketServer
 type WebSocketServerOption func(*WebSocketServer)
 
-// WithAuthManager 设置认证管理器
+// WithAuthManager sets the authentication manager
 func WithAuthManager(authManager *auth.AuthManager) WebSocketServerOption {
 	return func(s *WebSocketServer) {
 		s.authManager = authManager
 	}
 }
 
-// WithMCPManager 设置 MCP 管理器
+// WithMCPManager sets the MCP manager
 func WithMCPManager(mcpManager *mcp.GlobalMCPManager) WebSocketServerOption {
 	return func(s *WebSocketServer) {
 		s.globalMCPManager = mcpManager
@@ -71,17 +70,17 @@ func WithOnInjectMessage(handler func(deviceID, message string, skipLlm bool, au
 	}
 }
 
-// NewWebSocketServer 创建新的 WebSocket 服务器（WithOption 方式）
+// NewWebSocketServer creates a new WebSocket server using functional options
 func NewWebSocketServer(port int, opts ...WebSocketServerOption) *WebSocketServer {
 	s := &WebSocketServer{
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 			CheckOrigin: func(r *http.Request) bool {
-				return true // 允许所有来源的连接
+				return true // allow connections from all origins
 			},
 		},
-		// 默认值
+		// defaults
 		authManager:      auth.A(),
 		port:             port,
 		globalMCPManager: mcp.GetGlobalMCPManager(),
@@ -92,18 +91,18 @@ func NewWebSocketServer(port int, opts ...WebSocketServerOption) *WebSocketServe
 	return s
 }
 
-// Start 启动 WebSocket 服务器
+// Start starts the WebSocket server
 func (s *WebSocketServer) Start() error {
-	// 启动所有MCP管理器（通过统一管理器）
+	// start all MCP managers via unified manager
 	if err := mcp.StartMCPManagers(); err != nil {
-		log.Errorf("启动MCP管理器集群失败: %v", err)
+		log.Errorf("Failed to start MCP manager cluster: %v", err)
 		return err
 	}
 
-	// 启动会话清理
+	// start session cleanup
 	go s.cleanupSessions()
 
-	// 注册路由处理器
+	// register route handlers
 	http.HandleFunc("/xiaozhi/mqtt_udp/v1/", s.handleMqttUdpChat)
 	http.HandleFunc("/xiaozhi/v1/", s.handleChat)
 	http.HandleFunc("/xiaozhi/ota/", s.handleOta)
@@ -111,29 +110,29 @@ func (s *WebSocketServer) Start() error {
 	http.HandleFunc("/mcp", s.handleMCPWebSocket)
 	http.HandleFunc("/ws/openclaw", s.handleOpenClawWebSocket)
 	http.HandleFunc("/xiaozhi/api/mcp/tools/", s.handleMCPAPI)
-	http.HandleFunc("/xiaozhi/api/vision", s.handleVisionAPI) //图片识别API
+	http.HandleFunc("/xiaozhi/api/vision", s.handleVisionAPI) // image recognition API
 
 	http.HandleFunc("/admin/inject_msg", s.handleInjectMsg)
 
 	listenAddr := fmt.Sprintf("0.0.0.0:%d", s.port)
-	log.Infof("WebSocket 服务器启动在 ws://%s/xiaozhi/v1/", listenAddr)
-	log.Infof("MCP WebSocket 端点: ws://%s/mcp?token=xxx", listenAddr)
-	log.Infof("OpenClaw WebSocket 端点: ws://%s/ws/openclaw?token=xxx", listenAddr)
-	log.Infof("MCP API 端点: http://%s/xiaozhi/api/mcp/tools/{deviceId}", listenAddr)
+	log.Infof("WebSocket server started at ws://%s/xiaozhi/v1/", listenAddr)
+	log.Infof("MCP WebSocket endpoint: ws://%s/mcp?token=xxx", listenAddr)
+	log.Infof("OpenClaw WebSocket endpoint: ws://%s/ws/openclaw?token=xxx", listenAddr)
+	log.Infof("MCP API endpoint: http://%s/xiaozhi/api/mcp/tools/{deviceId}", listenAddr)
 
 	if err := http.ListenAndServe(listenAddr, nil); err != nil {
-		log.Log().Fatalf("WebSocket 服务器启动失败: %v", err)
+		log.Log().Fatalf("WebSocket server failed to start: %v", err)
 		return err
 	}
 	return nil
 }
 
-// handleGetDeviceTools 获取设备的工具列表
+// handleGetDeviceTools retrieves the tool list for a device
 func (s *WebSocketServer) handleGetDeviceTools(w http.ResponseWriter, r *http.Request, deviceID string) {
 
 }
 
-// cleanupSessions 定期清理过期会话
+// cleanupSessions periodically removes expired sessions
 func (s *WebSocketServer) cleanupSessions() {
 	ticker := time.NewTicker(5 * time.Minute)
 	for range ticker.C {
@@ -141,53 +140,53 @@ func (s *WebSocketServer) cleanupSessions() {
 	}
 }
 
-// handleWebSocket 处理 WebSocket 连接
+// handleChat handles WebSocket connections
 func (s *WebSocketServer) handleChat(w http.ResponseWriter, r *http.Request) {
 	s.internalHandleChat(w, r, false)
 }
 
-// handleWebSocket 处理 WebSocket 连接
+// handleMqttUdpChat handles MQTT-UDP bridge WebSocket connections
 func (s *WebSocketServer) handleMqttUdpChat(w http.ResponseWriter, r *http.Request) {
 	s.internalHandleChat(w, r, true)
 }
 
-// handleWebSocket 处理 WebSocket 连接
+// internalHandleChat handles WebSocket connections
 func (s *WebSocketServer) internalHandleChat(w http.ResponseWriter, r *http.Request, isMqttUdp bool) {
 	deviceID, clientID := extractDeviceAndClientID(r)
 	if deviceID == "" {
-		log.Warn("缺少 device-id，请从 Header 或 URL 参数传入")
-		http.Error(w, "缺少 device-id（支持 Header 或 URL 参数）", http.StatusBadRequest)
+		log.Warn("Missing device-id, please pass via Header or URL parameter")
+		http.Error(w, "Missing device-id (supported via Header or URL parameter)", http.StatusBadRequest)
 		return
 	}
 	if clientID == "" {
-		log.Debugf("连接未提供 client-id, device_id: %s", deviceID)
+		log.Debugf("Connection did not provide client-id, device_id: %s", deviceID)
 	}
 
 	/*isAuth := viper.GetBool("auth.enable")
 	if isAuth {
 		token := r.Header.Get("Authorization")
 		if token == "" {
-			log.Warn("缺少 Authorization 请求头")
-			http.Error(w, "缺少 Authorization 请求头", http.StatusUnauthorized)
+			log.Warn("Missing Authorization header")
+			http.Error(w, "Missing Authorization header", http.StatusUnauthorized)
 			return
 		}
 
-		// 验证令牌
+		// validate token
 		if !s.authManager.ValidateToken(token) {
-			log.Warnf("无效的令牌: %s", token)
-			http.Error(w, "无效的令牌", http.StatusUnauthorized)
+			log.Warnf("Invalid token: %s", token)
+			http.Error(w, "Invalid token", http.StatusUnauthorized)
 			return
 		}
 	}*/
 
-	// 升级 HTTP 连接为 WebSocket
+	// upgrade HTTP connection to WebSocket
 	conn, err := s.upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Errorf("WebSocket 升级失败: %v", err)
+		log.Errorf("WebSocket upgrade failed: %v", err)
 		return
 	}
 
-	// 适配为 IConn 接口
+	// adapt to IConn interface
 	wsConn := NewWebSocketConn(conn, deviceID, isMqttUdp)
 	if s.onNewConnection != nil {
 		s.onNewConnection(wsConn)
@@ -208,14 +207,14 @@ func extractDeviceAndClientID(r *http.Request) (string, string) {
 	if deviceID == "" {
 		deviceID = queryDeviceID
 	} else if queryDeviceID != "" && queryDeviceID != headerDeviceID {
-		log.Warnf("device-id 在 Header(%s) 与 URL 参数(%s) 不一致，优先使用 Header 值", headerDeviceKey, queryDeviceKey)
+		log.Warnf("device-id mismatch: Header(%s) vs URL param(%s), using Header value", headerDeviceKey, queryDeviceKey)
 	}
 
 	clientID := headerClientID
 	if clientID == "" {
 		clientID = queryClientID
 	} else if queryClientID != "" && queryClientID != headerClientID {
-		log.Warnf("client-id 在 Header(%s) 与 URL 参数(%s) 不一致，优先使用 Header 值", headerClientKey, queryClientKey)
+		log.Warnf("client-id mismatch: Header(%s) vs URL param(%s), using Header value", headerClientKey, queryClientKey)
 	}
 
 	return deviceID, clientID

@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <!-- 筛选面板 -->
+    <!-- Filter panel -->
     <el-card class="filter-card" shadow="never">
       <el-form :model="filters" inline>
         <el-form-item :label="t('role')">
@@ -71,7 +71,7 @@
       </el-form>
     </el-card>
 
-    <!-- 消息列表 - 微信风格 -->
+    <!-- Message list - chat style -->
     <el-card class="messages-card" shadow="never" v-loading="loading">
       <div v-if="messages.length === 0" class="empty-state">
         <el-empty :description="t('no_chat_history')" />
@@ -84,19 +84,19 @@
             class="message-wrapper"
             :class="{ 'message-right': message.role === 'user', 'message-left': message.role === 'assistant' }"
           >
-            <!-- 时间戳（如果与上一条消息时间间隔超过5分钟，显示时间） -->
+            <!-- Timestamp (show if more than 5 minutes since previous message) -->
             <div v-if="shouldShowTime(message, index)" class="message-time-divider">
               {{ formatTimeShort(message.created_at) }}
             </div>
             
             <div class="message-bubble-wrapper">
-              <!-- 左侧：机器人消息 -->
+              <!-- Left: assistant message -->
               <template v-if="message.role === 'assistant'">
                 <div class="message-bubble message-bubble-left">
                   <div class="message-content-wrapper">
-                    <!-- 文本内容 -->
+                    <!-- Text content -->
                     <div v-if="message.content" class="message-text">{{ message.content }}</div>
-                    <!-- 音频播放器 -->
+                    <!-- Audio player -->
                     <div v-if="message.audio_path" class="audio-bubble">
                       <audio
                         :ref="el => audioRefs[message.id] = el"
@@ -127,13 +127,13 @@
                 </div>
               </template>
               
-              <!-- 右侧：用户消息 -->
+              <!-- Right: user message -->
               <template v-else>
                 <div class="message-bubble message-bubble-right">
                   <div class="message-content-wrapper">
-                    <!-- 文本内容 -->
+                    <!-- Text content -->
                     <div v-if="message.content" class="message-text">{{ message.content }}</div>
-                    <!-- 音频播放器 -->
+                    <!-- Audio player -->
                     <div v-if="message.audio_path" class="audio-bubble">
                       <audio
                         :ref="el => audioRefs[message.id] = el"
@@ -167,7 +167,7 @@
           </div>
         </div>
 
-        <!-- 分页 -->
+        <!-- Pagination -->
         <div class="pagination" v-if="total > 0">
           <el-pagination
             v-model:current-page="pagination.page"
@@ -208,7 +208,7 @@ const total = ref(0)
 const devices = ref([])
 const deletingId = ref(null)
 
-// 筛选条件
+// Filter state
 const filters = reactive({
   role: '',
   device_id: '',
@@ -216,24 +216,24 @@ const filters = reactive({
   end_date: ''
 })
 
-// 分页
+// Pagination
 const pagination = reactive({
   page: 1,
   pageSize: 50
 })
 
-// 计算总页数
+// Total page count
 const totalPages = computed(() => {
   return Math.ceil(total.value / pagination.pageSize)
 })
 
-// 音频播放相关
+// Audio playback state
 const audioRefs = ref({})
 const playingAudioId = ref(null)
 const chatMessagesRef = ref(null)
-const audioBlobUrls = ref({}) // 存储音频 Blob URL
+const audioBlobUrls = ref({}) // stores audio Blob URLs
 
-// 加载智能体信息
+// Load agent info
 const loadAgent = async () => {
   if (!agentId.value) {
     ElMessage.error(t('agent_id_invalid'))
@@ -249,7 +249,7 @@ const loadAgent = async () => {
   }
 }
 
-// 加载设备列表
+// Load device list
 const loadDevices = async () => {
   try {
     const response = await api.get(`/user/agents/${agentId.value}/devices`)
@@ -259,7 +259,7 @@ const loadDevices = async () => {
   }
 }
 
-// 加载消息列表
+// Load message list
 const loadMessages = async () => {
   if (!agentId.value) {
     return
@@ -276,15 +276,15 @@ const loadMessages = async () => {
     if (filters.end_date) params.end_date = filters.end_date
 
     const response = await api.get(`/user/history/agents/${agentId.value}/messages`, { params })
-    // 后端返回的是按时间倒序（最新在前），需要反转数组使最新的在底部
+    // Backend returns newest-first; reverse so newest appears at bottom
     const data = response.data.data || []
-    messages.value = [...data].reverse() // 反转数组，最新的在底部
+    messages.value = [...data].reverse() // reversed so newest appears at bottom
     total.value = response.data.total || 0
     
-    // 预加载有音频的消息
+    // preload messages with audio
     await preloadAudioMessages()
-    
-    // 加载完成后滚动到底部（显示最新消息）
+
+    // scroll to bottom after loading (show latest messages)
     await nextTick()
     scrollToBottom()
   } catch (error) {
@@ -297,13 +297,13 @@ const loadMessages = async () => {
   }
 }
 
-// 查询
+// Search
 const handleSearch = () => {
   pagination.page = 1
   loadMessages()
 }
 
-// 重置筛选
+// Reset filters
 const handleReset = () => {
   filters.role = ''
   filters.device_id = ''
@@ -313,7 +313,7 @@ const handleReset = () => {
   loadMessages()
 }
 
-// 分页变化
+// Pagination change
 const handlePageChange = (page) => {
   pagination.page = page
   loadMessages()
@@ -325,7 +325,7 @@ const handleSizeChange = (size) => {
   loadMessages()
 }
 
-// 删除消息
+// Delete message
 const handleDelete = async (messageId) => {
   try {
     await ElMessageBox.confirm(t('confirm_delete_message'), t('hint'), {
@@ -348,7 +348,7 @@ const handleDelete = async (messageId) => {
   }
 }
 
-// 导出记录
+// Export records
 const handleExport = async () => {
   exporting.value = true
   try {
@@ -365,7 +365,7 @@ const handleExport = async () => {
       responseType: 'blob'
     })
     
-    // 创建下载链接
+    // Create download link
     const url = window.URL.createObjectURL(new Blob([response.data]))
     const link = document.createElement('a')
     link.href = url
@@ -384,7 +384,7 @@ const handleExport = async () => {
   }
 }
 
-// 格式化时间（完整）
+// Format full timestamp
 const formatTime = (dateString) => {
   const date = new Date(dateString)
   return date.toLocaleString('zh-CN', {
@@ -397,14 +397,14 @@ const formatTime = (dateString) => {
   })
 }
 
-// 格式化时间（简短，用于消息气泡）
+// Format short timestamp (for message bubbles)
 const formatTimeShort = (dateString) => {
   const date = new Date(dateString)
   const now = new Date()
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
   const msgDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
   
-  // 如果是今天，只显示时间
+  // Today: show time only
   if (msgDate.getTime() === today.getTime()) {
     return date.toLocaleTimeString('zh-CN', {
       hour: '2-digit',
@@ -412,19 +412,19 @@ const formatTimeShort = (dateString) => {
     })
   }
   
-  // 如果是昨天
+  // Yesterday
   const yesterday = new Date(today)
   yesterday.setDate(yesterday.getDate() - 1)
   if (msgDate.getTime() === yesterday.getTime()) {
     return t('yesterday_prefix', { time: date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) })
   }
   
-  // 如果是今年，显示月日和时间
+  // This year: show month/day and time
   if (date.getFullYear() === now.getFullYear()) {
     return date.toLocaleString(undefined, { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
   }
 
-  // 其他情况显示完整日期和时间
+  // Otherwise: show full date and time
   return date.toLocaleString(undefined, {
     year: 'numeric',
     month: '2-digit',
@@ -434,23 +434,23 @@ const formatTimeShort = (dateString) => {
   })
 }
 
-// 判断是否显示时间分隔线
+// Whether to show time divider
 const shouldShowTime = (message, index) => {
   if (index === 0) return true
   const currentTime = new Date(message.created_at).getTime()
   const prevTime = new Date(messages.value[index - 1].created_at).getTime()
-  // 如果与上一条消息间隔超过5分钟，显示时间
+  // Show divider if more than 5 minutes since previous message
   return (currentTime - prevTime) > 5 * 60 * 1000
 }
 
-// 处理消息操作
+// Handle message actions
 const handleMessageAction = (command) => {
   if (command.action === 'delete') {
     handleDelete(command.id)
   }
 }
 
-// 滚动到底部
+// Scroll to bottom
 const scrollToBottom = () => {
   if (chatMessagesRef.value) {
     nextTick(() => {
@@ -459,36 +459,36 @@ const scrollToBottom = () => {
   }
 }
 
-// 获取音频URL（使用 Blob URL 以支持认证）
+// Get audio URL (using Blob URL to support auth)
 const getAudioUrl = async (messageId) => {
-  // 如果已有 Blob URL，直接返回
+  // Return existing Blob URL if available
   if (audioBlobUrls.value[messageId]) {
     return audioBlobUrls.value[messageId]
   }
   
   try {
-    // 使用 axios 获取音频数据（会自动携带认证 token）
+    // Use axios to fetch audio data (automatically includes auth token)
     const response = await api.get(`/user/history/messages/${messageId}/audio`, {
-      responseType: 'blob' // 重要：指定响应类型为 blob
+      responseType: 'blob' // specify blob response type
     })
-    
-    // 创建 Blob URL
+
+    // Create Blob URL
     const blobUrl = URL.createObjectURL(response.data)
     audioBlobUrls.value[messageId] = blobUrl
     
     return blobUrl
   } catch (error) {
-    // 静默处理，只记录日志，不显示错误提示
+    // Silent: log only, no error toast
     console.warn(t('load_audio_failed'), messageId, error)
     return null
   }
 }
 
 
-// 预加载音频消息
+// Preload audio messages
 const preloadAudioMessages = async () => {
   const audioMessages = messages.value.filter(msg => msg.audio_path)
-  // 并发预加载，但限制并发数
+  // Concurrent preloading with concurrency limit
   const promises = audioMessages.slice(0, 10).map(msg => getAudioUrl(msg.id).catch(err => {
     console.warn(t('preload_audio_failed'), msg.id, err)
     return null
@@ -496,51 +496,51 @@ const preloadAudioMessages = async () => {
   await Promise.all(promises)
 }
 
-// 音频播放结束
+// Audio playback ended
 const handleAudioEnded = (messageId) => {
   playingAudioId.value = null
 }
 
-// 音频加载错误处理
+// Audio load error handler
 const handleAudioError = async (messageId) => {
-  // 静默处理，只记录日志，不显示错误提示
+  // Silent: log only, no error toast
   console.warn(t('audio_load_failed'), messageId)
-  // 尝试重新加载
+  // Try to reload
   try {
     const url = await getAudioUrl(messageId)
     if (url) {
       const audio = audioRefs.value[messageId]
       if (audio) {
-        audio.load() // 重新加载音频
+        audio.load() // reload audio element
       }
     }
   } catch (error) {
-    // 静默处理，只记录日志
+    // Silent: log only
     console.warn(t('audio_reload_failed'), messageId, error)
   }
 }
 
-// 切换音频播放
+// Toggle audio playback
 const toggleAudio = async (messageId) => {
   const audio = audioRefs.value[messageId]
   if (!audio) return
 
-  // 如果还没有加载音频，先加载
+  // Load audio if not yet loaded
   if (!audioBlobUrls.value[messageId]) {
     const url = await getAudioUrl(messageId)
     if (!url) {
-      // 静默处理，只记录日志，不显示错误提示
+      // Silent: log only, no error toast
       console.warn(t('audio_load_play_failed'), messageId)
       return
     }
-    // 等待音频元素加载
+    // Wait for audio element to load
     await new Promise((resolve) => {
       audio.onloadeddata = resolve
       audio.load()
     })
   }
 
-  // 停止其他音频
+  // Stop other playing audio
   if (playingAudioId.value && playingAudioId.value !== messageId) {
     const otherAudio = audioRefs.value[playingAudioId.value]
     if (otherAudio) {
@@ -550,16 +550,16 @@ const toggleAudio = async (messageId) => {
   }
 
   if (playingAudioId.value === messageId) {
-    // 暂停当前音频
+    // Pause current audio
     audio.pause()
     playingAudioId.value = null
   } else {
-    // 播放音频
+    // Play audio
     try {
       await audio.play()
       playingAudioId.value = messageId
     } catch (error) {
-      // 静默处理，只记录日志，不显示错误提示
+      // Silent: log only, no error toast
       console.warn(t('play_audio_failed'), messageId, error)
     }
   }
@@ -583,7 +583,7 @@ onMounted(async () => {
   }
 })
 
-// 组件卸载时清理 Blob URL，避免内存泄漏
+// Clean up Blob URLs on unmount to prevent memory leaks
 onBeforeUnmount(() => {
   Object.values(audioBlobUrls.value).forEach(url => {
     if (url) {
@@ -702,7 +702,7 @@ onBeforeUnmount(() => {
   display: flex;
 }
 
-/* 消息气泡 */
+/* Message bubble */
 .message-bubble {
   position: relative;
   padding: 10px 14px;
@@ -743,7 +743,7 @@ onBeforeUnmount(() => {
   color: var(--apple-text);
 }
 
-/* 音频气泡 */
+/* Audio bubble */
 .audio-bubble {
   margin: 4px 0;
   display: flex;
@@ -754,7 +754,7 @@ onBeforeUnmount(() => {
   flex-shrink: 0;
 }
 
-/* 消息元信息 */
+/* Message metadata */
 .message-meta {
   display: flex;
   align-items: center;
@@ -798,7 +798,7 @@ onBeforeUnmount(() => {
   background: rgba(0, 122, 255, 0.12);
 }
 
-/* 分页 */
+/* Pagination */
 .pagination {
   margin-top: 20px;
   padding: 20px;
@@ -808,7 +808,7 @@ onBeforeUnmount(() => {
   border-top: 1px solid rgba(229, 229, 234, 0.72);
 }
 
-/* 滚动条样式 */
+/* Scrollbar styles */
 .chat-messages::-webkit-scrollbar {
   width: 6px;
 }
@@ -827,7 +827,7 @@ onBeforeUnmount(() => {
   background: rgba(110, 110, 115, 0.68);
 }
 
-/* Element Plus 组件样式覆盖 */
+/* Element Plus component style overrides */
 :deep(.el-slider__runway) {
   margin: 0;
   height: 4px;

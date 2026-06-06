@@ -13,10 +13,10 @@ import (
 	"xiaozhi-esp32-server-golang/internal/domain/llm/eino_llm"
 )
 
-// LLMExtraErrorKey 错误透传约定：ResponseWithContext 失败时在 Message.Extra 中使用的 key
+// LLMExtraErrorKey error transparent transmission convention: the key used in Message.Extra when ResponseWithContext fails
 const LLMExtraErrorKey = "error"
 
-// IsLLMErrorMessage 判断是否为 LLM 透传的错误消息（Extra 中含 error）
+// IsLLMErrorMessage determines whether it is an error message transmitted through LLM (Extra includes error)
 func IsLLMErrorMessage(msg *schema.Message) bool {
 	if msg == nil || msg.Extra == nil {
 		return false
@@ -29,7 +29,7 @@ func IsLLMErrorMessage(msg *schema.Message) bool {
 	return ok
 }
 
-// LLMErrorMessage 从 Message.Extra 中解析出错误文案（若为错误消息）
+// LLMErrorMessage parses the error text (if it is an error message) from Message.Extra
 func LLMErrorMessage(msg *schema.Message) string {
 	if msg == nil || msg.Extra == nil {
 		return ""
@@ -41,35 +41,35 @@ func LLMErrorMessage(msg *schema.Message) string {
 	return v
 }
 
-// LLMProvider 大语言模型提供者接口
-// 所有LLM实现必须遵循此接口，使用Eino原生类型
+// LLMProvider large language model provider interface
+// All LLM implementations must follow this interface and use Eino native types
 type LLMProvider interface {
-	// ResponseWithContext 带有上下文控制的响应，支持取消操作
-	// ctx: 上下文，可用于取消长时间运行的请求
-	// sessionID: 会话标识符
-	// dialogue: 对话历史，使用Eino原生消息类型
+	//ResponseWithContext is a response with context control and supports cancellation operations.
+	//ctx: context, which can be used to cancel long-running requests
+	//sessionID: session identifier
+	//dialogue: dialogue history, using Eino native message types
 	ResponseWithContext(ctx context.Context, sessionID string, dialogue []*schema.Message, functions []*schema.ToolInfo) chan *schema.Message
 
 	ResponseWithVllm(ctx context.Context, file []byte, text string, mimeType string) (string, error)
 
-	// GetModelInfo 获取模型信息
-	// 返回模型名称和其他元数据
+	//GetModelInfo gets model information
+	//Returns the model name and other metadata
 	GetModelInfo() map[string]interface{}
-	// Close 关闭资源，释放连接等
+	//Close closes resources, releases connections, etc.
 	Close() error
-	// IsValid 检查资源是否有效
+	//IsValid checks whether the resource is valid
 	IsValid() bool
 }
 
-// LLMFactory 大语言模型工厂接口
-// 用于创建不同类型的LLM提供者
+// LLMFactory large language model factory interface
+// For creating different types of LLM providers
 type LLMFactory interface {
-	// CreateProvider 根据配置创建LLM提供者
+	//CreateProvider creates an LLM provider based on configuration
 	CreateProvider(config map[string]interface{}) (LLMProvider, error)
 }
 
-// GetLLMProvider 创建LLM提供者
-// 统一使用EinoLLMProvider处理所有类型
+// GetLLMProvider creates an LLM provider
+// Unified use of EinoLLMProvider to handle all types
 func GetLLMProvider(providerName string, config map[string]interface{}) (LLMProvider, error) {
 	cfg := cloneConfigMap(config)
 	if providerName != "" {
@@ -89,26 +89,26 @@ func GetLLMProvider(providerName string, config map[string]interface{}) (LLMProv
 
 	switch llmType {
 	case constants.LlmTypeOpenai, constants.LlmTypeOllama, constants.LlmTypeEinoLLM, constants.LlmTypeEino:
-		// 统一使用 EinoLLMProvider 处理所有类型
+		//Use EinoLLMProvider uniformly to handle all types
 		provider, err := eino_llm.NewEinoLLMProvider(cfg)
 		if err != nil {
-			return nil, fmt.Errorf("创建Eino LLM提供者失败: %v", err)
+			return nil, fmt.Errorf("Failed to create Eino LLM provider: %v", err)
 		}
 		return provider, nil
 	case constants.LlmTypeDify:
 		provider, err := dify_llm.NewDifyLLMProvider(cfg)
 		if err != nil {
-			return nil, fmt.Errorf("创建Dify LLM提供者失败: %v", err)
+			return nil, fmt.Errorf("Failed to create Dify LLM provider: %v", err)
 		}
 		return provider, nil
 	case constants.LlmTypeCoze:
 		provider, err := coze_llm.NewCozeLLMProvider(cfg)
 		if err != nil {
-			return nil, fmt.Errorf("创建Coze LLM提供者失败: %v", err)
+			return nil, fmt.Errorf("Failed to create Coze LLM provider: %v", err)
 		}
 		return provider, nil
 	}
-	return nil, fmt.Errorf("不支持的LLM提供者: %s", llmType)
+	return nil, fmt.Errorf("Unsupported LLM provider: %s", llmType)
 }
 
 func resolveLLMProviderName(providerName string, config map[string]interface{}, llmType string) string {
@@ -197,7 +197,7 @@ func resolveLLMType(providerName string, config map[string]interface{}) string {
 	}
 }
 
-// Config LLM配置结构
+// Config LLM configuration structure
 type Config struct {
 	ModelName  string                 `json:"model_name"`
 	APIKey     string                 `json:"api_key"`

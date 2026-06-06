@@ -27,13 +27,13 @@ func (s *ragflowSearcher) Search(
 	baseURL, _ := providerConfig["base_url"].(string)
 	baseURL = strings.TrimSpace(baseURL)
 	if baseURL == "" {
-		return nil, fmt.Errorf("ragflow base_url 不能为空")
+		return nil, fmt.Errorf("ragflow base_url cannot be empty")
 	}
 
 	apiKey, _ := providerConfig["api_key"].(string)
 	apiKey = strings.TrimSpace(apiKey)
 	if apiKey == "" {
-		return nil, fmt.Errorf("ragflow api_key 不能为空")
+		return nil, fmt.Errorf("ragflow api_key cannot be empty")
 	}
 
 	globalSimilarityThreshold := 0.2
@@ -126,7 +126,7 @@ func (s *ragflowSearcher) Search(
 		return nil, errors.New(strings.Join(errs, "; "))
 	}
 	if len(errs) > 0 {
-		log.Warnf("RAGFlow 知识库检索部分失败: %s", strings.Join(errs, "; "))
+		log.Warnf("RAGFlow knowledge base search part failed: %s", strings.Join(errs, "; "))
 	}
 	return ret, nil
 }
@@ -175,20 +175,20 @@ func (s *ragflowSearcher) searchOneDataset(
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(body))
 	if err != nil {
-		return nil, fmt.Errorf("创建RAGFlow请求失败(dataset_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to create RAGFlow request (dataset_id=%s): %w", datasetID, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("调用RAGFlow失败(dataset_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to call RAGFlow (dataset_id=%s): %w", datasetID, err)
 	}
 
 	bodyBytes, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode >= 400 {
-		return nil, fmt.Errorf("RAGFlow返回异常(dataset_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
+		return nil, fmt.Errorf("RAGFlow returns exception (dataset_id=%s): %d %s", datasetID, resp.StatusCode, string(bodyBytes))
 	}
 
 	var ragflowResp struct {
@@ -206,10 +206,10 @@ func (s *ragflowSearcher) searchOneDataset(
 		} `json:"data"`
 	}
 	if err := json.Unmarshal(bodyBytes, &ragflowResp); err != nil {
-		return nil, fmt.Errorf("解析RAGFlow返回失败(dataset_id=%s): %w", datasetID, err)
+		return nil, fmt.Errorf("Failed to parse RAGFlow (dataset_id=%s): %w", datasetID, err)
 	}
 	if ragflowResp.Code != 0 {
-		return nil, fmt.Errorf("RAGFlow请求失败(dataset_id=%s): code=%d message=%s", datasetID, ragflowResp.Code, strings.TrimSpace(ragflowResp.Message))
+		return nil, fmt.Errorf("RAGFlow request failed (dataset_id=%s): code=%d message=%s", datasetID, ragflowResp.Code, strings.TrimSpace(ragflowResp.Message))
 	}
 
 	title := strings.TrimSpace(kb.Name)

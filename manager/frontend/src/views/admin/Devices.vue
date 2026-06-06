@@ -72,7 +72,7 @@
       </el-table-column>
     </el-table>
 
-    <!-- 添加/编辑设备对话框 -->
+    <!-- Add/Edit device dialog -->
 
     <el-dialog v-model="showMcpDialog" :title="t('device_mcp_tools')" width="760px">
       <div v-loading="mcpLoading">
@@ -199,7 +199,7 @@ const saveDevice = async () => {
       ElMessage.success(t('device_update_success'))
     } else {
       const response = await api.post('/admin/devices', payload)
-      // 根据后端返回的消息显示不同的提示
+      // Show different prompts based on backend response message
       const message = response.data.message || t('device_bind_success')
       ElMessage.success(message)
     }
@@ -412,12 +412,12 @@ const resetForm = () => {
   }
 }
 
-// 判断设备是否在线（基于最后活跃时间）
+// Determine if a device is online (based on last active time)
 const isDeviceOnline = (lastActiveAt) => {
   if (!lastActiveAt) return false
   const now = new Date()
   const lastActive = new Date(lastActiveAt)
-  // 5分钟内有活动认为在线
+  // Considered online if active within the last 5 minutes
   return (now - lastActive) < 5 * 60 * 1000
 }
 
