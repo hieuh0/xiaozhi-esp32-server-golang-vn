@@ -1008,6 +1008,9 @@ func filterMarketServices(items []mcpmarket.MarketServiceSummary, q string) []mc
 
 func parsePositiveInt(s string, fallback int) int {
 	if n, err := strconv.Atoi(strings.TrimSpace(s)); err == nil && n > 0 {
+		if n > 200 {
+			return 200
+		}
 		return n
 	}
 	return fallback

@@ -146,12 +146,20 @@ func ensureKnowledgeFeatureEnabled(c *gin.Context, db *gorm.DB) bool {
 }
 
 func (ac *AdminController) GetKnowledgeSearchConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "knowledge_search").Order("id ASC").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "knowledge_search").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get knowledge base retrieval config"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "knowledge_search").Order("id ASC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get knowledge base retrieval config"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateKnowledgeSearchConfig(c *gin.Context) {
@@ -517,8 +525,18 @@ func buildKnowledgeGlobalConfigData(db *gorm.DB) gin.H {
 
 func (uc *UserController) GetKnowledgeBases(c *gin.Context) {
 	userID, _ := c.Get("user_id")
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+
+	var total int64
+	if err := uc.DB.Model(&models.KnowledgeBase{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get knowledge base list"})
+		return
+	}
+
 	var items []models.KnowledgeBase
-	if err := uc.DB.Where("user_id = ?", userID).Order("id DESC").Find(&items).Error; err != nil {
+	if err := uc.DB.Where("user_id = ?", userID).Order("id DESC").Offset(offset).Limit(pageSize).Find(&items).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get knowledge base list"})
 		return
 	}
@@ -561,6 +579,9 @@ func (uc *UserController) GetKnowledgeBases(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"data":      resp,
+		"total":     total,
+		"page":      page,
+		"page_size": pageSize,
 		"knowledge": buildKnowledgeGlobalConfigData(uc.DB),
 	})
 }

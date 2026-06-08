@@ -325,18 +325,28 @@ func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 	userID := userIDAny.(uint)
 
 	ttsConfigID := strings.TrimSpace(c.Query("tts_config_id"))
-	query := vcc.DB.Model(&models.VoiceClone{}).Where("user_id = ? AND status != ?", userID, "deleted")
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+
+	base := vcc.DB.Model(&models.VoiceClone{}).Where("user_id = ? AND status != ?", userID, "deleted")
 	if ttsConfigID != "" {
-		query = query.Where("tts_config_id = ?", ttsConfigID)
+		base = base.Where("tts_config_id = ?", ttsConfigID)
+	}
+
+	var total int64
+	if err := base.Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
+		return
 	}
 
 	var clones []models.VoiceClone
-	if err := query.Order("created_at DESC").Find(&clones).Error; err != nil {
+	if err := base.Order("created_at DESC").Offset(offset).Limit(pageSize).Find(&clones).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 		return
 	}
 	if len(clones) == 0 {
-		c.JSON(http.StatusOK, gin.H{"data": []gin.H{}})
+		c.JSON(http.StatusOK, gin.H{"data": []gin.H{}, "total": total, "page": page, "page_size": pageSize})
 		return
 	}
 
@@ -412,7 +422,7 @@ func (vcc *VoiceCloneController) GetVoiceClones(c *gin.Context) {
 		result = append(result, item)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (vcc *VoiceCloneController) UpdateVoiceClone(c *gin.Context) {

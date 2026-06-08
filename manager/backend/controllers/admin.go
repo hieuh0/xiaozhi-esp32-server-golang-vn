@@ -2260,12 +2260,22 @@ func (ac *AdminController) DeleteGlobalRole(c *gin.Context) {
 
 // user management
 func (ac *AdminController) GetUsers(c *gin.Context) {
-	var users []models.User
-	if err := ac.DB.Find(&users).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+
+	var total int64
+	if err := ac.DB.Model(&models.User{}).Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user list"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": users})
+
+	var users []models.User
+	if err := ac.DB.Order("id DESC").Offset(offset).Limit(pageSize).Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user list"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": users, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateUser(c *gin.Context) {
@@ -2312,7 +2322,6 @@ func (ac *AdminController) CreateUser(c *gin.Context) {
 
 	log.Printf("[CreateUser] received user creation request - username: %s, email: %s, role: %s", requestData.Username, requestData.Email, requestData.Role)
 	log.Printf("[CreateUser] raw password length: %d", len(requestData.Password))
-	log.Printf("[CreateUser] raw password: %s", requestData.Password)
 
 	// check if username already exists
 	var existingUser models.User
@@ -2763,12 +2772,14 @@ func (ac *AdminController) GetUserVoiceClonesAdmin(c *gin.Context) {
 
 // device management
 func (ac *AdminController) GetDevices(c *gin.Context) {
-	devices, err := NewDeviceService(ac.DB).List(scopeFromContext(c))
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	devices, total, err := NewDeviceService(ac.DB).List(scopeFromContext(c), page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get device list"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": devices})
+	c.JSON(http.StatusOK, gin.H{"data": devices, "total": total, "page": page, "page_size": pageSize})
 }
 
 // validate device activation code
@@ -2840,12 +2851,14 @@ func (ac *AdminController) DeleteDevice(c *gin.Context) {
 
 // agent management
 func (ac *AdminController) GetAgents(c *gin.Context) {
-	result, err := NewAgentService(ac.DB).List(scopeFromContext(c))
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	result, total, err := NewAgentService(ac.DB).List(scopeFromContext(c), page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get agent list"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result, "total": total, "page": page, "page_size": pageSize})
 }
 
 // GetDeviceMcpTools returns device-level MCP tool list (admin version)
@@ -3227,12 +3240,20 @@ func (ac *AdminController) DeleteAgent(c *gin.Context) {
 
 // VAD config management (frontend compatible)
 func (ac *AdminController) GetVADConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "vad").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "vad").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get VAD configs"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "vad").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get VAD configs"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateVADConfig(c *gin.Context) {
@@ -3255,12 +3276,20 @@ func (ac *AdminController) DeleteVADConfig(c *gin.Context) {
 
 // ASR config management (frontend compatible)
 func (ac *AdminController) GetASRConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "asr").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "asr").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get ASR configs"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "asr").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get ASR configs"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateASRConfig(c *gin.Context) {
@@ -3283,12 +3312,20 @@ func (ac *AdminController) DeleteASRConfig(c *gin.Context) {
 
 // LLM config management (frontend compatible)
 func (ac *AdminController) GetLLMConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "llm").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "llm").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get LLM configs"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "llm").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get LLM configs"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateLLMConfig(c *gin.Context) {
@@ -3311,12 +3348,20 @@ func (ac *AdminController) DeleteLLMConfig(c *gin.Context) {
 
 // TTS config management (frontend compatible)
 func (ac *AdminController) GetTTSConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "tts").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "tts").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get TTS configs"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "tts").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get TTS configs"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateTTSConfig(c *gin.Context) {
@@ -3405,12 +3450,20 @@ func (ac *AdminController) DeleteSpeakerConfig(c *gin.Context) {
 
 // Vision config management (frontend compatible)
 func (ac *AdminController) GetVisionConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ? AND config_id != ?", "vision", "vision_base").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ? AND config_id != ?", "vision", "vision_base").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get Vision configs"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ? AND config_id != ?", "vision", "vision_base").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get Vision configs"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 // GetVisionBaseConfig returns Vision base config
@@ -4864,12 +4917,20 @@ func GenerateAgentOpenClawEndpoint(db *gorm.DB, agentID string, userID uint, end
 
 // Memory config management
 func (ac *AdminController) GetMemoryConfigs(c *gin.Context) {
-	var configs []models.Config
-	if err := ac.DB.Where("type = ?", "memory").Find(&configs).Error; err != nil {
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+	var total int64
+	if err := ac.DB.Model(&models.Config{}).Where("type = ?", "memory").Count(&total).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get Memory config list"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": configs})
+	var configs []models.Config
+	if err := ac.DB.Where("type = ?", "memory").Order("id DESC").Offset(offset).Limit(pageSize).Find(&configs).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get Memory config list"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": configs, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (ac *AdminController) CreateMemoryConfig(c *gin.Context) {

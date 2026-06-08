@@ -198,12 +198,14 @@ func generateUniqueDeviceCode(db *gorm.DB) string {
 
 // GetMyDevices returns an overview of all devices for the current user (read-only)
 func (uc *UserController) GetMyDevices(c *gin.Context) {
-	result, err := NewDeviceService(uc.DB).List(scopeFromContext(c))
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	result, total, err := NewDeviceService(uc.DB).List(scopeFromContext(c), page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list devices"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result, "total": total, "page": page, "page_size": pageSize})
 }
 
 // UpdateDevice updates the device nickname for the current user. device_name (the hardware identifier) is not modified here.
@@ -239,12 +241,14 @@ func (uc *UserController) DeleteDevice(c *gin.Context) {
 }
 
 func (uc *UserController) GetAgents(c *gin.Context) {
-	result, err := NewAgentService(uc.DB).List(scopeFromContext(c))
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	result, total, err := NewAgentService(uc.DB).List(scopeFromContext(c), page, pageSize)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list agents"})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result, "total": total, "page": page, "page_size": pageSize})
 }
 
 func (uc *UserController) CreateAgent(c *gin.Context) {

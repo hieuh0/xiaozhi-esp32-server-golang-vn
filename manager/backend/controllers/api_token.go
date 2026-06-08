@@ -110,8 +110,18 @@ func (uc *UserController) ListAPITokens(c *gin.Context) {
 		return
 	}
 
+	page := parsePositiveInt(c.Query("page"), 1)
+	pageSize := parsePositiveInt(c.Query("page_size"), 20)
+	offset := (page - 1) * pageSize
+
+	var total int64
+	if err := uc.DB.Model(&models.APIToken{}).Where("user_id = ?", userID).Count(&total).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list API tokens"})
+		return
+	}
+
 	var tokens []models.APIToken
-	if err := uc.DB.Where("user_id = ?", userID).Order("id DESC").Find(&tokens).Error; err != nil {
+	if err := uc.DB.Where("user_id = ?", userID).Order("id DESC").Offset(offset).Limit(pageSize).Find(&tokens).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to list API tokens"})
 		return
 	}
@@ -121,7 +131,7 @@ func (uc *UserController) ListAPITokens(c *gin.Context) {
 		result = append(result, toAPITokenResponse(t))
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": result})
+	c.JSON(http.StatusOK, gin.H{"data": result, "total": total, "page": page, "page_size": pageSize})
 }
 
 // RevokeAPIToken revokes an API token for the current user

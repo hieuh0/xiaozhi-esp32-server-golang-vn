@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
+<!doctype html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>小智管理系统</title>
+    <title>XiaoZhi ESP32 Manager</title>
+    <!-- FOUC prevention: apply theme before first paint -->
+    <script>try{var s=localStorage.getItem('theme-mode');if(s==='dark')document.documentElement.classList.add('dark');else if(s==='light')document.documentElement.classList.add('light')}catch(e){}</script>
   </head>
   <body>
-    <div id="app"></div>
-    <script src="/diagnose.js"></script>
-    <script type="module" src="/src/main.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

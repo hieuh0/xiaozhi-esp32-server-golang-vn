@@ -76,16 +76,27 @@ func NewAgentService(db *gorm.DB) *AgentService {
 	return &AgentService{DB: db}
 }
 
-func (svc *AgentService) List(scope accessScope) ([]AgentResponse, error) {
-	var agents []models.Agent
+func (svc *AgentService) List(scope accessScope, page, pageSize int) ([]AgentResponse, int64, error) {
+	var total int64
+	countQ := svc.DB.Model(&models.Agent{})
+	if !scope.IsAdmin {
+		countQ = countQ.Where("user_id = ?", scope.ActorUserID)
+	}
+	if err := countQ.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
 	query := svc.DB.Order("id DESC")
 	if !scope.IsAdmin {
 		query = query.Where("user_id = ?", scope.ActorUserID)
 	}
-	if err := query.Find(&agents).Error; err != nil {
-		return nil, err
+	var agents []models.Agent
+	if err := query.Offset(offset).Limit(pageSize).Find(&agents).Error; err != nil {
+		return nil, 0, err
 	}
-	return svc.enrichAgents(scope, agents)
+	items, err := svc.enrichAgents(scope, agents)
+	return items, total, err
 }
 
 func (svc *AgentService) Get(scope accessScope, id uint) (*AgentResponse, error) {
@@ -423,16 +434,27 @@ func NewDeviceService(db *gorm.DB) *DeviceService {
 	return &DeviceService{DB: db}
 }
 
-func (svc *DeviceService) List(scope accessScope) ([]DeviceResponse, error) {
-	var devices []models.Device
+func (svc *DeviceService) List(scope accessScope, page, pageSize int) ([]DeviceResponse, int64, error) {
+	var total int64
+	countQ := svc.DB.Model(&models.Device{})
+	if !scope.IsAdmin {
+		countQ = countQ.Where("user_id = ?", scope.ActorUserID)
+	}
+	if err := countQ.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	offset := (page - 1) * pageSize
 	query := svc.DB.Order("id DESC")
 	if !scope.IsAdmin {
 		query = query.Where("user_id = ?", scope.ActorUserID)
 	}
-	if err := query.Find(&devices).Error; err != nil {
-		return nil, err
+	var devices []models.Device
+	if err := query.Offset(offset).Limit(pageSize).Find(&devices).Error; err != nil {
+		return nil, 0, err
 	}
-	return svc.enrichDevices(scope, devices)
+	items, err := svc.enrichDevices(scope, devices)
+	return items, total, err
 }
 
 func (svc *DeviceService) ListByAgent(scope accessScope, agentID uint) ([]DeviceResponse, error) {
