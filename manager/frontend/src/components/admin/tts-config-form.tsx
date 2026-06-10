@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
 import api from '@/utils/api'
 import { useLocale } from '@/hooks/use-locale'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -106,6 +107,7 @@ export function TtsConfigForm({ form, setForm, editing }: { form: ConfigForm; se
   const [f, setF] = useState<TtsFields>(() => parse(editing))
   const [voiceOptions, setVoiceOptions] = useState<Array<{label:string;value:string}>>([])
   const [voiceLoading, setVoiceLoading] = useState(false)
+  const [isTesting, setIsTesting] = useState(false)
   const providerRef = useRef(f.provider)
 
   useEffect(() => { const parsed = parse(editing); setF(parsed); providerRef.current = parsed.provider }, [editing])
@@ -127,6 +129,35 @@ export function TtsConfigForm({ form, setForm, editing }: { form: ConfigForm; se
     const next = { ...f, ...patch }
     setF(next)
     setForm({ name: next.name, config_id: next.config_id, provider: next.provider, enabled: next.enabled, is_default: next.is_default, json_data: serialize(next) })
+  }
+
+  async function handleTest() {
+    const cid = f.config_id || '_test_draft'
+    setIsTesting(true)
+    try {
+      const cfgItem = { provider: f.provider, name: f.name, is_default: f.is_default, ...JSON.parse(serialize(f)) }
+      const res = await api.post('/admin/configs/test', {
+        types: ['tts'],
+        data: { tts: { [cid]: cfgItem } },
+        config_ids: { tts: [cid] },
+      }, { timeout: 30000 })
+      const ttsResult = res.data?.data?.tts
+      if (!ttsResult) { toast.error(t('test_failed')); return }
+      if (ttsResult._no_client) { toast.error(t('main_server_not_connected')); return }
+      const errEntry = ttsResult._error
+      if (errEntry) { toast.error(`${t('test_failed')}: ${errEntry.message || ''}`); return }
+      const entry = ttsResult[cid]
+      if (entry?.ok) {
+        toast.success(`${t('tts_test_ok')}${entry.first_packet_ms ? ` (${entry.first_packet_ms}ms)` : ''}`)
+      } else {
+        toast.error(`${t('test_failed')}: ${entry?.message || ''}`)
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      toast.error(`${t('test_failed')}: ${msg}`)
+    } finally {
+      setIsTesting(false)
+    }
   }
 
   const providerOptions = getTTSProviderOptions(t)
@@ -151,13 +182,18 @@ export function TtsConfigForm({ form, setForm, editing }: { form: ConfigForm; se
         <F label={t('config_id')}><Input value={f.config_id} onChange={e => upd({ config_id: e.target.value })} placeholder={t('enter_unique_config_id')} /></F>
       </div>
       <TtsProviderFields f={f} upd={upd} t={t} voiceOptions={voiceOptions} voiceLoading={voiceLoading} />
-      <div className="flex items-center gap-6 pt-1">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Switch checked={f.enabled} onCheckedChange={v => upd({ enabled: v })} /><span className="text-sm">{t('enabled_status')}</span>
-        </label>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Switch checked={f.is_default} onCheckedChange={v => upd({ is_default: v })} /><span className="text-sm">{t('default_config')}</span>
-        </label>
+      <div className="flex items-center justify-between pt-1">
+        <div className="flex items-center gap-6">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Switch checked={f.enabled} onCheckedChange={v => upd({ enabled: v })} /><span className="text-sm">{t('enabled_status')}</span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <Switch checked={f.is_default} onCheckedChange={v => upd({ is_default: v })} /><span className="text-sm">{t('default_config')}</span>
+          </label>
+        </div>
+        <Button variant="outline" size="sm" onClick={handleTest} disabled={isTesting}>
+          {isTesting ? '...' : t('test_current_config')}
+        </Button>
       </div>
     </div>
   )
