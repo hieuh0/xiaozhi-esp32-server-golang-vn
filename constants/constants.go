@@ -37,4 +37,5 @@ const (
 	TtsTypeMinimax      = "minimax"
 	TtsTypeAliyunQwen   = "aliyun_qwen"
 	TtsTypeIndexTTSVLLM = "indextts_vllm"
+	TtsTypeSupertonic   = "supertonic"
 )

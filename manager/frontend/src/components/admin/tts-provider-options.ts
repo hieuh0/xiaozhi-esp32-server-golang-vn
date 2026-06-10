@@ -15,6 +15,7 @@ export function getTTSProviderOptions(t: (k: string) => string) {
     { label: t('tts_provider_zhipu'), value: 'zhipu' },
     { label: 'Minimax', value: 'minimax' },
     { label: 'IndexTTS(vLLM)', value: 'indextts_vllm' },
+    { label: 'Supertonic', value: 'supertonic' },
   ].map(item => ({ ...item, supportsVoiceClone: cloneSet.has(item.value) }))
 }
 

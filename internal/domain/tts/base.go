@@ -8,6 +8,7 @@ import (
 
 	"xiaozhi-esp32-server-golang/constants"
 	"xiaozhi-esp32-server-golang/internal/domain/tts/cosyvoice"
+	"xiaozhi-esp32-server-golang/internal/domain/tts/supertonic"
 	"xiaozhi-esp32-server-golang/internal/domain/tts/doubao"
 	"xiaozhi-esp32-server-golang/internal/domain/tts/edge"
 	"xiaozhi-esp32-server-golang/internal/domain/tts/edge_offline"
@@ -86,6 +87,8 @@ func GetTTSProvider(providerName string, config map[string]interface{}) (TTSProv
 		baseProvider = qwen.NewQwenTTSProvider(config)
 	case constants.TtsTypeIndexTTSVLLM:
 		baseProvider = openai.NewOpenAITTSProvider(buildIndexTTSOpenAIConfig(config))
+	case constants.TtsTypeSupertonic:
+		baseProvider = supertonic.NewSupertonicTTSProvider(config)
 	default:
 		return nil, fmt.Errorf("Unsupported TTS provider: %s", effectiveName)
 	}

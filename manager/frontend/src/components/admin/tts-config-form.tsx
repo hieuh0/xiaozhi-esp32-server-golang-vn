@@ -22,6 +22,9 @@ export interface TtsFields {
   xunfei_super_app_id: string; xunfei_super_api_key: string; xunfei_super_api_secret: string; xunfei_super_ws_url: string; xunfei_super_voice: string; xunfei_super_audio_encoding: string; xunfei_super_sample_rate: number; xunfei_super_speed: number; xunfei_super_volume: number; xunfei_super_pitch: number; xunfei_super_connect_timeout: number; xunfei_super_read_timeout: number; xunfei_super_frame_duration: number
   indextts_api_url: string; indextts_api_key: string; indextts_model: string; indextts_voice: string; indextts_frame_duration: number
   cosyvoice_api_url: string; cosyvoice_spk_id: string; cosyvoice_frame_duration: number; cosyvoice_target_sr: number; cosyvoice_audio_format: string; cosyvoice_instruct_text: string
+  supertonic_onnx_dir: string; supertonic_voice: string; supertonic_voice_json_path: string
+  supertonic_lang: string; supertonic_steps: number; supertonic_speed: number
+  supertonic_silence: number; supertonic_frame_duration: number
 }
 
 const D: TtsFields = {
@@ -37,6 +40,9 @@ const D: TtsFields = {
   xunfei_super_app_id:'', xunfei_super_api_key:'', xunfei_super_api_secret:'', xunfei_super_ws_url:'wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6', xunfei_super_voice:'', xunfei_super_audio_encoding:'raw', xunfei_super_sample_rate:24000, xunfei_super_speed:50, xunfei_super_volume:50, xunfei_super_pitch:50, xunfei_super_connect_timeout:10, xunfei_super_read_timeout:30, xunfei_super_frame_duration:60,
   indextts_api_url:'', indextts_api_key:'', indextts_model:'indextts-vllm', indextts_voice:'', indextts_frame_duration:60,
   cosyvoice_api_url:'', cosyvoice_spk_id:'', cosyvoice_frame_duration:60, cosyvoice_target_sr:22050, cosyvoice_audio_format:'wav', cosyvoice_instruct_text:'',
+  supertonic_onnx_dir:'', supertonic_voice:'M1', supertonic_voice_json_path:'',
+  supertonic_lang:'na', supertonic_steps:8, supertonic_speed:1.0,
+  supertonic_silence:0.3, supertonic_frame_duration:60,
 }
 
 function serialize(f: TtsFields): string {
@@ -53,6 +59,16 @@ function serialize(f: TtsFields): string {
   else if (p==='xunfei_super_tts') cfg={provider:'xunfei_super_tts',double_stream:true,app_id:f.xunfei_super_app_id,api_key:f.xunfei_super_api_key,api_secret:f.xunfei_super_api_secret,ws_url:f.xunfei_super_ws_url,voice:f.xunfei_super_voice,audio_encoding:f.xunfei_super_audio_encoding,sample_rate:f.xunfei_super_sample_rate,speed:f.xunfei_super_speed,volume:f.xunfei_super_volume,pitch:f.xunfei_super_pitch,connect_timeout:f.xunfei_super_connect_timeout,read_timeout:f.xunfei_super_read_timeout,frame_duration:f.xunfei_super_frame_duration}
   else if (p==='indextts_vllm') cfg={provider:'indextts_vllm',api_url:f.indextts_api_url,api_key:f.indextts_api_key,model:f.indextts_model,voice:f.indextts_voice,response_format:'wav',stream:false,frame_duration:f.indextts_frame_duration}
   else if (p==='cosyvoice') cfg={api_url:f.cosyvoice_api_url,spk_id:f.cosyvoice_spk_id,frame_duration:f.cosyvoice_frame_duration,target_sr:f.cosyvoice_target_sr,audio_format:f.cosyvoice_audio_format,instruct_text:f.cosyvoice_instruct_text}
+  else if (p==='supertonic') cfg={
+    onnx_dir:f.supertonic_onnx_dir,
+    voice:f.supertonic_voice,
+    voice_json_path:f.supertonic_voice_json_path,
+    lang:f.supertonic_lang,
+    steps:f.supertonic_steps,
+    speed:f.supertonic_speed,
+    silence_duration:f.supertonic_silence,
+    frame_duration:f.supertonic_frame_duration,
+  }
   return JSON.stringify(cfg)
 }
 
@@ -74,6 +90,9 @@ function parse(row: ConfigRow | null): TtsFields {
       xunfei_super_app_id: d.app_id||'', xunfei_super_api_key: d.api_key||'', xunfei_super_api_secret: d.api_secret||'', xunfei_super_ws_url: d.ws_url||D.xunfei_super_ws_url, xunfei_super_voice: d.voice||'', xunfei_super_audio_encoding: d.audio_encoding||'raw', xunfei_super_sample_rate: d.sample_rate||24000, xunfei_super_speed: d.speed??50, xunfei_super_volume: d.volume??50, xunfei_super_pitch: d.pitch??50, xunfei_super_connect_timeout: d.connect_timeout||10, xunfei_super_read_timeout: d.read_timeout||30, xunfei_super_frame_duration: d.frame_duration||60,
       indextts_api_url: d.api_url||'', indextts_api_key: d.api_key||'', indextts_model: d.model||'indextts-vllm', indextts_voice: d.voice||'', indextts_frame_duration: d.frame_duration||60,
       cosyvoice_api_url: d.api_url||'', cosyvoice_spk_id: d.spk_id||'', cosyvoice_frame_duration: d.frame_duration||60, cosyvoice_target_sr: d.target_sr||22050, cosyvoice_audio_format: d.audio_format||'wav', cosyvoice_instruct_text: d.instruct_text||'',
+      supertonic_onnx_dir: d.onnx_dir||'', supertonic_voice: d.voice||'M1', supertonic_voice_json_path: d.voice_json_path||'',
+      supertonic_lang: d.lang||'na', supertonic_steps: d.steps||8, supertonic_speed: d.speed||1.0,
+      supertonic_silence: d.silence_duration||0.3, supertonic_frame_duration: d.frame_duration||60,
     }
   } catch { return { ...D } }
 }

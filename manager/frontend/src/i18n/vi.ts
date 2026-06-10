@@ -1886,4 +1886,11 @@ export default {
   auth_token: 'Auth Token',
   announce_address: 'Địa chỉ thông báo',
   local_mcp: 'MCP cục bộ',
+  onnx_model_dir: 'Thư mục ONNX Model',
+  custom_voice_json: 'Giọng tùy chỉnh (JSON)',
+  custom_voice_json_path: 'Đường dẫn JSON giọng tùy chỉnh',
+  auto_detect: 'Tự động phát hiện',
+  quality_steps: 'Bước chất lượng',
+  speech_speed: 'Tốc độ giọng nói',
+  silence_duration_s: 'Thời lượng im lặng (s)',
 }

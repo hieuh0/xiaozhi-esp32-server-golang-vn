@@ -1887,4 +1887,11 @@ export default {
   auth_token: 'Auth Token',
   announce_address: '发布地址',
   local_mcp: '本地MCP',
+  onnx_model_dir: 'ONNX 模型目录',
+  custom_voice_json: '自定义音色 (JSON)',
+  custom_voice_json_path: '自定义音色 JSON 路径',
+  auto_detect: '自动检测',
+  quality_steps: '质量步数',
+  speech_speed: '语速',
+  silence_duration_s: '静音时长 (秒)',
 }

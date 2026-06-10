@@ -1,3 +1,18 @@
+const SUPERTONIC_LANGS = [
+  { value: 'ar', label: 'Arabic' }, { value: 'bg', label: 'Bulgarian' }, { value: 'hr', label: 'Croatian' },
+  { value: 'cs', label: 'Czech' }, { value: 'da', label: 'Danish' }, { value: 'nl', label: 'Dutch' },
+  { value: 'en', label: 'English' }, { value: 'et', label: 'Estonian' }, { value: 'fi', label: 'Finnish' },
+  { value: 'fr', label: 'French' }, { value: 'de', label: 'German' }, { value: 'el', label: 'Greek' },
+  { value: 'hi', label: 'Hindi' }, { value: 'hu', label: 'Hungarian' }, { value: 'id', label: 'Indonesian' },
+  { value: 'it', label: 'Italian' }, { value: 'ja', label: 'Japanese' }, { value: 'ko', label: 'Korean' },
+  { value: 'lv', label: 'Latvian' }, { value: 'lt', label: 'Lithuanian' }, { value: 'pl', label: 'Polish' },
+  { value: 'pt', label: 'Portuguese' }, { value: 'ro', label: 'Romanian' }, { value: 'ru', label: 'Russian' },
+  { value: 'sk', label: 'Slovak' }, { value: 'sl', label: 'Slovenian' }, { value: 'es', label: 'Spanish' },
+  { value: 'sv', label: 'Swedish' }, { value: 'tr', label: 'Turkish' }, { value: 'uk', label: 'Ukrainian' },
+  { value: 'vi', label: 'Vietnamese' },
+]
+const SUPERTONIC_PRESET_VOICES = ['M1','M2','M3','M4','M5','F1','F2','F3','F4','F5']
+
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -166,6 +181,50 @@ export function TtsProviderFields({ f, upd, t, voiceOptions, voiceLoading }: {
           </Select>
         </F>
         <F label={t('instruct_text')}><Input value={f.cosyvoice_instruct_text} onChange={e => upd({ cosyvoice_instruct_text: e.target.value })} placeholder={t('enter_instruct_text_opt')} /></F>
+      </>}
+      {p === 'supertonic' && <>
+        <F label={t('onnx_model_dir')}>
+          <Input value={f.supertonic_onnx_dir} onChange={e => upd({ supertonic_onnx_dir: e.target.value })} placeholder="/path/to/supertonic/onnx" />
+        </F>
+        <div className="grid grid-cols-2 gap-3">
+          <F label={t('voice_timbre')}>
+            <Select value={f.supertonic_voice} onValueChange={v => upd({ supertonic_voice: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {SUPERTONIC_PRESET_VOICES.map(v => <SelectItem key={v} value={v}>{v}</SelectItem>)}
+                <SelectItem value="custom">{t('custom_voice_json')}</SelectItem>
+              </SelectContent>
+            </Select>
+          </F>
+          <F label={t('language')}>
+            <Select value={f.supertonic_lang} onValueChange={v => upd({ supertonic_lang: v })}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="na">{t('auto_detect')}</SelectItem>
+                {SUPERTONIC_LANGS.map(l => <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </F>
+        </div>
+        {f.supertonic_voice === 'custom' && (
+          <F label={t('custom_voice_json_path')}>
+            <Input value={f.supertonic_voice_json_path} onChange={e => upd({ supertonic_voice_json_path: e.target.value })} placeholder="/path/to/my-voice.json" />
+          </F>
+        )}
+        <div className="grid grid-cols-3 gap-3">
+          <F label={t('quality_steps')}>
+            <NumInput value={f.supertonic_steps} min={5} max={12} onChange={v => upd({ supertonic_steps: v })} />
+          </F>
+          <F label={t('speech_speed')}>
+            <NumInput value={f.supertonic_speed} min={0.7} max={2.0} step={0.1} onChange={v => upd({ supertonic_speed: v })} />
+          </F>
+          <F label={t('silence_duration_s')}>
+            <NumInput value={f.supertonic_silence} min={0} max={2} step={0.1} onChange={v => upd({ supertonic_silence: v })} />
+          </F>
+        </div>
+        <F label={t('frame_duration')}>
+          <NumInput value={f.supertonic_frame_duration} min={20} max={100} onChange={v => upd({ supertonic_frame_duration: v })} />
+        </F>
       </>}
     </>
   )

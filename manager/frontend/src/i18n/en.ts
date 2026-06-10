@@ -1886,4 +1886,11 @@ export default {
   auth_token: 'Auth Token',
   announce_address: 'Announce Address',
   local_mcp: 'Local MCP',
+  onnx_model_dir: 'ONNX Model Directory',
+  custom_voice_json: 'Custom Voice (JSON)',
+  custom_voice_json_path: 'Custom Voice JSON Path',
+  auto_detect: 'Auto Detect',
+  quality_steps: 'Quality Steps',
+  speech_speed: 'Speech Speed',
+  silence_duration_s: 'Silence Duration (s)',
 }
