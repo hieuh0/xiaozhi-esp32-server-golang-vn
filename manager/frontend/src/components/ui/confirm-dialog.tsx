@@ -12,11 +12,12 @@ interface ConfirmDialogProps {
   isLoading?: boolean
   confirmLabel?: string
   cancelLabel?: string
+  confirmVariant?: 'default' | 'destructive'
 }
 
 export function ConfirmDialog({
   open, onClose, onConfirm, title, description, isLoading,
-  confirmLabel, cancelLabel,
+  confirmLabel, cancelLabel, confirmVariant = 'destructive',
 }: ConfirmDialogProps) {
   const { t } = useLocale()
   return (
@@ -30,7 +31,7 @@ export function ConfirmDialog({
           <Button variant="outline" onClick={onClose} disabled={isLoading}>
             {cancelLabel ?? t('cancel')}
           </Button>
-          <Button variant="destructive" onClick={onConfirm} disabled={isLoading}>
+          <Button variant={confirmVariant} onClick={onConfirm} disabled={isLoading}>
             {isLoading && <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />}
             {confirmLabel ?? t('confirm_delete')}
           </Button>
