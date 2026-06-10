@@ -9,12 +9,9 @@ import (
 	"strings"
 	"sync"
 
-	supertonic "supertonic-tts"
 	opus "gopkg.in/hraban/opus.v2"
 	"xiaozhi-esp32-server-golang/internal/util"
 )
-
-const nativeSampleRate = 44100
 
 type SupertonicTTSProvider struct {
 	OnnxDir         string
@@ -26,10 +23,10 @@ type SupertonicTTSProvider struct {
 	FrameDuration   int
 
 	once    sync.Once
-	tts     *supertonic.TextToSpeech
+	tts     *TextToSpeech
 	initErr error
 	mu      sync.Mutex
-	style   *supertonic.Style
+	style   *Style
 }
 
 func NewSupertonicTTSProvider(config map[string]interface{}) *SupertonicTTSProvider {
@@ -77,16 +74,16 @@ func NewSupertonicTTSProvider(config map[string]interface{}) *SupertonicTTSProvi
 }
 
 func (p *SupertonicTTSProvider) initOnce() {
-	if err := supertonic.InitializeONNXRuntime(); err != nil {
+	if err := InitializeONNXRuntime(); err != nil {
 		p.initErr = fmt.Errorf("supertonic: init ONNX runtime: %w", err)
 		return
 	}
-	cfg, err := supertonic.LoadCfgs(p.OnnxDir)
+	cfg, err := LoadCfgs(p.OnnxDir)
 	if err != nil {
 		p.initErr = fmt.Errorf("supertonic: load configs from %q: %w", p.OnnxDir, err)
 		return
 	}
-	p.tts, p.initErr = supertonic.LoadTextToSpeech(p.OnnxDir, false, cfg)
+	p.tts, p.initErr = LoadTextToSpeech(p.OnnxDir, false, cfg)
 	if p.initErr != nil {
 		p.initErr = fmt.Errorf("supertonic: load TTS model: %w", p.initErr)
 	}
@@ -103,7 +100,7 @@ func (p *SupertonicTTSProvider) resolveVoicePath(voice string) string {
 
 // loadStyleLocked reloads the voice style. Must be called with p.mu held.
 func (p *SupertonicTTSProvider) loadStyleLocked(voicePath string) error {
-	style, err := supertonic.LoadVoiceStyle([]string{voicePath}, false)
+	style, err := LoadVoiceStyle([]string{voicePath}, false)
 	if err != nil {
 		return fmt.Errorf("supertonic: load voice style %q: %w", voicePath, err)
 	}
@@ -132,12 +129,12 @@ func (p *SupertonicTTSProvider) TextToSpeech(ctx context.Context, text string, s
 		return nil, fmt.Errorf("supertonic: failed to load voice style for %q", voiceName)
 	}
 
-	pcmFloat32, err := p.tts.Call(text, p.Lang, style, p.Steps, p.Speed, p.SilenceDuration)
+	pcmFloat32, _, err := p.tts.Call(text, p.Lang, style, p.Steps, p.Speed, p.SilenceDuration)
 	if err != nil {
 		return nil, fmt.Errorf("supertonic: synthesis failed: %w", err)
 	}
 
-	resampled := util.ResampleLinearFloat32(pcmFloat32, nativeSampleRate, sampleRate)
+	resampled := util.ResampleLinearFloat32(pcmFloat32, p.tts.SampleRate, sampleRate)
 	int16Pcm := util.Float32SliceToInt16Slice(resampled)
 	return encodeOpusFrames(int16Pcm, sampleRate, channels, frameDuration)
 }

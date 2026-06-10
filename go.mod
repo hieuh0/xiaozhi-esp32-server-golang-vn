@@ -50,6 +50,7 @@ replace xiaozhi/manager/backend => ./manager/backend
 // 主进程内嵌 asr_server 时引用 asr_server 子模块（Git submodule）
 replace voice_server => ./asr_server
 
+
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
@@ -119,6 +120,7 @@ require (
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
+	github.com/yalue/onnxruntime_go v1.11.0
 	github.com/yargevad/filepathx v1.0.0 // indirect
 	github.com/yosida95/uritemplate/v3 v3.0.2 // indirect
 	go.uber.org/multierr v1.10.0 // indirect

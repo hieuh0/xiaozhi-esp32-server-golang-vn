@@ -1,3 +1,6 @@
 [submodule "asr_server"]
 	path = asr_server
 	url = https://github.com/hackers365/asr_server.git
+[submodule "third_party/supertonic"]
+	path = third_party/supertonic
+	url = https://github.com/supertone-inc/supertonic.git
