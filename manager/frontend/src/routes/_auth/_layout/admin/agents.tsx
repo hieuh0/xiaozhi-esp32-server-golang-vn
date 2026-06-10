@@ -104,7 +104,7 @@ function AdminAgentsPage() {
             <DropdownMenuItem onClick={() => { setDiagAgent(row.original); setDiagPanel('mcp') }}>MCP</DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setDiagAgent(row.original); setDiagPanel('openclaw') }}>OpenClaw</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600" onClick={() => setDeleteTarget(row.original)}>{t('delete')}</DropdownMenuItem>
+            <DropdownMenuItem className="text-[var(--color-danger)]" onClick={() => setDeleteTarget(row.original)}>{t('delete')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       ),

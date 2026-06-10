@@ -7,11 +7,11 @@ export function SidebarBrand() {
   const isAdmin = useAuthStore((s) => s.isAdmin)
 
   return (
-    <div className="flex items-center gap-2.5 px-4 py-4 border-b border-[var(--color-line)] shrink-0">
+    <div className="flex items-center gap-2.5 px-4 h-16 border-b border-[var(--color-line)] shrink-0">
       <img
         src={appLogo}
         alt={t('xiaozhi_management_system')}
-        className="size-9 rounded-xl object-cover shrink-0"
+        className="size-9 rounded-xl object-cover shrink-0 ring-2 ring-[var(--color-primary)]/20"
       />
       <div className="min-w-0">
         <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)]">

@@ -91,7 +91,7 @@ function MqttConfigPage() {
               <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">{t('connection_params')}</h3>
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t('broker_setup_hint')}</p>
             </div>
-            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', isCoreComplete ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800')}>
+            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', isCoreComplete ? 'status-success' : 'status-warning')}>
               {isCoreComplete ? t('params_complete') : t('pending_fill')}
             </span>
           </div>
@@ -134,7 +134,7 @@ function MqttConfigPage() {
               <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">{t('auth_info')}</h3>
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t('auth_info_desc')}</p>
             </div>
-            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', hasCredentials ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border-[var(--color-line)]')}>
+            <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', hasCredentials ? 'status-success' : 'status-muted')}>
               {hasCredentials ? t('credentials_filled') : t('can_be_empty')}
             </span>
           </div>

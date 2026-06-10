@@ -151,10 +151,10 @@ function UserRolesPage() {
               <div className="px-4 py-3 flex flex-col gap-2.5 min-h-[160px]">
                 <p className="text-sm text-[var(--color-text-secondary)] line-clamp-2">{r.description || t('no_description_alt')}</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {badge(isActive(r) ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' : 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:border-gray-700', isActive(r) ? t('enable') : t('close'))}
-                  {badge('bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800', `LLM: ${r.llm_config_id || t('default')}`)}
-                  {badge('bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800', `TTS: ${r.tts_config_id || t('default')}`)}
-                  {r.voice && badge('bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800', t('voice_tag_prefix', { voice: r.voice }))}
+                  {badge(isActive(r) ? 'status-success' : 'status-muted', isActive(r) ? t('enable') : t('close'))}
+                  {badge('status-primary', `LLM: ${r.llm_config_id || t('default')}`)}
+                  {badge('status-success', `TTS: ${r.tts_config_id || t('default')}`)}
+                  {r.voice && badge('status-warning', t('voice_tag_prefix', { voice: r.voice }))}
                 </div>
                 <div className="mt-auto border border-[var(--color-line)] bg-[var(--color-surface-muted)] rounded-lg px-2.5 py-2">
                   <p className="mb-1 text-[11px] font-bold uppercase tracking-wide text-[var(--color-text-tertiary)]">{t('prompt')}</p>

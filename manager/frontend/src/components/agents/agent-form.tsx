@@ -152,7 +152,7 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
         <div className="flex flex-wrap gap-1.5 -mt-2">
           {opts.cloneVoices.map((clone) => (
             <button key={clone.id} type="button" onClick={() => applyClone(clone)}
-              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs border transition-colors cursor-pointer ${value.tts_config_id === clone.tts_config_id && value.voice === clone.provider_voice_id ? 'border-[var(--color-primary)] bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'border-[var(--color-line)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]'}`}>
+              className={`inline-flex items-center px-2.5 py-1 rounded-lg text-xs border transition-colors cursor-pointer ${value.tts_config_id === clone.tts_config_id && value.voice === clone.provider_voice_id ? 'status-primary' : 'border-[var(--color-line)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]'}`}>
               {clone.name || clone.provider_voice_id}
             </button>
           ))}
@@ -194,7 +194,7 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
               <label className="text-xs font-medium text-[var(--color-text-secondary)]">{field === 'openclaw_enter_keywords' ? t('openclaw_enter_keyword') : t('openclaw_exit_keyword')}</label>
               <div className="flex flex-wrap gap-1 min-h-[28px]">
                 {value[field].map((kw) => (
-                  <span key={kw} className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full text-xs bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
+                  <span key={kw} className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full border text-xs status-primary">
                     {kw}<button type="button" className="hover:opacity-70 ml-0.5" onClick={() => removeKeyword(field, kw)}>×</button>
                   </span>
                 ))}

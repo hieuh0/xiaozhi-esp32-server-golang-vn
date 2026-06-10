@@ -53,7 +53,7 @@ function ServiceCardContent() {
       ) : (
         <div className="flex flex-col gap-2.5">
           {rows.map((row) => (
-            <div key={row.label} className="grid grid-cols-[64px_1fr_auto] items-center gap-2.5 px-4 py-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-line)]">
+            <div key={row.label} className="grid grid-cols-[64px_minmax(0,1fr)_auto] items-center gap-2.5 px-4 py-3 rounded-lg bg-[var(--color-surface-2)] border border-[var(--color-line)]">
               <span className="text-[11px] font-bold tracking-widest text-[var(--color-text-tertiary)]">{row.label}</span>
               <span className="text-sm font-medium text-[var(--color-text)] truncate" title={row.value}>{row.value}</span>
               <Button variant="ghost" size="icon" className="w-7 h-7" aria-label={t('copy')} onClick={() => copyAddress(row.value)}>

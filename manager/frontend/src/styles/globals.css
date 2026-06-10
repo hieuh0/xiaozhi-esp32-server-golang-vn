@@ -1,26 +1,54 @@
 @import "tailwindcss";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-sans: "DM Sans", system-ui, sans-serif;
+  --font-display: "General Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Bridge shadcn CSS vars to Tailwind v4 color utilities (bg-card, bg-popover, etc.) */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
 :root {
-  --color-primary: #007aff;
-  --color-primary-soft: rgba(0, 122, 255, 0.1);
-  --color-success: #34c759;
-  --color-warning: #ff9f0a;
-  --color-danger: #ff3b30;
-  --color-bg: #f5f7fa;
+  --color-primary: #6366F1;
+  --color-primary-soft: rgba(99, 102, 241, 0.1);
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-danger: #EF4444;
+  --color-bg: #FAFAFA;
   --color-surface-1: #ffffff;
   --color-surface-2: #f8fafc;
-  --color-surface-3: rgba(0, 122, 255, 0.04);
-  --color-text: #1d1d1f;
-  --color-text-secondary: #6e6e73;
+  --color-surface-3: rgba(99, 102, 241, 0.04);
+  --color-surface-muted: var(--color-surface-2);
+  --color-text: #0A0A0A;
+  --color-text-secondary: #6B6B6B;
   --color-text-tertiary: #8e8e93;
   --color-text-disabled: #c7c7cc;
-  --color-line: #e5e5ea;
+  --color-line: #E8E8EC;
   --color-line-strong: #d1d1d6;
 
   /* shadcn token aliases */
@@ -28,7 +56,7 @@
   --foreground: var(--color-text);
   --card: var(--color-surface-1);
   --card-foreground: var(--color-text);
-  --primary: oklch(0.49 0.24 264);
+  --primary: oklch(0.51 0.24 277);
   --primary-foreground: oklch(1 0 0);
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: var(--color-text);
@@ -40,38 +68,41 @@
   --destructive-foreground: oklch(1 0 0);
   --border: var(--color-line);
   --input: var(--color-line);
-  --ring: oklch(0.49 0.24 264);
+  --ring: oklch(0.51 0.24 277);
   --radius: 0.5rem;
   --popover: var(--color-surface-1);
   --popover-foreground: var(--color-text);
 
-  /* Elevation */
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  /* Elevation — Enterprise SaaS: indigo-tinted brand shadows */
+  --shadow-card: 0 1px 4px rgba(79, 70, 229, 0.06), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --shadow-card-hover: 0 8px 30px rgba(79, 70, 229, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-primary-glow: 0 4px 12px rgba(99, 102, 241, 0.35);
+  --shadow-focus-ring: 0 0 0 3px rgba(99, 102, 241, 0.12);
   --shadow-float: 0 8px 24px rgba(0, 0, 0, 0.1), 0 4px 8px rgba(0, 0, 0, 0.06);
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.08);
-
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 .dark {
   --color-bg: #0a0a0f;
   --color-surface-1: #1c1c24;
   --color-surface-2: #16161e;
-  --color-surface-3: rgba(59, 158, 255, 0.08);
+  --color-surface-3: rgba(129, 140, 248, 0.08);
   --color-text: #f0f0f5;
   --color-text-secondary: #9898a8;
   --color-text-tertiary: #6e6e7e;
   --color-line: rgba(255, 255, 255, 0.1);
   --color-line-strong: rgba(255, 255, 255, 0.18);
-  --color-primary: #3b9eff;
-  --color-primary-soft: rgba(59, 158, 255, 0.12);
+  --color-primary: #818CF8;
+  --color-primary-soft: rgba(129, 140, 248, 0.15);
+  --color-success: #34D399;
+  --color-warning: #FCD34D;
+  --color-danger: #F87171;
 
   --background: #0a0a0f;
   --foreground: #f0f0f5;
   --card: var(--color-surface-1);
   --card-foreground: #f0f0f5;
-  --primary: oklch(0.65 0.2 264);
+  --primary: oklch(0.68 0.18 277);
   --primary-foreground: oklch(0.1 0 0);
   --secondary: #1e1e28;
   --secondary-foreground: #f0f0f5;
@@ -84,8 +115,10 @@
   --border: var(--color-line);
   --input: rgba(255, 255, 255, 0.12);
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
-  --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.3);
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-primary-glow: 0 4px 12px rgba(129, 140, 248, 0.35);
+  --shadow-focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.15);
   --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
 }
 
@@ -95,19 +128,22 @@
     --color-bg: #0a0a0f;
     --color-surface-1: #1c1c24;
     --color-surface-2: #16161e;
-    --color-surface-3: rgba(59, 158, 255, 0.08);
+    --color-surface-3: rgba(129, 140, 248, 0.08);
     --color-text: #f0f0f5;
     --color-text-secondary: #9898a8;
     --color-text-tertiary: #6e6e7e;
     --color-line: rgba(255, 255, 255, 0.1);
     --color-line-strong: rgba(255, 255, 255, 0.18);
-    --color-primary: #3b9eff;
-    --color-primary-soft: rgba(59, 158, 255, 0.12);
+    --color-primary: #818CF8;
+    --color-primary-soft: rgba(129, 140, 248, 0.15);
+    --color-success: #34D399;
+    --color-warning: #FCD34D;
+    --color-danger: #F87171;
     --background: #0a0a0f;
     --foreground: #f0f0f5;
     --card: #1c1c24;
     --card-foreground: #f0f0f5;
-    --primary: oklch(0.65 0.2 264);
+    --primary: oklch(0.68 0.18 277);
     --primary-foreground: oklch(0.1 0 0);
     --secondary: #1e1e28;
     --secondary-foreground: #f0f0f5;
@@ -119,8 +155,10 @@
     --popover-foreground: #f0f0f5;
     --border: rgba(255, 255, 255, 0.1);
     --input: rgba(255, 255, 255, 0.12);
-    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.2);
-    --shadow-raised: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.2);
+    --shadow-card-hover: 0 8px 30px rgba(0, 0, 0, 0.4);
+    --shadow-primary-glow: 0 4px 12px rgba(129, 140, 248, 0.35);
+    --shadow-focus-ring: 0 0 0 3px rgba(129, 140, 248, 0.15);
     --shadow-modal: 0 20px 60px rgba(0, 0, 0, 0.6);
   }
 }
@@ -141,17 +179,30 @@
     margin: 0;
     padding: 0;
   }
-  html,
-  body {
+  html {
     height: 100%;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
   }
   body {
     background: var(--color-bg);
     color: var(--color-text);
     font-family: var(--font-sans);
+    line-height: 1.625; /* leading-relaxed per ui-ux-pro-max */
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   #root {
     height: 100dvh;
+    overflow-x: clip;
+  }
+
+  /* prefers-reduced-motion — disable all transitions/animations */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }

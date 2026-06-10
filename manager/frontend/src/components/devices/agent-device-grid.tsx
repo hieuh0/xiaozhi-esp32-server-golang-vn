@@ -54,7 +54,7 @@ export function AgentDeviceGrid({
 
   return (
     <div>
-      <div className="flex items-center justify-between gap-3 mb-4 px-4 py-3 rounded-2xl bg-[var(--color-surface-1)] border border-[var(--color-line)]">
+      <div className="flex items-center justify-between gap-3 mb-4 px-4 py-3 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)]">
         <div className="flex items-center gap-3 flex-wrap min-w-0">
           {showBackButton && (
             <Button variant="ghost" size="sm" onClick={onGoBack}>
@@ -82,7 +82,7 @@ export function AgentDeviceGrid({
       </div>
 
       {filteredDevices.length === 0 ? (
-        <div className="mt-10 text-center py-16 px-6 bg-[var(--color-surface-1)] border border-[var(--color-line)] rounded-2xl">
+        <div className="mt-10 text-center py-16 px-6 bg-[var(--color-surface-1)] border border-[var(--color-line)] rounded-xl">
           <Monitor className="w-16 h-16 mx-auto mb-4 text-[var(--color-text-tertiary)]" />
           <h3 className="text-lg font-semibold text-[var(--color-text)] mb-2">{t('no_devices')}</h3>
           <p className="text-sm text-[var(--color-text-secondary)] mb-6">{emptyDescription}</p>
@@ -96,9 +96,9 @@ export function AgentDeviceGrid({
             const online = isDeviceOnline(device.last_active_at)
             const isEditing = editingDeviceId === device.id
             return (
-              <div key={device.id} className="bg-[var(--color-surface-1)] rounded-2xl p-4 border border-[var(--color-line)] flex flex-col h-full transition-all hover:-translate-y-0.5 hover:border-[var(--color-primary)]/20">
+              <div key={device.id} className="bg-[var(--color-surface-1)] rounded-xl p-4 border border-[var(--color-line)] flex flex-col h-full shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--color-primary)]/30">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-[#2e90ff] to-[#007aff] flex items-center justify-center text-white shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-indigo-400 to-indigo-600 flex items-center justify-center text-white shadow-[0_6px_16px_rgba(99,102,241,0.2)] shrink-0">
                     <Monitor className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
@@ -146,7 +146,7 @@ export function AgentDeviceGrid({
                     <p className="text-[11px] text-[var(--color-text-tertiary)] font-mono truncate">{getDeviceIdentityText(device)}</p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className={cn('w-2 h-2 rounded-full', online ? 'bg-green-500' : 'bg-red-400')} />
+                    <span className={cn('w-2 h-2 rounded-full', online ? 'bg-[var(--color-success)]' : 'bg-[var(--color-danger)]')} />
                     <span className="text-xs text-[var(--color-text-secondary)]">{online ? t('online') : t('offline')}</span>
                   </div>
                 </div>
@@ -158,7 +158,7 @@ export function AgentDeviceGrid({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[var(--color-text-secondary)]">{t('activation_status')}</span>
-                    <span className={cn('inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium', device.activated ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400')}>
+                    <span className={cn('inline-flex items-center px-1.5 py-0.5 rounded-full border text-[10px] font-medium', device.activated ? 'status-success' : 'status-warning')}>
                       {device.activated ? t('activated') : t('not_activated')}
                     </span>
                   </div>
@@ -173,13 +173,13 @@ export function AgentDeviceGrid({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
-                  <Button variant="outline" size="sm" className="text-blue-700 border-blue-200 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:border-blue-800 dark:bg-blue-900/20" onClick={() => onDeviceRole(device.id)}>
+                  <Button variant="outline" size="sm" className="status-primary border hover:opacity-90" onClick={() => onDeviceRole(device.id)}>
                     <User className="w-3.5 h-3.5 mr-1" />{t('role')}
                   </Button>
                   <Button variant="outline" size="sm" onClick={() => onDeviceMcp(device)}>
                     <Settings className="w-3.5 h-3.5 mr-1" />MCP
                   </Button>
-                  <Button variant="outline" size="sm" className="text-teal-700 border-teal-200 bg-teal-50 hover:bg-teal-100 dark:text-teal-400 dark:border-teal-800 dark:bg-teal-900/20" onClick={() => onVoicePush(device)}>
+                  <Button variant="outline" size="sm" onClick={() => onVoicePush(device)}>
                     <MessageCircle className="w-3.5 h-3.5 mr-1" />{t('voice_notify')}
                   </Button>
                   <Button variant="outline" size="sm" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={() => onDeleteDevice(device)}>

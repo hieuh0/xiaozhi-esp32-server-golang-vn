@@ -66,7 +66,7 @@ function UdpConfigPage() {
 
   if (loading) return <div className="p-6 text-center text-sm text-[var(--color-text-secondary)]">{t('loading')}</div>
 
-  const badgeClass = (ok: boolean) => cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', ok ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800')
+  const badgeClass = (ok: boolean) => cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', ok ? 'status-success' : 'status-warning')
 
   return (
     <div className="grid gap-6 px-6 pb-8">

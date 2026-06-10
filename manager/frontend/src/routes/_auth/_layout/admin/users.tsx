@@ -97,8 +97,8 @@ function UsersPage() {
   }
 
   const roleBadge = (role: string) => role === 'admin'
-    ? 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800'
-    : 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800'
+    ? 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium status-danger'
+    : 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium status-primary'
 
   return (
     <div className="grid gap-4 px-6 pb-8">

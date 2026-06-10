@@ -4,16 +4,16 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
 const METHOD_STYLES: Record<string, string> = {
-  GET: 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
-  POST: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-  PUT: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-  DELETE: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300',
+  GET: 'status-success',
+  POST: 'status-primary',
+  PUT: 'status-warning',
+  DELETE: 'status-danger',
 }
 
 function ApiLine({ method, path }: { method: string; path: string }) {
   return (
     <div className="flex items-center gap-2 my-2">
-      <span className={cn('inline-block px-2 py-0.5 rounded text-xs font-bold uppercase', METHOD_STYLES[method])}>{method}</span>
+      <span className={cn('inline-block px-2 py-0.5 rounded border text-xs font-bold uppercase', METHOD_STYLES[method])}>{method}</span>
       <code className="text-sm bg-[var(--color-surface-2)] px-2 py-0.5 rounded">{path}</code>
     </div>
   )

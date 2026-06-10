@@ -131,14 +131,14 @@ function UserDevicesPage() {
         <DialogContent className="max-w-[660px] max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t('device_role_config_title')}</DialogTitle></DialogHeader>
           <div className={roleLoading ? 'opacity-60 pointer-events-none grid gap-4 py-2' : 'grid gap-4 py-2'}>
-            <div className="flex gap-2 p-3 rounded-lg bg-blue-50 border border-blue-200 text-sm text-blue-700 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-400">
+            <div className="flex gap-2 p-3 rounded-lg border text-sm status-primary">
               <span>{t('role_config_note')}: {t('role_override_desc')}</span>
             </div>
             <div className="grid gap-1.5">
               <label className="text-sm font-medium text-[var(--color-text)]">{t('current_role_label')}</label>
               {currentDevice?.role_id ? (
                 <div className="text-sm">
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800">{t('role_linked')}</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs border status-success">{t('role_linked')}</span>
                   <p className="mt-1 text-[var(--color-text-secondary)]"><strong>{t('role_id_label')}</strong> {currentDevice.role_id}</p>
                 </div>
               ) : (

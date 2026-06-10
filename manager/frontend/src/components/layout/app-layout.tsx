@@ -44,7 +44,7 @@ export function AppLayout() {
       {/* Main content */}
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <AppHeader onToggleSidebar={() => setSidebarOpen((v) => !v)} />
-        <main className="flex-1 min-h-0 overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto" style={{ overflowX: 'clip' }}>
           <Outlet />
         </main>
       </div>

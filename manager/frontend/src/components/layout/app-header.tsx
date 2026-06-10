@@ -42,7 +42,7 @@ export function AppHeader({ onToggleSidebar }: Props) {
         </Button>
         <div className="min-w-0">
           <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)]">{eyebrow}</p>
-          <h1 className="text-lg font-semibold tracking-tight text-[var(--color-text)] leading-tight truncate">{pageTitle}</h1>
+          <h1 className="text-lg font-semibold font-display tracking-tight text-[var(--color-text)] leading-tight truncate">{pageTitle}</h1>
         </div>
       </div>
 
@@ -53,12 +53,12 @@ export function AppHeader({ onToggleSidebar }: Props) {
           <>
             <Link to="/admin/config-wizard">
               <Button variant="ghost" size="sm">
-                <Wand2 className="size-4 mr-1" />{t('config_wizard')}
+                <Wand2 className="size-4" /><span className="hidden xl:inline ml-1">{t('config_wizard')}</span>
               </Button>
             </Link>
             <Link to="/admin/ota-config">
               <Button variant="ghost" size="sm">
-                <Upload className="size-4 mr-1" />{t('ota_config')}
+                <Upload className="size-4" /><span className="hidden xl:inline ml-1">{t('ota_config')}</span>
               </Button>
             </Link>
           </>

@@ -105,7 +105,7 @@ export function MobileLayout() {
         <button
           type="button"
           onClick={() => setShowUserMenu(true)}
-          className="flex items-center justify-center w-9 h-9 rounded-xl bg-blue-50 text-[var(--color-primary)] dark:bg-blue-900/30 mr-4 mt-3 shrink-0"
+          className="flex items-center justify-center w-9 h-9 rounded-xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] mr-4 mt-3 shrink-0"
         >
           <User className="w-4 h-4" />
         </button>
@@ -121,7 +121,7 @@ export function MobileLayout() {
       <Sheet open={showUserMenu} onOpenChange={setShowUserMenu}>
         <SheetContent side="bottom" className="rounded-t-3xl px-0 pb-0">
           <div className="flex items-center gap-4 px-5 py-5 border-b border-[var(--color-line)]">
-            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-50 dark:bg-blue-900/30 text-[var(--color-primary)] shrink-0">
+            <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-primary-soft)] text-[var(--color-primary)] shrink-0">
               <User className="w-7 h-7" />
             </div>
             <div>
@@ -149,7 +149,7 @@ export function MobileLayout() {
               </button>
             )}
             <button type="button" onClick={handleLogout}
-              className="flex items-center w-full px-5 py-4 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left">
+              className="flex items-center w-full px-5 py-4 text-sm text-[var(--color-danger)] hover:bg-[color-mix(in_srgb,var(--color-danger)_8%,transparent)] transition-colors text-left">
               {t('logout')}
             </button>
           </div>

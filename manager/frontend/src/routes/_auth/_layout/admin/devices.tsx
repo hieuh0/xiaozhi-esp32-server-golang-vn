@@ -126,8 +126,7 @@ function AdminDevicesPage() {
 
   const badgeClass = (active: boolean) => cn(
     'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium',
-    active ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800'
-           : 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800'
+    active ? 'status-success' : 'status-danger'
   )
 
   const columns: ColumnDef<Device>[] = [
@@ -144,7 +143,7 @@ function AdminDevicesPage() {
     },
     {
       accessorKey: 'activated', header: t('activation_status'),
-      cell: ({ row }) => <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', row.original.activated ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800' : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800')}>{row.original.activated ? t('activated') : t('not_activated')}</span>
+      cell: ({ row }) => <span className={cn('inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium', row.original.activated ? 'status-success' : 'status-warning')}>{row.original.activated ? t('activated') : t('not_activated')}</span>
     },
     {
       accessorKey: 'last_active_at', header: t('online_devices'),
@@ -256,7 +255,7 @@ function AdminDevicesPage() {
         onConfirm={handleDelete}
         isLoading={deleting}
         title={t('confirm_delete')}
-        description={t('confirm_delete_device_msg', { name: getDeviceDisplayName(deleteTarget!) })}
+        description={deleteTarget ? t('confirm_delete_device_msg', { name: getDeviceDisplayName(deleteTarget) }) : ''}
       />
     </div>
   )

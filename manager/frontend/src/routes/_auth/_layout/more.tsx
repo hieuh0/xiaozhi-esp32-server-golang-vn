@@ -15,7 +15,7 @@ const LANGS = [
 function NavList({ title, items }: { title: string; items: { label: string; path: string }[] }) {
   const router = useRouter()
   return (
-    <div className="rounded-2xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
+    <div className="rounded-xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
       <p className="px-4 pt-3 pb-1 text-xs font-semibold text-[var(--color-text-secondary)] uppercase tracking-wide">{title}</p>
       <div className="divide-y divide-[var(--color-line)]">
         {items.map(item => (
@@ -23,7 +23,7 @@ function NavList({ title, items }: { title: string; items: { label: string; path
             key={item.path}
             type="button"
             onClick={() => router.navigate({ to: item.path as never })}
-            className="flex items-center w-full px-4 py-4 gap-3 hover:bg-[var(--color-surface-2)] active:bg-[var(--color-surface-2)] transition-colors min-h-[56px]"
+            className="flex items-center w-full px-4 py-4 gap-3 cursor-pointer hover:bg-[var(--color-surface-2)] active:bg-[var(--color-surface-2)] active:scale-[0.99] transition-all duration-150 min-h-[56px]"
           >
             <span className="flex-1 text-sm text-[var(--color-text)] text-left">{item.label}</span>
             <ChevronRight className="w-4 h-4 text-[var(--color-text-tertiary)] shrink-0" />
@@ -87,11 +87,11 @@ function MorePage() {
 
   return (
     <div className="p-4 pb-8 space-y-3">
-      <div className="rounded-2xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
+      <div className="rounded-xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
         <button
           type="button"
           onClick={nextMode}
-          className="flex items-center w-full px-4 py-4 gap-3 hover:bg-[var(--color-surface-2)] transition-colors min-h-[56px]"
+          className="flex items-center w-full px-4 py-4 gap-3 cursor-pointer hover:bg-[var(--color-surface-2)] active:scale-[0.99] transition-all duration-150 min-h-[56px]"
         >
           <ThemeIcon className="w-5 h-5 text-[var(--color-text-secondary)] shrink-0" />
           <span className="flex-1 text-sm text-[var(--color-text)] text-left">{t('theme')}</span>
@@ -99,11 +99,11 @@ function MorePage() {
         </button>
       </div>
 
-      <div className="rounded-2xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
+      <div className="rounded-xl overflow-hidden border border-[var(--color-line)] bg-[var(--color-surface-1)]">
         <button
           type="button"
           onClick={nextLang}
-          className="flex items-center w-full px-4 py-4 gap-3 hover:bg-[var(--color-surface-2)] transition-colors min-h-[56px]"
+          className="flex items-center w-full px-4 py-4 gap-3 cursor-pointer hover:bg-[var(--color-surface-2)] active:scale-[0.99] transition-all duration-150 min-h-[56px]"
         >
           <Globe className="w-5 h-5 text-[var(--color-text-secondary)] shrink-0" />
           <span className="flex-1 text-sm text-[var(--color-text)] text-left">{t('language')}</span>

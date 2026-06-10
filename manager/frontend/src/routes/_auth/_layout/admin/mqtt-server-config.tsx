@@ -81,7 +81,7 @@ function MqttServerConfigPage() {
   if (loading) return <div className="p-6 text-center text-sm text-[var(--color-text-secondary)]">{t('loading')}</div>
 
   const badge = (ok: boolean, yes: string, no: string) => (
-    <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', ok ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800')}>
+    <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', ok ? 'status-success' : 'status-warning')}>
       {ok ? yes : no}
     </span>
   )
@@ -125,7 +125,7 @@ function MqttServerConfigPage() {
                 <p className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">{t('authentication')}</p>
                 <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">{t('auth_and_signing')}</h3>
               </div>
-              <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', form.enable_auth ? 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800' : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border-[var(--color-line)]')}>
+              <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', form.enable_auth ? 'status-warning' : 'status-muted')}>
                 {form.enable_auth ? t('auth_enabled') : t('anonymous_access')}
               </span>
             </div>
@@ -156,7 +156,7 @@ function MqttServerConfigPage() {
                 <p className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">MQTTS</p>
                 <h3 className="mt-2 text-xl font-semibold text-[var(--color-text)]">{t('tls_config')}</h3>
               </div>
-              <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', form.tls.enable ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800' : 'bg-[var(--color-surface-2)] text-[var(--color-text-secondary)] border-[var(--color-line)]')}>
+              <span className={cn('inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold shrink-0 mt-1', form.tls.enable ? 'status-success' : 'status-muted')}>
                 {form.tls.enable ? t('tls_enabled') : t('tls_not_enabled')}
               </span>
             </div>

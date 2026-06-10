@@ -22,12 +22,12 @@ function StatCard({ icon: Icon, iconClass, trend, value, label }: {
   return (
     <div className="p-5 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)] shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between mb-4">
-        <span className={cn('w-10 h-10 rounded-2xl inline-flex items-center justify-center', iconClass)}>
+        <span className={cn('w-10 h-10 rounded-lg inline-flex items-center justify-center', iconClass)}>
           <Icon className="w-5 h-5" />
         </span>
         <span className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">{trend}</span>
       </div>
-      <strong className="block text-4xl font-bold tracking-tight leading-none text-[var(--color-text)]">{value}</strong>
+      <strong className="block text-4xl font-bold font-display tracking-tight leading-none text-[var(--color-text)]">{value}</strong>
       <p className="mt-2.5 text-sm text-[var(--color-text-secondary)]">{label}</p>
     </div>
   )
@@ -38,11 +38,11 @@ function ConfigActionRow({ icon: Icon, title, desc, highlighted, onClick }: {
 }) {
   return (
     <button type="button" onClick={onClick}
-      className={cn('flex items-center gap-3.5 w-full p-4 rounded-xl border hover:-translate-y-px hover:shadow-sm transition-all text-left',
+      className={cn('flex items-center gap-3.5 w-full p-4 rounded-xl border cursor-pointer hover:-translate-y-px hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] transition-all duration-150 text-left',
         highlighted
           ? 'border-[var(--color-primary)]/20 bg-[var(--color-primary-soft)]'
-          : 'border-[var(--color-line)] bg-[var(--color-surface-1)]')}>
-      <span className="w-10 h-10 rounded-2xl inline-flex items-center justify-center bg-[var(--color-primary-soft)] text-[var(--color-primary)] shrink-0">
+          : 'border-[var(--color-line)] bg-[var(--color-surface-1)] shadow-[var(--shadow-card)]')}>
+      <span className="w-10 h-10 rounded-xl inline-flex items-center justify-center bg-[var(--color-primary-soft)] text-[var(--color-primary)] shrink-0">
         <Icon className="w-5 h-5" />
       </span>
       <span className="flex flex-col gap-0.5">
@@ -101,13 +101,13 @@ function DashboardInner() {
   }
 
   return (
-    <div className="grid gap-5 p-6">
+    <div className="grid gap-4 px-6 py-4">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {metricCards.map((m) => <StatCard key={m.label} {...m} />)}
       </div>
 
-      <div className="grid lg:grid-cols-[1.3fr_360px] gap-4 items-start">
-        <div className="grid gap-4">
+      <div className="flex flex-col xl:flex-row gap-4 items-start">
+        <div className="flex-1 min-w-0 grid gap-4">
           {isAdmin && <DashboardServiceCard />}
           {isAdmin && (
             <Card>
@@ -125,25 +125,25 @@ function DashboardInner() {
           )}
         </div>
 
-        <div className="grid gap-4">
+        <div className="w-full xl:w-[360px] xl:shrink-0 grid gap-3 min-w-0">
           <Card>
-            <CardHeader className="pb-3">
-              <SectionLabel className="mb-1">SYSTEM</SectionLabel>
-              <h3 className="text-lg font-semibold text-[var(--color-text)]">{t('system_info')}</h3>
+            <CardHeader className="p-4 pb-2">
+              <SectionLabel>SYSTEM</SectionLabel>
+              <h3 className="text-base font-semibold text-[var(--color-text)]">{t('system_info')}</h3>
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-4 pb-4 pt-0">
               <dl className="divide-y divide-[var(--color-line)]">
                 {[
                   { label: t('system_version'), value: 'v1.0.0' },
                   { label: t('program_start_time'), value: programStartedAt },
                   { label: t('current_user_label'), value: user?.username || '—' },
                 ].map((row) => (
-                  <div key={row.label} className="flex items-center justify-between gap-3 py-3">
+                  <div key={row.label} className="flex items-center justify-between gap-3 py-2">
                     <dt className="text-sm text-[var(--color-text-secondary)]">{row.label}</dt>
                     <dd className="text-sm font-semibold text-[var(--color-text)]">{row.value}</dd>
                   </div>
                 ))}
-                <div className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center justify-between gap-3 py-2">
                   <dt className="text-sm text-[var(--color-text-secondary)]">{t('user_role_label')}</dt>
                   <dd><Badge variant={isAdmin ? 'destructive' : 'secondary'}>{isAdmin ? t('admin') : t('normal_user')}</Badge></dd>
                 </div>
@@ -152,14 +152,14 @@ function DashboardInner() {
           </Card>
 
           <Card>
-            <CardHeader className="pb-3">
-              <SectionLabel className="mb-1">SHORTCUTS</SectionLabel>
-              <h3 className="text-lg font-semibold text-[var(--color-text)]">{t('quick_actions')}</h3>
+            <CardHeader className="p-4 pb-2">
+              <SectionLabel>SHORTCUTS</SectionLabel>
+              <h3 className="text-base font-semibold text-[var(--color-text)]">{t('quick_actions')}</h3>
             </CardHeader>
-            <CardContent className="grid gap-3">
+            <CardContent className="px-4 pb-4 pt-0 grid gap-2">
               {isAdmin ? adminQuickActions.map((qa) => (
                 <button key={qa.route} type="button" onClick={() => router.navigate({ to: qa.route as never })}
-                  className="flex items-center gap-3 w-full p-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] hover:-translate-y-px hover:shadow-sm transition-all text-left">
+                  className="flex items-center gap-3 w-full p-2.5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] shadow-[var(--shadow-card)] cursor-pointer hover:-translate-y-px hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] transition-all duration-150 text-left">
                   <span className="w-9 h-9 rounded-xl inline-flex items-center justify-center bg-[var(--color-primary-soft)] text-[var(--color-primary)] shrink-0"><qa.icon className="w-4 h-4" /></span>
                   <span className="flex flex-col gap-0.5 min-w-0">
                     <strong className="text-sm text-[var(--color-text)]">{qa.label}</strong>
@@ -169,7 +169,7 @@ function DashboardInner() {
               )) : (
                 <>
                   <button type="button" onClick={() => router.navigate({ to: '/agents' })}
-                    className="flex items-center gap-3 w-full p-3 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] hover:-translate-y-px transition-all text-left">
+                    className="flex items-center gap-3 w-full p-2.5 rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] shadow-[var(--shadow-card)] cursor-pointer hover:-translate-y-px hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98] transition-all duration-150 text-left">
                     <span className="w-9 h-9 rounded-xl inline-flex items-center justify-center bg-[var(--color-primary-soft)] text-[var(--color-primary)] shrink-0"><Monitor className="w-4 h-4" /></span>
                     <span className="flex flex-col gap-0.5"><strong className="text-sm text-[var(--color-text)]">{t('agent_management')}</strong><small className="text-xs text-[var(--color-text-secondary)]">{t('agent_mgmt_desc')}</small></span>
                   </button>

@@ -3,6 +3,12 @@ import { cn } from '@/lib/utils'
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
   ({ className, type, ...props }, ref) => {
+    // Normalize explicitly-passed undefined value to '' to prevent the
+    // uncontrolled→controlled React warning. Does not affect inputs that
+    // intentionally omit the value prop (those never have 'value' in props).
+    const normalized = 'value' in props && props.value === undefined
+      ? { ...props, value: '' }
+      : props
     return (
       <input
         type={type}
@@ -11,7 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<'input'>>(
           className
         )}
         ref={ref}
-        {...props}
+        {...normalized}
       />
     )
   }

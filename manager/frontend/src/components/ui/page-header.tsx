@@ -18,7 +18,7 @@ export function PageHeader({ eyebrow, title, description, children, className }:
             {eyebrow}
           </p>
         )}
-        <h2 className="text-xl font-semibold text-[var(--color-text)] leading-tight truncate">{title}</h2>
+        <h2 className="text-xl font-semibold font-display text-[var(--color-text)] leading-tight truncate">{title}</h2>
         {description && (
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{description}</p>
         )}

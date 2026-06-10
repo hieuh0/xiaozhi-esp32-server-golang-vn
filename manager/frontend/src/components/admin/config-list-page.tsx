@@ -11,6 +11,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { Skeleton } from '@/components/ui/skeleton'
 
 export interface ConfigRow {
   id: number
@@ -23,7 +24,7 @@ export interface ConfigRow {
   json_data?: string
 }
 
-interface ConfigForm {
+export interface ConfigForm {
   name: string
   config_id: string
   provider: string
@@ -41,9 +42,10 @@ interface Props {
   addLabel?: string
   editLabel?: string
   extraColumns?: Array<{ key: string; header: string; render?: (row: ConfigRow) => React.ReactNode }>
+  renderForm?: (props: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) => React.ReactNode
 }
 
-export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [] }: Props) {
+export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [], renderForm }: Props) {
   const { t } = useLocale()
 
   const [rows, setRows] = useState<ConfigRow[]>([])
@@ -135,7 +137,11 @@ export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [
 
       <div className="rounded-xl border border-[var(--color-line)] overflow-hidden">
         {loading ? (
-          <div className="py-10 text-center text-sm text-[var(--color-text-secondary)]">Loading...</div>
+          <div className="p-4 flex flex-col gap-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="h-10 w-full rounded-lg" />
+            ))}
+          </div>
         ) : (
           <div className="overflow-x-auto">
             <Table>
@@ -144,6 +150,7 @@ export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [
                   <TableHead className="w-14">ID</TableHead>
                   <TableHead>{t('config_name')}</TableHead>
                   <TableHead className="w-36">{t('config_id')}</TableHead>
+                  <TableHead className="w-32">{t('provider')}</TableHead>
                   {extraColumns.map((c) => <TableHead key={c.key}>{c.header}</TableHead>)}
                   <TableHead className="w-20 text-center">{t('enabled_status')}</TableHead>
                   <TableHead className="w-20 text-center">{t('default_config')}</TableHead>
@@ -159,6 +166,7 @@ export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [
                     <TableCell className="text-xs text-[var(--color-text-secondary)]">{row.id}</TableCell>
                     <TableCell className="font-medium">{row.name}</TableCell>
                     <TableCell className="text-sm text-[var(--color-text-secondary)] font-mono">{row.config_id}</TableCell>
+                    <TableCell className="text-sm text-[var(--color-text-secondary)]">{row.provider || '—'}</TableCell>
                     {extraColumns.map((c) => <TableCell key={c.key}>{c.render ? c.render(row) : String((row as never)[c.key] ?? '—')}</TableCell>)}
                     <TableCell className="text-center"><Switch checked={row.enabled !== false} onCheckedChange={(v) => toggleEnabled(row, v)} /></TableCell>
                     <TableCell className="text-center"><Switch checked={!!row.is_default} onCheckedChange={(v) => toggleDefault(row, v)} /></TableCell>
@@ -196,32 +204,36 @@ export function ConfigListPage({ endpoint, addLabel, editLabel, extraColumns = [
         <DialogContent className="max-w-[620px]">
           <DialogHeader><DialogTitle>{editing ? (editLabel || t('edit_config')) : (addLabel || t('add_config'))}</DialogTitle></DialogHeader>
           <div className="max-h-[65vh] overflow-y-auto pr-1 grid gap-3 py-2">
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-[var(--color-text)]">{t('config_name')}</label>
-              <Input value={form.name} onChange={(e) => setF({ name: e.target.value })} placeholder={t('enter_config_name')} />
-            </div>
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-[var(--color-text)]">{t('config_id')}</label>
-              <Input value={form.config_id} onChange={(e) => setF({ config_id: e.target.value })} placeholder={t('enter_unique_config_id')} />
-            </div>
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-[var(--color-text)]">{t('provider')}</label>
-              <Input value={form.provider} onChange={(e) => setF({ provider: e.target.value })} placeholder={t('provider')} />
-            </div>
-            <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2">
-                <Switch checked={form.enabled} onCheckedChange={(v) => setF({ enabled: v })} />
-                <span className="text-sm">{t('enabled_status')}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch checked={form.is_default} onCheckedChange={(v) => setF({ is_default: v })} />
-                <span className="text-sm">{t('default_config')}</span>
-              </div>
-            </div>
-            <div className="grid gap-1.5">
-              <label className="text-sm font-medium text-[var(--color-text)]">JSON {t('config')}</label>
-              <Textarea value={form.json_data} onChange={(e) => setF({ json_data: e.target.value })} rows={8} className="font-mono text-xs resize-y" placeholder="{}" />
-            </div>
+            {renderForm ? renderForm({ form, setForm: setF, editing }) : (
+              <>
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-[var(--color-text)]">{t('config_name')}</label>
+                  <Input value={form.name} onChange={(e) => setF({ name: e.target.value })} placeholder={t('enter_config_name')} />
+                </div>
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-[var(--color-text)]">{t('config_id')}</label>
+                  <Input value={form.config_id} onChange={(e) => setF({ config_id: e.target.value })} placeholder={t('enter_unique_config_id')} />
+                </div>
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-[var(--color-text)]">{t('provider')}</label>
+                  <Input value={form.provider} onChange={(e) => setF({ provider: e.target.value })} placeholder={t('provider')} />
+                </div>
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-2">
+                    <Switch checked={form.enabled} onCheckedChange={(v) => setF({ enabled: v })} />
+                    <span className="text-sm">{t('enabled_status')}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Switch checked={form.is_default} onCheckedChange={(v) => setF({ is_default: v })} />
+                    <span className="text-sm">{t('default_config')}</span>
+                  </div>
+                </div>
+                <div className="grid gap-1.5">
+                  <label className="text-sm font-medium text-[var(--color-text)]">JSON {t('config')}</label>
+                  <Textarea value={form.json_data} onChange={(e) => setF({ json_data: e.target.value })} rows={8} className="font-mono text-xs resize-y" placeholder="{}" />
+                </div>
+              </>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowDialog(false)}>{t('cancel')}</Button>

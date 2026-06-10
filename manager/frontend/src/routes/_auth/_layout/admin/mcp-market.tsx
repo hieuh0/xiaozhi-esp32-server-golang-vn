@@ -49,14 +49,14 @@ function McpMarketPage() {
 
   const loadMarkets = async () => {
     setMarketsLoading(true)
-    try { const r = await api.get('/admin/mcp-markets'); setMarkets(r.data?.data || []) }
+    try { const r = await api.get('/admin/mcp-markets'); setMarkets(Array.isArray(r.data?.data) ? r.data.data : []) }
     catch { toast.error(t('load_config_failed')) }
     finally { setMarketsLoading(false) }
   }
 
   const loadImported = async () => {
     setImportedLoading(true)
-    try { const r = await api.get('/admin/mcp-market/imported-services'); setImported(r.data?.data || []) }
+    try { const r = await api.get('/admin/mcp-market/imported-services'); setImported(Array.isArray(r.data?.data) ? r.data.data : []) }
     catch { toast.error(t('load_config_failed')) }
     finally { setImportedLoading(false) }
   }

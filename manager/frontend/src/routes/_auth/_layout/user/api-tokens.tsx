@@ -14,8 +14,8 @@ import { PageHeader } from '@/components/ui/page-header'
 interface Token { id: number; name: string; token_prefix: string; is_active: boolean; last_used_at: string; expires_at: string; created_at: string }
 
 const fmt = (v: string) => v ? new Date(v).toLocaleString() : '-'
-const activeBadge = 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800'
-const inactiveBadge = 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:border-gray-700'
+const activeBadge = 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium status-success'
+const inactiveBadge = 'inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium status-muted'
 
 function ApiTokensPage() {
   const { t } = useLocale()
@@ -88,7 +88,7 @@ function ApiTokensPage() {
           <Plus className="w-4 h-4 mr-1.5" />{t('create_token')}
         </Button>
       </div>
-      <div className="rounded-lg border border-blue-200 bg-blue-50 text-blue-800 p-3 text-sm dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300">
+      <div className="rounded-lg border p-3 text-sm status-primary">
         {t('call_method_hint')}
       </div>
       <div className="rounded-xl border border-[var(--color-line)] overflow-hidden">
@@ -163,7 +163,7 @@ function ApiTokensPage() {
         <DialogContent className="max-w-xl">
           <DialogHeader><DialogTitle>{t('save_token_now')}</DialogTitle></DialogHeader>
           <div className="grid gap-3 py-2">
-            <div className="rounded-lg border border-yellow-200 bg-yellow-50 text-yellow-800 p-3 text-sm dark:bg-yellow-900/20 dark:border-yellow-800 dark:text-yellow-300">
+            <div className="rounded-lg border p-3 text-sm status-warning">
               {t('plain_token_hint')}
             </div>
             <textarea value={latestToken} readOnly rows={3} className="dark:bg-input/30 border-input rounded-md border bg-transparent px-2.5 py-2 text-sm font-mono w-full resize-none focus-visible:outline-none" />

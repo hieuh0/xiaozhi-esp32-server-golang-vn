@@ -141,14 +141,14 @@ function OtaConfigPage() {
       <div className="grid gap-6 grid-cols-2">
         <EnvCard
           label={t('test_env_delivery')} env="test" isTest
-          badge={<span className="inline-flex items-center rounded-full border border-yellow-200 bg-yellow-50 px-2.5 py-0.5 text-xs font-semibold text-yellow-700 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800">{t('test_env_tag')}</span>}
+          badge={<span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold status-warning">{t('test_env_tag')}</span>}
           wsUrl={form.test.websocket.url} setWsUrl={(v) => setTest({ websocket: { url: v } })}
           mqttEnabled={form.test.mqtt.enable} setMqttEnabled={(v) => setTestMqtt({ enable: v })}
           mqttEndpoint={form.test.mqtt.endpoint} setMqttEndpoint={(v) => setTestMqtt({ endpoint: v })}
         />
         <EnvCard
           label={t('external_env_delivery')} env="external"
-          badge={<span className="inline-flex items-center rounded-full border border-green-200 bg-green-50 px-2.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800">{t('prod_env_tag')}</span>}
+          badge={<span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold status-success">{t('prod_env_tag')}</span>}
           wsUrl={form.external.websocket.url} setWsUrl={(v) => setExt({ websocket: { url: v } })}
           mqttEnabled={form.external.mqtt.enable} setMqttEnabled={(v) => setExtMqtt({ enable: v })}
           mqttEndpoint={form.external.mqtt.endpoint} setMqttEndpoint={(v) => setExtMqtt({ endpoint: v })}

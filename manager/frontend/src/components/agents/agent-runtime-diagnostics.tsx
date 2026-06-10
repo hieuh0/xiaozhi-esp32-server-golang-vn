@@ -16,8 +16,8 @@ interface McpTool { name: string; description?: string; input_schema?: Record<st
 
 const statusClass = (connected: boolean, status: string) => {
   const s = status.toLowerCase()
-  if (connected || s === 'online') return 'inline-flex items-center px-2 py-0.5 rounded text-xs bg-green-100 text-green-700 border border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800'
-  if (s === 'offline') return 'inline-flex items-center px-2 py-0.5 rounded text-xs bg-red-100 text-red-600 border border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+  if (connected || s === 'online') return 'inline-flex items-center px-2 py-0.5 rounded border text-xs status-success'
+  if (s === 'offline') return 'inline-flex items-center px-2 py-0.5 rounded border text-xs status-danger'
   return 'inline-flex items-center px-2 py-0.5 rounded text-xs bg-[var(--color-surface-2)] border border-[var(--color-line)] text-[var(--color-text-secondary)]'
 }
 

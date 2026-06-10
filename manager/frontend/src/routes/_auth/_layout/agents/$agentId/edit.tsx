@@ -71,7 +71,7 @@ function AgentEditPage() {
       <div className={cn('max-w-[1120px] mx-auto mb-3 min-h-[42px] flex items-center gap-2 overflow-x-auto pb-1', !roles.length && 'opacity-60')}>
         {roles.map((role) => (
           <button key={role.id} type="button" onClick={() => applyRole(role)}
-            className={cn('inline-flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs border flex-none cursor-pointer transition-colors', selectedRoleId === role.id ? 'border-[var(--color-primary)] bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : 'border-[var(--color-line)] bg-[var(--color-surface-1)] text-[var(--color-text)] hover:border-[var(--color-primary)]')}>
+            className={cn('inline-flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs border flex-none cursor-pointer transition-colors', selectedRoleId === role.id ? 'border-[var(--color-primary)] status-primary' : 'border-[var(--color-line)] bg-[var(--color-surface-1)] text-[var(--color-text)] hover:border-[var(--color-primary)]')}>
             <span>{role.name}</span>
             <small className="text-[var(--color-text-secondary)]">{role.role_type === 'global' ? t('global') : t('mine')}</small>
           </button>

@@ -125,7 +125,7 @@ function LoginPage() {
             </div>
           </div>
           <p className="text-[11px] font-bold tracking-widest text-[var(--color-primary)] uppercase mb-2">XIAOZHI CONTROL CENTER</p>
-          <h1 className="text-5xl font-bold tracking-tight leading-tight text-[var(--color-text)] mb-4">{t('xiaozhi_tagline')}</h1>
+          <h1 className="text-5xl font-bold font-display tracking-tight leading-tight text-[var(--color-text)] mb-4">{t('xiaozhi_tagline')}</h1>
           <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-lg">{t('platform_desc')}</p>
           <div className="flex flex-wrap gap-2 mt-5">
             <Badge>{t('agent_orchestration')}</Badge>
@@ -138,7 +138,7 @@ function LoginPage() {
         <Card className="w-full">
           <CardHeader className="pb-2">
             <p className="text-[11px] font-bold tracking-widest text-[var(--color-primary)] uppercase mb-1">WELCOME BACK</p>
-            <h2 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">{t('login_or_create')}</h2>
+            <h2 className="text-2xl font-bold font-display tracking-tight text-[var(--color-text)]">{t('login_or_create')}</h2>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="login" className="mt-2">

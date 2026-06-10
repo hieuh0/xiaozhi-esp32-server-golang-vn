@@ -17,10 +17,10 @@ interface Props { kb: KB; open: boolean; onClose: () => void; onRefresh: () => v
 const FILE_UPLOAD_PREFIX = '__KB_FILE_UPLOAD_V1__:'
 
 const syncBadge = (s: string) => {
-  if (['upload_failed', 'parse_failed', 'failed'].includes(s)) return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800'
-  if (['uploading', 'parsing'].includes(s)) return 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800'
-  if (s === 'synced') return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800'
-  return 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800/40 dark:text-gray-400 dark:border-gray-700'
+  if (['upload_failed', 'parse_failed', 'failed'].includes(s)) return 'status-danger'
+  if (['uploading', 'parsing'].includes(s)) return 'status-warning'
+  if (s === 'synced') return 'status-success'
+  return 'status-muted'
 }
 
 const UPLOAD_ACCEPT = '.txt,.md,.markdown,.pdf,.html,.htm,.xlsx,.xls,.docx,.csv,.eml,.msg,.pptx,.ppt,.xml,.epub'

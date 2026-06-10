@@ -74,7 +74,7 @@ export function MessageInjectDialog({ open, onOpenChange, devices, defaultDevice
                     <SelectItem key={d.id} value={d.device_name || ''}>
                       <div className="flex items-center justify-between gap-3 w-full">
                         <span className="font-medium truncate">{getDeviceDisplayName(d)}</span>
-                        <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full font-medium', online ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600')}>
+                        <span className={cn('text-[10px] px-1.5 py-0.5 rounded-full border font-medium', online ? 'status-success' : 'status-danger')}>
                           {online ? t('online') : t('offline')}
                         </span>
                       </div>

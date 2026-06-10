@@ -103,7 +103,7 @@ export function SpeakerGroupDialog({
                     className={cn(
                       'inline-flex items-center px-3 py-1 rounded-full text-xs border transition-colors cursor-pointer',
                       isCloneVoiceSelected(clone)
-                        ? 'border-[var(--color-primary)] bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400'
+                        ? 'status-primary'
                         : 'border-[var(--color-line)] bg-[var(--color-surface-1)] text-[var(--color-text-secondary)] hover:border-[var(--color-primary)]',
                     )}>
                     {clone.name ?? clone.provider_voice_id}

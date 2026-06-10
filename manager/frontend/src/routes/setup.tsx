@@ -64,14 +64,14 @@ function SetupPage() {
       <div className="w-full max-w-5xl grid lg:grid-cols-[1fr_460px] gap-6 items-center">
         <section className="hidden lg:block px-4 py-6">
           <p className="text-[11px] font-bold tracking-widest text-[var(--color-primary)] uppercase mb-2">FIRST RUN EXPERIENCE</p>
-          <h1 className="text-5xl font-bold tracking-tight leading-tight text-[var(--color-text)] mb-4">{t('lighter_system_init')}</h1>
+          <h1 className="text-5xl font-bold font-display tracking-tight leading-tight text-[var(--color-text)] mb-4">{t('lighter_system_init')}</h1>
           <p className="text-[var(--color-text-secondary)] leading-relaxed max-w-lg text-[15px]">{t('setup_admin_hint')}</p>
         </section>
 
         <Card className="w-full">
           <CardHeader className="pb-2">
             <p className="text-[11px] font-bold tracking-widest text-[var(--color-primary)] uppercase mb-1">SYSTEM SETUP</p>
-            <h2 className="text-2xl font-bold tracking-tight text-[var(--color-text)]">{t('system_init')}</h2>
+            <h2 className="text-2xl font-bold font-display tracking-tight text-[var(--color-text)]">{t('system_init')}</h2>
             <p className="text-[var(--color-text-secondary)] text-[15px] leading-relaxed">{t('welcome_initial_setup')}</p>
           </CardHeader>
           <CardContent>

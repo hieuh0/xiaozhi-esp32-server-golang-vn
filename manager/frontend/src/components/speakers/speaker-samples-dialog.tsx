@@ -150,7 +150,7 @@ export function SpeakerSamplesDialog({ group, open, onClose }: Props) {
               <input ref={verifyRef} type="file" accept=".wav,.mp3,audio/wav,audio/mpeg" className="text-sm" onChange={e => setVerifyFile(e.target.files?.[0] || null)} />
             </div>
             {verifyResult && (
-              <div className={`rounded-lg border p-3 text-sm ${verifyResult.verified ? 'border-green-200 bg-green-50 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300' : 'border-red-200 bg-red-50 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300'}`}>
+              <div className={`rounded-lg border p-3 text-sm ${verifyResult.verified ? 'status-success' : 'status-danger'}`}>
                 <p className="font-semibold">{verifyResult.verified ? t('verify_passed') : t('verify_failed_result')}</p>
                 {verifyResult.score != null && <p className="text-xs mt-1">{t('verify_score', { score: Number(verifyResult.score).toFixed(4) })}</p>}
                 {verifyResult.message && <p className="text-xs mt-1">{verifyResult.message}</p>}

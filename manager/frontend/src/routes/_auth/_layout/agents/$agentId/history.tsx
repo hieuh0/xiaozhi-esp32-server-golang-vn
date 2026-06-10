@@ -57,7 +57,7 @@ function AgentHistoryPage() {
     finally { setExporting(false) }
   }
 
-  const roleColor: Record<string, string> = { user: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400', assistant: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' }
+  const roleColor: Record<string, string> = { user: 'status-primary', assistant: 'status-success' }
 
   return (
     <div className="min-h-full py-2 pb-6">
