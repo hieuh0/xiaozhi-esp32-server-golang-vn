@@ -12,7 +12,7 @@ export const devicesApi = {
     return (data.data || []).map(norm)
   },
 
-  addDevice: async (agentId: number | string, payload: Record<string, unknown>): Promise<void> => {
+  addDevice: async (agentId: number | string, payload: { code?: string; device_mac?: string; nick_name?: string }): Promise<void> => {
     await api.post(`/user/agents/${agentId}/devices`, payload)
   },
 

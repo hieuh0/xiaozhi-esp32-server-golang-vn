@@ -49,12 +49,12 @@ export const agentsApi = {
     agentId: number | string,
     params: { page?: number; page_size?: number; role?: string; device_id?: string; start_date?: string; end_date?: string } = {}
   ): Promise<{ messages: { id: number; role: string; content: string; device_id?: string; created_at: string; audio_url?: string }[]; total: number }> => {
-    const { data } = await api.get(`/user/agents/${agentId}/history`, { params })
+    const { data } = await api.get(`/user/history/agents/${agentId}/messages`, { params })
     return { messages: data.data || [], total: data.total || 0 }
   },
 
   exportHistory: async (agentId: number | string, params: Record<string, string> = {}): Promise<Blob> => {
-    const res = await api.get(`/user/agents/${agentId}/history/export`, { params, responseType: 'blob' })
+    const res = await api.get('/user/history/export', { params: { agent_id: String(agentId), ...params }, responseType: 'blob' })
     return res.data as Blob
   },
 
@@ -69,8 +69,8 @@ export const agentsApi = {
   getTTSConfigs: async (): Promise<TTSConfig[]> => list(await api.get('/user/tts-configs/options')),
 
   getVoiceOptions: async (provider: string, configId: string): Promise<VoiceOption[]> => {
-    const { data } = await api.get<{ data: { options?: VoiceOption[] } }>('/user/tts-configs/voices', { params: { provider, config_id: configId } })
-    return data.data?.options || []
+    const { data } = await api.get<{ data: VoiceOption[] }>('/user/voice-options', { params: { provider, config_id: configId } })
+    return data.data || []
   },
 
   getCloneVoices: async (ttsConfigId?: string | null): Promise<CloneVoice[]> => {

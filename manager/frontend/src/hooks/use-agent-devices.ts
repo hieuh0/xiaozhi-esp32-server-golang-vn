@@ -105,7 +105,9 @@ export function useAgentDevices(initialFilterAgentId = '') {
     if (!identifier) { toast.error('Enter device ID or MAC address'); return }
     setAddingDevice(true)
     try {
-      await devicesApi.addDevice(agentId, { identifier, nick_name: (deviceForm.nick_name ?? '').trim() || undefined })
+      const isSixDigitCode = (s: string) => /^\d{6}$/.test(s)
+      const devicePayload = isSixDigitCode(identifier) ? { code: identifier } : { device_mac: identifier }
+      await devicesApi.addDevice(agentId, { ...devicePayload, nick_name: (deviceForm.nick_name ?? '').trim() || undefined })
       toast.success('Device bound successfully')
       setShowAddDialog(false)
       setDevices(await devicesApi.getUserDevices())
