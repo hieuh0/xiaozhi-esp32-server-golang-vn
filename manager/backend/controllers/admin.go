@@ -1,4 +1,4 @@
-package controllers
+﻿package controllers
 
 import (
 	"bytes"
@@ -621,7 +621,7 @@ func (ac *AdminController) getSystemConfigsData() (gin.H, error) {
 		configsByType[config.Type] = append(configsByType[config.Type], config)
 	}
 
-	// select the “currently used” entry from configs: prefer default, otherwise first
+	// select the "currently used" entry from configs: prefer default, otherwise first
 	getSelectedConfig := func(configs []models.Config) *models.Config {
 		if len(configs) == 0 {
 			return nil
@@ -2259,6 +2259,18 @@ func (ac *AdminController) DeleteGlobalRole(c *gin.Context) {
 }
 
 // user management
+func (ac *AdminController) GetUserOptions(c *gin.Context) {
+	var users []struct {
+		ID       uint   `json:"id"`
+		Username string `json:"username"`
+	}
+	if err := ac.DB.Model(&models.User{}).Select("id, username").Order("username ASC").Find(&users).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user options"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"data": users})
+}
+
 func (ac *AdminController) GetUsers(c *gin.Context) {
 	page := parsePositiveInt(c.Query("page"), 1)
 	pageSize := parsePositiveInt(c.Query("page_size"), 20)
@@ -2550,7 +2562,7 @@ func (ac *AdminController) GetUserVoiceCloneQuotas(c *gin.Context) {
 		})
 	}
 
-	// retain quotas for deleted historical configs to avoid “quota config invisible after deletion”
+	// retain quotas for deleted historical configs to avoid "quota config invisible after deletion"
 	for _, quota := range quotas {
 		if configIDSet[quota.TTSConfigID] {
 			continue
