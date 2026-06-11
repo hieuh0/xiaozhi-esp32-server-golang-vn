@@ -69,7 +69,10 @@ function AdminDevicesPage() {
       } else {
         if (!form.agent_id) { toast.error(t('select_target_agent')); setSaving(false); return }
         if (!form.identifier?.trim()) { toast.error(t('enter_6digit_or_mac')); setSaving(false); return }
-        await devicesApi.addDevice(form.agent_id, { identifier: form.identifier.trim(), nick_name: form.nick_name.trim() || undefined })
+        const isSixDigitCode = (s: string) => /^\d{6}$/.test(s)
+        const id = form.identifier.trim()
+        const devicePayload = isSixDigitCode(id) ? { code: id } : { device_mac: id }
+        await devicesApi.addDevice(form.agent_id, { ...devicePayload, nick_name: form.nick_name.trim() || undefined })
         toast.success(t('device_bind_success'))
       }
       setShowForm(false); await load(page)

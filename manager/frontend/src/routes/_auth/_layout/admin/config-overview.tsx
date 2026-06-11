@@ -42,23 +42,25 @@ function ConfigOverviewPage() {
   const router = useRouter()
 
   return (
-    <div className="p-6 grid gap-7">
+    <div className="p-6 grid gap-8">
       <PageHeader eyebrow="ADMIN" title={t('config_management')} />
       {CONFIG_GROUPS.map((group) => (
         <div key={group.titleKey}>
-          <h2 className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-widest mb-3">
+          <p className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-widest font-mono mb-4">
             {t(group.titleKey)}
-          </h2>
-          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
+          </p>
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
             {group.items.map((item) => (
               <button
                 key={item.route}
                 type="button"
                 onClick={() => router.navigate({ to: item.route as never })}
-                className="flex flex-col items-center justify-center gap-2.5 min-h-[88px] p-4 bg-[var(--color-surface-1)] border border-[var(--color-line)] rounded-xl cursor-pointer text-center hover:bg-[var(--color-primary-soft)] hover:border-[var(--color-primary)] transition-colors"
+                className="group flex flex-col gap-4 p-5 bg-[var(--color-surface-1)] border border-[var(--color-line)] rounded-xl cursor-pointer text-left hover:border-[var(--color-primary)]/40 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]"
               >
-                <item.icon className="w-[22px] h-[22px] text-[var(--color-primary)]" />
-                <span className="text-[13px] font-semibold text-[var(--color-text)] leading-snug">{t(item.labelKey)}</span>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-[var(--color-surface-2)] border border-[var(--color-line)] text-[var(--color-primary)] transition-colors group-hover:bg-[var(--color-primary-soft)] group-hover:border-[var(--color-primary)]/40">
+                  <item.icon className="w-5 h-5" />
+                </div>
+                <span className="text-sm font-semibold text-[var(--color-text)] leading-snug">{t(item.labelKey)}</span>
               </button>
             ))}
           </div>

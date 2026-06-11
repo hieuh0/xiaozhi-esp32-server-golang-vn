@@ -4,7 +4,7 @@ import { Plus, MoreHorizontal, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
 import { agentsApi } from '@/features/agents/api/agents-api'
-import type { Agent, AgentFormData } from '@/features/agents/types'
+import type { Agent, AgentFormData, Role } from '@/features/agents/types'
 import { createDefaultAgentForm, agentToForm } from '@/features/agents/types'
 import { AgentForm, type AgentFormHandle } from '@/components/agents/agent-form'
 import { AgentRuntimeDiagnostics } from '@/components/agents/agent-runtime-diagnostics'
@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { PageHeader } from '@/components/ui/page-header'
+import { cn } from '@/lib/utils'
 import { useEffect } from 'react'
 
 type DiagPanel = 'mcp' | 'openclaw'
@@ -34,6 +35,9 @@ function AdminAgentsPage() {
   const [form, setForm] = useState<AgentFormData>(createDefaultAgentForm({ isAdmin: true }))
   const [saving, setSaving] = useState(false)
 
+  const [roles, setRoles] = useState<Role[]>([])
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null)
+
   const [deleteTarget, setDeleteTarget] = useState<Agent | null>(null)
   const [deleting, setDeleting] = useState(false)
 
@@ -51,6 +55,28 @@ function AdminAgentsPage() {
 
   useEffect(() => { load(1) }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  useEffect(() => {
+    if (showForm) {
+      agentsApi.getRoles()
+        .then(({ global_roles, user_roles }) =>
+          setRoles([...global_roles, ...user_roles].filter((r) => !r.status || r.status === 'active'))
+        )
+        .catch(() => setRoles([]))
+    }
+  }, [showForm]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyRole = (role: Role) => {
+    setSelectedRoleId(role.id)
+    setForm((prev) => ({
+      ...prev,
+      custom_prompt: role.prompt || prev.custom_prompt,
+      llm_config_id: role.llm_config_id || prev.llm_config_id,
+      tts_config_id: role.tts_config_id || prev.tts_config_id,
+      voice: role.voice || prev.voice,
+    }))
+    toast.info(t('role_config_applied'))
+  }
+
   const openAdd = () => { setEditing(null); setForm(createDefaultAgentForm({ isAdmin: true })); setShowForm(true) }
   const openEdit = (agent: Agent) => { setEditing(agent); setForm(agentToForm(agent, { isAdmin: true })); setShowForm(true) }
 
@@ -62,7 +88,7 @@ function AdminAgentsPage() {
       const payload = formRef.current!.buildPayload()
       if (editing) { await agentsApi.adminUpdateAgent(editing.id, payload); toast.success(t('agent_update_success')) }
       else { await agentsApi.createAgent(payload); toast.success(t('agent_add_success')) }
-      setShowForm(false); await load(1)
+      setShowForm(false); setSelectedRoleId(null); await load(1)
     } catch (e) { toast.error((e as Error).message || t('save_failed')) }
     finally { setSaving(false) }
   }
@@ -131,12 +157,28 @@ function AdminAgentsPage() {
         </div>
       )}
 
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={(v) => { setShowForm(v); if (!v) setSelectedRoleId(null) }}>
         <DialogContent className="max-w-[580px] max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editing ? t('edit_agent') : t('add_agent')}</DialogTitle></DialogHeader>
+          {roles.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              {roles.map((role) => (
+                <button key={role.id} type="button" onClick={() => applyRole(role)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border flex-none cursor-pointer transition-colors',
+                    selectedRoleId === role.id
+                      ? 'border-[var(--color-primary)] status-primary'
+                      : 'border-[var(--color-line)] bg-[var(--color-surface-1)] text-[var(--color-text)] hover:border-[var(--color-primary)]'
+                  )}>
+                  <span>{role.name}</span>
+                  <small className="text-[var(--color-text-secondary)]">{role.role_type === 'global' ? t('global') : t('mine')}</small>
+                </button>
+              ))}
+            </div>
+          )}
           <AgentForm ref={formRef} value={form} onChange={setForm} isAdmin mode={editing ? 'edit' : 'create'} />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>{t('cancel')}</Button>
+            <Button variant="outline" onClick={() => { setShowForm(false); setSelectedRoleId(null) }}>{t('cancel')}</Button>
             <Button disabled={saving} onClick={handleSave}>{saving ? t('saving') : t('save')}</Button>
           </DialogFooter>
         </DialogContent>
