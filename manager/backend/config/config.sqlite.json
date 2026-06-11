@@ -1,0 +1,37 @@
+{
+  "server": {
+    "port": "8080",
+    "mode": "debug"
+  },
+  "database": {
+    "type": "sqlite",
+    "mysql": {
+      "host": "192.168.208.214",
+      "port": 3306,
+      "username": "root",
+      "password": "mysql",
+      "database": "xiaozhi_admin_test"
+    },
+    "sqlite": {
+      "file_path": "./data/xiaozhi.db"
+    }
+  },
+  "jwt": {
+    "secret": "xiaozhi_admin_secret_key",
+    "expire_hour": 24
+  },
+  "internal_auth_token": "xiaozhi_admin_secret_key",
+  "endpoint_auth_token": "xiaozhi_mcp_openclaw_secret_key",
+  "speaker_service": {
+    "url": "http://127.0.0.1:9000"
+  },
+  "storage": {
+    "speaker_audio_path": "storage/speakers",
+    "max_file_size": 10485760
+  },
+  "history": {
+    "enabled": true,
+    "audio_base_path": "./data/chat_history/audio",
+    "max_file_size": 10485760
+  }
+}

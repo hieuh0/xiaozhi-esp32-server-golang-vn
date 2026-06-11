@@ -7,38 +7,45 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 
 	ort "github.com/yalue/onnxruntime_go"
 )
 
+// ONNX Runtime must only be initialized once per process.
+var onnxInitOnce sync.Once
+var onnxInitErr error
+
 // InitializeONNXRuntime locates and initializes the ONNX Runtime shared library.
-// Checks ONNXRUNTIME_LIB_PATH env var, then common install paths.
+// Safe to call multiple times — initialization only happens once.
 func InitializeONNXRuntime() error {
-	libPath := os.Getenv("ONNXRUNTIME_LIB_PATH")
-	if libPath == "" {
-		candidates := []string{
-			"/opt/homebrew/opt/onnxruntime/lib/libonnxruntime.dylib",
-			"/usr/local/opt/onnxruntime/lib/libonnxruntime.dylib",
-			"/opt/homebrew/lib/libonnxruntime.dylib",
-			"/usr/local/lib/libonnxruntime.dylib",
-			"/usr/local/lib/libonnxruntime.so",
-			"/usr/lib/libonnxruntime.so",
-		}
-		for _, candidate := range candidates {
-			if _, err := os.Stat(candidate); err == nil {
-				libPath = candidate
-				break
+	onnxInitOnce.Do(func() {
+		libPath := os.Getenv("ONNXRUNTIME_LIB_PATH")
+		if libPath == "" {
+			candidates := []string{
+				"/opt/homebrew/opt/onnxruntime/lib/libonnxruntime.dylib",
+				"/usr/local/opt/onnxruntime/lib/libonnxruntime.dylib",
+				"/opt/homebrew/lib/libonnxruntime.dylib",
+				"/usr/local/lib/libonnxruntime.dylib",
+				"/usr/local/lib/libonnxruntime.so",
+				"/usr/lib/libonnxruntime.so",
+			}
+			for _, candidate := range candidates {
+				if _, err := os.Stat(candidate); err == nil {
+					libPath = candidate
+					break
+				}
+			}
+			if libPath == "" {
+				libPath = "/usr/local/lib/libonnxruntime.so"
 			}
 		}
-		if libPath == "" {
-			libPath = "/usr/local/lib/libonnxruntime.so"
+		ort.SetSharedLibraryPath(libPath)
+		if err := ort.InitializeEnvironment(); err != nil {
+			onnxInitErr = fmt.Errorf("failed to initialize ONNX Runtime: %w\nHint: install ONNX Runtime (macOS: brew install onnxruntime) or set ONNXRUNTIME_LIB_PATH", err)
 		}
-	}
-	ort.SetSharedLibraryPath(libPath)
-	if err := ort.InitializeEnvironment(); err != nil {
-		return fmt.Errorf("failed to initialize ONNX Runtime: %w\nHint: install ONNX Runtime (macOS: brew install onnxruntime) or set ONNXRUNTIME_LIB_PATH", err)
-	}
-	return nil
+	})
+	return onnxInitErr
 }
 
 func LoadCfgs(onnxDir string) (Config, error) {

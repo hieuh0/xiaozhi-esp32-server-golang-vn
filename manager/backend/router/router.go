@@ -175,7 +175,9 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 
 				// Config lists
 				user.GET("/llm-configs", userController.GetLLMConfigs)
+				user.GET("/llm-configs/options", userController.GetLLMConfigs)
 				user.GET("/tts-configs", userController.GetTTSConfigs)
+				user.GET("/tts-configs/options", userController.GetTTSConfigs)
 
 				// MCP endpoints
 				user.GET("/mcp-services/options", userController.GetMCPServiceOptions)
@@ -266,6 +268,9 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 				admin.POST("/tts-configs", adminController.CreateTTSConfig)
 				admin.PUT("/tts-configs/:id", adminController.UpdateTTSConfig)
 				admin.DELETE("/tts-configs/:id", adminController.DeleteTTSConfig)
+				admin.GET("/supertonic-model", adminController.GetSupertonicModelStatus)
+				admin.POST("/supertonic-model/download", adminController.DownloadSupertonicModel)
+				admin.POST("/tts-preview", adminController.PreviewTTSAudio)
 
 				admin.GET("/speaker-configs", adminController.GetSpeakerConfigs)
 				admin.POST("/speaker-configs", adminController.CreateSpeakerConfig)
@@ -375,6 +380,7 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 				admin.POST("/devices/:id/mcp-call", adminController.CallDeviceMcpTool)
 
 				// User management
+				admin.GET("/users/options", adminController.GetUserOptions)
 				admin.GET("/users", adminController.GetUsers)
 				admin.POST("/users", adminController.CreateUser)
 				admin.PUT("/users/:id", adminController.UpdateUser)
