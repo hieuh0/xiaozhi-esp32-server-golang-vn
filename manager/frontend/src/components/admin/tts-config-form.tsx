@@ -61,6 +61,7 @@ function serialize(f: TtsFields): string {
   else if (p==='indextts_vllm') cfg={provider:'indextts_vllm',api_url:f.indextts_api_url,api_key:f.indextts_api_key,model:f.indextts_model,voice:f.indextts_voice,response_format:'wav',stream:false,frame_duration:f.indextts_frame_duration}
   else if (p==='cosyvoice') cfg={api_url:f.cosyvoice_api_url,spk_id:f.cosyvoice_spk_id,frame_duration:f.cosyvoice_frame_duration,target_sr:f.cosyvoice_target_sr,audio_format:f.cosyvoice_audio_format,instruct_text:f.cosyvoice_instruct_text}
   else if (p==='supertonic') cfg={
+    provider:'supertonic',
     onnx_dir:f.supertonic_onnx_dir,
     voice:f.supertonic_voice,
     voice_json_path:f.supertonic_voice_json_path,
@@ -77,7 +78,9 @@ function parse(row: ConfigRow | null): TtsFields {
   if (!row) return { ...D }
   try {
     const d = JSON.parse(row.json_data || '{}')
-    const prov = row.provider || 'edge'
+    // onnx_dir is exclusive to supertonic — detect it even if DB provider column is stale
+    let prov = row.provider || 'edge'
+    if (d.onnx_dir) prov = 'supertonic'
     return {
       ...D, provider: prov, name: row.name, config_id: row.config_id, enabled: row.enabled !== false, is_default: !!row.is_default,
       doubao_ws_appid: d.appid||'', doubao_ws_token: d.access_token||'', doubao_ws_model: d.model||'seed-tts-2.0-standard', doubao_ws_resource_id: d.resource_id||'', doubao_ws_voice: d.voice||'', doubao_ws_url: d.ws_url||D.doubao_ws_url,
@@ -110,11 +113,20 @@ export function TtsConfigForm({ form, setForm, editing }: { form: ConfigForm; se
   const [isTesting, setIsTesting] = useState(false)
   const providerRef = useRef(f.provider)
 
-  useEffect(() => { const parsed = parse(editing); setF(parsed); providerRef.current = parsed.provider }, [editing])
+  useEffect(() => {
+    const parsed = parse(editing)
+    setF(parsed)
+    providerRef.current = parsed.provider
+    if (editing !== null) {
+      setForm({ name: parsed.name, config_id: parsed.config_id, provider: parsed.provider, enabled: parsed.enabled, is_default: parsed.is_default, json_data: serialize(parsed) })
+    }
+  }, [editing]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const prov = f.provider
     if (!TTS_PROVIDERS_WITH_VOICES.includes(prov)) { setVoiceOptions([]); return }
+    // indextts_vllm voices are loaded from a remote service — skip if neither config_id nor api_url is set yet
+    if (prov === 'indextts_vllm' && !f.config_id && !f.indextts_api_url) { setVoiceOptions([]); return }
     setVoiceLoading(true)
     const params: Record<string, string> = { provider: prov }
     if (f.config_id) params.config_id = f.config_id
@@ -132,29 +144,36 @@ export function TtsConfigForm({ form, setForm, editing }: { form: ConfigForm; se
   }
 
   async function handleTest() {
-    const cid = f.config_id || '_test_draft'
     setIsTesting(true)
     try {
-      const cfgItem = { provider: f.provider, name: f.name, is_default: f.is_default, ...JSON.parse(serialize(f)) }
-      const res = await api.post('/admin/configs/test', {
-        types: ['tts'],
-        data: { tts: { [cid]: cfgItem } },
-        config_ids: { tts: [cid] },
-      }, { timeout: 30000 })
-      const ttsResult = res.data?.data?.tts
-      if (!ttsResult) { toast.error(t('test_failed')); return }
-      if (ttsResult._no_client) { toast.error(t('main_server_not_connected')); return }
-      const errEntry = ttsResult._error
-      if (errEntry) { toast.error(`${t('test_failed')}: ${errEntry.message || ''}`); return }
-      const entry = ttsResult[cid]
-      if (entry?.ok) {
-        toast.success(`${t('tts_test_ok')}${entry.first_packet_ms ? ` (${entry.first_packet_ms}ms)` : ''}`)
-      } else {
-        toast.error(`${t('test_failed')}: ${entry?.message || ''}`)
-      }
+      const cfg = JSON.parse(serialize(f))
+      const res = await api.post('/admin/tts-preview', {
+        provider: f.provider,
+        config: cfg,
+        text: t('tts_preview_text'),
+      }, { timeout: 30000, responseType: 'arraybuffer' })
+
+      const firstPacketMs = res.headers['x-first-packet-ms']
+      const wav = new Blob([res.data], { type: 'audio/wav' })
+      const url = URL.createObjectURL(wav)
+      const audio = new Audio(url)
+      audio.onended = () => URL.revokeObjectURL(url)
+      audio.onerror = () => URL.revokeObjectURL(url)
+      audio.play().catch(() => {})
+
+      toast.success(`${t('tts_test_ok')}${firstPacketMs ? ` (${firstPacketMs}ms)` : ''}`)
     } catch (e: unknown) {
-      const msg = e instanceof Error ? e.message : String(e)
-      toast.error(`${t('test_failed')}: ${msg}`)
+      // parse arraybuffer error body if present
+      let msg = e instanceof Error ? e.message : String(e)
+      const anyE = e as { response?: { data?: ArrayBuffer } }
+      if (anyE?.response?.data instanceof ArrayBuffer) {
+        try { msg = JSON.parse(new TextDecoder().decode(anyE.response.data)).error || msg } catch { /* ignore */ }
+      }
+      if (msg.includes('main server not connected')) {
+        toast.error(t('main_server_not_connected'))
+      } else {
+        toast.error(`${t('test_failed')}: ${msg}`)
+      }
     } finally {
       setIsTesting(false)
     }
