@@ -13,7 +13,11 @@ const SUPERTONIC_LANGS = [
 ]
 const SUPERTONIC_PRESET_VOICES = ['M1','M2','M3','M4','M5','F1','F2','F3','F4','F5']
 
+import { useState, useEffect } from 'react'
+import { toast } from 'sonner'
+import api from '@/utils/api'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { ComboInput } from '@/components/ui/combo-input'
@@ -29,6 +33,65 @@ const NumInput = ({ value, min, max, step, onChange }: { value: number | string;
 const VoiceSelect = ({ value, options, loading, onChange, placeholder }: { value: string; options: Array<{label:string;value:string}>; loading: boolean; onChange: (v: string) => void; placeholder: string }) => (
   <ComboInput value={value} onChange={onChange} options={options} loading={loading} placeholder={placeholder} />
 )
+
+type ModelStatus = 'idle' | 'checking' | 'found' | 'not_found' | 'downloading'
+
+function SupertonicModelSection({ f, upd, t }: { f: TtsFields; upd: (p: Partial<TtsFields>) => void; t: T }) {
+  const [status, setStatus] = useState<ModelStatus>('idle')
+
+  useEffect(() => {
+    setStatus('checking')
+    const params: Record<string, string> = {}
+    if (f.supertonic_onnx_dir) params.path = f.supertonic_onnx_dir
+    api.get('/admin/supertonic-model', { params })
+      .then(r => {
+        if (r.data.exists) {
+          setStatus('found')
+          if (!f.supertonic_onnx_dir) upd({ supertonic_onnx_dir: r.data.onnx_dir })
+        } else {
+          setStatus('not_found')
+          if (!f.supertonic_onnx_dir) upd({ supertonic_onnx_dir: r.data.default_path })
+        }
+      })
+      .catch(() => setStatus('not_found'))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function handleDownload() {
+    setStatus('downloading')
+    try {
+      const res = await api.post('/admin/supertonic-model/download',
+        f.supertonic_onnx_dir ? { onnx_dir: f.supertonic_onnx_dir } : {},
+        { timeout: 15 * 60 * 1000 }
+      )
+      upd({ supertonic_onnx_dir: res.data.onnx_dir })
+      setStatus('found')
+      toast.success(t('model_downloaded'))
+    } catch (e: unknown) {
+      setStatus('not_found')
+      const msg = e instanceof Error ? e.message : String(e)
+      toast.error(`${t('download_failed')}: ${msg}`)
+    }
+  }
+
+  return (
+    <>
+      <F label={t('onnx_model_dir')}>
+        <Input value={f.supertonic_onnx_dir} onChange={e => upd({ supertonic_onnx_dir: e.target.value })} placeholder="~/.cache/supertonic-model/onnx" />
+      </F>
+      <div className="flex items-center gap-2 text-sm min-h-[28px]">
+        {status === 'checking' && <span className="text-[var(--color-text-muted)]">{t('checking_model')}…</span>}
+        {status === 'found' && <span className="text-emerald-600">✓ {t('model_found')}</span>}
+        {status === 'downloading' && <span className="text-[var(--color-text-muted)]">{t('downloading_model')}…</span>}
+        {(status === 'not_found' || status === 'idle') && (
+          <>
+            <span className="text-amber-600">{t('model_not_found')}</span>
+            <Button variant="outline" size="sm" onClick={handleDownload}>{t('download_model')}</Button>
+          </>
+        )}
+      </div>
+    </>
+  )
+}
 
 export function TtsProviderFields({ f, upd, t, voiceOptions, voiceLoading }: {
   f: TtsFields; upd: (p: Partial<TtsFields>) => void; t: T
@@ -183,9 +246,7 @@ export function TtsProviderFields({ f, upd, t, voiceOptions, voiceLoading }: {
         <F label={t('instruct_text')}><Input value={f.cosyvoice_instruct_text} onChange={e => upd({ cosyvoice_instruct_text: e.target.value })} placeholder={t('enter_instruct_text_opt')} /></F>
       </>}
       {p === 'supertonic' && <>
-        <F label={t('onnx_model_dir')}>
-          <Input value={f.supertonic_onnx_dir} onChange={e => upd({ supertonic_onnx_dir: e.target.value })} placeholder="/path/to/supertonic/onnx" />
-        </F>
+        <SupertonicModelSection f={f} upd={upd} t={t} />
         <div className="grid grid-cols-2 gap-3">
           <F label={t('voice_timbre')}>
             <Select value={f.supertonic_voice} onValueChange={v => upd({ supertonic_voice: v })}>

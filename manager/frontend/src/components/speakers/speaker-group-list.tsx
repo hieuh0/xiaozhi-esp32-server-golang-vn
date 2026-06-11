@@ -47,10 +47,10 @@ export function SpeakerGroupList({
     <div className="grid gap-4 px-6 pb-8">
       {/* Filter bar */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Select value={filterAgentId} onValueChange={onFilterAgentChange}>
+        <Select value={filterAgentId || '__all__'} onValueChange={(v) => onFilterAgentChange(v === '__all__' ? '' : v)}>
           <SelectTrigger className="w-[200px]"><SelectValue placeholder={t('filter_by_agent')} /></SelectTrigger>
           <SelectContent>
-            <SelectItem value="">{t('all_agents')}</SelectItem>
+            <SelectItem value="__all__">{t('all_agents')}</SelectItem>
             {agents.map((a) => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
           </SelectContent>
         </Select>

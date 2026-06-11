@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { ComboInput } from '@/components/ui/combo-input'
 
 export interface AgentFormHandle {
   validate: () => Promise<boolean>
@@ -122,7 +123,7 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
             <p className="text-xs text-[var(--color-text-tertiary)] p-2 text-center">{t('select_linked_knowledge_base')}</p>
           ) : opts.knowledgeBases.map((kb) => (
             <label key={kb.id} className="flex items-center gap-2 p-1.5 rounded hover:bg-[var(--color-surface-muted)] cursor-pointer text-sm">
-              <input type="checkbox" checked={value.knowledge_base_ids.includes(kb.id)} onChange={(e) => set({ knowledge_base_ids: e.target.checked ? [...value.knowledge_base_ids, kb.id] : value.knowledge_base_ids.filter((id) => id !== kb.id) })} className="accent-[var(--color-primary)]" />
+              <input type="checkbox" checked={value.knowledge_base_ids.includes(kb.id)} onChange={(e) => set({ knowledge_base_ids: e.target.checked ? [...value.knowledge_base_ids, kb.id] : value.knowledge_base_ids.filter((id) => id !== kb.id) })} className="accent-[var(--color-primary)]" disabled={opts.loading} />
               <span>{kb.name}</span>
             </label>
           ))}
@@ -130,13 +131,13 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
       </Field>
       <div className="grid grid-cols-2 gap-4">
         <Field label={t('language_model')}>
-          <Select value={value.llm_config_id ?? ''} onValueChange={(v) => set({ llm_config_id: v || null })}>
+          <Select value={value.llm_config_id ?? ''} onValueChange={(v) => set({ llm_config_id: v || null })} disabled={opts.loading}>
             <SelectTrigger><SelectValue placeholder={t('select_language_model')} /></SelectTrigger>
             <SelectContent>{opts.llmConfigs.map((c) => <SelectItem key={c.config_id} value={c.config_id}>{c.is_default ? t('tts_default_label', { name: c.name }) : c.name}</SelectItem>)}</SelectContent>
           </Select>
         </Field>
         <Field label={t('tts_config_label')}>
-          <Select value={value.tts_config_id ?? ''} onValueChange={(v) => handleTtsChange(v || null)}>
+          <Select value={value.tts_config_id ?? ''} onValueChange={(v) => handleTtsChange(v || null)} disabled={opts.loading}>
             <SelectTrigger><SelectValue placeholder={t('select_tts_config')} /></SelectTrigger>
             <SelectContent>{opts.ttsConfigs.map((c) => <SelectItem key={c.config_id} value={c.config_id}>{c.is_default ? t('tts_default_label', { name: c.name }) : c.name}</SelectItem>)}</SelectContent>
           </Select>
@@ -144,8 +145,13 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
       </div>
       {value.tts_config_id && (
         <Field label={t('tts_voice')}>
-          <Input value={value.voice ?? ''} onChange={(e) => set({ voice: e.target.value || null })} list="agent-voice-list" placeholder={t('select_or_enter_timbre')} />
-          <datalist id="agent-voice-list">{opts.filteredVoiceOptions.map((v) => <option key={v.value} value={v.value}>{v.label || v.value}</option>)}</datalist>
+          <ComboInput
+            value={value.voice ?? ''}
+            onChange={(v) => set({ voice: v || null })}
+            options={opts.voiceOptions}
+            placeholder={t('select_or_enter_timbre')}
+            loading={opts.loading}
+          />
         </Field>
       )}
       {opts.cloneVoices.length > 0 && (
@@ -164,7 +170,7 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
           ['speaker_chat_mode', [['off', t('close')], ['identified_only', t('voiceprint_only_chat')]], t('voiceprint_chat_limit')],
         ] as [keyof AgentFormData, [string, string][], string][]).map(([field, opts2, label]) => (
           <Field key={field} label={label}>
-            <Select value={String(value[field])} onValueChange={(v) => set({ [field]: v } as Partial<AgentFormData>)}>
+            <Select value={String(value[field])} onValueChange={(v) => set({ [field]: v } as Partial<AgentFormData>)} disabled={opts.loading}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{opts2.map(([val, lbl]) => <SelectItem key={val} value={val}>{lbl}</SelectItem>)}</SelectContent>
             </Select>
@@ -177,7 +183,7 @@ export const AgentForm = forwardRef<AgentFormHandle, Props>(({ value, onChange, 
             <p className="text-xs text-[var(--color-text-tertiary)] p-2 text-center">{t('leave_blank_all_enabled')}</p>
           ) : opts.mcpServiceOptions.map((svc) => (
             <label key={svc} className="flex items-center gap-2 p-1.5 rounded hover:bg-[var(--color-surface-muted)] cursor-pointer text-sm">
-              <input type="checkbox" checked={selectedMcpSet.has(svc)} onChange={() => toggleMcp(svc)} className="accent-[var(--color-primary)]" />
+              <input type="checkbox" checked={selectedMcpSet.has(svc)} onChange={() => toggleMcp(svc)} className="accent-[var(--color-primary)]" disabled={opts.loading} />
               <span>{svc}</span>
             </label>
           ))}

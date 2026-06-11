@@ -61,12 +61,12 @@ export function AgentDeviceGrid({
               <ArrowLeft className="w-4 h-4 mr-1" />{t('back')}
             </Button>
           )}
-          <Select value={filterAgentId} onValueChange={onFilterAgentIdChange}>
+          <Select value={filterAgentId || '__all__'} onValueChange={(v) => onFilterAgentIdChange(v === '__all__' ? '' : v)}>
             <SelectTrigger className="w-[220px]">
               <SelectValue placeholder={t('filter_by_agent')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t('all_devices')}</SelectItem>
+              <SelectItem value="__all__">{t('all_devices')}</SelectItem>
               {agents.map((a) => (
                 <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
               ))}
@@ -98,7 +98,15 @@ export function AgentDeviceGrid({
             return (
               <div key={device.id} className="bg-[var(--color-surface-1)] rounded-xl p-4 border border-[var(--color-line)] flex flex-col h-full shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--color-primary)]/30">
                 <div className="flex items-start gap-3 mb-4">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-b from-indigo-400 to-indigo-600 flex items-center justify-center text-white shadow-[0_6px_16px_rgba(99,102,241,0.2)] shrink-0">
+                  <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+                    style={{
+                      background: 'linear-gradient(145deg, var(--color-primary-soft), color-mix(in srgb, var(--color-primary) 20%, transparent))',
+                      color: 'var(--color-primary)',
+                      border: '1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)',
+                      boxShadow: 'var(--shadow-primary-glow)',
+                    }}
+                  >
                     <Monitor className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
