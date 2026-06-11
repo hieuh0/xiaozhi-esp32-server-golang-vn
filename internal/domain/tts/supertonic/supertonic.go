@@ -94,8 +94,8 @@ func (p *SupertonicTTSProvider) resolveVoicePath(voice string) string {
 	if strings.Contains(voice, "/") || strings.Contains(voice, "\\") || strings.HasSuffix(voice, ".json") {
 		return voice
 	}
-	// preset name (M1, F1, …) → assets directory inside OnnxDir
-	return filepath.Join(p.OnnxDir, "assets", "voices", voice+".json")
+	// preset name (M1, F1, …) → voice_styles/ sibling of the onnx/ directory
+	return filepath.Join(filepath.Dir(p.OnnxDir), "voice_styles", voice+".json")
 }
 
 // loadStyleLocked reloads the voice style. Must be called with p.mu held.

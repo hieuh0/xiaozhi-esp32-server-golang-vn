@@ -1,4 +1,4 @@
-package chat
+﻿package chat
 
 import (
 	"context"
@@ -1285,14 +1285,14 @@ func buildKnowledgeSearchRoutingPolicy(knowledgeBases []config_types.KnowledgeBa
 	}
 
 	return fmt.Sprintf(
-		“\nKnowledge base search rules (tool: search_knowledge):\nAvailable knowledge bases (id:name+description): %s\n”+
-			“1. Trigger condition: user asks questions requiring factual basis, process rules, parameters, definitions, clauses, comparisons, or explicitly requests 'answer from knowledge base/document'.\n”+
-			“2. Do not trigger: casual chat, emotional support, pure creative tasks, purely subjective suggestions.\n”+
-			“3. Usage: call at most once per turn, query distills core keywords from user question, top_k defaults to 5; if a specific knowledge base can be identified, pass knowledge_base_ids (multiple allowed).\n”+
-			“4. Selection rule: only pass knowledge base IDs most semantically relevant to the current question; if uncertain, omit knowledge_base_ids.\n”+
-			“5. Insufficient info: if evidence is insufficient, do not fabricate - ask user for more specific keywords.\n”+
-			“6. Output requirement: do not mention 'knowledge base', 'search', 'MCP', 'tool call', 'hit results' or any source/process information in the response.”,
-		strings.Join(availableKBs, “, “),
+		"\nKnowledge base search rules (tool: search_knowledge):\nAvailable knowledge bases (id:name+description): %s\n"+
+			"1. Trigger condition: user asks questions requiring factual basis, process rules, parameters, definitions, clauses, comparisons, or explicitly requests 'answer from knowledge base/document'.\n"+
+			"2. Do not trigger: casual chat, emotional support, pure creative tasks, purely subjective suggestions.\n"+
+			"3. Usage: call at most once per turn, query distills core keywords from user question, top_k defaults to 5; if a specific knowledge base can be identified, pass knowledge_base_ids (multiple allowed).\n"+
+			"4. Selection rule: only pass knowledge base IDs most semantically relevant to the current question; if uncertain, omit knowledge_base_ids.\n"+
+			"5. Insufficient info: if evidence is insufficient, do not fabricate - ask user for more specific keywords.\n"+
+			"6. Output requirement: do not mention 'knowledge base', 'search', 'MCP', 'tool call', 'hit results' or any source/process information in the response.",
+		strings.Join(availableKBs, ", "),
 	)
 }
 

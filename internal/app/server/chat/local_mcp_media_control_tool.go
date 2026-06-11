@@ -1,4 +1,4 @@
-package chat
+﻿package chat
 
 import (
 	"context"
@@ -14,7 +14,7 @@ const localMcpMusicControlToolName = "control_music_playback"
 func init() {
 	if err := RegisterLocalMcpFunc(
 		localMcpMusicControlToolName,
-		“Must be used when the user wants to control the music or audio currently playing on the device. For commands like 'resume playing', 'continue listening', 'pause', 'stop', 'next song', 'previous song', 'play playlist', 'add current to playlist', this tool must be called - do not just reply with text. Only do NOT use this tool when the user wants to play a new song, search for songs, or request specific music.”,
+		"Must be used when the user wants to control the music or audio currently playing on the device. For commands like 'resume playing', 'continue listening', 'pause', 'stop', 'next song', 'previous song', 'play playlist', 'add current to playlist', this tool must be called - do not just reply with text. Only do NOT use this tool when the user wants to play a new song, search for songs, or request specific music.",
 		MusicPlaybackControlParams{},
 		musicPlaybackControlHandler,
 	); err != nil {

@@ -1,4 +1,4 @@
-package chat
+﻿package chat
 
 import (
 	"context"
@@ -44,20 +44,20 @@ Hard requirements:
 1. Only responsible for warmup - do not directly answer questions, do not provide facts, conclusions, suggestions, steps, analysis, explanations or speculation.
 2. Tone should be like a real person gently responding in a phone call: short, natural, conversational, patient.
 3. Do not sound like customer service, system prompts, notifications, or marketing copy.
-4. Do not repeat the user's original words, especially avoid echoing command phrases like “help me search”, “help me check”, “tell me”.
-5. If you need to mention the topic, only distill it into a noun phrase from the assistant's perspective, e.g. “tomorrow's weather in Hanoi”, “this arrangement” - do not use imperative sentences.
-6. The first 1-2 phrases should be lightest, not necessarily topic-specific, e.g. “Let me check” or “Just a moment” - do not start with heavy reassurance.
-7. Later phrases should gradually express “still looking” and “still confirming” - but naturally, not mechanically repetitive.
-8. Avoid stiff phrases like “processing your request”, “please wait”, “following up”, “retrieving data”, “connecting to service”.
+4. Do not repeat the user's original words, especially avoid echoing command phrases like "help me search", "help me check", "tell me".
+5. If you need to mention the topic, only distill it into a noun phrase from the assistant's perspective, e.g. "tomorrow's weather in Hanoi", "this arrangement" - do not use imperative sentences.
+6. The first 1-2 phrases should be lightest, not necessarily topic-specific, e.g. "Let me check" or "Just a moment" - do not start with heavy reassurance.
+7. Later phrases should gradually express "still looking" and "still confirming" - but naturally, not mechanically repetitive.
+8. Avoid stiff phrases like "processing your request", "please wait", "following up", "retrieving data", "connecting to service".
 9. Each phrase must be a single short English sentence suitable for voice broadcast, length 5-80 characters.
 10. You will receive actual broadcast time points. The 11 phrases must be strictly designed in order for these time points:
    - 1st second: Just received the question, respond gently.
    - 10th second: Naturally add a phrase, still light in tone.
-   - 20th, 30th seconds: Start expressing “still looking” but not mechanically.
-   - 40th, 50th, 60th seconds: Continue reassuring, more explicitly saying “still confirming”.
+   - 20th, 30th seconds: Start expressing "still looking" but not mechanically.
+   - 40th, 50th, 60th seconds: Continue reassuring, more explicitly saying "still confirming".
    - 70th, 80th, 90th, 100th seconds: Acknowledge it's taking a while, but remain natural and calm, no complaining.
 11. Output strictly a JSON array of length 11.
-12. Each JSON item format must be: {“text”:”warmup phrase”}.
+12. Each JSON item format must be: {"text":"warmup phrase"}.
 13. Do not output numbering, Markdown, explanations, code blocks, or anything other than JSON.`
 
 type openClawWarmupTask struct {
@@ -485,12 +485,12 @@ func (s *ChatSession) generateOpenClawWarmupPlan(ctx context.Context, correlatio
 func buildOpenClawWarmupUserPrompt(userText string) string {
 	trimmed := strings.TrimSpace(userText)
 	topic := formatOpenClawWarmupTopic(buildOpenClawWarmupHint(userText))
-	topicLine := “Do not repeat user command phrases like \”help me search\”.”
-	if topic != “” {
-		topicLine = fmt.Sprintf(“If you need to mention the topic, distill it into the noun phrase \”%s\” only; do not repeat user command phrases like \”help me search\”.”, topic)
+	topicLine := "Do not repeat user command phrases like \"help me search\"."
+	if topic != "" {
+		topicLine = fmt.Sprintf("If you need to mention the topic, distill it into the noun phrase \"%s\" only; do not repeat user command phrases like \"help me search\".", topic)
 	}
 	return fmt.Sprintf(
-		“User's current task:\n%s\n\n%s\n\nActual broadcast time points in order: 1st second, 10th second, 20th second, 30th second, 40th second, 50th second, 60th second, 70th second, 80th second, 90th second, 100th second.\nPlease output 11 warmup phrases, one for each of the above 11 time points.”,
+		"User's current task:\n%s\n\n%s\n\nActual broadcast time points in order: 1st second, 10th second, 20th second, 30th second, 40th second, 50th second, 60th second, 70th second, 80th second, 90th second, 100th second.\nPlease output 11 warmup phrases, one for each of the above 11 time points.",
 		trimmed,
 		topicLine,
 	)

@@ -1,4 +1,4 @@
-package eino_llm
+﻿package eino_llm
 
 import (
 	"context"
@@ -156,7 +156,7 @@ func (p *EinoLLMProvider) HasReasoningContent() bool {
 	return p != nil && p.reasoningTracker != nil && p.reasoningTracker.HasReturned()
 }
 
-// createOpenAIChatModel creates OpenAI’s ChatModel implementation
+// createOpenAIChatModel creates OpenAI's ChatModel implementation
 func createOpenAIChatModel(config map[string]interface{}) (model.ToolCallingChatModel, error) {
 	ctx := context.Background()
 
@@ -315,7 +315,7 @@ func (p *EinoLLMProvider) EinoResponseWithTools(ctx context.Context, sessionID s
 
 		if p.streamable {
 			log.Debugf("EinoLLMProvider.EinoResponseWithTools() streamable: %t", p.streamable)
-			//Directly use Eino’s Stream method
+			//Directly use Eino's Stream method
 			streamReader, err := p.chatModel.Stream(ctx, messages, p.buildModelCallOptions()...)
 			if err != nil {
 				log.Errorf("Eino tool streaming call failed: %v", err)

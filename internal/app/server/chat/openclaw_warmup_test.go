@@ -1,4 +1,4 @@
-package chat
+﻿package chat
 
 import (
 	"strings"
@@ -60,7 +60,7 @@ func TestBuildOpenClawWarmupUserPromptIncludesTimeline(t *testing.T) {
 	if !strings.Contains(got, "用户本轮任务：") {
 		t.Fatalf("task label missing from prompt: %q", got)
 	}
-	if !strings.Contains(got, "只能提炼成名词短语“天津后天的天气”") {
+	if !strings.Contains(got, "只能提炼成名词短语"天津后天的天气"") {
 		t.Fatalf("topic hint missing from prompt: %q", got)
 	}
 	if !strings.Contains(got, "第1秒、第10秒、第20秒、第30秒、第40秒、第50秒、第60秒、第70秒、第80秒、第90秒、第100秒") {

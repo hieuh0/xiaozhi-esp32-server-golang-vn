@@ -2,6 +2,7 @@ package manager
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -747,6 +748,9 @@ func (c *WebSocketClient) handleDefaultRequest(request *WebSocketRequest) {
 		//Configuration tests may be time-consuming (VAD/ASR/LLM/TTS serial execution), put in independent goroutine to avoid blocking read loops, and support multi-request concurrency
 		go c.handleConfigTestRequest(request)
 
+	case "/api/config/tts-audio":
+		go c.handleTTSAudioPreviewRequest(request)
+
 	case "/api/mcp/tools":
 		//Handle MCP tool list requests
 		c.handleMcpToolListRequest(request)
@@ -877,6 +881,34 @@ func (c *WebSocketClient) handleConfigTestRequest(request *WebSocketRequest) {
 	_ = c.SendResponse(request.ID, 200, body, "")
 }
 
+// handleTTSAudioPreviewRequest synthesizes TTS audio and returns base64-encoded WAV for browser playback.
+func (c *WebSocketClient) handleTTSAudioPreviewRequest(request *WebSocketRequest) {
+	cfg, _ := request.Body["tts"].(map[string]interface{})
+	if cfg == nil {
+		_ = c.SendResponse(request.ID, 400, nil, "missing tts config")
+		return
+	}
+	text, _ := request.Body["text"].(string)
+
+	wavBytes, firstPacketMs, err := RunTTSAudioPreview(cfg, text)
+	if err != nil {
+		log.Errorf("[tts_preview] provider=%v voice=%v err=%v", cfg["provider"], cfg["voice"], err)
+		_ = c.SendResponse(request.ID, 500, map[string]interface{}{
+			"ok":      false,
+			"message": err.Error(),
+		}, "")
+		return
+	}
+
+	encoded := encodeBase64(wavBytes)
+	_ = c.SendResponse(request.ID, 200, map[string]interface{}{
+		"ok":             true,
+		"audio_base64":   encoded,
+		"format":         "wav",
+		"first_packet_ms": firstPacketMs,
+	}, "")
+}
+
 // fillEmptyConfigTestResult Writes a _none entry when the request contains this type but the test result is empty
 func fillEmptyConfigTestResult(data map[string]interface{}, typ string, result map[string]interface{}) {
 	if _, has := data[typ]; !has || len(result) > 0 {
@@ -885,6 +917,10 @@ func fillEmptyConfigTestResult(data map[string]interface{}, typ string, result m
 	msg := strings.ToUpper(typ) + " not configured or not enabled"
 	result["_none"] = map[string]interface{}{"ok": false, "message": msg}
 	log.Debugf("[config_test] Type %s No results, written _none: %s", typ, msg)
+}
+
+func encodeBase64(b []byte) string {
+	return base64.StdEncoding.EncodeToString(b)
 }
 
 // countConfigKeys counts the number of config entries in data except provider, used for debugging
