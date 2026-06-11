@@ -1,11 +1,11 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { createFileRoute, useRouter } from '@tanstack/react-router'
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query'
 import { Plus, Settings, MessageSquare, Monitor, Trash2, Link2, Brain, BookOpen, Plug, Zap } from 'lucide-react'
 import { Suspense } from 'react'
 import { toast } from 'sonner'
 import { agentsApi } from '@/features/agents/api/agents-api'
-import type { Agent, AgentFormData } from '@/features/agents/types'
+import type { Agent, AgentFormData, Role } from '@/features/agents/types'
 import { createDefaultAgentForm } from '@/features/agents/types'
 import { AgentForm, type AgentFormHandle } from '@/components/agents/agent-form'
 import { useLocale } from '@/hooks/use-locale'
@@ -40,7 +40,15 @@ function AgentCard({ agent, onEdit, onHistory, onDevices, onDelete }: { agent: A
   return (
     <article className="p-5 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)] flex flex-col gap-3.5 max-w-[340px] w-full shadow-[var(--shadow-card)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] hover:border-[var(--color-primary)]/30">
       <div className="flex items-center gap-3.5 min-w-0">
-        <div className="w-12 h-12 rounded-xl flex-none inline-flex items-center justify-center text-white bg-gradient-to-b from-indigo-400 to-indigo-600 shadow-[0_12px_24px_rgba(99,102,241,0.18)]">
+        <div
+          className="w-12 h-12 rounded-xl flex-none inline-flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(145deg, var(--color-primary-soft), color-mix(in srgb, var(--color-primary) 20%, transparent))',
+            color: 'var(--color-primary)',
+            border: '1px solid color-mix(in srgb, var(--color-primary) 25%, transparent)',
+            boxShadow: 'var(--shadow-primary-glow)',
+          }}
+        >
           <Monitor className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">
@@ -113,8 +121,32 @@ function AgentsInner() {
   const [showAdd, setShowAdd] = useState(false)
   const [form, setForm] = useState<AgentFormData>(createDefaultAgentForm())
   const [adding, setAdding] = useState(false)
+  const [roles, setRoles] = useState<Role[]>([])
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Agent | null>(null)
   const [deleting, setDeleting] = useState(false)
+
+  useEffect(() => {
+    if (showAdd) {
+      agentsApi.getRoles()
+        .then(({ global_roles, user_roles }) =>
+          setRoles([...global_roles, ...user_roles].filter((r) => !r.status || r.status === 'active'))
+        )
+        .catch(() => setRoles([]))
+    }
+  }, [showAdd]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const applyRole = (role: Role) => {
+    setSelectedRoleId(role.id)
+    setForm((prev) => ({
+      ...prev,
+      custom_prompt: role.prompt || prev.custom_prompt,
+      llm_config_id: role.llm_config_id || prev.llm_config_id,
+      tts_config_id: role.tts_config_id || prev.tts_config_id,
+      voice: role.voice || prev.voice,
+    }))
+    toast.info(t('role_config_applied'))
+  }
 
   const refresh = () => qc.invalidateQueries({ queryKey: ['user-agents'] })
 
@@ -125,7 +157,7 @@ function AgentsInner() {
     try {
       await agentsApi.createAgent(formRef.current!.buildPayload())
       toast.success(t('agent_add_success'))
-      setShowAdd(false); setForm(createDefaultAgentForm())
+      setShowAdd(false); setForm(createDefaultAgentForm()); setSelectedRoleId(null)
       await refresh()
     } catch (e) { toast.error((e as Error).message || t('add_agent_failed')) }
     finally { setAdding(false) }
@@ -146,7 +178,7 @@ function AgentsInner() {
     <div className="grid gap-5 p-6">
       <section className="flex flex-wrap items-center justify-between gap-4 px-6 py-4 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)] shadow-sm">
         <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[var(--color-primary)] text-white">{t('agent')} {agents.length}</span>
+          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold font-mono status-primary border">{t('agent')} {agents.length}</span>
         </div>
         <Button onClick={() => { setForm(createDefaultAgentForm()); setShowAdd(true) }}>
           <Plus className="w-4 h-4 mr-1.5" />{t('add_agent')}
@@ -177,12 +209,28 @@ function AgentsInner() {
         </section>
       )}
 
-      <Dialog open={showAdd} onOpenChange={(v) => { if (!v) { setForm(createDefaultAgentForm()) } setShowAdd(v) }}>
+      <Dialog open={showAdd} onOpenChange={(v) => { if (!v) { setForm(createDefaultAgentForm()); setSelectedRoleId(null) } setShowAdd(v) }}>
         <DialogContent className="max-w-[560px] max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t('add_agent')}</DialogTitle></DialogHeader>
+          {roles.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+              {roles.map((role) => (
+                <button key={role.id} type="button" onClick={() => applyRole(role)}
+                  className={cn(
+                    'inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs border flex-none cursor-pointer transition-colors',
+                    selectedRoleId === role.id
+                      ? 'border-[var(--color-primary)] status-primary'
+                      : 'border-[var(--color-line)] bg-[var(--color-surface-1)] text-[var(--color-text)] hover:border-[var(--color-primary)]'
+                  )}>
+                  <span>{role.name}</span>
+                  <small className="text-[var(--color-text-secondary)]">{role.role_type === 'global' ? t('global') : t('mine')}</small>
+                </button>
+              ))}
+            </div>
+          )}
           <AgentForm ref={formRef} value={form} onChange={setForm} mode="create" />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAdd(false)}>{t('cancel')}</Button>
+            <Button variant="outline" onClick={() => { setShowAdd(false); setSelectedRoleId(null) }}>{t('cancel')}</Button>
             <Button disabled={adding} onClick={handleAdd}>{adding ? t('creating') : t('create_agent_label')}</Button>
           </DialogFooter>
         </DialogContent>

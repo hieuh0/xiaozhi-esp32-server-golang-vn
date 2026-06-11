@@ -113,16 +113,21 @@ function SpeakersPage() {
   return (
     <div className="grid gap-4 px-6 pb-8">
       <PageHeader title={t('voiceprint_management')} />
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between gap-3 flex-wrap px-0 py-2 rounded-xl">
+        <div className="flex items-center gap-2 flex-wrap">
           <Input value={search} onChange={e => setSearch(e.target.value)} placeholder={t('search_speaker')} className="w-52" />
-          <Select value={filterAgent} onValueChange={setFilterAgent}>
+          <Select value={filterAgent || '__all__'} onValueChange={(v) => setFilterAgent(v === '__all__' ? '' : v)}>
             <SelectTrigger className="w-44"><SelectValue placeholder={t('all_agents')} /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">{t('all_agents')}</SelectItem>
+              <SelectItem value="__all__">{t('all_agents')}</SelectItem>
               {agents.map(a => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
             </SelectContent>
           </Select>
+          {groups.length > 0 && (
+            <span className="text-xs font-mono font-semibold text-[var(--color-text-tertiary)] px-2 py-0.5 rounded border border-[var(--color-line)] bg-[var(--color-surface-2)]">
+              {filtered.length} / {groups.length}
+            </span>
+          )}
         </div>
         <Button onClick={openCreate}><Plus className="w-4 h-4 mr-1.5" />{t('add_voiceprint_group')}</Button>
       </div>
@@ -185,10 +190,10 @@ function SpeakersPage() {
             <div className="grid gap-1.5"><label className="text-sm font-semibold">{t('description')}</label><Input value={form.description} onChange={e => setF({ description: e.target.value })} /></div>
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold">{t('tts_config_label')}</label>
-              <Select value={form.tts_config_id || ''} onValueChange={v => { setF({ tts_config_id: v, voice: '' }); loadVoices(v) }}>
+              <Select value={form.tts_config_id || '__none__'} onValueChange={v => { const val = v === '__none__' ? '' : v; setF({ tts_config_id: val, voice: '' }); loadVoices(val) }}>
                 <SelectTrigger><SelectValue placeholder={t('select_tts_config_opt')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('default')}</SelectItem>
+                  <SelectItem value="__none__">{t('default')}</SelectItem>
                   {ttsConfigs.map(c => <SelectItem key={c.id} value={c.config_id} disabled={!c.enabled}>{c.name} ({c.config_id})</SelectItem>)}
                 </SelectContent>
               </Select>

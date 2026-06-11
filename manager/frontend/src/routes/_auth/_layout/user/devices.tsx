@@ -147,10 +147,10 @@ function UserDevicesPage() {
             </div>
             <div className="grid gap-1.5">
               <label className="text-sm font-medium text-[var(--color-text)]">{t('select_role_label')}</label>
-              <Select value={selectedRoleId ? String(selectedRoleId) : ''} onValueChange={(v) => setSelectedRoleId(v ? Number(v) : null)}>
+              <Select value={selectedRoleId ? String(selectedRoleId) : '__none__'} onValueChange={(v) => setSelectedRoleId(v === '__none__' ? null : Number(v))}>
                 <SelectTrigger className="w-full"><SelectValue placeholder={t('select_role_opt_ph')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('no_agent_linked')}</SelectItem>
+                  <SelectItem value="__none__">{t('no_agent_linked')}</SelectItem>
                   {availableRoles.map((r) => <SelectItem key={r.id} value={String(r.id)}>{r.name}</SelectItem>)}
                 </SelectContent>
               </Select>

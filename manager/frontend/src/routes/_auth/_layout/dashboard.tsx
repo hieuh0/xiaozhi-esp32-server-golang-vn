@@ -20,15 +20,28 @@ function StatCard({ icon: Icon, iconClass, trend, value, label }: {
   icon: React.ElementType; iconClass: string; trend: string; value: number; label: string
 }) {
   return (
-    <div className="p-5 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)] shadow-[var(--shadow-card)]">
-      <div className="flex items-center justify-between mb-4">
-        <span className={cn('w-10 h-10 rounded-lg inline-flex items-center justify-center', iconClass)}>
-          <Icon className="w-5 h-5" />
-        </span>
-        <span className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">{trend}</span>
+    <div
+      className="relative p-5 rounded-2xl border border-[var(--color-line)] overflow-hidden group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)]"
+      style={{
+        background: 'linear-gradient(145deg, var(--color-surface-1) 0%, var(--color-bg) 100%)',
+        boxShadow: 'var(--shadow-card)',
+      }}
+    >
+      {/* Ambient glow blob */}
+      <div
+        className="absolute -right-4 -top-4 w-24 h-24 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        style={{ background: 'var(--color-primary-soft)' }}
+      />
+      <div className="relative">
+        <div className="flex items-center justify-between mb-4">
+          <span className={cn('w-10 h-10 rounded-lg inline-flex items-center justify-center', iconClass)}>
+            <Icon className="w-5 h-5" />
+          </span>
+          <span className="text-[10px] font-bold tracking-widest uppercase text-[var(--color-text-tertiary)] font-mono">{trend}</span>
+        </div>
+        <strong className="block text-4xl font-bold font-display tracking-tight leading-none text-[var(--color-text)]">{value}</strong>
+        <p className="mt-2.5 text-sm text-[var(--color-text-secondary)]">{label}</p>
       </div>
-      <strong className="block text-4xl font-bold font-display tracking-tight leading-none text-[var(--color-text)]">{value}</strong>
-      <p className="mt-2.5 text-sm text-[var(--color-text-secondary)]">{label}</p>
     </div>
   )
 }
@@ -110,7 +123,7 @@ function DashboardInner() {
         <div className="flex-1 min-w-0 grid gap-4">
           {isAdmin && <DashboardServiceCard />}
           {isAdmin && (
-            <Card>
+            <Card className="border-[var(--color-line)]">
               <CardHeader className="pb-3">
                 <SectionLabel className="mb-1">CONFIGURATION</SectionLabel>
                 <h3 className="text-lg font-semibold text-[var(--color-text)]">{t('config_management')}</h3>

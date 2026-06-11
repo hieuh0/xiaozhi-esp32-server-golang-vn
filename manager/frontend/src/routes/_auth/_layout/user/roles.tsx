@@ -184,10 +184,10 @@ function UserRolesPage() {
             <p className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">{t('model_config_section')}</p>
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold">{t('llm_config_label')}</label>
-              <Select value={form.llm_config_id || ''} onValueChange={v => setF({ llm_config_id: v })}>
+              <Select value={form.llm_config_id || '__none__'} onValueChange={v => setF({ llm_config_id: v === '__none__' ? '' : v })}>
                 <SelectTrigger><SelectValue placeholder={t('select_llm_config_opt')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('select_llm_config_opt')}</SelectItem>
+                  <SelectItem value="__none__">{t('select_llm_config_opt')}</SelectItem>
                   {llmConfigs.map(c => <SelectItem key={c.id} value={c.config_id} disabled={!c.enabled}>{c.name} ({c.config_id}){c.is_default ? ` [${t('default')}]` : ''}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -195,10 +195,10 @@ function UserRolesPage() {
             </div>
             <div className="grid gap-1.5">
               <label className="text-sm font-semibold">{t('tts_config_label')}</label>
-              <Select value={form.tts_config_id || ''} onValueChange={v => { setF({ tts_config_id: v, voice: '' }); loadVoices(v) }}>
+              <Select value={form.tts_config_id || '__none__'} onValueChange={v => { const val = v === '__none__' ? '' : v; setF({ tts_config_id: val, voice: '' }); loadVoices(val) }}>
                 <SelectTrigger><SelectValue placeholder={t('select_tts_config_opt')} /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">{t('select_tts_config_opt')}</SelectItem>
+                  <SelectItem value="__none__">{t('select_tts_config_opt')}</SelectItem>
                   {ttsConfigs.map(c => <SelectItem key={c.id} value={c.config_id} disabled={!c.enabled}>{c.name} ({c.config_id}){c.is_default ? ` [${t('default')}]` : ''}</SelectItem>)}
                 </SelectContent>
               </Select>

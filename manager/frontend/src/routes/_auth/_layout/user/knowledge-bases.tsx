@@ -86,7 +86,14 @@ function KnowledgeBasesPage() {
       if (editing) { await api.put(`/user/knowledge-bases/${editing.id}`, payload); toast.success(t('save_success')) }
       else { await api.post('/user/knowledge-bases', payload); toast.success(t('save_success')) }
       setShowDialog(false); await load(page)
-    } catch { toast.error(t('save_failed')) }
+    } catch (e) {
+      const apiErr = (e as { response?: { data?: { error?: string } } }).response?.data?.error
+      if (apiErr?.includes('feature disabled')) {
+        toast.error(t('kb_feature_disabled_hint'))
+      } else {
+        toast.error(t('save_failed'))
+      }
+    }
     finally { setSaving(false) }
   }
 
