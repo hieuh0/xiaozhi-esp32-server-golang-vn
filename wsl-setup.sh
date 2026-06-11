@@ -27,8 +27,9 @@ info "Cap nhat apt va cai packages can thiet..."
 sudo apt-get update -qq
 sudo apt-get install -y \
   build-essential gcc g++ make \
-  libopus-dev libopus0 \
-  wget curl git tmux \
+  libopus-dev libopus0 libopusfile-dev \
+  libc++-dev libc++abi-dev \
+  wget curl git git-lfs tmux \
   pkg-config
 ok "System packages da cai"
 
@@ -77,6 +78,7 @@ else
   wget -q --show-progress "$ORT_URL" -O "/tmp/${ORT_TAR}"
   tar -C /tmp -xzf "/tmp/${ORT_TAR}"
   sudo cp /tmp/${ORT_DIR}/lib/libonnxruntime*.so* /usr/local/lib/
+  sudo cp -r /tmp/${ORT_DIR}/include/* /usr/local/include/
   sudo ldconfig
   rm -rf "/tmp/${ORT_TAR}" "/tmp/${ORT_DIR}"
   ok "ONNX Runtime $ORT_VERSION da cai"
@@ -84,12 +86,14 @@ fi
 
 # --- 5. Ghi bien moi truong vao .bashrc ---
 PROFILE="${HOME}/.bashrc"
+TEN_VAD_LIB_PATH="${PROJECT_DIR}/lib/ten-vad/lib/Linux/x64"
 if ! grep -q "ONNXRUNTIME_LIB_PATH" "$PROFILE" 2>/dev/null; then
   {
     echo ""
-    echo "# xiaozhi-esp32-server: ONNX Runtime"
+    echo "# xiaozhi-esp32-server: ONNX Runtime + ten_vad"
     echo "export ONNXRUNTIME_LIB_PATH=/usr/local/lib/libonnxruntime.so"
     echo "export CGO_ENABLED=1"
+    echo "export LD_LIBRARY_PATH=${TEN_VAD_LIB_PATH}:\$LD_LIBRARY_PATH"
   } >> "$PROFILE"
   ok "Bien moi truong da them vao $PROFILE"
 else
@@ -97,6 +101,7 @@ else
 fi
 export ONNXRUNTIME_LIB_PATH=/usr/local/lib/libonnxruntime.so
 export CGO_ENABLED=1
+export LD_LIBRARY_PATH="${TEN_VAD_LIB_PATH}:$LD_LIBRARY_PATH"
 
 # --- 6. Kiem tra build supertonic ---
 echo ""

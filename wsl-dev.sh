@@ -59,6 +59,7 @@ ok "Node:   $(node --version)"
 if [ "$MAIN_SERVER" = true ]; then
   export CGO_ENABLED=1
   export ONNXRUNTIME_LIB_PATH="${ONNXRUNTIME_LIB_PATH:-/usr/local/lib/libonnxruntime.so}"
+  export LD_LIBRARY_PATH="$ROOT/lib/ten-vad/lib/Linux/x64:${LD_LIBRARY_PATH}"
 
   if [ ! -f "$ONNXRUNTIME_LIB_PATH" ]; then
     warn "ONNX Runtime khong tim thay tai: $ONNXRUNTIME_LIB_PATH"
@@ -117,7 +118,7 @@ if [ "$MAIN_SERVER" = true ]; then
   info "Khoi dong Main Server (cong 8989, MQTT 1883)..."
   tmux new-window -t "$SESSION" -n "main-server"
   tmux send-keys -t "$SESSION:main-server" \
-    "cd '$ROOT' && echo '[main-server] Build + chay voi -tags supertonic...' && CGO_ENABLED=1 ONNXRUNTIME_LIB_PATH='$ONNXRUNTIME_LIB_PATH' go run -tags supertonic ./cmd/server/..." Enter
+    "cd '$ROOT' && echo '[main-server] Build + chay voi -tags supertonic...' && CGO_ENABLED=1 ONNXRUNTIME_LIB_PATH='$ONNXRUNTIME_LIB_PATH' LD_LIBRARY_PATH='$ROOT/lib/ten-vad/lib/Linux/x64:$LD_LIBRARY_PATH' go run -tags supertonic ./cmd/server/..." Enter
 fi
 
 # Panel logs — tail logs neu co
