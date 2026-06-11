@@ -34,14 +34,14 @@ export function AppHeader({ onToggleSidebar }: Props) {
   }
 
   return (
-    <header className="flex items-center justify-between gap-4 px-5 h-16 shrink-0 border-b border-[var(--color-line)] bg-[var(--color-surface-1)]">
+    <header className="flex items-center justify-between gap-4 px-5 h-16 shrink-0 border-b border-[var(--color-line)] bg-[var(--color-surface-1)]" style={{ boxShadow: '0 1px 0 var(--color-line)' }}>
       {/* Left */}
       <div className="flex items-center gap-3 min-w-0">
         <Button variant="ghost" size="icon" className="lg:hidden" aria-label="Toggle menu" onClick={onToggleSidebar}>
           <Menu className="size-5" />
         </Button>
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)]">{eyebrow}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)] font-mono">{eyebrow}</p>
           <h1 className="text-lg font-semibold font-display tracking-tight text-[var(--color-text)] leading-tight truncate">{pageTitle}</h1>
         </div>
       </div>

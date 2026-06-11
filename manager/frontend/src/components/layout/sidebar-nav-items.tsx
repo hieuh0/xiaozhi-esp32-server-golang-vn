@@ -89,7 +89,7 @@ export function SidebarNavItems({ className, onNavigate }: Props) {
               className={cn(
                 'flex items-center gap-2.5 rounded-lg py-2 pr-3 text-sm font-medium transition-colors',
                 isActive(item.path)
-                  ? 'border-l-2 border-[var(--color-primary)] pl-[10px] bg-[var(--color-primary-soft)] text-[var(--color-primary)] font-semibold'
+                  ? 'border-l-4 border-[var(--color-primary)] pl-[8px] bg-[var(--color-surface-2)] text-[var(--color-primary)] font-semibold'
                   : 'pl-3 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
               )}
               onClick={onNavigate}

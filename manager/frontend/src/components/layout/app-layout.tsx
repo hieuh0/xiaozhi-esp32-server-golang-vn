@@ -7,6 +7,29 @@ import { MobileLayout } from './mobile-layout'
 import { useIsMobile } from '@/hooks/use-is-mobile'
 import { ScrollArea } from '@/components/ui/scroll-area'
 
+function SidebarStatusFooter() {
+  return (
+    <div className="px-3 pb-3 shrink-0">
+      <div
+        className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-[var(--color-line)]"
+        style={{ background: 'var(--color-surface-2)' }}
+      >
+        <span className="relative flex-none">
+          <span className="block w-2 h-2 rounded-full bg-[var(--color-success)]" />
+          <span
+            className="absolute inset-0 w-2 h-2 rounded-full animate-ping"
+            style={{ background: 'var(--color-success)', opacity: 0.4 }}
+          />
+        </span>
+        <div className="min-w-0">
+          <p className="text-[10px] font-bold uppercase tracking-wider text-[var(--color-primary)] font-mono leading-none">SYSTEM OK</p>
+          <p className="text-[10px] text-[var(--color-text-tertiary)] leading-tight mt-0.5">Uptime 99.9%</p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function AppLayout() {
   const isMobile = useIsMobile()
   const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -21,6 +44,7 @@ export function AppLayout() {
         <ScrollArea className="flex-1 min-h-0 py-3 px-2">
           <SidebarNavItems />
         </ScrollArea>
+        <SidebarStatusFooter />
       </aside>
 
       {/* Mobile sidebar overlay */}
@@ -39,6 +63,7 @@ export function AppLayout() {
         <ScrollArea className="flex-1 min-h-0 py-3 px-2">
           <SidebarNavItems onNavigate={() => setSidebarOpen(false)} />
         </ScrollArea>
+        <SidebarStatusFooter />
       </aside>
 
       {/* Main content */}
