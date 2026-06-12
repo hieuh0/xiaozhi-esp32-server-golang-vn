@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
+import api from '@/utils/api'
 import { useLocale } from '@/hooks/use-locale'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -65,6 +68,9 @@ const F = ({ label, children }: { label: string; children: React.ReactNode }) =>
 export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
   const { t } = useLocale()
   const [f, setF] = useState<LlmFields>(() => parse(editing))
+  const [testing, setTesting] = useState(false)
+  const [fetchedModels, setFetchedModels] = useState<string[]>([])
+  const [fetchingModels, setFetchingModels] = useState(false)
 
   useEffect(() => { const parsed = parse(editing); setF(parsed) }, [editing])
 
@@ -74,8 +80,51 @@ export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; se
     setForm({ name: next.name, config_id: next.config_id, provider: next.provider, enabled: next.enabled, is_default: next.is_default, json_data: serialize(next) })
   }
 
+  const testConnection = async () => {
+    setTesting(true)
+    try {
+      const { data } = await api.post<{ ok: boolean; error?: string }>('/admin/llm-configs/test-connection', {
+        type: getProviderFixedType(f.provider),
+        api_key: f.api_key,
+        base_url: f.base_url,
+        model_name: f.model_name,
+      })
+      if (data.ok) {
+        toast.success(t('connection_test_success'))
+      } else {
+        toast.error(`${t('connection_test_failed')}: ${data.error || 'unknown error'}`)
+      }
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e)
+      toast.error(`${t('connection_test_failed')}: ${msg}`)
+    } finally {
+      setTesting(false)
+    }
+  }
+
+  const fetchModels = async () => {
+    setFetchingModels(true)
+    try {
+      const { data } = await api.post<{ ok: boolean; models: string[]; error?: string }>(
+        '/admin/llm-configs/fetch-models',
+        { type: getProviderFixedType(f.provider), base_url: f.base_url, api_key: f.api_key }
+      )
+      if (data.ok && data.models.length > 0) {
+        setFetchedModels(data.models)
+        toast.success(t('fetch_models_success', { count: data.models.length }))
+      } else {
+        toast.error(`${t('fetch_models_failed')}: ${data.error || 'no models returned'}`)
+      }
+    } catch (e: unknown) {
+      toast.error(`${t('fetch_models_failed')}: ${e instanceof Error ? e.message : String(e)}`)
+    } finally {
+      setFetchingModels(false)
+    }
+  }
+
   const onProviderChange = (p: string) => {
     const url = isProviderBaseURLEditable(p) ? getProviderQuickUrl(p) : ''
+    setFetchedModels([])
     upd({ provider: p, base_url: url, model_name: '' })
   }
 
@@ -84,7 +133,10 @@ export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; se
   const isDify = type === 'dify'
   const isCoze = type === 'coze'
   const showBaseURL = isProviderBaseURLEditable(f.provider)
-  const modelOptions = getProviderModelOptions(f.provider)
+  const catalogModelOptions = getProviderModelOptions(f.provider)
+  const modelOptions = fetchedModels.length > 0
+    ? fetchedModels.map(id => ({ value: id, label: id }))
+    : catalogModelOptions
   const modelHint = getProviderModelHint(f.provider, f.model_name, t)
   const requestCfg = getProviderRequestConfig(f.provider, f.model_name)
   const thinkingCfg = getProviderThinkingConfig(f.provider, f.model_name, t)
@@ -106,8 +158,33 @@ export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; se
       </div>
       {isOpenAIType && (
         <F label={getProviderModelFieldLabel(f.provider, t)}>
-          <ComboInput value={f.model_name} onChange={v => upd({ model_name: v })} options={modelOptions} placeholder={getProviderModelPlaceholder(f.provider, t)} />
+          <div className="flex gap-2">
+            <ComboInput
+              value={f.model_name}
+              onChange={v => upd({ model_name: v })}
+              options={modelOptions}
+              placeholder={getProviderModelPlaceholder(f.provider, t)}
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              onClick={fetchModels}
+              disabled={fetchingModels}
+              title={t('fetch_models')}
+            >
+              {fetchingModels ? (
+                <span className="animate-spin text-sm">⟳</span>
+              ) : (
+                <span className="text-sm">🔄</span>
+              )}
+            </Button>
+          </div>
           {modelHint && <p className="text-xs text-[var(--color-text-secondary)]">{modelHint}</p>}
+          {fetchedModels.length > 0 && (
+            <p className="text-xs text-green-600">{t('fetch_models_loaded', { count: fetchedModels.length })}</p>
+          )}
         </F>
       )}
       {type !== 'ollama' && (
@@ -163,6 +240,9 @@ export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; se
         <label className="flex items-center gap-2 cursor-pointer">
           <Switch checked={f.is_default} onCheckedChange={v => upd({ is_default: v })} /><span className="text-sm">{t('default_config')}</span>
         </label>
+        <Button type="button" variant="outline" size="sm" onClick={testConnection} disabled={testing} className="ml-auto">
+          {testing ? t('connecting') : t('test_connection')}
+        </Button>
       </div>
     </div>
   )
