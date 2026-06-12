@@ -2,6 +2,7 @@ package asr
 
 import (
 	"context"
+	"os"
 	"strconv"
 	"xiaozhi-esp32-server-golang/internal/data/audio"
 	"xiaozhi-esp32-server-golang/internal/domain/asr/funasr"
@@ -65,6 +66,14 @@ func NewFunasrAdapter(config map[string]interface{}) (AsrProvider, error) {
 
 	if autoEnd, ok := config["auto_end"].(bool); ok {
 		funasrConfig.AutoEnd = autoEnd
+	}
+
+	// Allow docker to override host/port via env vars without changing config.yaml
+	if envHost := os.Getenv("FUNASR_HOST"); envHost != "" {
+		funasrConfig.Host = envHost
+	}
+	if envPort := os.Getenv("FUNASR_PORT"); envPort != "" {
+		funasrConfig.Port = envPort
 	}
 
 	//Create FunASR engine

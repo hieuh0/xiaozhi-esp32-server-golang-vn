@@ -37,6 +37,8 @@ services:
         condition: service_healthy
       backend:
         condition: service_started
+      funasr-server:
+        condition: service_healthy
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -44,6 +46,8 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=xiaozhi_admin
       - BACKEND_URL=http://backend:8080
+      - FUNASR_HOST=funasr-server
+      - FUNASR_PORT=10095
     volumes:
       - ../../config:/workspace/config
       - ../../logs:/workspace/logs
@@ -102,6 +106,31 @@ services:
       - xiaozhi-network
     restart: unless-stopped
 
+  # FunASR语音识别服务（ASR transcription）
+  funasr-server:
+    image: python:3.10-slim
+    container_name: xiaozhi-funasr-server
+    command: >
+      bash -c "pip install funasr modelscope torch torchaudio --index-url https://download.pytorch.org/whl/cpu &&
+               python -m funasr.bin.inference_launch
+               --model FunAudioLLM/Fun-ASR-MLT-Nano-2512
+               --host 0.0.0.0
+               --port 10095"
+    ports:
+      - "10096:10095"
+    volumes:
+      - funasr_models:/root/.cache/modelscope
+      - funasr_pip:/root/.cache/pip
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost',10095)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 900s
+
   # ASR语音识别服务（说话人识别）
   voice-server:
     image: ghcr.io/hackers365/voice_server:0.1.2    # 替换为实际的镜像名称
@@ -128,6 +157,8 @@ volumes:
   backend_audio_data:
   qdrant_data:
   asr_data:
+  funasr_models:
+  funasr_pip:
 
 networks:
   xiaozhi-network:
