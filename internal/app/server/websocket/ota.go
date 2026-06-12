@@ -94,8 +94,14 @@ func (s *WebSocketServer) handleOta(w http.ResponseWriter, r *http.Request) {
 		},
 		Activation: activationInfo,
 		Firmware: FirmwareInfo{
-			Version: "0.9.9",
-			Url:     "",
+			Version: func() string {
+				v := viper.GetString("ota.firmware_version")
+				if v == "" {
+					return "0.9.9"
+				}
+				return v
+			}(),
+			Url: viper.GetString("ota.firmware_url"),
 		},
 	}
 
