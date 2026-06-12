@@ -1979,4 +1979,10 @@ export default {
   mqtt_client_connected: '已连接',
   mqtt_client_disconnected: '已断开',
   status_checking: '检查中...',
+  test_connection: '测试连接',
+  connection_test_success: '连接成功',
+  fetch_models: '获取模型列表',
+  fetch_models_failed: '获取模型失败',
+  fetch_models_success: '已加载 {{count}} 个模型',
+  fetch_models_loaded: '已从提供商加载 {{count}} 个模型',
 }

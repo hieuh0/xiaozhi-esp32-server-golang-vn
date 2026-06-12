@@ -1978,4 +1978,10 @@ export default {
   mqtt_client_connected: 'Connected',
   mqtt_client_disconnected: 'Disconnected',
   status_checking: 'Checking...',
+  test_connection: 'Test Connection',
+  connection_test_success: 'Connection successful',
+  fetch_models: 'Fetch Models',
+  fetch_models_failed: 'Failed to fetch models',
+  fetch_models_success: 'Loaded {{count}} models',
+  fetch_models_loaded: 'Loaded {{count}} models from provider',
 }

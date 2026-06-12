@@ -1978,4 +1978,10 @@ export default {
   mqtt_client_connected: 'Đã kết nối',
   mqtt_client_disconnected: 'Mất kết nối',
   status_checking: 'Đang kiểm tra...',
+  test_connection: 'Kiểm tra kết nối',
+  connection_test_success: 'Kết nối thành công',
+  fetch_models: 'Tải danh sách model',
+  fetch_models_failed: 'Tải model thất bại',
+  fetch_models_success: 'Đã tải {{count}} model',
+  fetch_models_loaded: 'Đã tải {{count}} model từ provider',
 }
