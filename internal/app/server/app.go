@@ -54,6 +54,9 @@ func NewApp() *App {
 		log.Errorf("newMqttUdpAdapter err: %+v", err)
 		return nil
 	}
+	if app.mqttUdpAdapter != nil {
+		mqtt_udp.RegisterGlobalAdapter(app.mqttUdpAdapter)
+	}
 	return app
 }
 
@@ -225,6 +228,7 @@ func (app *App) ReloadMqttUdp() {
 	app.mqttUdpMu.Lock()
 	app.mqttUdpAdapter = adapter
 	app.mqttUdpMu.Unlock()
+	mqtt_udp.RegisterGlobalAdapter(adapter)
 	time.Sleep(500 * time.Millisecond)
 	go adapter.Start()
 }
@@ -257,6 +261,7 @@ func (app *App) ReloadMqttUdpWithFlags(doMqttReload, doUdpReload bool) {
 		app.mqttUdpMu.Lock()
 		app.mqttUdpAdapter = newAdapter
 		app.mqttUdpMu.Unlock()
+		mqtt_udp.RegisterGlobalAdapter(newAdapter)
 		time.Sleep(500 * time.Millisecond)
 		go newAdapter.Start()
 		return

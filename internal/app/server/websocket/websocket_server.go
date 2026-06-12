@@ -113,6 +113,7 @@ func (s *WebSocketServer) Start() error {
 	http.HandleFunc("/xiaozhi/api/vision", s.handleVisionAPI) // image recognition API
 
 	http.HandleFunc("/admin/inject_msg", s.handleInjectMsg)
+	http.HandleFunc("/internal/mqtt/status", s.handleMqttInternalStatus)
 
 	listenAddr := fmt.Sprintf("0.0.0.0:%d", s.port)
 	log.Infof("WebSocket server started at ws://%s/xiaozhi/v1/", listenAddr)

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import api from '@/utils/api'
@@ -8,6 +9,16 @@ import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
+
+interface MqttClientStatus {
+  configured: boolean
+  broker: string
+  type: string
+  port: number
+  enable: boolean
+  connected: boolean | null
+  broker_url: string | null
+}
 
 interface MqttForm {
   name: string
@@ -32,6 +43,13 @@ function MqttConfigPage() {
   const [form, setForm] = useState<MqttForm>(defaults)
 
   const setF = (patch: Partial<MqttForm>) => setForm((f) => ({ ...f, ...patch }))
+
+  const { data: statusData, isLoading: statusLoading } = useQuery<{ data: MqttClientStatus }>({
+    queryKey: ['mqtt-client-status'],
+    queryFn: () => api.get('/admin/mqtt-status').then(r => r.data),
+    refetchInterval: 10_000,
+  })
+  const clientStatus = statusData?.data
 
   const isCoreComplete = Boolean(form.broker.trim() && form.client_id.trim() && form.type && form.port)
   const hasCredentials = Boolean(form.username.trim() || form.password.trim())
@@ -83,6 +101,35 @@ function MqttConfigPage() {
   return (
     <div className="grid gap-6 px-6 pb-8">
       <PageHeader title={t('mqtt_config')} />
+      <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] px-6 py-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">
+            {t('mqtt_client_config_status')}
+          </p>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            {clientStatus?.broker_url
+              || (clientStatus?.configured && clientStatus.broker
+                ? `${clientStatus.type}://${clientStatus.broker}:${clientStatus.port}`
+                : clientStatus?.configured ? '—' : '—')}
+          </p>
+        </div>
+        {statusLoading && !clientStatus ? (
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold status-muted">
+            {t('status_checking')}
+          </span>
+        ) : (
+          <span className={cn(
+            'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold',
+            clientStatus?.connected === true ? 'status-success'
+              : clientStatus?.connected === false ? 'status-danger'
+              : clientStatus?.configured ? 'status-success' : 'status-muted'
+          )}>
+            {clientStatus?.connected === true ? t('mqtt_client_connected')
+              : clientStatus?.connected === false ? t('mqtt_client_disconnected')
+              : clientStatus?.configured ? t('mqtt_client_configured') : t('mqtt_client_not_configured')}
+          </span>
+        )}
+      </div>
       <div className="grid gap-6 [grid-template-columns:minmax(0,1.45fr)_minmax(320px,0.95fr)]">
         <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)]">
           <div className="flex items-start justify-between px-6 pt-6 pb-0 gap-4">

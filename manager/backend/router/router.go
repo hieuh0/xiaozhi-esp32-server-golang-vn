@@ -33,6 +33,7 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 		WebSocketController: webSocketController,
 		InternalAuthToken:   internalAuthToken,
 		EndpointAuthToken:   endpointAuthToken,
+		AppServerURL:        cfg.GetAppServerURL(),
 	}
 	userController := &controllers.UserController{
 		DB:                  db,
@@ -304,6 +305,9 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 				admin.POST("/mqtt-server-configs", adminController.CreateMQTTServerConfig)
 				admin.PUT("/mqtt-server-configs/:id", adminController.UpdateMQTTServerConfig)
 				admin.DELETE("/mqtt-server-configs/:id", adminController.DeleteMQTTServerConfig)
+
+				admin.GET("/mqtt-server-status", adminController.GetMqttServerStatus)
+				admin.GET("/mqtt-status", adminController.GetMqttClientStatus)
 
 				admin.GET("/udp-configs", adminController.GetUDPConfigs)
 				admin.POST("/udp-configs", adminController.CreateUDPConfig)

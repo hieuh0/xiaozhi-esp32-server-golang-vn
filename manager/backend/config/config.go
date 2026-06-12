@@ -16,6 +16,15 @@ type Config struct {
 	SpeakerService    SpeakerServiceConfig `json:"speaker_service"`
 	Storage           StorageConfig        `json:"storage"`
 	History           HistoryConfig        `json:"history"`
+	AppServerURL      string               `json:"app_server_url"` // main app HTTP URL (default: http://127.0.0.1:8989)
+}
+
+// GetAppServerURL returns the main app HTTP base URL.
+func (c *Config) GetAppServerURL() string {
+	if c.AppServerURL != "" {
+		return c.AppServerURL
+	}
+	return "http://127.0.0.1:8989"
 }
 
 type ServerConfig struct {

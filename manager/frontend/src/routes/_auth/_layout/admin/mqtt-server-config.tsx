@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { createFileRoute } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import api from '@/utils/api'
@@ -8,6 +9,13 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { PageHeader } from '@/components/ui/page-header'
 import { cn } from '@/lib/utils'
+
+interface MqttServerStatus {
+  running: boolean
+  listen_host: string
+  listen_port: number
+  connected_clients: number | null
+}
 
 interface TlsConfig { enable: boolean; port: number; pem: string; key: string }
 interface MqttServerForm {
@@ -36,6 +44,13 @@ function MqttServerConfigPage() {
 
   const setF = (patch: Partial<MqttServerForm>) => setForm((f) => ({ ...f, ...patch }))
   const setTls = (patch: Partial<TlsConfig>) => setForm((f) => ({ ...f, tls: { ...f.tls, ...patch } }))
+
+  const { data: statusData, isLoading: statusLoading } = useQuery<{ data: MqttServerStatus }>({
+    queryKey: ['mqtt-server-status'],
+    queryFn: () => api.get('/admin/mqtt-server-status').then(r => r.data),
+    refetchInterval: 10_000,
+  })
+  const mqttServerStatus = statusData?.data
 
   const serverReady = Boolean(form.listen_host.trim() && form.listen_port)
 
@@ -89,6 +104,30 @@ function MqttServerConfigPage() {
   return (
     <div className="grid gap-6 px-6 pb-8">
       <PageHeader title={t('mqtt_server_config')} />
+      <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)] px-6 py-4 flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-bold tracking-widest uppercase text-[var(--color-text-tertiary)]">
+            {t('mqtt_server_status')}
+          </p>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
+            {mqttServerStatus
+              ? `${mqttServerStatus.listen_host || '0.0.0.0'}:${mqttServerStatus.listen_port}${mqttServerStatus.connected_clients !== null && mqttServerStatus.connected_clients !== undefined ? ` · ${mqttServerStatus.connected_clients} ${t('connected_clients')}` : ''}`
+              : '—'}
+          </p>
+        </div>
+        {statusLoading && !mqttServerStatus ? (
+          <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold status-muted">
+            {t('status_checking')}
+          </span>
+        ) : (
+          <span className={cn(
+            'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold',
+            mqttServerStatus?.running ? 'status-success' : 'status-danger'
+          )}>
+            {mqttServerStatus?.running ? t('broker_running') : t('broker_stopped')}
+          </span>
+        )}
+      </div>
       <div className="grid gap-6 [grid-template-columns:minmax(0,1.25fr)_minmax(340px,0.95fr)]">
         <div className="rounded-xl border border-[var(--color-line)] bg-[var(--color-surface-1)]">
           <div className="flex items-start justify-between px-6 pt-6 pb-0 gap-4">

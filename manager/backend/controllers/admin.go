@@ -111,6 +111,7 @@ type AdminController struct {
 	WebSocketController *WebSocketController
 	InternalAuthToken   string
 	EndpointAuthToken   string
+	AppServerURL        string
 }
 
 var errDatabaseUnavailable = errors.New("database connection is unavailable")
