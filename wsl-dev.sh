@@ -121,10 +121,25 @@ if [ "$MAIN_SERVER" = true ]; then
     "cd '$ROOT' && echo '[main-server] Build + chay voi -tags supertonic...' && CGO_ENABLED=1 ONNXRUNTIME_LIB_PATH='$ONNXRUNTIME_LIB_PATH' LD_LIBRARY_PATH='$ROOT/lib/ten-vad/lib/Linux/x64:$LD_LIBRARY_PATH' go run -tags supertonic ./cmd/server/..." Enter
 fi
 
-# Panel logs — tail logs neu co
+WSL_IP=$(ip addr show eth0 2>/dev/null | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
+WSL_IP="${WSL_IP:-$(hostname -I | awk '{print $1}')}"
+
+# Panel logs — hien thi URL truy cap va huong dan
 tmux new-window -t "$SESSION" -n "logs"
-tmux send-keys -t "$SESSION:logs" \
-  "echo 'Panel nay de xem logs. Dung: tmux select-window -t backend/frontend/main-server'" Enter
+tmux send-keys -t "$SESSION:logs" "clear" Enter
+tmux send-keys -t "$SESSION:logs" "echo '============================================================'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  XIAOZHI DEV STACK — DANG CHAY'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '============================================================'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  Management API :  http://localhost:8080'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  Frontend (WSL) :  http://localhost:3000'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  Frontend (Win) :  http://$WSL_IP:3000   <-- mo tren Windows'" Enter
+if [ "$MAIN_SERVER" = true ]; then
+tmux send-keys -t "$SESSION:logs" "echo '  Main Server WS :  ws://localhost:8989/xiaozhi/v1/'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  MQTT Broker    :  mqtt://localhost:1883'" Enter
+fi
+tmux send-keys -t "$SESSION:logs" "echo '------------------------------------------------------------'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  Ctrl+b n/p : doi window  |  Ctrl+b d : tach ra'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '============================================================'" Enter
 
 # Quay lai backend window
 tmux select-window -t "$SESSION:backend"
@@ -134,7 +149,8 @@ echo "============================================================"
 echo -e "  ${GREEN}STACK DA KHOI DONG${NC} — tmux session: ${CYAN}$SESSION${NC}"
 echo "============================================================"
 echo "  Management API:  http://localhost:8080"
-echo "  Frontend (UI):   http://localhost:3000"
+echo "  Frontend (UI):   http://localhost:3000  (trong WSL)"
+echo -e "  Frontend (Win):  ${CYAN}http://$WSL_IP:3000${NC}  (tu Windows)"
 if [ "$MAIN_SERVER" = true ]; then
 echo "  Main Server WS:  ws://localhost:8989/xiaozhi/v1/"
 echo "  MQTT Broker:     mqtt://localhost:1883"
@@ -146,6 +162,6 @@ echo "  Tach ra:          Ctrl+b  d"
 echo "  Dung tat ca:      tmux kill-session -t $SESSION"
 echo "============================================================"
 echo ""
-echo "  Dang attach vao tmux..."
-sleep 1
-exec tmux attach -t "$SESSION"
+echo "  Dang attach vao tmux (logs window)..."
+sleep 2
+exec tmux attach -t "$SESSION:logs"
