@@ -264,6 +264,8 @@ func Setup(db *gorm.DB, cfg *config.Config) *gin.Engine {
 				admin.POST("/llm-configs", adminController.CreateLLMConfig)
 				admin.PUT("/llm-configs/:id", adminController.UpdateLLMConfig)
 				admin.DELETE("/llm-configs/:id", adminController.DeleteLLMConfig)
+				admin.POST("/llm-configs/test-connection", adminController.TestLLMConnection)
+				admin.POST("/llm-configs/fetch-models", adminController.FetchLLMModels)
 
 				admin.GET("/tts-configs", adminController.GetTTSConfigs)
 				admin.POST("/tts-configs", adminController.CreateTTSConfig)
