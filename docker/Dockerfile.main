@@ -73,7 +73,7 @@ ENV CGO_LDFLAGS="-L${ONNXRUNTIME_DIR}/lib -lonnxruntime -L/app/lib/ten-vad/lib/L
 ENV CGO_CFLAGS="-I${ONNXRUNTIME_DIR}/include/onnxruntime -I/app/lib/ten-vad/include"
 
 # 构建主程序
-RUN go build -o /app/xiaozhi_server ./cmd/server/
+RUN go build -tags supertonic -o /app/xiaozhi_server ./cmd/server/
 
 # 运行阶段（仅支持 amd64/x64 架构）
 FROM --platform=linux/amd64 ubuntu:22.04

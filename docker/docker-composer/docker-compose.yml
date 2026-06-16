@@ -25,7 +25,7 @@ services:
 
   # 主程序服务
   main-server:
-    image: ghcr.io/hackers365/xiaozhi_server:0.6.0
+    image: ghcr.io/hieuh0/xiaozhi_server:0.7.0
     container_name: xiaozhi-main-server
     command: ["/workspace/bin/xiaozhi_server", "-c", "/workspace/config/config.yaml"]
     ports:
@@ -48,16 +48,18 @@ services:
       - BACKEND_URL=http://backend:8080
       - FUNASR_HOST=funasr-server
       - FUNASR_PORT=10095
+      - ONNXRUNTIME_LIB_PATH=/usr/local/lib/libonnxruntime.so
     volumes:
       - ../../config:/workspace/config
       - ../../logs:/workspace/logs
+      - supertonic_models:/root/.cache/supertonic-model
     networks:
       - xiaozhi-network
     restart: unless-stopped
 
   # 后端管理服务
   backend:
-    image: ghcr.io/hackers365/xiaozhi_manager_backend:0.6.0
+    image: ghcr.io/hieuh0/xiaozhi_manager_backend:0.7.0
     container_name: xiaozhi-backend
     ports:
       - "8081:8080"        # 后端管理服务 端口 映射至宿主机 28080
@@ -77,13 +79,14 @@ services:
     volumes:
       - ../../manager/backend/config:/root/config
       - backend_audio_data:/data/chat_history/audio
+      - supertonic_models:/root/.cache/supertonic-model
     networks:
       - xiaozhi-network
     restart: unless-stopped
 
   # 前端管理服务
   frontend:
-    image: ghcr.io/hackers365/xiaozhi_manager_frontend:0.6.0
+    image: ghcr.io/hieuh0/xiaozhi_manager_frontend:0.7.0
     container_name: xiaozhi-frontend
     ports:
       - "8080:80"           # 前端管理服务 端口 映射至宿主机 18080
@@ -159,6 +162,7 @@ volumes:
   asr_data:
   funasr_models:
   funasr_pip:
+  supertonic_models:
 
 networks:
   xiaozhi-network:
