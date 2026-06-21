@@ -733,6 +733,9 @@ func (svc *DeviceService) BindToAgent(scope accessScope, agentID uint, payload D
 		return svc.Get(accessScope{ActorUserID: agent.UserID, IsAdmin: scope.IsAdmin}, device.ID)
 	}
 
+	if code != "" {
+		return nil, fmt.Errorf("verification code not found or expired")
+	}
 	device = models.Device{
 		UserID:     agent.UserID,
 		AgentID:    agent.ID,
