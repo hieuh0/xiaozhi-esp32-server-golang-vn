@@ -1,0 +1,16 @@
+FROM python:3.10-slim
+
+# Install packages at build time so container restarts are fast
+RUN pip install --no-cache-dir \
+    torch \
+    torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir \
+    funasr \
+    modelscope
+
+# Model is downloaded at first run into the mounted volume (/root/.cache/modelscope)
+CMD ["python", "-m", "funasr.bin.inference_launch", \
+     "--model", "FunAudioLLM/Fun-ASR-MLT-Nano-2512", \
+     "--host", "0.0.0.0", \
+     "--port", "10095"]

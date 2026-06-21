@@ -20,6 +20,47 @@ ok()   { echo -e "${GREEN}[OK]${NC} $*"; }
 info() { echo -e "${CYAN}[>>] $*${NC}"; }
 warn() { echo -e "${YELLOW}[!!]${NC} $*"; }
 
+WIN_LAN_IP=""
+
+# Cau hinh Windows portproxy de phone/LAN co the truy cap dich vu qua Windows IP
+setup_win_portproxy() {
+  local wsl_ip="$1"
+  command -v powershell.exe &>/dev/null || { warn "powershell.exe khong tim thay — bo qua LAN portproxy"; return; }
+
+  local ports=(8080 3000)
+  [ "$MAIN_SERVER" = true ] && ports+=(8989 1883)
+
+  # Kiem tra quyen Admin
+  local is_admin
+  is_admin=$(powershell.exe -NoProfile -NonInteractive -Command \
+    "([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole('Administrator')" \
+    2>/dev/null | tr -d '\r\n ') || true
+
+  if [ "$is_admin" != "True" ]; then
+    warn "Portproxy can quyen Admin — mo PowerShell Admin va chay lenh sau:"
+    for p in "${ports[@]}"; do
+      warn "  netsh interface portproxy add v4tov4 listenport=$p listenaddress=0.0.0.0 connectport=$p connectaddress=$wsl_ip"
+      warn "  netsh advfirewall firewall add rule name='WSL-$p' dir=in action=allow protocol=TCP localport=$p"
+    done
+    return
+  fi
+
+  for p in "${ports[@]}"; do
+    powershell.exe -NoProfile -NonInteractive -Command \
+      "netsh interface portproxy delete v4tov4 listenport=$p listenaddress=0.0.0.0; netsh interface portproxy add v4tov4 listenport=$p listenaddress=0.0.0.0 connectport=$p connectaddress=$wsl_ip" \
+      > /dev/null 2>&1 || true
+    powershell.exe -NoProfile -NonInteractive -Command \
+      "netsh advfirewall firewall delete rule name='WSL-$p'; netsh advfirewall firewall add rule name='WSL-$p' dir=in action=allow protocol=TCP localport=$p" \
+      > /dev/null 2>&1 || true
+  done
+
+  WIN_LAN_IP=$(powershell.exe -NoProfile -NonInteractive -Command \
+    "(Get-NetIPAddress -AddressFamily IPv4 | Where-Object { \$_.IPAddress -notlike '127.*' -and \$_.IPAddress -notlike '172.*' -and \$_.IPAddress -notlike '169.*' } | Select-Object -First 1).IPAddress" \
+    2>/dev/null | tr -d '\r\n ') || true
+
+  ok "LAN portproxy OK — phone/LAN dung: ${WIN_LAN_IP:-<WIN-IP>} | cong: ${ports[*]}"
+}
+
 MAIN_SERVER=false
 RESET_DB=""
 
@@ -124,6 +165,18 @@ fi
 WSL_IP=$(ip addr show eth0 2>/dev/null | grep 'inet ' | awk '{print $2}' | cut -d/ -f1)
 WSL_IP="${WSL_IP:-$(hostname -I | awk '{print $1}')}"
 
+# Cau hinh Windows portproxy cho phone/LAN access
+info "Cau hinh Windows portproxy cho truy cap LAN..."
+setup_win_portproxy "$WSL_IP"
+
+# Tu dong cap nhat ota.test.websocket.url voi IP hien tai
+OTA_IP="${WIN_LAN_IP:-$WSL_IP}"
+OTA_CONFIG="$ROOT/config/config.yaml"
+if [ -n "$OTA_IP" ] && [ -f "$OTA_CONFIG" ]; then
+  sed -i "s|url: \"ws://[^\"]*:8989/xiaozhi/v1/\"|url: \"ws://$OTA_IP:8989/xiaozhi/v1/\"|" "$OTA_CONFIG"
+  ok "ota.test.url → ws://$OTA_IP:8989/xiaozhi/v1/"
+fi
+
 # Panel logs — hien thi URL truy cap va huong dan
 tmux new-window -t "$SESSION" -n "logs"
 tmux send-keys -t "$SESSION:logs" "clear" Enter
@@ -136,6 +189,11 @@ tmux send-keys -t "$SESSION:logs" "echo '  Frontend (Win) :  http://$WSL_IP:3000
 if [ "$MAIN_SERVER" = true ]; then
 tmux send-keys -t "$SESSION:logs" "echo '  Main Server WS :  ws://localhost:8989/xiaozhi/v1/'" Enter
 tmux send-keys -t "$SESSION:logs" "echo '  MQTT Broker    :  mqtt://localhost:1883'" Enter
+fi
+if [ -n "$WIN_LAN_IP" ]; then
+tmux send-keys -t "$SESSION:logs" "echo '------------------------------------------------------------'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  [LAN] API      :  http://$WIN_LAN_IP:8080  <-- phone/LAN'" Enter
+tmux send-keys -t "$SESSION:logs" "echo '  [LAN] Frontend :  http://$WIN_LAN_IP:3000  <-- phone/LAN'" Enter
 fi
 tmux send-keys -t "$SESSION:logs" "echo '------------------------------------------------------------'" Enter
 tmux send-keys -t "$SESSION:logs" "echo '  Ctrl+b n/p : doi window  |  Ctrl+b d : tach ra'" Enter
@@ -154,6 +212,11 @@ echo -e "  Frontend (Win):  ${CYAN}http://$WSL_IP:3000${NC}  (tu Windows)"
 if [ "$MAIN_SERVER" = true ]; then
 echo "  Main Server WS:  ws://localhost:8989/xiaozhi/v1/"
 echo "  MQTT Broker:     mqtt://localhost:1883"
+fi
+if [ -n "$WIN_LAN_IP" ]; then
+echo "------------------------------------------------------------"
+echo -e "  Phone/LAN API:   ${CYAN}http://$WIN_LAN_IP:8080${NC}  (dien thoai/LAN)"
+echo -e "  Phone/LAN UI:    ${CYAN}http://$WIN_LAN_IP:3000${NC}  (dien thoai/LAN)"
 fi
 echo "------------------------------------------------------------"
 echo "  Attach vao tmux:  tmux attach -t $SESSION"

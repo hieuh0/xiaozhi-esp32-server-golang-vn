@@ -7,7 +7,7 @@ server:
 
 # Authentication configuration
 auth:
-  enable: false  # Enable authentication
+  enable: true  # Enable authentication
 
 # Chat configuration
 chat:
@@ -356,7 +356,7 @@ ota:
   # Test environment configuration for internal use
   test:
     websocket:
-      url: "ws://192.168.208.214:8989/xiaozhi/v1/"  # WebSocket URL
+      url: "ws://192.168.1.7:8989/xiaozhi/v1/"  # WebSocket URL
     mqtt:
       enable: false                # Send MQTT configuration to devices when true
       endpoint: "192.168.208.214"  # MQTT endpoint; may include a port
@@ -377,12 +377,14 @@ mcp:
       # Filesystem MCP server
       - name: "filesystem"
         type: "sse"                           # Connection type: SSE
+        # Docker: http://mcp-filesystem:3001/sse | Local: http://localhost:3001/sse
         url: "http://localhost:3001/sse"      # Server URL
         enabled: true                         # Enable this server
       # Memory MCP server
       - name: "memory"
-        type: "streamablehttp"                # Connection type: Streamable HTTP
-        url: "http://localhost:3002/mcp"      # Server URL
+        type: "sse"                           # Connection type: SSE (same as filesystem)
+        # Docker: http://mcp-memory:3002/sse | Local: http://localhost:3002/sse
+        url: "http://localhost:3002/sse"      # Server URL
         enabled: true                         # Enable this server
     reconnect_interval: 300      # Reconnection interval in seconds
     max_reconnect_attempts: 10   # Maximum reconnection attempts

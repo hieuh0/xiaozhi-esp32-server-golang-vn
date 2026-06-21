@@ -23,25 +23,97 @@ services:
       interval: 10s
       start_period: 180s
 
+  # FunASR语音识别服务
+  funasr-server:
+    build:
+      context: ..
+      dockerfile: Dockerfile.funasr
+    container_name: xiaozhi-funasr-server
+    command: ["python", "-m", "funasr.bin.inference_launch",
+              "--model", "FunAudioLLM/Fun-ASR-MLT-Nano-2512",
+              "--host", "0.0.0.0",
+              "--port", "10095"]
+    ports:
+      - "10096:10095"
+    volumes:
+      - funasr_models:/root/.cache/modelscope
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost',10095)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 1800s
+
+  # MCP Filesystem server — file access tool for AI agents (wraps stdio via supergateway SSE)
+  mcp-filesystem:
+    image: node:20-alpine
+    container_name: xiaozhi-mcp-filesystem
+    command:
+      - sh
+      - -c
+      - "npx -y supergateway --stdio 'npx -y @modelcontextprotocol/server-filesystem /workspace' --port 3001 --baseUrl http://mcp-filesystem:3001 --ssePath /sse --messagePath /message"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../../:/workspace:ro
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3001"]
+      interval: 5s
+      timeout: 3s
+      retries: 36
+      start_period: 120s
+
+  # MCP Memory server — long-term memory tool for AI agents (wraps stdio via supergateway streamable HTTP)
+  mcp-memory:
+    image: node:20-alpine
+    container_name: xiaozhi-mcp-memory
+    command:
+      - sh
+      - -c
+      - "npx -y supergateway --stdio 'npx -y @modelcontextprotocol/server-memory' --port 3002 --baseUrl http://mcp-memory:3002 --ssePath /sse --messagePath /message"
+    ports:
+      - "3002:3002"
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3002"]
+      interval: 5s
+      timeout: 3s
+      retries: 36
+      start_period: 120s
+
   # 主程序服务（本地构建版本）
   main-server:
     build:
       context: ../..
       dockerfile: docker/Dockerfile.main
-      platform: linux/amd64
       args:
         TARGETARCH: amd64
+    platform: linux/amd64
     container_name: xiaozhi-main-server
     command: ["/workspace/bin/xiaozhi_server", "-c", "/workspace/config/config.personal.yaml"]
     ports:
       - "8989:8989"        # websocket服务 端口 18989端口
-      - "2883:2883"        # mqtt server 12883
+      - "1883:1883"        # mqtt server (manager sets listen_port: 1883)
       - "8888:8888/udp"     # udp server 8888
     depends_on:
       mysql:
         condition: service_healthy
       backend:
         condition: service_started
+      funasr-server:
+        condition: service_started
+      mcp-filesystem:
+        condition: service_healthy
+      mcp-memory:
+        condition: service_healthy
     environment:
       - DB_HOST=mysql
       - DB_PORT=3306
@@ -49,9 +121,12 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=xiaozhi_admin
       - BACKEND_URL=http://backend:8080
+      - FUNASR_HOST=funasr-server
+      - FUNASR_PORT=10095
     volumes:
       - ../../config:/workspace/config
       - ../../logs:/workspace/logs
+      - supertonic_models:/root/.cache/supertonic-model
     networks:
       - xiaozhi-network
     restart: unless-stopped
@@ -75,6 +150,7 @@ services:
       - DB_NAME=xiaozhi_admin
     volumes:
       - ../../manager/backend/config:/root/config
+      - supertonic_models:/root/.cache/supertonic-model
     networks:
       - xiaozhi-network
     restart: unless-stopped
@@ -95,6 +171,8 @@ services:
 
 volumes:
   mysql_data:
+  funasr_models:
+  supertonic_models:
 
 networks:
   xiaozhi-network:

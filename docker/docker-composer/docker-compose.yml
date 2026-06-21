@@ -23,6 +23,48 @@ services:
       interval: 10s
       start_period: 180s
 
+  # MCP Filesystem server — file access tool for AI agents (wraps stdio via supergateway SSE)
+  mcp-filesystem:
+    image: node:20-alpine
+    container_name: xiaozhi-mcp-filesystem
+    command:
+      - sh
+      - -c
+      - "npx -y supergateway --stdio 'npx -y @modelcontextprotocol/server-filesystem /workspace' --port 3001 --baseUrl http://mcp-filesystem:3001 --ssePath /sse --messagePath /message"
+    ports:
+      - "3001:3001"
+    volumes:
+      - ../../:/workspace:ro
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3001"]
+      interval: 5s
+      timeout: 3s
+      retries: 36
+      start_period: 120s
+
+  # MCP Memory server — long-term memory tool for AI agents (wraps stdio via supergateway streamable HTTP)
+  mcp-memory:
+    image: node:20-alpine
+    container_name: xiaozhi-mcp-memory
+    command:
+      - sh
+      - -c
+      - "npx -y supergateway --stdio 'npx -y @modelcontextprotocol/server-memory' --port 3002 --baseUrl http://mcp-memory:3002 --ssePath /sse --messagePath /message"
+    ports:
+      - "3002:3002"
+    networks:
+      - xiaozhi-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 3002"]
+      interval: 5s
+      timeout: 3s
+      retries: 36
+      start_period: 120s
+
   # 主程序服务
   main-server:
     image: ghcr.io/hieuh0/xiaozhi_server:0.7.0
@@ -38,6 +80,10 @@ services:
       backend:
         condition: service_started
       funasr-server:
+        condition: service_started
+      mcp-filesystem:
+        condition: service_healthy
+      mcp-memory:
         condition: service_healthy
     environment:
       - DB_HOST=mysql
@@ -111,19 +157,18 @@ services:
 
   # FunASR语音识别服务（ASR transcription）
   funasr-server:
-    image: python:3.10-slim
+    build:
+      context: ..
+      dockerfile: Dockerfile.funasr
     container_name: xiaozhi-funasr-server
-    command: >
-      bash -c "pip install funasr modelscope torch torchaudio --index-url https://download.pytorch.org/whl/cpu &&
-               python -m funasr.bin.inference_launch
-               --model FunAudioLLM/Fun-ASR-MLT-Nano-2512
-               --host 0.0.0.0
-               --port 10095"
+    command: ["python", "-m", "funasr.bin.inference_launch",
+              "--model", "FunAudioLLM/Fun-ASR-MLT-Nano-2512",
+              "--host", "0.0.0.0",
+              "--port", "10095"]
     ports:
       - "10096:10095"
     volumes:
       - funasr_models:/root/.cache/modelscope
-      - funasr_pip:/root/.cache/pip
     networks:
       - xiaozhi-network
     restart: unless-stopped
@@ -132,7 +177,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 10
-      start_period: 900s
+      start_period: 1800s
 
   # ASR语音识别服务（说话人识别）
   voice-server:
@@ -161,7 +206,6 @@ volumes:
   qdrant_data:
   asr_data:
   funasr_models:
-  funasr_pip:
   supertonic_models:
 
 networks:
