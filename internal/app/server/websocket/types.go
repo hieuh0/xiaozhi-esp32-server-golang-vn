@@ -197,6 +197,6 @@ type FirmwareInfo struct {
 type ActivationInfo struct {
 	Code      string `json:"code"`
 	Message   string `json:"message"`
-	Challenge string `json:"challenge"`
+	Challenge string `json:"challenge,omitempty"`
 	TimeoutMs int    `json:"timeout_ms"`
 }

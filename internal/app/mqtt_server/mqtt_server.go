@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"sync"
+	"time"
 
 	mqttServer "github.com/mochi-mqtt/server/v2"
 	"github.com/mochi-mqtt/server/v2/listeners"
@@ -18,7 +20,16 @@ import (
 var (
 	currentServer *mqttServer.Server
 	serverMu      sync.Mutex
+	brokerReady   chan struct{} // closed when the port is confirmed bound
 )
+
+// WaitBrokerReady returns a channel that is closed once the broker has
+// successfully bound its port. Returns nil if StartMqttServer has not been called.
+func WaitBrokerReady() <-chan struct{} {
+	serverMu.Lock()
+	defer serverMu.Unlock()
+	return brokerReady
+}
 
 // StartMqttServer starts the MQTT server and may be called again after
 // StopMqttServer to apply configuration changes.
@@ -81,8 +92,10 @@ func StartMqttServer() error {
 		return err
 	}
 
+	ready := make(chan struct{})
+	brokerReady = ready
 	currentServer = srv
-	log.Infof("MQTT server started and listening on %s...", address)
+
 	go func() {
 		// Serve starts listener goroutines internally and returns immediately, so
 		// currentServer must remain set here.
@@ -90,7 +103,33 @@ func StartMqttServer() error {
 			log.Warnf("MQTT server Serve exited: %v", err)
 		}
 	}()
+
+	// mochi-mqtt's Serve() returns nil even when the listener goroutine fails
+	// silently. Poll the port to confirm it is actually bound before signalling ready.
+	go func() {
+		if waitForPort(address, 10*time.Second) {
+			log.Infof("MQTT broker confirmed listening on %s", address)
+			close(ready)
+		} else {
+			log.Errorf("MQTT broker failed to bind %s within 10s — check for port conflict", address)
+		}
+	}()
+
 	return nil
+}
+
+// waitForPort polls address with net.DialTimeout until accepting connections or timeout.
+func waitForPort(address string, timeout time.Duration) bool {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		conn, err := net.DialTimeout("tcp", address, 200*time.Millisecond)
+		if err == nil {
+			conn.Close()
+			return true
+		}
+		time.Sleep(100 * time.Millisecond)
+	}
+	return false
 }
 
 // StopMqttServer stops the current MQTT server so it can be restarted with
@@ -111,6 +150,7 @@ func StopMqttServer() error {
 		return err
 	}
 	currentServer = nil
+	brokerReady = nil
 	log.Info("MQTT server stopped")
 	return nil
 }

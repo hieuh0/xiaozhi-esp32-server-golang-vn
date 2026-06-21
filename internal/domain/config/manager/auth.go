@@ -82,7 +82,7 @@ func (am *ConfigManager) GetActivationInfo(ctx context.Context, deviceId string,
 	}
 
 	//The device is not activated, return activation information
-	timeoutMs := 300 //Default 5 minute timeout
+	timeoutMs := 300000 // 5 minutes in milliseconds
 	log.Log().Debugf("Get device %s activation information: code=%s, challenge=%s", deviceId, codeStr, challenge)
 	if codeStr == "" {
 		log.Log().Warnf("Device %s activation code is empty", deviceId)

@@ -97,7 +97,6 @@ func (dac *DeviceActivationController) GetActivationInfo(c *gin.Context) {
 	}
 
 	var device models.Device
-	var isNewDevice bool
 
 	if err := dac.DB.Where("device_name = ?", deviceId).First(&device).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -113,7 +112,6 @@ func (dac *DeviceActivationController) GetActivationInfo(c *gin.Context) {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create device record"})
 				return
 			}
-			isNewDevice = true
 		} else {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "query failed"})
 			return
@@ -140,11 +138,6 @@ func (dac *DeviceActivationController) GetActivationInfo(c *gin.Context) {
 		needUpdate = true
 	}
 
-	if !isNewDevice && device.UserID != 0 {
-		device.UserID = 0
-		needUpdate = true
-	}
-
 	if needUpdate {
 		updates := map[string]interface{}{}
 		if device.DeviceCode != "" {
@@ -152,9 +145,6 @@ func (dac *DeviceActivationController) GetActivationInfo(c *gin.Context) {
 		}
 		if device.Challenge != "" {
 			updates["challenge"] = device.Challenge
-		}
-		if !isNewDevice && device.UserID == 0 {
-			updates["user_id"] = device.UserID
 		}
 		if err := updateDeviceColumns(dac.DB, device.ID, updates); err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update device info"})

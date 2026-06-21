@@ -121,6 +121,9 @@ func (f *Funasr) getConnection(ctx context.Context) (*websocket.Conn, error) {
 	url := fmt.Sprintf("ws://%s:%s/", f.config.Host, f.config.Port)
 	conn, _, err := websocket.DefaultDialer.DialContext(ctx, url, nil)
 	if err != nil {
+		if isServiceUnavailableError(err) {
+			return nil, fmt.Errorf("FunASR service not ready at %s (still starting up or not running): %v", url, err)
+		}
 		return nil, fmt.Errorf("Failed to connect to FunASR service: %v", err)
 	}
 
@@ -622,6 +625,18 @@ func Float32SliceToBytes(samples []float32) []byte {
 		data[2*i+1] = byte(i16 >> 8)
 	}
 	return data
+}
+
+// isServiceUnavailableError returns true when the error indicates the remote
+// service is not running yet (connection refused, dial failure, unknown host).
+func isServiceUnavailableError(err error) bool {
+	if err == nil {
+		return false
+	}
+	msg := strings.ToLower(err.Error())
+	return strings.Contains(msg, "connection refused") ||
+		strings.Contains(msg, "dial tcp") ||
+		strings.Contains(msg, "no such host")
 }
 
 // Close closes the resource and releases the connection

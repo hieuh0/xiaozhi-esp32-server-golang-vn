@@ -29,7 +29,7 @@ func (r *UserConfig) IsDeviceActivated(ctx context.Context, deviceId string, cli
 // Get the information required for activation, code, challenge, msg, timeoutMs
 func (r *UserConfig) GetActivationInfo(ctx context.Context, deviceId string, clientId string) (string, string, string, int) {
 	if info, ok := preActivationInfo[deviceId]; ok {
-		return info.code, info.challenge, info.msg, 300
+		return info.code, info.challenge, info.msg, 300000
 	}
 	challenge := uuid.New().String()
 	code := fmt.Sprintf("%06d", rand.Intn(1000000)) //000000~999999, keep leading 0
@@ -38,7 +38,7 @@ func (r *UserConfig) GetActivationInfo(ctx context.Context, deviceId string, cli
 		challenge: challenge,
 		msg:       fmt.Sprintf("xiaozhi\n%s", code),
 	}
-	return code, challenge, preActivationInfo[deviceId].msg, 300
+	return code, challenge, preActivationInfo[deviceId].msg, 300000
 }
 
 // Verify whether the challenge and HMAC match and whether the device has been activated. You can omit the HMAC verification here and only query whether the deviceId is bound.

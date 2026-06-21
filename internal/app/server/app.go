@@ -65,17 +65,35 @@ func (a *App) Run() {
 	log.Infof("enter Run, mqtt_server.enable: %v", viper.GetBool("mqtt_server.enable"))
 	if viper.GetBool("mqtt_server.enable") {
 		go func() {
-			err := a.startMqttServer()
-			if err != nil {
+			if err := a.startMqttServer(); err != nil {
 				log.Errorf("startMqttServer err: %+v", err)
+				return
+			}
+			// Wait for the broker to actually bind its port before starting the client.
+			ready := mqtt_server.WaitBrokerReady()
+			if ready != nil {
+				select {
+				case <-ready:
+					log.Info("MQTT broker ready — starting MQTT client")
+				case <-time.After(15 * time.Second):
+					log.Errorf("MQTT broker did not become ready within 15s; starting client anyway")
+				}
+			}
+			a.mqttUdpMu.RLock()
+			adapter := a.mqttUdpAdapter
+			a.mqttUdpMu.RUnlock()
+			if adapter != nil {
+				go adapter.Start()
 			}
 		}()
-	}
-	a.mqttUdpMu.RLock()
-	adapter := a.mqttUdpAdapter
-	a.mqttUdpMu.RUnlock()
-	if adapter != nil {
-		go adapter.Start() // Non-blocking; the adapter handles connections and retries in the background.
+	} else {
+		// mqtt_server disabled: start client independently (external broker).
+		a.mqttUdpMu.RLock()
+		adapter := a.mqttUdpAdapter
+		a.mqttUdpMu.RUnlock()
+		if adapter != nil {
+			go adapter.Start() // Non-blocking; the adapter handles connections and retries in the background.
+		}
 	}
 
 	// Register local chat-related MCP tools.
@@ -198,6 +216,8 @@ func (app *App) startMqttServer() error {
 }
 
 // ReloadMqttServer stops the MQTT server, then restarts it when mqtt_server.enable is true.
+// The existing MQTT client adapter reconnects automatically once the broker is ready;
+// callers that also need to restart the adapter should do so separately (see main.go).
 func (app *App) ReloadMqttServer() {
 	_ = mqtt_server.StopMqttServer()
 	if !viper.GetBool("mqtt_server.enable") {

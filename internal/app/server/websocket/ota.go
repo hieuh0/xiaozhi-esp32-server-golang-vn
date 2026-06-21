@@ -54,6 +54,11 @@ func (s *WebSocketServer) handleOta(w http.ResponseWriter, r *http.Request) {
 	log.Debugf("authEnable: %v", authEnable)
 	if authEnable {
 		configProvider, err := user_config.GetProvider(viper.GetString("config_provider.type"))
+		if err != nil {
+			log.Errorf("Failed to get config provider: %v", err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
 		// Check if this deviceId is already activated
 		isActivited, err := configProvider.IsDeviceActivated(r.Context(), deviceId, clientId)
 		if err != nil {
@@ -63,13 +68,24 @@ func (s *WebSocketServer) handleOta(w http.ResponseWriter, r *http.Request) {
 		}
 		if !isActivited {
 			code, challenge, msg, timeoutMs := configProvider.GetActivationInfo(r.Context(), deviceId, clientId)
-			activationInfo = &ActivationInfo{
-				Code:      code,
-				Message:   msg,
-				Challenge: challenge,
-				TimeoutMs: timeoutMs,
+			activationVersion := r.Header.Get("Activation-Version")
+			if activationVersion == "1" {
+				// v1 firmware: code-based activation only, no HMAC challenge
+				activationInfo = &ActivationInfo{
+					Code:      code,
+					Message:   msg,
+					TimeoutMs: timeoutMs,
+				}
+			} else {
+				// any value != "1" (including empty) is treated as v2+: HMAC-SHA256 challenge-response
+				activationInfo = &ActivationInfo{
+					Code:      code,
+					Challenge: challenge,
+					Message:   msg,
+					TimeoutMs: timeoutMs,
+				}
 			}
-			log.Infof("Activation info: &{Code:%s Message:%s Challenge:%s TimeoutMs:%d}", code, msg, challenge, timeoutMs)
+			log.Debugf("Activation info: version=%s code=%s challengeLen=%d", activationVersion, code, len(challenge))
 		}
 	}
 
@@ -90,7 +106,7 @@ func (s *WebSocketServer) handleOta(w http.ResponseWriter, r *http.Request) {
 		Mqtt: mqttInfo,
 		ServerTime: ServerTimeInfo{
 			Timestamp:      time.Now().UnixMilli(),
-			TimezoneOffset: 480,
+			TimezoneOffset: 420, // UTC+7 Vietnam
 		},
 		Activation: activationInfo,
 		Firmware: FirmwareInfo{
