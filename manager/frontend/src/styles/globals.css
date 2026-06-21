@@ -74,6 +74,13 @@
   --ring: oklch(0.42 0.17 265);
   --radius: 0.5rem;
 
+  /* Bright chart fill colors (NOT semantic text colors — these work as SVG/canvas fills) */
+  --color-chart-green:  #10b981;
+  --color-chart-blue:   #2563eb;
+  --color-chart-amber:  #d97706;
+  --color-chart-red:    #e11d48;
+  --color-chart-violet: #7c3aed;
+
   /* Elevation — MD3-inspired blue-tinted shadows */
   --shadow-card: 0 1px 4px rgba(0, 90, 194, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-card-hover: 0 8px 30px rgba(0, 90, 194, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06);
@@ -179,12 +186,42 @@
   }
 }
 
+/* Pulse ring — for Live badge dot animation */
+@keyframes pulse-ring {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50%       { transform: scale(2.2); opacity: 0; }
+}
+.animate-pulse-ring {
+  animation: pulse-ring 1.5s ease-in-out infinite;
+}
+
 @layer utilities {
   .status-success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 10%, transparent); border-color: color-mix(in srgb, var(--color-success) 25%, transparent); }
   .status-warning { color: var(--color-warning); background: color-mix(in srgb, var(--color-warning) 10%, transparent); border-color: color-mix(in srgb, var(--color-warning) 25%, transparent); }
   .status-danger  { color: var(--color-danger);  background: color-mix(in srgb, var(--color-danger)  10%, transparent); border-color: color-mix(in srgb, var(--color-danger)  25%, transparent); }
   .status-primary { color: var(--color-primary); background: var(--color-primary-soft); border-color: color-mix(in srgb, var(--color-primary) 25%, transparent); }
   .status-muted   { color: var(--color-text-tertiary); background: var(--color-surface-2); border-color: var(--color-line); }
+
+  /* Tabular/monospaced numbers for metric displays */
+  .font-numeric {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  /* Sidebar active item — gradient pill style */
+  .nav-active-pill {
+    background: linear-gradient(90deg, var(--color-primary-soft) 0%, color-mix(in srgb, var(--color-primary-soft) 40%, transparent) 100%);
+    color: var(--color-primary);
+    border-left: 2px solid var(--color-primary);
+    font-weight: 600;
+  }
+
+  /* KPI card icon container variants */
+  .kpi-icon-primary { color: var(--color-primary); background: var(--color-primary-soft); }
+  .kpi-icon-success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 12%, transparent); }
+  .kpi-icon-warning { color: var(--color-warning); background: color-mix(in srgb, var(--color-warning) 12%, transparent); }
+  .kpi-icon-muted   { color: var(--color-text-tertiary); background: var(--color-surface-2); }
 }
 
 @layer base {

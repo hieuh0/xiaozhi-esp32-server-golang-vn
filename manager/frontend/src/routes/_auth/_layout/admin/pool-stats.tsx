@@ -1,10 +1,11 @@
 import { Suspense, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
 import { useSuspenseQuery, useQueryClient } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Database, Layers, Clock, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import type { ColumnDef } from '@tanstack/react-table'
 import { dashboardApi } from '@/features/dashboard/api/dashboard-api'
+import { PoolResourceChart } from '@/components/charts'
 import type { PoolStatEntry, PoolStatsData, PoolSummary } from '@/features/dashboard/types'
 import { useLocale } from '@/hooks/use-locale'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +14,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { DataTable } from '@/components/ui/data-table'
 import { PageHeader } from '@/components/ui/page-header'
 import { Skeleton } from '@/components/ui/skeleton'
+import { cn } from '@/lib/utils'
 
 function formatTime(ts: string | null): string {
   if (!ts) return '—'
@@ -21,19 +23,55 @@ function formatTime(ts: string | null): string {
 
 function PoolSummaryCards({ summary }: { summary: PoolSummary }) {
   const { t } = useLocale()
+  const cards = [
+    {
+      icon: Database,
+      iconClass: 'kpi-icon-primary',
+      value: String(summary.total_records || 0),
+      label: t('total_records'),
+      large: true,
+    },
+    {
+      icon: Layers,
+      iconClass: 'kpi-icon-muted',
+      value: t('latest_only'),
+      label: t('storage_mode'),
+      large: true,
+    },
+    {
+      icon: Clock,
+      iconClass: 'kpi-icon-warning',
+      value: formatTime(summary.oldest_timestamp),
+      label: t('earliest_time'),
+      large: false,
+    },
+    {
+      icon: CheckCircle2,
+      iconClass: 'kpi-icon-success',
+      value: formatTime(summary.newest_timestamp),
+      label: t('latest_time'),
+      large: false,
+    },
+  ]
+
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {[
-        { value: summary.total_records || 0, label: t('total_records'), large: true },
-        { value: t('latest_only'), label: t('storage_mode'), large: true },
-        { value: formatTime(summary.oldest_timestamp), label: t('earliest_time'), large: false },
-        { value: formatTime(summary.newest_timestamp), label: t('latest_time'), large: false },
-      ].map((item) => (
-        <div key={item.label} className="text-center p-4 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)]">
-          <div className={item.large ? 'text-2xl font-bold text-[var(--color-text)]' : 'text-sm font-semibold text-[var(--color-text)] break-all'}>
-            {String(item.value)}
+      {cards.map((item) => (
+        <div key={item.label} className="p-4 rounded-xl bg-[var(--color-surface-1)] border border-[var(--color-line)] shadow-[var(--shadow-card)] flex flex-col gap-3">
+          <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', item.iconClass)}>
+            <item.icon className="w-4 h-4" />
           </div>
-          <div className="text-sm text-[var(--color-text-secondary)] mt-1">{item.label}</div>
+          <div>
+            <div className={cn(
+              'font-numeric leading-tight',
+              item.large
+                ? 'text-2xl font-bold text-[var(--color-text)]'
+                : 'text-sm font-semibold text-[var(--color-text)] break-all'
+            )}>
+              {item.value}
+            </div>
+            <div className="text-xs text-[var(--color-text-secondary)] mt-0.5">{item.label}</div>
+          </div>
         </div>
       ))}
     </div>
@@ -85,7 +123,7 @@ function PoolStatsContent() {
       accessorKey: 'isClosed',
       header: t('status'),
       cell: ({ row }) => (
-        <Badge variant={row.original.isClosed ? 'destructive' : 'secondary'}>
+        <Badge className={cn('border text-xs', row.original.isClosed ? 'status-danger' : 'status-success')}>
           {row.original.isClosed ? t('closed') : t('running')}
         </Badge>
       ),
@@ -113,6 +151,12 @@ function PoolStatsContent() {
       </CardHeader>
       <CardContent className="space-y-6">
         <PoolSummaryCards summary={summary} />
+        {tableData.length > 0 && (
+          <div className="border-t border-[var(--color-line)] pt-4">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[var(--color-text-tertiary)] mb-3">{t('pool_utilization')}</p>
+            <PoolResourceChart data={tableData} />
+          </div>
+        )}
         {stats ? (
           <div className="border-t border-[var(--color-line)] pt-4">
             <p className="text-xs text-[var(--color-text-secondary)] mb-4">
