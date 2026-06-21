@@ -87,9 +87,9 @@ export function SidebarNavItems({ className, onNavigate }: Props) {
               key={item.path}
               to={item.path}
               className={cn(
-                'flex items-center gap-2.5 rounded-lg py-2 pr-3 text-sm font-medium transition-colors',
+                'flex items-center gap-2.5 rounded-lg py-2 pr-3 text-sm font-medium transition-all duration-150',
                 isActive(item.path)
-                  ? 'border-l-4 border-[var(--color-primary)] pl-[8px] bg-[var(--color-surface-2)] text-[var(--color-primary)] font-semibold'
+                  ? 'nav-active-pill pl-[10px]'
                   : 'pl-3 text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
               )}
               onClick={onNavigate}
@@ -107,9 +107,9 @@ export function SidebarNavItems({ className, onNavigate }: Props) {
         return (
           <Collapsible key={item.label} open={isOpen} onOpenChange={(v) => setOpen((p) => ({ ...p, [item.label]: v }))}>
             <CollapsibleTrigger className={cn(
-              'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+              'flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150',
               active
-                ? 'bg-[var(--color-surface-2)] text-[var(--color-text)] font-semibold'
+                ? 'bg-[var(--color-primary-soft)] text-[var(--color-primary)] font-semibold'
                 : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-2)] hover:text-[var(--color-text)]'
             )}>
               <span className="flex items-center gap-2.5">

@@ -76,7 +76,7 @@ function UserDevicesPage() {
       <Dialog open={showAddDialog} onOpenChange={(v) => { if (!v) setShowAddDialog(false) }}>
         <DialogContent className="max-w-[520px] max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{t('bind_device')}</DialogTitle></DialogHeader>
-          <DeviceForm value={deviceForm} onChange={setDeviceForm} agents={agents} fixedAgentId={deviceForm.agent_id} />
+          <DeviceForm value={deviceForm} onChange={setDeviceForm} agents={agents} />
           <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>{t('cancel')}</Button>
             <Button disabled={addingDevice} onClick={handleAddDevice}>

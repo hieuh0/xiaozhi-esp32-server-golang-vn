@@ -294,7 +294,7 @@ export function TtsProviderFields({ f, upd, t, voiceOptions, voiceLoading }: {
 function XunfeiFields({ f, upd, t, voiceOptions, voiceLoading }: { f: TtsFields; upd: (p: Partial<TtsFields>) => void; t: T; voiceOptions: Array<{label:string;value:string}>; voiceLoading: boolean }) {
   const isSuperTts = f.provider === 'xunfei_super_tts'
   const prefix = isSuperTts ? 'xunfei_super_' : 'xunfei_'
-  const get = (k: string) => (f as Record<string, unknown>)[prefix + k]
+  const get = (k: string) => (f as unknown as Record<string, unknown>)[prefix + k]
   const set = (k: string, v: unknown) => upd({ [`${prefix}${k}`]: v } as Partial<TtsFields>)
   return <>
     <F label={t('app_id')}><Input value={get('app_id') as string || ''} onChange={e => set('app_id', e.target.value)} placeholder={t('enter_xunfei_app_id')} /></F>

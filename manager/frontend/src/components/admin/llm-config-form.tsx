@@ -65,7 +65,7 @@ const F = ({ label, children }: { label: string; children: React.ReactNode }) =>
   <div className="grid gap-1.5"><label className="text-sm font-medium text-[var(--color-text)]">{label}</label>{children}</div>
 )
 
-export function LlmConfigForm({ form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
+export function LlmConfigForm({ form: _form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
   const { t } = useLocale()
   const [f, setF] = useState<LlmFields>(() => parse(editing))
   const [testing, setTesting] = useState(false)

@@ -77,7 +77,7 @@ const ASR_PROVIDERS = [
   { label:'xunfei', value:'xunfei', labelKey:true },
 ]
 
-export function AsrConfigForm({ form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
+export function AsrConfigForm({ form: _form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
   const { t } = useLocale()
   const [f, setF] = useState<AsrFields>(() => parse(editing))
   useEffect(() => { const parsed = parse(editing); setF(parsed) }, [editing])

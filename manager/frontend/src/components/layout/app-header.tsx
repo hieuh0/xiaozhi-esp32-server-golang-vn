@@ -41,7 +41,10 @@ export function AppHeader({ onToggleSidebar }: Props) {
           <Menu className="size-5" />
         </Button>
         <div className="min-w-0">
-          <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)] font-mono">{eyebrow}</p>
+          <div className="flex items-center gap-1.5">
+            <span className="inline-block w-1 h-3 rounded-full bg-[var(--color-primary)] opacity-60" />
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--color-primary)] font-mono">{eyebrow}</p>
+          </div>
           <h1 className="text-lg font-semibold font-display tracking-tight text-[var(--color-text)] leading-tight truncate">{pageTitle}</h1>
         </div>
       </div>

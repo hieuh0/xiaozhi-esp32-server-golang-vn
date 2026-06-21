@@ -71,7 +71,7 @@ const MEMORY_PROVIDERS = [
   { label: 'MemOS', value: 'memos' },
 ]
 
-export function MemoryConfigForm({ form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
+export function MemoryConfigForm({ form: _form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
   const { t } = useLocale()
   const [f, setF] = useState<MemoryFields>(() => parse(editing))
   useEffect(() => { setF(parse(editing)) }, [editing])

@@ -64,7 +64,7 @@ const VISION_PROVIDERS = [
   { label: 'doubao_vision', value: 'doubao_vision', labelKey: true },
 ]
 
-export function VisionConfigForm({ form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
+export function VisionConfigForm({ form: _form, setForm, editing }: { form: ConfigForm; setForm: (p: Partial<ConfigForm>) => void; editing: ConfigRow | null }) {
   const { t } = useLocale()
   const [f, setF] = useState<VisionFields>(() => parse(editing))
   useEffect(() => { setF(parse(editing)) }, [editing])
