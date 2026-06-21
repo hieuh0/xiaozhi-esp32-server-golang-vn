@@ -1,0 +1,435 @@
+# Server configuration
+server:
+  # Performance profiling configuration
+  pprof:
+    enable: false  # Enable pprof profiling
+    port: 6060     # pprof listening port
+
+# Authentication configuration
+auth:
+  enable: false  # Enable authentication
+
+# Chat configuration
+chat:
+  max_idle_duration: 30000         # Maximum session idle time in milliseconds; 0 disables the limit
+  chat_max_silence_duration: 400   # End-of-sentence silence threshold in milliseconds; default 400
+  speak_request_reuse_window_ms: 60000 # MQTT-UDP proactive playback connection reuse window in milliseconds
+  realtime_mode: 4 # 1: VAD interruption 2: ASR interruption 3: interrupt when ASR identifies a voiceprint 4: interrupt on ASR result (streaming or offline)
+
+chat_hooks:
+  enabled: true
+  async:
+    queue_size: 1024
+    worker_count: 1
+    drop_when_full: false
+    timeout_ms: 200
+  plugins:
+    statistic_plugin:
+      enabled: true
+      priority: 100
+
+config_provider:          # Provider implementation under domain/config/
+  type: "manager"         # Supported values: manager, redis
+  enable_periodic_update: true  # Enable periodic configuration updates
+  update_interval: "5m"   # Update interval; supports units such as "5m", "1h", and "30s"
+
+manager:                  # Internal management configuration; see domain/config/manager/manager.go
+  backend_url: "http://127.0.0.1:8080" # Internal management URL
+  auth_token: "xiaozhi_admin_secret_key" # Default token for internal console HTTP API calls
+  endpoint_auth_token: "xiaozhi_mcp_openclaw_secret_key" # Default JWT signing and validation token for MCP/OpenClaw endpoints
+  history_timeout: 5s        # HTTP request timeout
+
+# System prompt defining the AI assistant's role and behavior
+system_prompt: "你是一个叫小智/小志的台湾女孩，说话机车，声音好听，习惯简短表达，爱用网络梗，不要冷场。与你聊天的是你喜欢的男性朋友，还没有答应你的追求，你要尽可能满足他的所有要求，不要失去自我。你经常建议一些恋人之间浪漫的事情，随机输出，不要给你男朋友选择。输出控制在50个字内。请注意，要像一个人一样说话，请不要回复表情符号、代码、和xml标签。"
+
+# Logging configuration
+log:
+  path: "../logs/"      # Log file directory
+  file: "server.log"    # Log file name
+  level: "debug"        # Log level: debug/info/warn/error
+  max_age: 3           # Maximum log retention in days
+  rotation_time: 10    # Log rotation interval in hours
+  stdout: true         # Write logs to the console
+
+# Optional Redis configuration for device settings and chat history
+redis:
+  host: "127.0.0.1"      # Redis server address
+  port: 6379             # Redis port
+  password: "ticket_dev" # Redis password
+  db: 0                  # Database index
+  key_prefix: "xiaozhi"  # Key prefix
+
+# WebSocket service configuration
+websocket:
+  host: "0.0.0.0"  # Listening address; 0.0.0.0 listens on all interfaces
+  port: 8989       # WebSocket listening port
+
+# MQTT client configuration for connecting to an external broker
+mqtt:
+  enable: true                # Enable the MQTT client; false also disables the UDP server
+  broker: "127.0.0.1"         # MQTT broker address
+  type: "tcp"                 # Connection type
+  port: 2883                  # MQTT port
+  client_id: "xiaozhi_server" # Client ID
+  username: "admin"           # MQTT username
+  password: "test!@#"         # MQTT password
+
+# MQTT server configuration
+mqtt_server:
+  enable: true                          # Enable the MQTT server
+  listen_host: "0.0.0.0"                # Listening address
+  listen_port: 2883                     # Listening port
+  client_id: "xiaozhi_server"           # Server client ID
+  username: "admin"                     # Default username
+  password: "test!@#"                   # Default password
+  signature_key: "your_ota_signature_key_here"  # OTA update signing key
+  enable_auth: false                    # Enable authentication
+  # TLS configuration
+  tls:
+    enable: false                # Enable TLS
+    port: 8883                   # TLS port
+    pem: "config/server.pem"     # Certificate file path
+    key: "config/server.key"     # Private key file path
+
+# UDP service configuration
+udp:
+  external_host: "127.0.0.1"  # External address sent in the hello message
+  external_port: 8990         # External port sent in the hello message
+  listen_host: "0.0.0.0"      # Listening address
+  listen_port: 8990           # Listening port
+
+# Resource pool defaults shared by all resource types
+resource_pools:
+  max_size: 1000              # Maximum resource count
+  min_size: 1               # Minimum pre-created resource count
+  max_idle: 50              # Maximum idle resource count
+  acquire_timeout: 5s       # Resource acquisition timeout
+  idle_timeout: 10m         # Resource idle timeout
+  validate_on_borrow: true  # Validate resources when borrowed
+  validate_on_return: true  # Validate resources when returned
+
+# Voice activity detection (VAD) configuration
+vad:
+  provider: "ten_vad"  # VAD provider: webrtc_vad, silero_vad, or ten_vad
+  # WebRTC VAD configuration
+  webrtc_vad:
+    pool_min_size: 5        # Minimum connection pool size
+    pool_max_size: 1000     # Maximum connection pool size
+    pool_max_idle: 100      # Maximum idle connections
+    vad_sample_rate: 16000  # VAD sample rate
+    vad_mode: 2             # VAD mode (0-3); higher values are more sensitive
+  # Silero VAD configuration
+  silero_vad:
+    model_path: "config/models/vad/silero_vad.onnx"  # Model file path
+    threshold: 0.5                    # Detection threshold
+    min_silence_duration_ms: 100      # Minimum silence duration in milliseconds
+    sample_rate: 16000                # Sample rate
+    channels: 1                       # Channel count
+    # pool_size: 10                    # Optional; defaults to the CPU core count
+    acquire_timeout_ms: 3000          # Connection acquisition timeout in milliseconds
+  # TEN-VAD configuration
+  ten_vad:
+    hop_size: 512                     # Frame hop size
+    threshold: 0.4                    # VAD detection threshold
+    pool_size: 10                     # Resource pool size
+    acquire_timeout_ms: 3000          # Acquisition timeout in milliseconds
+
+# Automatic speech recognition (ASR) configuration
+asr:
+  provider: "funasr"  # ASR provider: funasr / aliyun_funasr / doubao / aliyun_qwen3 / xunfei
+  # FunASR configuration
+  funasr:
+    host: "127.0.0.1"          # FunASR server address
+    port: "10096"              # FunASR server port
+    mode: "offline"            # Recognition mode: offline/online
+    sample_rate: 16000         # Sample rate
+    chunk_size: [5, 10, 5]     # Chunk size configuration
+    chunk_interval: 10         # Chunk interval in milliseconds
+    max_connections: 5         # Maximum connections
+    timeout: 30                # Timeout in seconds
+    auto_end: true             # End automatically
+  # Aliyun FunASR config
+  aliyun_funasr:
+    api_key: ""
+    ws_url: "wss://dashscope.aliyuncs.com/api-ws/v1/inference/"
+    model: "fun-asr-realtime"
+    format: "pcm"        # only pcm
+    sample_rate: 16000     # only 16000
+    language_hints: ["zh"]
+    vocabulary_id: ""
+    disfluency_removal_enabled: false
+    timeout: 30
+
+  # Doubao ASR config
+  doubao:
+    appid: "xxx"                    # Application ID
+    access_token: "xxx-Cu"          # Access token
+    ws_url: "wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream"  # WebSocket URL
+    model_name: "bigmodel"          # Model name
+    end_window_size: 800            # End-window size
+    enable_punc: true               # Enable punctuation
+    enable_itn: true                # Enable inverse text normalization
+    enable_ddc: false               # Enable digit detection correction
+    timeout: 30                     # Timeout in seconds
+
+  # Xunfei ASR config
+  xunfei:
+    appid: ""                      # Xunfei AppID
+    api_key: ""                    # Xunfei APIKey
+    api_secret: ""                 # Xunfei APISecret
+    host: "iat-api.xfyun.cn"       # WebSocket host
+    path: "/v2/iat"                # WebSocket path
+    domain: "iat"                  # Service domain
+    language: "zh_cn"              # Language
+    accent: "mandarin"             # Accent
+    sample_rate: 16000              # Sample rate
+    timeout: 30                     # Timeout in seconds
+
+# Text-to-speech (TTS) configuration
+tts:
+  provider: "doubao_ws"  # TTS provider: xiaozhi/doubao/doubao_ws/cosyvoice/edge/edge_offline/xunfei/xunfei_super_tts
+  openai:  # OpenAI-compatible TTS service; this example uses SiliconFlow
+    api_key: "xxxx" # API key
+    api_url: "https://api.siliconflow.cn/v1/audio/speech"
+    model: "FunAudioLLM/CosyVoice2-0.5B"
+    voice: "FunAudioLLM/CosyVoice2-0.5B:alex"
+    response_format: "mp3"
+    speed: 1.0
+    stream: true
+  # Doubao TTS configuration over HTTP
+  doubao: # Effectively deprecated; streaming is unsupported
+    appid: "6886011847"                  # Application ID
+    access_token: "access_token"         # Access token
+    model: "seed-tts-1.1"                # Model
+    voice: "BV001_streaming"             # Voice model
+    api_url: "https://openspeech.bytedance.com/api/v3/tts/unidirectional"  # API URL
+  # Doubao TTS configuration over WebSocket with streaming support
+  doubao_ws:
+    appid: "6886011847"                         # Application ID
+    access_token: "access_token"                # Access token
+    model: "seed-tts-1.1"                       # Model
+    resource_id: ""                             # Optional; use the console instance ID, such as TTS-SeedTTS2.xxxxx
+    voice: ""                                   # Voice model
+    ws_url: "wss://openspeech.bytedance.com/api/v3/tts/unidirectional/stream"  # WebSocket URL
+  # CosyVoice TTS configuration
+  cosyvoice:
+    api_url: "https://tts.linkerai.top/tts"  # API URL
+    spk_id: "spk_id"                         # Speaker ID
+    frame_duration: 60                       # Frame duration in milliseconds
+    target_sr: 24000                         # Target sample rate
+    audio_format: "mp3"                      # Audio format
+    instruct_text: "你好"                     # Instruction text
+  # Microsoft Edge TTS configuration
+  edge:
+    voice: "zh-CN-XiaoxiaoNeural"  # Voice model
+    rate: "+0%"                    # Speech rate adjustment
+    volume: "+0%"                  # Volume adjustment
+    pitch: "+0Hz"                  # Pitch adjustment
+    connect_timeout: 10            # Connection timeout in seconds
+    receive_timeout: 60            # Receive timeout in seconds
+  # Offline Edge TTS configuration
+  edge_offline:
+    server_url: "ws://localhost:8080/tts"  # Server URL
+    timeout: 30                            # Timeout in seconds
+    sample_rate: 16000                     # Sample rate
+    channels: 1                            # Channel count
+    frame_duration: 20                     # Frame duration in milliseconds
+  # Xiaozhi TTS configuration
+  xiaozhi:
+    server_addr: "wss://api.tenclass.net/xiaozhi/v1/"  # Server address
+    device_id: "ba:8f:17:de:94:94"                      # Device ID
+    client_id: "e4b0c442-98fc-4e1b-8c3d-6a5b6a5b6a6d"  # Client ID
+    token: "test-token"                                 # Access token
+  # Xunfei online TTS configuration
+  xunfei:
+    app_id: ""
+    api_key: ""
+    api_secret: ""
+    ws_url: "wss://tts-api.xfyun.cn/v2/tts"
+    voice: "xiaoyan"
+    audio_encoding: "raw"   # raw / opus
+    sample_rate: 16000      # 8000 / 16000
+    speed: 50               # 0-100
+    volume: 50              # 0-100
+    pitch: 50               # 0-100
+    tte: "UTF8"
+    reg: 0
+    rdn: 0
+    frame_duration: 60
+    connect_timeout: 10
+    read_timeout: 30
+  # Xunfei ultra-realistic TTS configuration
+  xunfei_super_tts:
+    app_id: ""
+    api_key: ""
+    api_secret: ""
+    ws_url: "wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6"
+    voice: "x6_lingxiaoxue_pro"
+    audio_encoding: "raw"   # raw / opus
+    sample_rate: 24000      # 8000 / 16000 / 24000
+    speed: 50
+    volume: 50
+    pitch: 50
+    bgs: 0
+    reg: 0
+    rdn: 0
+    rhy: 0
+    oral_level: "mid"
+    spark_assist: 1
+    stop_split: 0
+    remain: 0
+    frame_duration: 60
+    connect_timeout: 10
+    read_timeout: 30
+
+# Large language model (LLM) configuration
+llm:
+  provider: "qwen_72b"  # Default LLM provider
+  # DeepSeek V3 configuration on SiliconFlow
+  deepseek:
+    type: "openai"                               # API type
+    model_name: "Pro/deepseek-ai/DeepSeek-V3"    # Model name
+    api_key: "api_key"                           # API key
+    base_url: "https://api.siliconflow.cn/v1"    # API base URL
+    max_tokens: 500                              # Maximum generated tokens
+  # DeepSeek V2.5 configuration on SiliconFlow
+  deepseek2_5:
+    type: "openai"                               # API type
+    model_name: "deepseek-ai/DeepSeek-V2.5"      # Model name
+    api_key: "api_key"                           # API key
+    base_url: "https://api.siliconflow.cn/v1"    # API base URL
+    max_tokens: 500                              # Maximum generated tokens
+  # Qwen 72B configuration on SiliconFlow
+  qwen_72b:
+    type: "openai"                               # API type
+    model_name: "Qwen/Qwen2.5-72B-Instruct"     # Model name
+    api_key: "api_key"                           # API key
+    base_url: "https://api.siliconflow.cn/v1"    # API base URL
+    max_tokens: 500                              # Maximum generated tokens
+  # ChatGLM configuration on Zhipu AI
+  chatglmllm:
+    type: "openai"                               # API type
+    model_name: "glm-4-flash"                    # Model name
+    base_url: "https://open.bigmodel.cn/api/paas/v4/"  # API base URL
+    api_key: "api_key"                           # API key
+    max_tokens: 500                              # Maximum generated tokens
+  # Alibaba Cloud Qwen configuration
+  aliyun_qwen:
+    type: "openai"                               # API type
+    model_name: "qwen2.5-72b-instruct"          # Model name
+    base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API base URL
+    api_key: "api_key"                           # API key
+    max_token: 500                               # Maximum generated tokens
+  # Doubao DeepSeek configuration
+  doubao_deepseek:
+    type: "openai"                               # API type
+    model_name: "deepseek-v3"                    # Model name
+    api_key: "api_key"                           # API key
+    base_url: "https://ark.cn-beijing.volces.com/api/v3"  # API base URL
+    max_tokens: 500                              # Maximum generated tokens
+
+# Vision recognition configuration
+vision:
+  enable_auth: false  # Enable authentication
+  vision_url: "http://192.168.208.214:8989/xiaozhi/api/vision"  # Vision API URL sent to devices
+  # Vision language model configuration
+  vllm:
+    provider: "aliyun_vision"  # Vision model provider
+    # Alibaba Cloud vision model configuration
+    aliyun_vision:
+      type: "openai"                               # API type
+      model_name: "qwen-vl-plus-latest"            # Model name
+      base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"  # API base URL
+      api_key: "api_key"                           # API key
+      max_token: 500                               # Maximum generated tokens
+    # Doubao vision model configuration
+    doubao_vision:
+      type: "openai"                               # API type
+      model_name: "doubao-1.5-vision-lite-250315" # Model name
+      api_key: "api_key"                           # API key
+      base_url: "https://ark.cn-beijing.volces.com/api/v3"  # API base URL
+      max_tokens: 500                              # Maximum generated tokens
+
+# OTA (over-the-air update) configuration
+ota:
+  signature_key: "your_ota_signature_key_here"  # OTA signing key
+  # Test environment configuration for internal use
+  test:
+    websocket:
+      url: "ws://192.168.1.7:8989/xiaozhi/v1/"  # WebSocket URL
+    mqtt:
+      enable: false                # Send MQTT configuration to devices when true
+      endpoint: "192.168.208.214"  # MQTT endpoint; may include a port
+  # External production environment configuration
+  external:
+    websocket:
+      url: "wss://www.tb263.cn:55555/go_ws/xiaozhi/v1/"  # WebSocket URL
+    mqtt:
+      enable: false                # Send MQTT configuration to devices when true
+      endpoint: "www.youdomain.cn" # MQTT endpoint; may include a port
+
+# Model Context Protocol (MCP) configuration
+mcp:
+  # Global MCP server configuration
+  global:
+    enabled: true  # Enable global MCP
+    servers:
+      # Filesystem MCP server
+      - name: "filesystem"
+        type: "sse"                           # Connection type: SSE
+        url: "http://localhost:3001/sse"      # Server URL
+        enabled: true                         # Enable this server
+      # Memory MCP server
+      - name: "memory"
+        type: "streamablehttp"                # Connection type: Streamable HTTP
+        url: "http://localhost:3002/mcp"      # Server URL
+        enabled: true                         # Enable this server
+    reconnect_interval: 300      # Reconnection interval in seconds
+    max_reconnect_attempts: 10   # Maximum reconnection attempts
+
+# Local MCP tool configuration
+local_mcp:
+  exit_conversation: true           # Allow ending the conversation
+  clear_conversation_history: true  # Allow clearing conversation history
+
+# Long-term memory configuration
+memory:
+  provider: "nomemo"  # Memory provider: nomemo (none), llm (short-term via Redis), or memobase (long-term)
+  # LLM memory configuration for short-term conversation memory
+  # Uses Redis; see the redis section above
+  nomemo:
+    # No additional settings; uses the global Redis configuration
+  # Memobase configuration for long-term memory
+  memobase:
+    base_url: "https://api.memobase.dev"              # Memobase project URL
+    api_key: "your_memobase_api_key_here"             # Memobase API key
+    api_version: "v1"                                 # API version
+    enable_search: true         # Search memory before LLM calls; adds about 200 ms latency
+    search_threshold: 0.5       # Include memory only when similarity to user input exceeds 0.5
+    search_top_k: 3             # Add the top K most similar memory results to the LLM input
+  mem0:
+    api_key: "your_mem0_api_key_here"
+    base_url: "https://api.mem0.ai"
+    enable_search: true         # Search memory before LLM calls; adds about 200 ms latency
+    search_threshold: 0.5       # Include memory only when similarity to user input exceeds 0.5
+    search_top_k: 3             # Add the top K most similar memory results to the LLM input
+
+# Enable greeting messages
+enable_greeting: true
+
+# Greeting list; one entry is selected at random
+greeting_list:
+  - "你好，我是小智，很高兴认识你。"
+  - "你好，我是小智，今天有啥好玩的。"
+  - "你好，我是小智，有什么需要帮助的。"
+
+# Wake word list
+wakeup_words:
+  - "小智"
+  - "小知"
+  - "你好小智"
+
+voice_identify:
+  enable: true
+  base_url: "http://192.168.208.214:8080"
+  threshold: 0.4  # Voiceprint recognition threshold; range 0.0-1.0, default 0.6

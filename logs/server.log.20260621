@@ -1,0 +1,2059 @@
+2026-06-21 00:00:07.954[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:00:07.954[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:00:37.954[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:00:37.954[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:01:07.954[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:01:07.954[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:01:08.316[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:01:08.317[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:01:37.952[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:01:37.952[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:02:07.952[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:02:07.952[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:02:37.950[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:02:37.950[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:03:07.950[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:03:07.950[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:03:08.315[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:03:08.316[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:03:37.949[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:03:37.949[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:04:07.949[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:04:07.949[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:04:07.963[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:04:08.087[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:04:08.087[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:04:08
+2026-06-21 00:04:08.088[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:04:08.089[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:04:08.089[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:04:37.948[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:04:37.948[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:05:07.946[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:05:07.946[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:05:08.309[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:05:08.311[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:05:37.946[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:05:37.946[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:06:07.945[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:06:07.945[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:06:37.944[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:06:37.944[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:07:07.943[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:07:07.943[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:07:08.307[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:07:08.308[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:07:37.943[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:07:37.943[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:08:07.942[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:08:07.942[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:08:37.940[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:08:37.940[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:09:07.939[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:09:07.939[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:09:07.954[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:09:08.078[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:09:08.079[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:09:08
+2026-06-21 00:09:08.079[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:09:08.080[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:09:08.081[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:09:08.304[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:09:08.304[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:09:37.938[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:09:37.938[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:10:07.938[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:10:07.938[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:10:37.937[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:10:37.937[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:11:07.936[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:11:07.936[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:11:08.302[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:11:08.302[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:11:37.935[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:11:37.936[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:12:07.934[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:12:07.935[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:12:37.933[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:12:37.934[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:13:07.933[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:13:07.933[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:13:08.296[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:13:08.297[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:13:37.932[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:13:37.932[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:14:07.931[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:14:07.931[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:14:07.944[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:14:08.069[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:14:08.070[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:14:08
+2026-06-21 00:14:08.070[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:14:08.071[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:14:08.071[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:14:37.930[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:14:37.930[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:15:07.929[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:15:07.929[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:15:08.294[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:15:08.298[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:15:37.927[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:15:37.928[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:16:07.926[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:16:07.926[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:16:37.925[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:16:37.925[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:17:07.923[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:17:07.923[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:17:08.285[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:17:08.288[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:17:37.923[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:17:37.923[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:18:07.921[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:18:07.921[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:18:37.920[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:18:37.920[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:19:07.920[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:19:07.924[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:19:07.935[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:19:08.057[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:19:08.058[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:19:08
+2026-06-21 00:19:08.058[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:19:08.059[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:19:08.059[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:19:08.281[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:19:08.283[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:19:37.918[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:19:37.918[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:20:07.916[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:20:07.916[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:20:37.915[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:20:37.915[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:21:07.913[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:21:07.913[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:21:08.276[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:21:08.279[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:21:37.912[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:21:37.913[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:22:07.910[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:22:07.910[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:22:37.909[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:22:37.910[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:23:07.908[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:23:07.908[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:23:08.273[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:23:08.273[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:23:37.907[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:23:37.907[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:24:07.905[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:24:07.905[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:24:07.928[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:24:08.045[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:24:08.045[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:24:08
+2026-06-21 00:24:08.046[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:24:08.046[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:24:08.047[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:24:37.904[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:24:37.904[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:25:07.903[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:25:07.903[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:25:08.266[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:25:08.267[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:25:37.902[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:25:37.902[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:26:07.900[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:26:07.900[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:26:37.899[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:26:37.899[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:27:07.898[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:27:07.898[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:27:08.263[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:27:08.263[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:27:37.897[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:27:37.897[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:28:07.895[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:28:07.895[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:28:37.893[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:28:37.893[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:29:07.892[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:29:07.892[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:29:07.906[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:29:08.031[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:29:08.031[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:29:08
+2026-06-21 00:29:08.032[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:29:08.032[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:29:08.033[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:29:08.256[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:29:08.256[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:29:37.890[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:29:37.891[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:30:07.890[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:30:07.890[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:30:37.888[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:30:37.888[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:31:07.886[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:31:07.886[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:31:08.253[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:31:08.253[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:31:37.885[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:31:37.885[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:32:07.884[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:32:07.884[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:32:37.883[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:32:37.884[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:33:07.881[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:33:07.881[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:33:08.244[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:33:08.246[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:33:37.879[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:33:37.880[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:34:07.878[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:34:07.878[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:34:07.891[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:34:08.016[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:34:08.017[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:34:08
+2026-06-21 00:34:08.017[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:34:08.018[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:34:08.018[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:34:37.876[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:34:37.876[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:35:07.875[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:35:07.875[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:35:08.240[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:35:08.240[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:35:37.874[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:35:37.874[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:36:07.872[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:36:07.872[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:36:37.871[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:36:37.871[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:37:07.869[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:37:07.870[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:37:08.233[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:37:08.233[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:37:37.868[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:37:37.868[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:38:07.866[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:38:07.867[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:38:37.865[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:38:37.866[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:39:07.864[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:39:07.864[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:39:07.877[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:39:08.003[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:39:08.004[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:39:08
+2026-06-21 00:39:08.004[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:39:08.005[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:39:08.006[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:39:08.229[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:39:08.229[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:39:37.864[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:39:37.864[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:40:07.860[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:40:07.861[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:40:37.860[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:40:37.860[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:41:07.859[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:41:07.859[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:41:08.222[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:41:08.223[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:41:37.858[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:41:37.858[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:42:07.855[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:42:07.856[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:42:37.855[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:42:37.855[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:43:07.854[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:43:07.854[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:43:08.218[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:43:08.218[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:43:37.852[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:43:37.852[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:44:07.850[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:44:07.850[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:44:07.863[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:44:07.989[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:44:07.990[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:44:07
+2026-06-21 00:44:07.990[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:44:07.991[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:44:07.992[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:44:37.850[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:44:37.850[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:45:07.848[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:45:07.848[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:45:08.211[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:45:08.212[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:45:37.847[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:45:37.847[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:46:07.845[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:46:07.845[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:46:37.844[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:46:37.844[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:47:07.843[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:47:07.843[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:47:08.205[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:47:08.208[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:47:37.842[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:47:37.842[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:48:07.840[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:48:07.840[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:48:37.839[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:48:37.839[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:49:07.838[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:49:07.838[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:49:07.852[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:49:07.977[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:49:07.978[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:49:07
+2026-06-21 00:49:07.978[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:49:07.979[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:49:07.980[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:49:08.202[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:49:08.204[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:49:37.836[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:49:37.836[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:50:07.835[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:50:07.835[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:50:37.834[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:50:37.835[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:51:07.833[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:51:07.833[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:51:08.194[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:51:08.196[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:51:37.832[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:51:37.832[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:52:07.831[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:52:07.831[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:52:37.829[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:52:37.829[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:53:07.827[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:53:07.828[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:53:08.193[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:53:08.193[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:53:37.827[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:53:37.827[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:54:07.825[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:54:07.825[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:54:07.838[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:54:07.963[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:54:07.964[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:54:07
+2026-06-21 00:54:07.964[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:54:07.965[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:54:07.965[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:54:37.824[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:54:37.824[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:55:07.823[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:55:07.823[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:55:08.186[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:55:08.188[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:55:37.822[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:55:37.822[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:56:07.821[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:56:07.821[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:56:37.819[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:56:37.819[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:57:07.818[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:57:07.818[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:57:08.182[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:57:08.184[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:57:37.817[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:57:37.817[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:58:07.815[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:58:07.815[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:58:37.814[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:58:37.814[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:59:07.812[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:59:07.812[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 00:59:07.827[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 00:59:07.952[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 00:59:07.952[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 00:59:07
+2026-06-21 00:59:07.953[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 00:59:07.953[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 00:59:07.954[36m [info] [manager.go:308] [0m========================================
+2026-06-21 00:59:08.179[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 00:59:08.179[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 00:59:37.811[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 00:59:37.812[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:00:07.809[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:00:07.809[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:00:37.808[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:00:37.809[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:01:02.265[37m [debug] [websocket_client.go:726] [0mRequest received: ID=32416f58-497b-4ce3-8a85-2a32e8bfac9c, Method=POST, Path=/api/device/inject_msg
+2026-06-21 01:01:02.267[31m [error] [app.go:565] [0mHandleInjectMsg: device ec:da:3b:8f:c5:34 not found or offline
+2026-06-21 01:01:02.268[31m [error] [websocket_client.go:800] [0mProcessing request /api/device/inject_msg failed: device ec:da:3b:8f:c5:34 not found or offline
+2026-06-21 01:01:02.269[37m [debug] [websocket_client.go:995] [0mResponse sent: ID=32416f58-497b-4ce3-8a85-2a32e8bfac9c, Status=500
+2026-06-21 01:01:07.807[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:01:07.808[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:01:08.176[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:01:08.176[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:01:17.900[36m [info] [chat.go:228] [0mSuccessfully obtained device configuration: deviceId: ec:da:3b:8f:c5:34, config: {SystemPrompt:You are a friendly and professional AI assistant. Please answer user questions in clear and concise language and provide useful suggestions. Asr:{Provider:funasr Config:map[auto_end:true chunk_interval:10 chunk_size:[5 10 5] host:127.0.0.1 max_connections:100 mode:offline port:10095 sample_rate:16000 timeout:30]} Tts:{Provider: Config:map[]} Llm:{Provider:openai Config:map[api_key:sk-354c8cd58957474a-n9odq7-81fc4441 base_url:https://r5dazee.abc-tunnel.us/v1 max_tokens:4000 model_name:cx/gpt-5.4 temperature:0.7 top_p:0.9 type:openai]} Vad:{Provider:ten_vad Config:map[acquire_timeout_ms:3000 hop_size:512 pool_size:10 threshold:0.4]} Memory:{Provider:nomemo Config:map[]} VoiceIdentify:map[1:{ID:1 Name:1 Prompt: Description:1 Uuids:[] TTSConfigID:0xc000040630 Voice:<nil> VoiceModelOverride:<nil>}] MemoryMode:short SpeakerChatMode:off AgentId:1 MCPServiceNames: OpenClaw:{Allowed:false EnterKeywords:[open openclaw enter openclaw] ExitKeywords:[close openclaw exit openclaw]} KnowledgeBases:[]}
+2026-06-21 01:01:17.903[37m [debug] [auth.go:53] [0mCheck activation status response: {Activated:true Message:device is activated}
+2026-06-21 01:01:17.904[37m [debug] [chat.go:243] [0mDevice ec:da:3b:8f:c5:34 Activation status: true
+2026-06-21 01:01:17.904[36m [info] [chat.go:154] [0mInitialize chat hook hub: queue_size=1024 worker_count=1 drop_when_full=false timeout=200ms dropped_async=0
+2026-06-21 01:01:17.905[36m [info] [chat.go:213] [0mChat hook plugins loaded: [{Name:statistic_plugin Priority:100 Kind:interceptor Stage:chat.metric Enabled:true}]
+2026-06-21 01:01:17.924[37m [debug] [websocket_client.go:949] [0mResponse received: ID=497097a5-96da-49b2-871b-527a753e0908, Status=200
+2026-06-21 01:01:17.925[36m [info] [app.go:366] [0mcreated and stored ChatManager for device ec:da:3b:8f:c5:34
+2026-06-21 01:01:17.926[36m [info] [chat.go:370] [0mText message received: {"type":"hello","version":1,"features":{"mcp":true},"transport":"websocket","audio_params":{"format":"opus","sample_rate":16000,"channels":1,"frame_duration":60}}
+2026-06-21 01:01:17.926[37m [debug] [manager.go:494] [0mOpenClaw ExitMode ignored: agent=1 device=ec:da:3b:8f:c5:34 reason=no_agent_session
+2026-06-21 01:01:17.927[37m [debug] [session.go:167] [0mDevice ec:da:3b:8f:c5:34 enables voiceprint recognition
+2026-06-21 01:01:17.928[36m [info] [client.go:566] [0minitializing ASR, asrConfig: {Provider:funasr Config:map[auto_end:true chunk_interval:10 chunk_size:[5 10 5] host:127.0.0.1 max_connections:100 mode:offline port:10095 sample_rate:16000 timeout:30]}
+2026-06-21 01:01:17.929[36m [info] [media_player.go:659] [0mDevice ec:da:3b:8f:c5:34 media playback attachment is bound
+2026-06-21 01:01:17.930[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"hello","text":"Welcome to Xiaozhi Server","session_id":"app-3PH1rIoQvsPoLygJiVyl4HPLvLPwApXfJa_PILM=","version":0,"transport":"websocket","audio_params":{"format":"opus","sample_rate":16000,"channels":1,"frame_duration":60}}
+2026-06-21 01:01:17.929[37m [debug] [session.go:1426] [0mprocessChatText start
+2026-06-21 01:01:17.931[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"mcp","session_id":"app-3PH1rIoQvsPoLygJiVyl4HPLvLPwApXfJa_PILM=","version":0,"payload":{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"vision":{"url":"http://192.168.208.214:8989/xiaozhi/api/vision","token":"1234567890"}},"clientInfo":{"name":"mcp-go","version":"0.1.0"}}}}
+2026-06-21 01:01:17.935[36m [info] [session.go:342] [0mLoaded 0 historical messages from Manager
+2026-06-21 01:01:17.935[37m [debug] [session.go:353] [0mNot loaded into history messages (maybe no history)
+2026-06-21 01:01:17.970[36m [info] [chat.go:370] [0mText message received: {"session_id":"app-3PH1rIoQvsPoLygJiVyl4HPLvLPwApXfJa_PILM=","type":"listen","state":"start","mode":"auto"}
+2026-06-21 01:01:17.971[37m [debug] [session.go:1172] [0mListenStart recv: device= mode=auto history={lastCmd="" lastCmdAt=zero lastCmdAge=n/a} welcomeSpeaking=false welcomePlaying=false phase=idle
+2026-06-21 01:01:17.972[36m [info] [session.go:1230] [0mDevice  pickup pattern: auto
+2026-06-21 01:01:17.973[36m [info] [common.go:40] [0mstop speaking requested: device=ec:da:3b:8f:c5:34 reason=HandleListenStart mode=auto cancelSession=true sendTtsStop=true suspendMedia=true state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.974[36m [info] [tts.go:1043] [0mrecord pending tts interrupt stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(HandleListenStart mode=auto) sendTtsStop=true stopErr=context canceled state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.975[36m [info] [tts.go:1119] [0mfinish tts stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(HandleListenStart mode=auto) sendTtsStop=true stopErr=context canceled state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.976[36m [info] [tts.go:247] [0mrunSenderLoop interrupt, drained queue and continue: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(HandleListenStart mode=auto) state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.977[36m [info] [session.go:485] [0mDevice  updates audio listening status: start
+2026-06-21 01:01:17.977[37m [debug] [session.go:1260] [0mOnListenStart start
+2026-06-21 01:01:17.980[37m [debug] [asr.go:135] [0mAsr.StopWithReason: reason=ClientState.Destroy
+2026-06-21 01:01:17.981[37m [debug] [asr.go:551] [0mstarting ASR recognition restart
+2026-06-21 01:01:17.982[37m [debug] [asr.go:48] [0mAsr.CancelWithReason: reason=ASRManager.RestartAsrRecognition: cancel previous ASR context before restart
+2026-06-21 01:01:17.984[36m [info] [base.go:39] [0mfunasr config: map[auto_end:true chunk_interval:10 chunk_size:[5 10 5] host:127.0.0.1 max_connections:100 mode:offline port:10095 sample_rate:16000 timeout:30]
+2026-06-21 01:01:17.986[37m [debug] [asr.go:586] [0macquired new ASR resource
+2026-06-21 01:01:17.989[37m [debug] [asr.go:539] [0mASR resource returned
+2026-06-21 01:01:17.990[31m [error] [asr.go:603] [0mfailed to restart ASR streaming recognition: FunASR service not ready at ws://funasr-server:10095/ (still starting up or not running): dial tcp 172.18.0.4:10095: connect: connection refused
+2026-06-21 01:01:17.991[31m [error] [session.go:1333] [0masr streaming recognition failed: failed to restart ASR streaming recognition: FunASR service not ready at ws://funasr-server:10095/ (still starting up or not running): dial tcp 172.18.0.4:10095: connect: connection refused
+2026-06-21 01:01:17.992[37m [debug] [session.go:1506] [0mChatSession.Close() starts cleaning up session resources, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:17.993[36m [info] [media_player.go:703] [0mDevice ec:da:3b:8f:c5:34 media playback attachment has been unbound, preserve=true
+2026-06-21 01:01:17.994[36m [info] [common.go:40] [0mstop speaking requested: device=ec:da:3b:8f:c5:34 reason=ChatSession.Close cancelSession=true sendTtsStop=true suspendMedia=false state={status=listening phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.995[37m [debug] [client.go:526] [0mCtx.CancelWithReason: reason=ChatSession.stopSpeaking(ChatSession.Close): session_ctx
+2026-06-21 01:01:17.994[37m [debug] [session.go:1433] [0mprocessChatText end
+2026-06-21 01:01:17.997[36m [info] [tts.go:1043] [0mrecord pending tts interrupt stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(ChatSession.Close) sendTtsStop=true stopErr=context canceled state={status=listening phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:17.994[36m [info] [tts.go:1119] [0mfinish tts stop: device=ec:da:3b:8f:c5:34 reason=runSenderLoop: ctx done sendTtsStop=true stopErr=context canceled state={status=listening phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:18.000[37m [debug] [tts.go:263] [0mrunSenderLoop ctx done, drained queue and exit
+2026-06-21 01:01:18.001[36m [info] [tts.go:1119] [0mfinish tts stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(ChatSession.Close) sendTtsStop=true stopErr=context canceled state={status=listening phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:18.002[37m [debug] [session.go:1536] [0mChatSession.Close() Session resource cleanup completed, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:18.003[36m [info] [chat.go:1107] [0mClose ChatManager, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:18.004[36m [info] [device_manager.go:454] [0mMCP client iot_over_mcp_ec:da:3b:8f:c5:34_websocket closed, reason: device_iot_closed
+2026-06-21 01:01:18.005[36m [info] [device_manager.go:98] [0mMCP client ec:da:3b:8f:c5:34 for device iot_over_mcp_ec:da:3b:8f:c5:34_websocket has been closed due to: device_iot_closed
+2026-06-21 01:01:18.006[36m [info] [device_manager.go:105] [0mAll MCP connections for device ec:da:3b:8f:c5:34 have been closed, clean up sessions
+2026-06-21 01:01:18.006[31m [error] [mcp.go:82] [0mEnsure IotOverMcp client failed: Failed to initialize IotOverMcp client: transport error: context canceled
+2026-06-21 01:01:18.007[36m [info] [device_manager.go:602] [0mDevice ec:da:3b:8f:c5:34 session canceled, stop pinging
+2026-06-21 01:01:18.007[31m [error] [websocket_conn.go:83] [0mread message error: read tcp 172.18.0.8:8989->172.18.0.1:57196: use of closed network connection
+2026-06-21 01:01:18.008[31m [error] [chat.go:390] [0mrecv audio error: connection is closed
+2026-06-21 01:01:18.008[37m [debug] [session.go:1338] [0mOnListenStart end
+2026-06-21 01:01:18.012[31m [error] [session.go:1236] [0mDevice  listen start failed to start: failed to restart ASR streaming recognition: FunASR service not ready at ws://funasr-server:10095/ (still starting up or not running): dial tcp 172.18.0.4:10095: connect: connection refused
+2026-06-21 01:01:18.008[36m [info] [app.go:377] [0mremoved ChatManager for device ec:da:3b:8f:c5:34 from the map
+2026-06-21 01:01:18.010[36m [info] [chat.go:1158] [0mDevice ec:da:3b:8f:c5:34 disconnected
+2026-06-21 01:01:18.008[31m [error] [chat.go:361] [0mrecv cmd error: connection is closed
+2026-06-21 01:01:18.017[36m [info] [chat.go:349] [0mDevice ec:da:3b:8f:c5:34 recvCmd context cancel
+2026-06-21 01:01:18.031[37m [debug] [websocket_client.go:949] [0mResponse received: ID=4e1d8ee3-41f4-485b-ba64-fb72fed570f3, Status=200
+2026-06-21 01:01:21.042[36m [info] [chat.go:228] [0mSuccessfully obtained device configuration: deviceId: ec:da:3b:8f:c5:34, config: {SystemPrompt:You are a friendly and professional AI assistant. Please answer user questions in clear and concise language and provide useful suggestions. Asr:{Provider:funasr Config:map[auto_end:true chunk_interval:10 chunk_size:[5 10 5] host:127.0.0.1 max_connections:100 mode:offline port:10095 sample_rate:16000 timeout:30]} Tts:{Provider: Config:map[]} Llm:{Provider:openai Config:map[api_key:sk-354c8cd58957474a-n9odq7-81fc4441 base_url:https://r5dazee.abc-tunnel.us/v1 max_tokens:4000 model_name:cx/gpt-5.4 temperature:0.7 top_p:0.9 type:openai]} Vad:{Provider:ten_vad Config:map[acquire_timeout_ms:3000 hop_size:512 pool_size:10 threshold:0.4]} Memory:{Provider:nomemo Config:map[]} VoiceIdentify:map[1:{ID:1 Name:1 Prompt: Description:1 Uuids:[] TTSConfigID:0xc000608080 Voice:<nil> VoiceModelOverride:<nil>}] MemoryMode:short SpeakerChatMode:off AgentId:1 MCPServiceNames: OpenClaw:{Allowed:false EnterKeywords:[open openclaw enter openclaw] ExitKeywords:[close openclaw exit openclaw]} KnowledgeBases:[]}
+2026-06-21 01:01:21.045[37m [debug] [auth.go:53] [0mCheck activation status response: {Activated:true Message:device is activated}
+2026-06-21 01:01:21.046[37m [debug] [chat.go:243] [0mDevice ec:da:3b:8f:c5:34 Activation status: true
+2026-06-21 01:01:21.047[36m [info] [chat.go:154] [0mInitialize chat hook hub: queue_size=1024 worker_count=1 drop_when_full=false timeout=200ms dropped_async=0
+2026-06-21 01:01:21.048[36m [info] [chat.go:213] [0mChat hook plugins loaded: [{Name:statistic_plugin Priority:100 Kind:interceptor Stage:chat.metric Enabled:true}]
+2026-06-21 01:01:21.063[37m [debug] [websocket_client.go:949] [0mResponse received: ID=b4205f09-27eb-491f-b32b-5dcb022a47cb, Status=200
+2026-06-21 01:01:21.064[36m [info] [app.go:366] [0mcreated and stored ChatManager for device ec:da:3b:8f:c5:34
+2026-06-21 01:01:21.065[36m [info] [chat.go:370] [0mText message received: {"type":"hello","version":1,"features":{"mcp":true},"transport":"websocket","audio_params":{"format":"opus","sample_rate":16000,"channels":1,"frame_duration":60}}
+2026-06-21 01:01:21.066[37m [debug] [manager.go:494] [0mOpenClaw ExitMode ignored: agent=1 device=ec:da:3b:8f:c5:34 reason=no_agent_session
+2026-06-21 01:01:21.067[37m [debug] [session.go:167] [0mDevice ec:da:3b:8f:c5:34 enables voiceprint recognition
+2026-06-21 01:01:21.068[36m [info] [client.go:566] [0minitializing ASR, asrConfig: {Provider:funasr Config:map[auto_end:true chunk_interval:10 chunk_size:[5 10 5] host:127.0.0.1 max_connections:100 mode:offline port:10095 sample_rate:16000 timeout:30]}
+2026-06-21 01:01:21.069[36m [info] [media_player.go:659] [0mDevice ec:da:3b:8f:c5:34 media playback attachment is bound
+2026-06-21 01:01:21.069[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"hello","text":"Welcome to Xiaozhi Server","session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","version":0,"transport":"websocket","audio_params":{"format":"opus","sample_rate":16000,"channels":1,"frame_duration":60}}
+2026-06-21 01:01:21.069[37m [debug] [session.go:1426] [0mprocessChatText start
+2026-06-21 01:01:21.070[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"mcp","session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","version":0,"payload":{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{"vision":{"url":"http://192.168.208.214:8989/xiaozhi/api/vision","token":"1234567890"}},"clientInfo":{"name":"mcp-go","version":"0.1.0"}}}}
+2026-06-21 01:01:21.095[36m [info] [session.go:342] [0mLoaded 0 historical messages from Manager
+2026-06-21 01:01:21.096[37m [debug] [session.go:353] [0mNot loaded into history messages (maybe no history)
+2026-06-21 01:01:21.108[36m [info] [chat.go:370] [0mText message received: {"session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","type":"mcp","payload":{"jsonrpc":"2.0","id":1,"result":{"protocolVersion":"2024-11-05","capabilities":{"tools":{}},"serverInfo":{"name":"bread-compact-wifi-lcd","version":"2.2.6"}}}}
+2026-06-21 01:01:21.109[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"mcp","session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","version":0,"payload":{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}}
+2026-06-21 01:01:21.110[37m [debug] [websocket_conn.go:153] [0msend cmd: {"type":"mcp","session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","version":0,"payload":{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}}
+2026-06-21 01:01:21.178[36m [info] [chat.go:370] [0mText message received: {"session_id":"HWW1B2iUHwQlDTzPN3bbt7-AY6Y4QWUsNl1eZ_tWjhU=","type":"mcp","payload":{"jsonrpc":"2.0","id":2,"result":{"tools":[{"name":"self.get_device_status","description":"Provides the real-time information of the device, including the current status of the audio speaker, screen, battery, network, etc.\nUse this tool for: \n1. Answering questions about current condition (e.g. what is the current volume of the audio speaker?)\n2. As the first step to control the device (e.g. turn up / down the volume of the audio speaker, etc.)","inputSchema":{"type":"object","properties":{}}},{"name":"self.audio_speaker.set_volume","description":"Set the volume of the audio speaker. If the current volume is unknown, you must call `self.get_device_status` tool first and then call this tool.","inputSchema":{"type":"object","properties":{"volume":{"type":"integer","minimum":0,"maximum":100}},"required":["volume"]}},{"name":"self.screen.set_brightness","description":"Set the brightness of the screen.","inputSchema":{"type":"object","properties":{"brightness":{"type":"integer","minimum":0,"maximum":100}},"required":["brightness"]}},{"name":"self.screen.set_theme","description":"Set the theme of the screen. The theme can be `light` or `dark`.","inputSchema":{"type":"object","properties":{"theme":{"type":"string"}},"required":["theme"]}},{"name":"self.lamp.get_state","description":"Get the power state of the lamp","inputSchema":{"type":"object","properties":{}}},{"name":"self.lamp.turn_on","description":"Turn on the lamp","inputSchema":{"type":"object","properties":{}}},{"name":"self.lamp.turn_off","description":"Turn off the lamp","inputSchema":{"type":"object","properties":{}}}]}}}
+2026-06-21 01:01:21.179[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.get_device_status" does not comply with the OpenAI tool name specification and has been converted to "self_get_device_status", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.181[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.audio_speaker.set_volume" does not comply with the OpenAI tool name specification and has been converted to "self_audio_speaker_set_volume", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.182[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.screen.set_brightness" does not comply with the OpenAI tool name specification and has been converted to "self_screen_set_brightness", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.182[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.screen.set_theme" does not comply with the OpenAI tool name specification and has been converted to "self_screen_set_theme", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.183[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.lamp.get_state" does not comply with the OpenAI tool name specification and has been converted to "self_lamp_get_state", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.184[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.lamp.turn_on" does not comply with the OpenAI tool name specification and has been converted to "self_lamp_turn_on", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.185[37m [debug] [global_manage.go:552] [0mThe MCP tool name "self.lamp.turn_off" does not comply with the OpenAI tool name specification and has been converted to "self_lamp_turn_off", server=iot_over_mcp_ec:da:3b:8f:c5:34_websocket
+2026-06-21 01:01:21.185[36m [info] [device_manager.go:292] [0mRefresh tool list successfully: iot_over_mcp_ec:da:3b:8f:c5:34_websocket obtained 7 tools
+2026-06-21 01:01:28.419[37m [debug] [ota.go:54] [0mauthEnable: true
+2026-06-21 01:01:28.430[37m [debug] [auth.go:53] [0mCheck activation status response: {Activated:true Message:device is activated}
+2026-06-21 01:01:28.431[37m [debug] [ota.go:63] [0mDevice ec:da:3b:8f:c5:34 Activation status: true
+2026-06-21 01:01:36.841[31m [error] [websocket_conn.go:83] [0mread message error: websocket: close 1006 (abnormal closure): unexpected EOF
+2026-06-21 01:01:36.842[36m [info] [chat.go:1158] [0mDevice ec:da:3b:8f:c5:34 disconnected
+2026-06-21 01:01:36.843[36m [info] [chat.go:1107] [0mClose ChatManager, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:36.844[37m [debug] [session.go:1506] [0mChatSession.Close() starts cleaning up session resources, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:36.844[36m [info] [media_player.go:703] [0mDevice ec:da:3b:8f:c5:34 media playback attachment has been unbound, preserve=true
+2026-06-21 01:01:36.846[36m [info] [common.go:40] [0mstop speaking requested: device=ec:da:3b:8f:c5:34 reason=ChatSession.Close cancelSession=true sendTtsStop=true suspendMedia=false state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:36.846[36m [info] [tts.go:1043] [0mrecord pending tts interrupt stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(ChatSession.Close) sendTtsStop=true stopErr=context canceled state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:36.846[36m [info] [tts.go:1119] [0mfinish tts stop: device=ec:da:3b:8f:c5:34 reason=runSenderLoop: ctx done sendTtsStop=true stopErr=context canceled state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:36.848[37m [debug] [tts.go:263] [0mrunSenderLoop ctx done, drained queue and exit
+2026-06-21 01:01:36.849[36m [info] [tts.go:1119] [0mfinish tts stop: device=ec:da:3b:8f:c5:34 reason=ChatSession.stopSpeaking(ChatSession.Close) sendTtsStop=true stopErr=context canceled state={status= phase=idle ttsActive=false ttsStart=false welcomeSpeaking=false welcomePlaying=false}
+2026-06-21 01:01:36.846[37m [debug] [session.go:1433] [0mprocessChatText end
+2026-06-21 01:01:36.850[37m [debug] [session.go:1536] [0mChatSession.Close() Session resource cleanup completed, device ec:da:3b:8f:c5:34
+2026-06-21 01:01:36.852[36m [info] [device_manager.go:454] [0mMCP client iot_over_mcp_ec:da:3b:8f:c5:34_websocket closed, reason: device_iot_closed
+2026-06-21 01:01:36.853[36m [info] [device_manager.go:98] [0mMCP client ec:da:3b:8f:c5:34 for device iot_over_mcp_ec:da:3b:8f:c5:34_websocket has been closed due to: device_iot_closed
+2026-06-21 01:01:36.853[36m [info] [device_manager.go:105] [0mAll MCP connections for device ec:da:3b:8f:c5:34 have been closed, clean up sessions
+2026-06-21 01:01:36.855[36m [info] [device_manager.go:602] [0mDevice ec:da:3b:8f:c5:34 session canceled, stop pinging
+2026-06-21 01:01:36.855[37m [debug] [websocket_conn.go:186] [0mrecv cmd context done
+2026-06-21 01:01:36.857[31m [error] [chat.go:361] [0mrecv cmd error: context canceled
+2026-06-21 01:01:36.855[37m [debug] [websocket_conn.go:203] [0mrecv audio context done
+2026-06-21 01:01:36.858[31m [error] [chat.go:390] [0mrecv audio error: context canceled
+2026-06-21 01:01:36.857[36m [info] [chat.go:349] [0mDevice ec:da:3b:8f:c5:34 recvCmd context cancel
+2026-06-21 01:01:36.855[36m [info] [app.go:377] [0mremoved ChatManager for device ec:da:3b:8f:c5:34 from the map
+2026-06-21 01:01:36.878[37m [debug] [websocket_client.go:949] [0mResponse received: ID=92a77c27-4965-4d7b-b79f-500d0e7db5f3, Status=200
+2026-06-21 01:01:37.805[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:01:37.806[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:01:51.033[37m [debug] [websocket_conn.go:68] [0mPing message sent successfully, deviceID: ec:da:3b:8f:c5:34
+2026-06-21 01:02:07.803[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:02:07.804[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:02:21.031[37m [debug] [websocket_conn.go:68] [0mPing message sent successfully, deviceID: ec:da:3b:8f:c5:34
+2026-06-21 01:02:37.803[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:02:37.804[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:02:51.031[37m [debug] [websocket_conn.go:68] [0mPing message sent successfully, deviceID: ec:da:3b:8f:c5:34
+2026-06-21 01:03:07.803[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:03:07.803[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:03:08.168[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:03:08.169[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:03:21.029[31m [error] [websocket_conn.go:61] [0mFailed to send ping message, deviceID: ec:da:3b:8f:c5:34, error: write tcp 172.18.0.8:8989->172.18.0.1:51790: write: broken pipe
+2026-06-21 01:03:21.029[36m [info] [chat.go:1158] [0mDevice ec:da:3b:8f:c5:34 disconnected
+2026-06-21 01:03:37.800[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:03:37.800[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:04:07.799[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:04:07.799[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:04:07.813[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:04:07.938[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:04:07.939[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:04:07
+2026-06-21 01:04:07.939[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:04:07.940[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 1,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 1
+  }
+}
+2026-06-21 01:04:07.940[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:04:37.798[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:04:37.798[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:05:07.797[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:05:07.797[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:05:08.160[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:05:08.161[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:05:37.796[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:05:37.796[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:06:07.793[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:06:07.794[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:06:37.792[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:06:37.793[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:07:07.791[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:07:07.791[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:07:08.154[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:07:08.154[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:07:37.790[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:07:37.790[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:08:07.788[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:08:07.788[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:08:37.787[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:08:37.787[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:09:07.786[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:09:07.786[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:09:07.800[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:09:07.925[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:09:07.926[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:09:07
+2026-06-21 01:09:07.926[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:09:07.927[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 1,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 1
+  }
+}
+2026-06-21 01:09:07.927[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:09:08.154[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:09:08.154[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:09:37.785[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:09:37.785[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:10:07.783[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:10:07.783[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:10:37.782[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:10:37.782[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:11:07.781[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:11:07.781[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:11:08.142[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:11:08.144[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:11:37.780[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:11:37.780[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:12:07.778[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:12:07.778[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:12:37.777[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:12:37.777[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:13:07.775[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:13:07.775[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:13:08.137[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:13:08.138[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:13:37.774[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:13:37.774[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:14:07.773[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:14:07.773[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:14:07.787[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:14:07.912[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:14:07.912[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:14:07
+2026-06-21 01:14:07.913[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:14:07.913[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 1,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 1
+  }
+}
+2026-06-21 01:14:07.914[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:14:37.771[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:14:37.771[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:15:07.770[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:15:07.770[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:15:08.134[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:15:08.134[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:15:37.769[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:15:37.769[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:16:07.767[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:16:07.768[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:16:37.766[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:16:37.767[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:17:07.764[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:17:07.764[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:17:08.132[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:17:08.139[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:17:37.763[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:17:37.764[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:18:07.762[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:18:07.762[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:18:37.761[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:18:37.761[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:19:07.760[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:19:07.760[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:19:07.775[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:19:07.899[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:19:07.899[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:19:07
+2026-06-21 01:19:07.900[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:19:07.901[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:19:07.901[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:19:08.122[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:19:08.125[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:19:37.758[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:19:37.759[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:20:07.755[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:20:07.756[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:20:37.756[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:20:37.756[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:21:07.754[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:21:07.754[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:21:08.119[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:21:08.122[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:21:37.753[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:21:37.753[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:22:07.751[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:22:07.751[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:22:37.750[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:22:37.750[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:23:07.748[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:23:07.748[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:23:08.109[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:23:08.110[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:23:37.748[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:23:37.748[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:24:07.747[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:24:07.747[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:24:07.760[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:24:07.885[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:24:07.886[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:24:07
+2026-06-21 01:24:07.887[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:24:07.887[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:24:07.888[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:24:37.745[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:24:37.745[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:25:07.744[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:25:07.744[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:25:08.109[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:25:08.112[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:25:37.742[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:25:37.742[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:26:07.741[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:26:07.741[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:26:37.740[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:26:37.740[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:27:07.739[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:27:07.739[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:27:08.104[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:27:08.104[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:27:37.737[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:27:37.737[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:28:07.736[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:28:07.736[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:28:37.735[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:28:37.735[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:29:07.733[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:29:07.733[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:29:07.747[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:29:07.872[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:29:07.873[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:29:07
+2026-06-21 01:29:07.873[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:29:07.874[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:29:07.874[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:29:08.096[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:29:08.096[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:29:37.732[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:29:37.732[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:30:07.730[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:30:07.730[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:30:37.730[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:30:37.730[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:31:07.728[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:31:07.728[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:31:08.095[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:31:08.096[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:31:37.727[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:31:37.728[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:32:07.725[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:32:07.726[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:32:37.725[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:32:37.725[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:33:07.723[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:33:07.723[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:33:08.094[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:33:08.094[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:33:37.721[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:33:37.722[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:34:07.721[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:34:07.721[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:34:07.735[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:34:07.859[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:34:07.860[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:34:07
+2026-06-21 01:34:07.860[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:34:07.861[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:34:07.861[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:34:37.720[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:34:37.720[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:35:07.718[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:35:07.718[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:35:08.082[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:35:08.084[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:35:37.716[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:35:37.716[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:36:07.715[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:36:07.715[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:36:37.713[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:36:37.714[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:37:07.713[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:37:07.713[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:37:08.077[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:37:08.077[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:37:37.711[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:37:37.711[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:38:07.709[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:38:07.709[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:38:37.708[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:38:37.708[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:39:07.707[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:39:07.707[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:39:07.720[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:39:07.845[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:39:07.846[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:39:07
+2026-06-21 01:39:07.846[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:39:07.847[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:39:07.847[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:39:08.069[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:39:08.071[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:39:37.706[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:39:37.706[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:40:07.704[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:40:07.704[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:40:37.703[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:40:37.703[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:41:07.701[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:41:07.702[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:41:08.065[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:41:08.065[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:41:37.700[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:41:37.700[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:42:07.699[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:42:07.699[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:42:37.697[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:42:37.697[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:43:07.696[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:43:07.696[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:43:08.060[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:43:08.062[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:43:37.695[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:43:37.695[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:44:07.693[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:44:07.693[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:44:07.707[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:44:07.832[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:44:07.832[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:44:07
+2026-06-21 01:44:07.833[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:44:07.833[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:44:07.834[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:44:37.692[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:44:37.692[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:45:07.691[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:45:07.691[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:45:08.057[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:45:08.058[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:45:37.689[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:45:37.689[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:46:07.687[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:46:07.687[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:46:37.687[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:46:37.688[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:47:07.685[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:47:07.685[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:47:08.048[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:47:08.049[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:47:37.684[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:47:37.684[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:48:07.682[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:48:07.683[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:48:37.682[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:48:37.682[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:49:07.680[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:49:07.680[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:49:07.693[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:49:07.818[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:49:07.820[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:49:07
+2026-06-21 01:49:07.820[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:49:07.820[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:49:07.821[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:49:08.047[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:49:08.047[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:49:37.678[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:49:37.679[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:50:07.677[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:50:07.677[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:50:37.676[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:50:37.677[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:51:07.675[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:51:07.675[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:51:08.042[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:51:08.043[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:51:37.675[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:51:37.675[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:52:07.672[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:52:07.673[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:52:37.671[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:52:37.672[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:53:07.670[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:53:07.670[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:53:08.033[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:53:08.035[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:53:37.668[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:53:37.668[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:54:07.666[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:54:07.667[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:54:07.681[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:54:07.806[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:54:07.806[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:54:07
+2026-06-21 01:54:07.807[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:54:07.808[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:54:07.808[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:54:37.666[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:54:37.666[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:55:07.665[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:55:07.665[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:55:08.030[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:55:08.030[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:55:37.663[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:55:37.663[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:56:07.661[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:56:07.661[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:56:37.661[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:56:37.661[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:57:07.659[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:57:07.659[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:57:08.025[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:57:08.025[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:57:37.658[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:57:37.658[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:58:07.657[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:58:07.657[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:58:37.655[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:58:37.655[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:59:07.654[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:59:07.654[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 01:59:07.669[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 01:59:07.793[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 01:59:07.794[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 01:59:07
+2026-06-21 01:59:07.794[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 01:59:07.795[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 01:59:07.795[36m [info] [manager.go:308] [0m========================================
+2026-06-21 01:59:08.021[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 01:59:08.022[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 01:59:37.654[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 01:59:37.654[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:00:07.651[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:00:07.651[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:00:37.659[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:00:37.659[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:01:07.649[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:01:07.650[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:01:08.013[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:01:08.017[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:01:37.648[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:01:37.648[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:02:07.646[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:02:07.646[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:02:37.645[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:02:37.645[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:03:07.644[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:03:07.644[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:03:08.007[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:03:08.011[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:03:37.643[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:03:37.643[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:04:07.642[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:04:07.642[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:04:07.655[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:04:07.780[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:04:07.781[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:04:07
+2026-06-21 02:04:07.781[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:04:07.782[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:04:07.783[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:04:37.640[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:04:37.640[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:05:07.639[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:05:07.639[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:05:08.007[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:05:08.012[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:05:37.637[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:05:37.637[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:06:07.636[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:06:07.636[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:06:37.635[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:06:37.635[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:07:07.634[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:07:07.634[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:07:07.997[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:07:07.998[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:07:37.633[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:07:37.634[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:08:07.631[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:08:07.632[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:08:37.630[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:08:37.630[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:09:07.629[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:09:07.629[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:09:07.643[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:09:07.768[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:09:07.769[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:09:07
+2026-06-21 02:09:07.770[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:09:07.770[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:09:07.770[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:09:07.994[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:09:07.994[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:09:37.628[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:09:37.628[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:10:07.627[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:10:07.627[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:10:37.626[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:10:37.626[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:11:07.624[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:11:07.624[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:11:07.989[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:11:07.989[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:11:37.623[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:11:37.623[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:12:07.621[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:12:07.621[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:12:37.621[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:12:37.621[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:13:07.618[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:13:07.619[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:13:07.981[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:13:07.984[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:13:37.617[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:13:37.617[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:14:07.616[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:14:07.616[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:14:07.629[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:14:07.754[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:14:07.755[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:14:07
+2026-06-21 02:14:07.755[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:14:07.756[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:14:07.756[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:14:37.616[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:14:37.616[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:15:07.614[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:15:07.614[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:15:07.979[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:15:07.980[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:15:37.613[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:15:37.613[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:16:07.611[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:16:07.611[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:16:37.610[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:16:37.610[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:17:07.609[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:17:07.609[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:17:07.972[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:17:07.975[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:17:37.608[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:17:37.608[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:18:07.606[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:18:07.606[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:18:37.605[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:18:37.605[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:19:07.604[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:19:07.604[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:19:07.618[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:19:07.742[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:19:07.743[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:19:07
+2026-06-21 02:19:07.743[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:19:07.744[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:19:07.745[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:19:07.972[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:19:07.973[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:19:37.603[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:19:37.603[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:20:07.602[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:20:07.602[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:20:37.600[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:20:37.600[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:21:07.599[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:21:07.599[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:21:07.965[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:21:07.966[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:21:37.597[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:21:37.598[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:22:07.596[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:22:07.596[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:22:37.596[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:22:37.596[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:23:07.594[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:23:07.594[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:23:07.957[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:23:07.960[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:23:37.593[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:23:37.593[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:24:07.591[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:24:07.592[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:24:07.604[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:24:07.731[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:24:07.731[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:24:07
+2026-06-21 02:24:07.732[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:24:07.732[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:24:07.733[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:24:37.590[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:24:37.590[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:25:07.589[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:25:07.590[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:25:07.952[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:25:07.952[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:25:37.587[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:25:37.587[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:26:07.587[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:26:07.587[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:26:37.585[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:26:37.585[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:27:07.584[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:27:07.584[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:27:07.950[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:27:07.951[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:27:37.583[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:27:37.583[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:28:07.581[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:28:07.581[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:28:37.581[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:28:37.582[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:29:07.579[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:29:07.580[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:29:07.593[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:29:07.718[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:29:07.718[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:29:07
+2026-06-21 02:29:07.719[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:29:07.719[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:29:07.720[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:29:07.944[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:29:07.944[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:29:37.579[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:29:37.579[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:30:07.577[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:30:07.577[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:30:37.576[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:30:37.576[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:31:07.575[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:31:07.575[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:31:07.938[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:31:07.939[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:31:37.573[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:31:37.573[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:32:07.572[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:32:07.572[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:32:37.571[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:32:37.571[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:33:07.570[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:33:07.570[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:33:07.934[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:33:07.934[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:33:37.568[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:33:37.568[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:34:07.567[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:34:07.568[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:34:07.580[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:34:07.707[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:34:07.707[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:34:07
+2026-06-21 02:34:07.708[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:34:07.708[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:34:07.709[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:34:37.566[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:34:37.567[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:35:07.565[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:35:07.565[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:35:07.932[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:35:07.933[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:35:37.564[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:35:37.564[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:36:07.562[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:36:07.562[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:36:37.561[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:36:37.561[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:37:07.560[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:37:07.560[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:37:07.923[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:37:07.925[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:37:37.559[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:37:37.559[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:38:07.558[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:38:07.558[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:38:37.556[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:38:37.556[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:39:07.555[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:39:07.556[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:39:07.568[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:39:07.694[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:39:07.695[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:39:07
+2026-06-21 02:39:07.695[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:39:07.696[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:39:07.696[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:39:07.920[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:39:07.923[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:39:37.553[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:39:37.554[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:40:07.552[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:40:07.552[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:40:37.551[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:40:37.551[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:41:07.550[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:41:07.550[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:41:07.914[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:41:07.916[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:41:37.548[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:41:37.549[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:42:07.546[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:42:07.546[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:42:37.546[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:42:37.546[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:43:07.544[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:43:07.544[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:43:07.913[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:43:07.913[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:43:37.543[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:43:37.543[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:44:07.542[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:44:07.542[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:44:07.557[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:44:07.681[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:44:07.682[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:44:07
+2026-06-21 02:44:07.682[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:44:07.683[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:44:07.684[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:44:37.541[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:44:37.541[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:45:07.539[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:45:07.540[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:45:07.905[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:45:07.905[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:45:37.538[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:45:37.538[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:46:07.537[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:46:07.537[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:46:37.535[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:46:37.535[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:47:07.534[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:47:07.534[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:47:07.899[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:47:07.902[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:47:37.533[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:47:37.533[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:48:07.531[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:48:07.531[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:48:37.530[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:48:37.530[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:49:07.528[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:49:07.529[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:49:07.551[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:49:07.667[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:49:07.668[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:49:07
+2026-06-21 02:49:07.668[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:49:07.669[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:49:07.669[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:49:07.897[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:49:07.901[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:49:37.528[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:49:37.528[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:50:07.526[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:50:07.526[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:50:37.524[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:50:37.524[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:51:07.524[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:51:07.524[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:51:07.889[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:51:07.889[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:51:37.523[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:51:37.523[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:52:07.520[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:52:07.520[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:52:37.520[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:52:37.520[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:53:07.518[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:53:07.518[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:53:07.882[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:53:07.882[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:53:37.517[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:53:37.517[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:54:07.515[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:54:07.515[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:54:07.530[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:54:07.655[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:54:07.655[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:54:07
+2026-06-21 02:54:07.656[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:54:07.656[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:54:07.657[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:54:37.515[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:54:37.515[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:55:07.513[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:55:07.513[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:55:07.874[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:55:07.879[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:55:37.512[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:55:37.512[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:56:07.510[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:56:07.510[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:56:37.509[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:56:37.509[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:57:07.508[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:57:07.508[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:57:07.870[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:57:07.870[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:57:37.506[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:57:37.507[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:58:07.505[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:58:07.505[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:58:37.503[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:58:37.504[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:59:07.502[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:59:07.503[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 02:59:07.516[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 02:59:07.641[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 02:59:07.642[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 02:59:07
+2026-06-21 02:59:07.642[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 02:59:07.643[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 02:59:07.643[36m [info] [manager.go:308] [0m========================================
+2026-06-21 02:59:07.867[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 02:59:07.867[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 02:59:37.501[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 02:59:37.501[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:00:07.500[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:00:07.500[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:00:37.499[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:00:37.499[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:01:07.497[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:01:07.497[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:01:07.866[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:01:07.867[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:01:37.497[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:01:37.497[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:02:07.495[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:02:07.495[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:02:37.493[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:02:37.493[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:03:07.483[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:03:07.483[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:03:07.848[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:03:07.850[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:03:37.491[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:03:37.491[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:04:07.490[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:04:07.490[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:04:07.504[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:04:07.629[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:04:07.629[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:04:07
+2026-06-21 03:04:07.630[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:04:07.630[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:04:07.631[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:04:37.489[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:04:37.489[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:05:07.487[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:05:07.487[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:05:07.850[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:05:07.851[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:05:37.485[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:05:37.485[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:06:07.484[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:06:07.484[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:06:37.483[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:06:37.483[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:07:07.482[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:07:07.482[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:07:07.843[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:07:07.844[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:07:37.480[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:07:37.480[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:08:07.479[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:08:07.480[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:08:37.478[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:08:37.478[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:09:07.476[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:09:07.476[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:09:07.489[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:09:07.615[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:09:07.616[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:09:07
+2026-06-21 03:09:07.617[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:09:07.617[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:09:07.618[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:09:07.840[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:09:07.841[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:09:37.475[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:09:37.475[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:10:07.473[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:10:07.473[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:10:37.471[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:10:37.472[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:11:07.471[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:11:07.471[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:11:07.836[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:11:07.836[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:11:37.468[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:11:37.469[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:12:07.466[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:12:07.466[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:12:37.466[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:12:37.466[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:13:07.465[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:13:07.465[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:13:07.831[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:13:07.831[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:13:37.463[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:13:37.463[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:14:07.461[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:14:07.462[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:14:07.475[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:14:07.600[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:14:07.601[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:14:07
+2026-06-21 03:14:07.602[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:14:07.602[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:14:07.603[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:14:37.460[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:14:37.460[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:15:07.459[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:15:07.459[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:15:07.822[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:15:07.822[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:15:37.457[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:15:37.457[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:16:07.456[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:16:07.456[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:16:37.454[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:16:37.455[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:17:07.452[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:17:07.453[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:17:07.816[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:17:07.817[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:17:37.451[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:17:37.451[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:18:07.449[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:18:07.450[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:18:37.449[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:18:37.449[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:19:07.448[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:19:07.448[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:19:07.461[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:19:07.586[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:19:07.587[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:19:07
+2026-06-21 03:19:07.587[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:19:07.588[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:19:07.588[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:19:07.813[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:19:07.814[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:19:37.445[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:19:37.446[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:20:07.444[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:20:07.444[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:20:37.443[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:20:37.443[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:21:07.442[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:21:07.442[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:21:07.806[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:21:07.809[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:21:37.440[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:21:37.440[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:22:07.439[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:22:07.440[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:22:37.438[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:22:37.438[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:23:07.436[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:23:07.437[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:23:07.800[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:23:07.800[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:23:37.436[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:23:37.436[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:24:07.433[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:24:07.433[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:24:07.446[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:24:07.581[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:24:07.581[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:24:07
+2026-06-21 03:24:07.582[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:24:07.582[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:24:07.583[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:24:37.432[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:24:37.433[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:25:07.431[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:25:07.431[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:25:07.795[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:25:07.796[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:25:37.430[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:25:37.430[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:26:07.429[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:26:07.429[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:26:37.428[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:26:37.428[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:27:07.426[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:27:07.427[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:27:07.790[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:27:07.790[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:27:37.425[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:27:37.425[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:28:07.423[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:28:07.423[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:28:37.422[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:28:37.422[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:29:07.422[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:29:07.422[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:29:07.436[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:29:07.560[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:29:07.561[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:29:07
+2026-06-21 03:29:07.561[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:29:07.562[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:29:07.562[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:29:07.784[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:29:07.784[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:29:37.420[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:29:37.420[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:30:07.418[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:30:07.418[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:30:37.417[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:30:37.417[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:31:07.417[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:31:07.417[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:31:07.779[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:31:07.779[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:31:37.414[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:31:37.415[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:32:07.413[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:32:07.413[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:32:37.412[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:32:37.412[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:33:07.411[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:33:07.411[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:33:07.779[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:33:07.779[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:33:37.410[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:33:37.411[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:34:07.408[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:34:07.408[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:34:07.423[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:34:07.547[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:34:07.548[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:34:07
+2026-06-21 03:34:07.548[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:34:07.549[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:34:07.549[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:34:37.407[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:34:37.407[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:35:07.406[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:35:07.406[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:35:07.773[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:35:07.773[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:35:37.405[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:35:37.405[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:36:07.403[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:36:07.404[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:36:37.402[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:36:37.402[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:37:07.401[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:37:07.401[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:37:07.768[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:37:07.768[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:37:37.401[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:37:37.402[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:38:07.399[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:38:07.399[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:38:37.398[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:38:37.398[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:39:07.396[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:39:07.397[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:39:07.409[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:39:07.535[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:39:07.535[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:39:07
+2026-06-21 03:39:07.536[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:39:07.537[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:39:07.537[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:39:07.759[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:39:07.759[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:39:37.395[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:39:37.395[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:40:07.394[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:40:07.394[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:40:37.392[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:40:37.392[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:41:07.391[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:41:07.391[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:41:07.755[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:41:07.756[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:41:37.390[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:41:37.390[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:42:07.389[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:42:07.389[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:42:37.388[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:42:37.388[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:43:07.386[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:43:07.387[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:43:07.750[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:43:07.751[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:43:37.385[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:43:37.385[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:44:07.384[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:44:07.384[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:44:07.398[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:44:07.523[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:44:07.523[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:44:07
+2026-06-21 03:44:07.524[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:44:07.524[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:44:07.525[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:44:37.383[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:44:37.383[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:45:07.382[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:45:07.382[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:45:07.747[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:45:07.748[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:45:37.380[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:45:37.380[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:46:07.379[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:46:07.379[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:46:37.378[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:46:37.378[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:47:07.376[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:47:07.377[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:47:07.739[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:47:07.743[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:47:37.375[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:47:37.375[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:48:07.374[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:48:07.375[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:48:37.374[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:48:37.374[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:49:07.372[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:49:07.372[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:49:07.386[37m [debug] [config.go:230] [0mconfiguration fetched successfully
+2026-06-21 03:49:07.510[36m [info] [manager.go:304] [0m========== Global Resource Pool Statistics ==========
+2026-06-21 03:49:07.511[36m [info] [manager.go:305] [0mtimestamp: 2026-06-21 03:49:07
+2026-06-21 03:49:07.512[36m [info] [manager.go:306] [0mpool count: 1
+2026-06-21 03:49:07.512[36m [info] [manager.go:307] [0mdetails:
+{
+  "asr:07038a557ae66a16": {
+    "available_resources": 0,
+    "in_use_resources": 0,
+    "is_closed": false,
+    "max_idle": 50,
+    "max_size": 1000,
+    "min_size": 1,
+    "total_resources": 0
+  }
+}
+2026-06-21 03:49:07.513[36m [info] [manager.go:308] [0m========================================
+2026-06-21 03:49:07.739[36m [info] [global_manage.go:537] [0mMCP server filesystem tool list has been updated, with a total of 14 tools
+2026-06-21 03:49:07.739[36m [info] [global_manage.go:537] [0mMCP server memory tool list has been updated, with a total of 9 tools
+2026-06-21 03:49:37.371[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:49:37.371[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:50:07.370[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:50:07.370[37m [debug] [websocket_client.go:153] [0mreceived pong message
+2026-06-21 03:50:37.368[37m [debug] [websocket_client.go:410] [0mSending ping message successfully
+2026-06-21 03:50:37.368[37m [debug] [websocket_client.go:153] [0mreceived pong message
